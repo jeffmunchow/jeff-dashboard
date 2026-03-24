@@ -151,6 +151,10 @@
     line-height: 1.6; min-height: 60px; transition: background 0.25s, border-color 0.25s, color 0.25s;
   }
   .notes-area textarea::placeholder { color: var(--text-hint); }
+
+  /* Softer placeholder for client modal */
+  #client-overlay input::placeholder,
+  #client-overlay textarea::placeholder { color: var(--border-strong); opacity: 1; }
   .notes-area textarea:focus { border-color: var(--border-strong); }
   .last-updated { padding: 0.5rem 1.5rem 1rem; font-size: 0.64rem; color: var(--text-hint); font-weight: 300; }
 
@@ -525,7 +529,6 @@
               <option value="Finalizado">Finalizado</option>
             </select>
           </div>
-          <button class="btn" onclick="openImportModal()">Importar contratos</button>
           <button class="btn primary" onclick="openClientModal()">+ Cliente</button>
         </div>
       </div>
@@ -1170,13 +1173,9 @@
     <h2 id="client-modal-title">Novo Cliente</h2>
     <div class="modal-2col">
 
-      <!-- Nome completo — largura total (igual a Data do contrato) -->
-      <div class="field-row" style="grid-column:1/-1;"><label>Nome completo</label><input type="text" id="cf-nome" placeholder="ex: Mariana & Pedro"></div>
+      <div class="field-row" style="grid-column:1/-1;"><label>Nome completo</label><input type="text" id="cf-nome" placeholder="Nome dos noivos"></div>
+      <div class="field-row" style="grid-column:1/-1;"><label>Local do casamento</label><input type="text" id="cf-local" placeholder="Local da cerimônia ou recepção"></div>
 
-      <!-- Local do casamento — largura total, abaixo do nome -->
-      <div class="field-row" style="grid-column:1/-1;"><label>Local do casamento</label><input type="text" id="cf-local" placeholder="ex: Fazenda Boa Vista, Porto Alegre"></div>
-
-      <!-- Data do casamento (esquerda) | Status (direita) -->
       <div class="field-row"><label>Data do casamento</label><input type="date" id="cf-data"></div>
       <div class="field-row"><label>Status</label>
         <select id="cf-status">
@@ -1192,27 +1191,33 @@
         </select>
       </div>
 
-      <!-- Email | Telefone -->
-      <div class="field-row"><label>Email</label><input type="text" id="cf-email" placeholder="email@email.com"></div>
-      <div class="field-row"><label>Telefone</label><input type="text" id="cf-tel" placeholder="(51) 99999-9999"></div>
+      <div class="field-row"><label>Email</label><input type="text" id="cf-email" placeholder="Email do cliente"></div>
+      <div class="field-row"><label>Telefone</label><input type="text" id="cf-tel" placeholder="Telefone com DDD"></div>
 
-      <!-- CPF | RG -->
-      <div class="field-row"><label>CPF</label><input type="text" id="cf-cpf" placeholder="ex: 000.000.000-00"></div>
-      <div class="field-row"><label>RG</label><input type="text" id="cf-rg" placeholder="ex: 1234567890"></div>
+      <div class="field-row"><label>CPF</label><input type="text" id="cf-cpf" placeholder="000.000.000-00"></div>
+      <div class="field-row"><label>RG</label><input type="text" id="cf-rg" placeholder="Número do documento"></div>
 
-      <!-- Valor total | Valor pago -->
-      <div class="field-row"><label>Valor total (R$)</label><input type="number" id="cf-valor" placeholder="ex: 8500"></div>
-      <div class="field-row"><label>Valor pago (R$)</label><input type="number" id="cf-pago" placeholder="ex: 4250"></div>
+      <div class="field-row"><label>Valor total (R$)</label><input type="number" id="cf-valor" placeholder="Valor do contrato"></div>
+      <div class="field-row"><label>Valor pago (R$)</label><input type="number" id="cf-pago" placeholder="Valor já recebido"></div>
 
-      <!-- Data do contrato — largura total -->
       <div class="field-row" style="grid-column:1/-1;"><label>Data do contrato</label><input type="date" id="cf-contrato"></div>
-
-      <!-- Notas — largura total -->
-      <div class="field-row" style="grid-column:1/-1;"><label>Notas</label><textarea id="cf-notas" rows="3" placeholder="Preferências, estilo, referências..."></textarea></div>
+      <div class="field-row" style="grid-column:1/-1;"><label>Notas</label><textarea id="cf-notas" rows="3" placeholder="Preferências, estilo, observações..."></textarea></div>
     </div>
+
+    <!-- Contrato anexado -->
+    <div id="cf-anexo-info" style="display:none;font-size:0.72rem;color:var(--text-hint);padding:6px 0 0;"></div>
+    <input type="file" id="cf-anexo-input" accept=".docx" style="display:none" onchange="handleAnexoContrato(this)">
+
     <div class="modal-actions">
       <button class="btn" id="client-delete-btn" style="display:none;color:var(--coral);" onclick="deleteClient()">Excluir</button>
-      <button class="btn" id="client-contract-btn" onclick="gerarContrato()">Gerar contrato</button>
+      <button class="btn" onclick="gerarContrato()">Gerar contrato</button>
+      <button class="btn" onclick="document.getElementById('cf-anexo-input').click()">Anexar contrato</button>
+      <button class="btn" id="cf-download-btn" style="display:none;padding:6px 10px;" onclick="downloadContratoAnexado()" title="Baixar contrato anexado">
+        <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6.5 1v8M3.5 6.5l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1.5 11h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </button>
       <div style="flex:1;"></div>
       <button class="btn" onclick="closeClientModal()">Cancelar</button>
       <button class="btn primary" onclick="saveClient()">Salvar</button>
@@ -1838,6 +1843,7 @@ function openClientModal(id) {
     document.getElementById('cf-contrato').value = c.contrato||'';
     document.getElementById('cf-notas').value    = c.notas||'';
     document.getElementById('client-delete-btn').style.display = 'inline-flex';
+    _loadAnexoForClient(c);
   } else {
     document.getElementById('client-modal-title').textContent = 'Novo Cliente';
     ['cf-nome','cf-email','cf-tel','cf-cpf','cf-rg','cf-data','cf-local','cf-valor','cf-pago','cf-contrato','cf-notas'].forEach(function(id){
@@ -1845,12 +1851,78 @@ function openClientModal(id) {
     });
     document.getElementById('cf-status').value = 'Prospect';
     document.getElementById('client-delete-btn').style.display = 'none';
+    _loadAnexoForClient({});
   }
   document.getElementById('client-overlay').classList.add('open');
 }
 function closeClientModal() { document.getElementById('client-overlay').classList.remove('open'); }
 
-function gerarContrato() {
+/* ── ANEXO DE CONTRATO ──────────────────────────────────── */
+var _anexoData = null;   // { name, docxBase64 }
+
+function handleAnexoContrato(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var base64 = e.target.result.split(',')[1];
+    _anexoData = { name: file.name, docxBase64: base64 };
+    // Show info and enable download button
+    var info = document.getElementById('cf-anexo-info');
+    info.style.display = 'block';
+    info.textContent = '📎 ' + file.name + ' anexado';
+    document.getElementById('cf-download-btn').style.display = 'inline-flex';
+  };
+  reader.readAsDataURL(file);
+  // Reset input so same file can be re-selected
+  input.value = '';
+}
+
+function downloadContratoAnexado() {
+  if (!_anexoData) { alert('Nenhum contrato anexado.'); return; }
+
+  // Download DOCX
+  var docxBytes = Uint8Array.from(atob(_anexoData.docxBase64), function(c){ return c.charCodeAt(0); });
+  var docxBlob = new Blob([docxBytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  var docxUrl = URL.createObjectURL(docxBlob);
+  var a = document.createElement('a');
+  a.href = docxUrl;
+  a.download = _anexoData.name.replace('.docx','') + '.docx';
+  a.click();
+  URL.revokeObjectURL(docxUrl);
+
+  // Download PDF via print dialog in new window
+  setTimeout(function() {
+    var pdfWin = window.open('', '_blank');
+    pdfWin.document.write(
+      '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+_anexoData.name+'</title>'+
+      '<style>body{font-family:Georgia,serif;padding:60px;color:#1A1814;line-height:1.8;}'+
+      '@media print{@page{margin:2cm}}</style></head>'+
+      '<body><p style="text-align:center;color:#888;font-size:0.8rem;">Pressione Cmd+P para salvar como PDF</p>'+
+      '<hr style="margin:20px 0;border:none;border-top:1px solid #eee;">'+
+      '<p>Arquivo: <strong>'+_anexoData.name+'</strong></p>'+
+      '<p>Para converter em PDF, use a opção "Imprimir" do seu sistema (Cmd+P) e escolha "Salvar como PDF".</p>'+
+      '<script>setTimeout(function(){window.print();},500);<\/script>'+
+      '</body></html>'
+    );
+    pdfWin.document.close();
+  }, 400);
+}
+
+function _loadAnexoForClient(client) {
+  _anexoData = client.anexo || null;
+  var info = document.getElementById('cf-anexo-info');
+  var btn  = document.getElementById('cf-download-btn');
+  if (_anexoData) {
+    info.style.display = 'block';
+    info.textContent = '📎 ' + _anexoData.name;
+    btn.style.display = 'inline-flex';
+  } else {
+    info.style.display = 'none';
+    btn.style.display = 'none';
+  }
+}
+
   var nome     = document.getElementById('cf-nome').value.trim()  || '_______________';
   var email    = document.getElementById('cf-email').value.trim() || '_______________';
   var tel      = document.getElementById('cf-tel').value.trim()   || '_______________';
@@ -1937,6 +2009,7 @@ function gerarContrato() {
 }
 function saveClient() {
   var clients = getClients();
+  var existing = editingClientId ? clients.find(function(c){ return c.id===editingClientId; }) : null;
   var obj = {
     id: editingClientId || uid(),
     nome:          document.getElementById('cf-nome').value.trim(),
@@ -1950,7 +2023,9 @@ function saveClient() {
     valor:         parseFloat(document.getElementById('cf-valor').value)||0,
     pago:          parseFloat(document.getElementById('cf-pago').value)||0,
     contrato:      document.getElementById('cf-contrato').value,
-    notas:         document.getElementById('cf-notas').value.trim()
+    notas:         document.getElementById('cf-notas').value.trim(),
+    // Preserve existing anexo if no new one was attached; use new one if available
+    anexo:         _anexoData || (existing ? existing.anexo : null)
   };
   if (!obj.nome) { alert('Informe o nome do cliente.'); return; }
   if (editingClientId) {
