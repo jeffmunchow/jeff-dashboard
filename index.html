@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jeff — Dashboard</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Dashboard">
+<meta name="theme-color" content="#F7F4EF">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1272,7 +1278,77 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+/* ═══════════════════════════════════════════════════════════
+   SUPABASE CONFIG
+═══════════════════════════════════════════════════════════ */
+const SUPA_URL = 'https://ezesphldsxwjebidsrpb.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6ZXNwaGxkc3h3amViaWRzcnBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNDAyNjIsImV4cCI6MjA4OTkxNjI2Mn0.DPsXW2yf1Yr6WX-N1TA3Qa6ka2e85lmdOFHKM0t5Qzk';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+/* ── Generic DB helpers ─────────────────────────────────── */
+async function dbLoad(table) {
+  try {
+    const { data, error } = await sb.from(table).select('id, data');
+    if (error) throw error;
+    return (data || []).map(function(r) {
+      return Object.assign({ id: r.id }, r.data);
+    });
+  } catch(e) {
+    console.warn('dbLoad error', table, e.message);
+    // fallback to localStorage
+    try { return JSON.parse(localStorage.getItem(table) || '[]'); } catch(_){ return []; }
+  }
+}
+
+async function dbSaveList(table, list) {
+  try {
+    // upsert all items
+    const rows = list.map(function(item) {
+      const d = Object.assign({}, item);
+      delete d.id;
+      return { id: item.id, data: d, updated_at: new Date().toISOString() };
+    });
+    if (rows.length > 0) {
+      const { error } = await sb.from(table).upsert(rows);
+      if (error) throw error;
+    }
+    // delete items no longer in list
+    const { data: existing } = await sb.from(table).select('id');
+    if (existing && existing.length > 0) {
+      const currentIds = list.map(function(i){ return i.id; });
+      const toDelete = existing.filter(function(r){ return !currentIds.includes(r.id); }).map(function(r){ return r.id; });
+      if (toDelete.length > 0) {
+        await sb.from(table).delete().in('id', toDelete);
+      }
+    }
+    // mirror to localStorage as backup
+    localStorage.setItem(table, JSON.stringify(list));
+  } catch(e) {
+    console.warn('dbSaveList error', table, e.message);
+    localStorage.setItem(table, JSON.stringify(list));
+  }
+}
+
+async function dbMetricSave(key, value) {
+  try {
+    await sb.from('dashboard_metrics').upsert({ key: key, value: String(value), updated_at: new Date().toISOString() });
+    localStorage.setItem('dash_' + key, value);
+  } catch(e) {
+    localStorage.setItem('dash_' + key, value);
+  }
+}
+
+async function dbMetricLoad(key) {
+  try {
+    const { data } = await sb.from('dashboard_metrics').select('value').eq('key', key).single();
+    return data ? data.value : null;
+  } catch(e) {
+    return localStorage.getItem('dash_' + key);
+  }
+}
+
 var PROJECTS = {
   munchow: { title: 'Münchow', suffix: 'm', fields: [
     { id: 'm-faturamento', label: 'Faturamento mensal (R$)', placeholder: 'ex: 18.500' },
@@ -1515,7 +1591,7 @@ function showMainDashboard() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   STUDIO DATA LAYER — localStorage
+   STUDIO DATA LAYER — Supabase
 ═══════════════════════════════════════════════════════════ */
 function studioLoad(key) {
   try { return JSON.parse(localStorage.getItem('studio_' + key) || 'null'); } catch(e){ return null; }
@@ -1530,11 +1606,11 @@ function getPends()      { return studioLoad('pends')    || []; }
 function getFinEntries() { return studioLoad('fin')      || []; }
 function getTodos()      { return studioLoad('todos')    || []; }
 
-function saveClients(d)    { studioSave('clients', d); }
-function saveEvents(d)     { studioSave('events',  d); }
-function savePends(d)      { studioSave('pends',   d); }
-function saveFinEntries(d) { studioSave('fin',     d); }
-function saveTodos(d)      { studioSave('todos',   d); }
+function saveClients(d)    { studioSave('clients', d); dbSaveList('studio_clients', d); }
+function saveEvents(d)     { studioSave('events',  d); dbSaveList('studio_events',  d); }
+function savePends(d)      { studioSave('pends',   d); dbSaveList('studio_pends',   d); }
+function saveFinEntries(d) { studioSave('fin',     d); dbSaveList('studio_fin',     d); }
+function saveTodos(d)      { studioSave('todos',   d); dbSaveList('studio_todos',   d); }
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
@@ -2129,6 +2205,46 @@ function deleteTodo(id) {
   if (el) el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('open'); });
 });
 
+async function loadFromSupabase() {
+  // Load all collections from Supabase into localStorage cache
+  var tables = [
+    ['studio_clients','studio_clients'],['studio_events','studio_events'],
+    ['studio_pends','studio_pends'],['studio_fin','studio_fin'],
+    ['studio_todos','studio_todos'],['studio_custos','studio_custos'],
+    ['studio_packages','studio_packages'],
+    ['soup_membros','soup_membros'],['soup_viagens','soup_viagens'],
+    ['soup_milhas','soup_milhas'],['soup_fin','soup_fin'],['soup_todos','soup_todos'],
+    ['releio_livros','releio_livros'],['releio_publicacoes','releio_publicacoes'],
+    ['releio_substack','releio_substack'],['releio_todos','releio_todos']
+  ];
+  for (var i = 0; i < tables.length; i++) {
+    var tbl = tables[i][0];
+    var lsKey = tables[i][1];
+    try {
+      var list = await dbLoad(tbl);
+      if (list && list.length > 0) {
+        // map back to studio_/soup_/releio_ localStorage keys
+        var parts = tbl.split('_');
+        var prefix = parts[0]; // studio, soup, releio
+        var suffix = parts.slice(1).join('_');
+        localStorage.setItem(prefix + '_' + suffix, JSON.stringify(list));
+      }
+    } catch(e) { /* keep localStorage version */ }
+  }
+  // Load dashboard metrics
+  var metricIds = ['m-faturamento','m-casamentos','m-seguidores',
+                   's-faturamento','s-clientes','s-seguidores','s-milhas',
+                   'r-seguidores','r-livros','r-assinantes',
+                   'm-updated','s-updated','r-updated'];
+  for (var j = 0; j < metricIds.length; j++) {
+    var key = metricIds[j];
+    try {
+      var val = await dbMetricLoad(key);
+      if (val) localStorage.setItem('dash_' + key, val);
+    } catch(e) {}
+  }
+}
+
 function init() {
   var saved = localStorage.getItem('dash_theme');
   if (saved) document.documentElement.setAttribute('data-theme', saved);
@@ -2155,7 +2271,10 @@ function init() {
 
 function saveNote(id) {
   var el = document.getElementById(id);
-  if (el) localStorage.setItem('dash_' + id, el.value);
+  if (el) {
+    localStorage.setItem('dash_' + id, el.value);
+    dbMetricSave(id, el.value);
+  }
 }
 
 function openEdit(proj) {
@@ -2186,6 +2305,7 @@ function saveEdit() {
     var el = document.getElementById(f.id);
     if (el) el.textContent = val;
     localStorage.setItem('dash_' + f.id, val);
+    dbMetricSave(f.id, val);
   });
   var now = new Date();
   var ts = 'Atualizado em ' + now.toLocaleDateString('pt-BR') + ' às ' +
@@ -2193,6 +2313,7 @@ function saveEdit() {
   var updEl = document.getElementById(p.suffix + '-updated');
   if (updEl) updEl.textContent = ts;
   localStorage.setItem('dash_' + p.suffix + '-updated', ts);
+  dbMetricSave(p.suffix + '-updated', ts);
   closeEdit();
 }
 
@@ -2350,8 +2471,8 @@ function renderDashboardNextEvents() {
 ═══════════════════════════════════════════════════════════ */
 function getCustos()   { return studioLoad('custos')  || []; }
 function getPkgs()     { return studioLoad('packages')|| []; }
-function saveCustos(d) { studioSave('custos', d); }
-function savePkgs(d)   { studioSave('packages', d); }
+function saveCustos(d) { studioSave('custos', d);   dbSaveList('studio_custos',   d); }
+function savePkgs(d)   { studioSave('packages', d); dbSaveList('studio_packages', d); }
 
 function renderCustos() {
   var custos = getCustos();
@@ -2566,11 +2687,11 @@ function getSoupViagens()   { return soupLoad('viagens')  ||[]; }
 function getSoupMilhas()    { return soupLoad('milhas')   ||[]; }
 function getSoupFin()       { return soupLoad('fin')      ||[]; }
 function getSoupTodos()     { return soupLoad('todos')    ||[]; }
-function saveSoupMembros(d) { soupSave('membros',d); }
-function saveSoupViagens(d) { soupSave('viagens',d); }
-function saveSoupMilhas(d)  { soupSave('milhas',d); }
-function saveSoupFin(d)     { soupSave('fin',d); }
-function saveSoupTodos(d)   { soupSave('todos',d); }
+function saveSoupMembros(d) { soupSave('membros',d); dbSaveList('soup_membros', d); }
+function saveSoupViagens(d) { soupSave('viagens',d); dbSaveList('soup_viagens', d); }
+function saveSoupMilhas(d)  { soupSave('milhas',d);  dbSaveList('soup_milhas',  d); }
+function saveSoupFin(d)     { soupSave('fin',d);     dbSaveList('soup_fin',     d); }
+function saveSoupTodos(d)   { soupSave('todos',d);   dbSaveList('soup_todos',   d); }
 function soupMemberName(id) { var m=getSoupMembros().find(function(x){return x.id===id;}); return m?m.nome:'—'; }
 
 /* SOUP TABS */
@@ -2916,10 +3037,10 @@ function getReleioLivros()       {return rlLoad('livros')||[];}
 function getReleioPublicacoes()  {return rlLoad('publicacoes')||[];}
 function getReleioSubstack()     {return rlLoad('substack')||[];}
 function getReleioTodos()        {return rlLoad('todos')||[];}
-function saveReleioLivros(d)     {rlSave('livros',d);}
-function saveReleioPublicacoes(d){rlSave('publicacoes',d);}
-function saveReleioSubstackData(d){rlSave('substack',d);}
-function saveReleioTodos(d)      {rlSave('todos',d);}
+function saveReleioLivros(d)     {rlSave('livros',d);       dbSaveList('releio_livros',      d);}
+function saveReleioPublicacoes(d){rlSave('publicacoes',d);  dbSaveList('releio_publicacoes', d);}
+function saveReleioSubstackData(d){rlSave('substack',d);    dbSaveList('releio_substack',    d);}
+function saveReleioTodos(d)      {rlSave('todos',d);        dbSaveList('releio_todos',       d);}
 function releioLivroTitle(id){var l=getReleioLivros().find(function(x){return x.id===id;});return l?l.titulo:'—';}
 
 /* RELEIO TABS */
@@ -3201,8 +3322,21 @@ toggleTheme = function() {
   buildSparklines();
 };
 
-init();
-buildSparklines();
+// Bootstrap: load from Supabase, then init
+loadFromSupabase().then(function() {
+  init();
+  buildSparklines();
+}).catch(function() {
+  init();
+  buildSparklines();
+});
+
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js');
+  });
+}
 </script>
 </body>
 </html>
