@@ -516,9 +516,11 @@
               <option value="">Todos os status</option>
               <option value="Prospect">Prospect</option>
               <option value="Contratado">Contratado</option>
-              <option value="Pré-produção">Pré-produção</option>
+              <option value="Sessão Pré-Casamento">Sessão Pré-Casamento</option>
+              <option value="Religioso">Religioso</option>
               <option value="Casamento">Casamento</option>
               <option value="Pós-produção">Pós-produção</option>
+              <option value="Álbum design">Álbum design</option>
               <option value="Entregue">Entregue</option>
               <option value="Finalizado">Finalizado</option>
             </select>
@@ -1167,20 +1169,45 @@
   <div class="modal" style="max-width:580px;">
     <h2 id="client-modal-title">Novo Cliente</h2>
     <div class="modal-2col">
-      <div class="field-row"><label>Nome completo</label><input type="text" id="cf-nome" placeholder="ex: Mariana & Pedro"></div>
-      <div class="field-row"><label>Email</label><input type="text" id="cf-email" placeholder="email@email.com"></div>
-      <div class="field-row"><label>Telefone</label><input type="text" id="cf-tel" placeholder="(51) 99999-9999"></div>
+
+      <!-- Nome completo — largura total (igual a Data do contrato) -->
+      <div class="field-row" style="grid-column:1/-1;"><label>Nome completo</label><input type="text" id="cf-nome" placeholder="ex: Mariana & Pedro"></div>
+
+      <!-- Local do casamento — largura total, abaixo do nome -->
+      <div class="field-row" style="grid-column:1/-1;"><label>Local do casamento</label><input type="text" id="cf-local" placeholder="ex: Fazenda Boa Vista, Porto Alegre"></div>
+
+      <!-- Data do casamento (esquerda) | Status (direita) -->
       <div class="field-row"><label>Data do casamento</label><input type="date" id="cf-data"></div>
-      <div class="field-row"><label>Local do casamento</label><input type="text" id="cf-local" placeholder="ex: Fazenda Boa Vista, Porto Alegre"></div>
       <div class="field-row"><label>Status</label>
         <select id="cf-status">
-          <option>Prospect</option><option>Contratado</option><option>Pré-produção</option>
-          <option>Casamento</option><option>Pós-produção</option><option>Entregue</option><option>Finalizado</option>
+          <option>Prospect</option>
+          <option>Contratado</option>
+          <option>Sessão Pré-Casamento</option>
+          <option>Religioso</option>
+          <option>Casamento</option>
+          <option>Pós-produção</option>
+          <option>Álbum design</option>
+          <option>Entregue</option>
+          <option>Finalizado</option>
         </select>
       </div>
+
+      <!-- Email | Telefone -->
+      <div class="field-row"><label>Email</label><input type="text" id="cf-email" placeholder="email@email.com"></div>
+      <div class="field-row"><label>Telefone</label><input type="text" id="cf-tel" placeholder="(51) 99999-9999"></div>
+
+      <!-- CPF | RG -->
+      <div class="field-row"><label>CPF</label><input type="text" id="cf-cpf" placeholder="ex: 000.000.000-00"></div>
+      <div class="field-row"><label>RG</label><input type="text" id="cf-rg" placeholder="ex: 1234567890"></div>
+
+      <!-- Valor total | Valor pago -->
       <div class="field-row"><label>Valor total (R$)</label><input type="number" id="cf-valor" placeholder="ex: 8500"></div>
       <div class="field-row"><label>Valor pago (R$)</label><input type="number" id="cf-pago" placeholder="ex: 4250"></div>
+
+      <!-- Data do contrato — largura total -->
       <div class="field-row" style="grid-column:1/-1;"><label>Data do contrato</label><input type="date" id="cf-contrato"></div>
+
+      <!-- Notas — largura total -->
       <div class="field-row" style="grid-column:1/-1;"><label>Notas</label><textarea id="cf-notas" rows="3" placeholder="Preferências, estilo, referências..."></textarea></div>
     </div>
     <div class="modal-actions">
@@ -1675,12 +1702,14 @@ function switchStudioTab(tab) {
 
 /* ─── HELPERS ────────────────────────────────────────────── */
 var STATUS_CLASS = {
-  'Prospect':'prospect','Contratado':'contratado','Pré-produção':'preprod',
-  'Casamento':'casamento','Pós-produção':'posprod','Entregue':'entregue','Finalizado':'finalizado'
+  'Prospect':'prospect','Contratado':'contratado','Sessão Pré-Casamento':'preprod',
+  'Religioso':'preprod','Casamento':'casamento','Pós-produção':'posprod',
+  'Álbum design':'posprod','Entregue':'entregue','Finalizado':'finalizado'
 };
 var STATUS_COLOR = {
-  'Prospect':'#B0ABA6','Contratado':'#C4780A','Pré-produção':'#5255A0',
-  'Casamento':'#0A7864','Pós-produção':'#C43A1A','Entregue':'#2E7D32','Finalizado':'#B0ABA6'
+  'Prospect':'#B0ABA6','Contratado':'#C4780A','Sessão Pré-Casamento':'#5255A0',
+  'Religioso':'#7B5EA7','Casamento':'#0A7864','Pós-produção':'#C43A1A',
+  'Álbum design':'#B85A00','Entregue':'#2E7D32','Finalizado':'#B0ABA6'
 };
 function statusBadge(s) {
   return '<span class="badge badge-'+(STATUS_CLASS[s]||'prospect')+'">'+s+'</span>';
@@ -1799,6 +1828,8 @@ function openClientModal(id) {
     document.getElementById('cf-nome').value     = c.nome||'';
     document.getElementById('cf-email').value    = c.email||'';
     document.getElementById('cf-tel').value      = c.tel||'';
+    document.getElementById('cf-cpf').value      = c.cpf||'';
+    document.getElementById('cf-rg').value       = c.rg||'';
     document.getElementById('cf-data').value     = c.dataCasamento||'';
     document.getElementById('cf-local').value    = c.local||'';
     document.getElementById('cf-status').value   = c.status||'Prospect';
@@ -1809,7 +1840,7 @@ function openClientModal(id) {
     document.getElementById('client-delete-btn').style.display = 'inline-flex';
   } else {
     document.getElementById('client-modal-title').textContent = 'Novo Cliente';
-    ['cf-nome','cf-email','cf-tel','cf-data','cf-local','cf-valor','cf-pago','cf-contrato','cf-notas'].forEach(function(id){
+    ['cf-nome','cf-email','cf-tel','cf-cpf','cf-rg','cf-data','cf-local','cf-valor','cf-pago','cf-contrato','cf-notas'].forEach(function(id){
       document.getElementById(id).value='';
     });
     document.getElementById('cf-status').value = 'Prospect';
@@ -1820,10 +1851,11 @@ function openClientModal(id) {
 function closeClientModal() { document.getElementById('client-overlay').classList.remove('open'); }
 
 function gerarContrato() {
-  // Collect current field values (works for both new and editing)
   var nome     = document.getElementById('cf-nome').value.trim()  || '_______________';
   var email    = document.getElementById('cf-email').value.trim() || '_______________';
   var tel      = document.getElementById('cf-tel').value.trim()   || '_______________';
+  var cpf      = document.getElementById('cf-cpf').value.trim()   || '_______________';
+  var rg       = document.getElementById('cf-rg').value.trim()    || '_______________';
   var data     = document.getElementById('cf-data').value;
   var local    = document.getElementById('cf-local').value.trim() || '_______________';
   var valor    = document.getElementById('cf-valor').value;
@@ -1867,6 +1899,10 @@ function gerarContrato() {
     '</div>'+
     '<div class="row">'+
       '<div class="field"><div class="label">Email</div><div class="value">'+email+'</div></div>'+
+      '<div class="field"><div class="label">CPF</div><div class="value">'+cpf+'</div></div>'+
+    '</div>'+
+    '<div class="row">'+
+      '<div class="field"><div class="label">RG</div><div class="value">'+rg+'</div></div>'+
     '</div>'+
 
     '<h2>Evento</h2>'+
@@ -1906,6 +1942,8 @@ function saveClient() {
     nome:          document.getElementById('cf-nome').value.trim(),
     email:         document.getElementById('cf-email').value.trim(),
     tel:           document.getElementById('cf-tel').value.trim(),
+    cpf:           document.getElementById('cf-cpf').value.trim(),
+    rg:            document.getElementById('cf-rg').value.trim(),
     dataCasamento: document.getElementById('cf-data').value,
     local:         document.getElementById('cf-local').value.trim(),
     status:        document.getElementById('cf-status').value,
