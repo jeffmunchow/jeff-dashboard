@@ -523,6 +523,7 @@
               <option value="Finalizado">Finalizado</option>
             </select>
           </div>
+          <button class="btn" onclick="openImportModal()">Importar contratos</button>
           <button class="btn primary" onclick="openClientModal()">+ Cliente</button>
         </div>
       </div>
@@ -1266,6 +1267,44 @@
   </div>
 </div>
 
+<!-- Import Contracts Modal -->
+<div class="overlay" id="import-overlay">
+  <div class="modal" style="max-width:680px;max-height:90vh;overflow-y:auto;">
+    <h2>Importar contratos</h2>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.6;">Selecione os arquivos <strong>.docx</strong> dos seus contratos. O app vai extrair os dados automaticamente e mostrar para você revisar antes de salvar.</p>
+
+    <div id="import-dropzone" onclick="document.getElementById('import-file-input').click()"
+      style="border:1.5px dashed var(--border-strong);border-radius:var(--radius);padding:2.5rem;text-align:center;cursor:pointer;margin-bottom:1.25rem;transition:background 0.15s;"
+      ondragover="event.preventDefault();this.style.background='var(--surface2)'"
+      ondragleave="this.style.background=''"
+      ondrop="handleImportDrop(event)">
+      <div style="font-size:1.5rem;margin-bottom:8px;">📄</div>
+      <div style="font-size:0.82rem;color:var(--text-muted);">Clique ou arraste os arquivos .docx aqui</div>
+      <div style="font-size:0.7rem;color:var(--text-hint);margin-top:4px;">Pode selecionar vários de uma vez</div>
+    </div>
+    <input type="file" id="import-file-input" accept=".docx" multiple style="display:none" onchange="handleImportFiles(this.files)">
+
+    <div id="import-progress" style="display:none;margin-bottom:1rem;">
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px;" id="import-progress-text">Processando...</div>
+      <div style="background:var(--surface2);border-radius:4px;height:4px;overflow:hidden;">
+        <div id="import-progress-bar" style="height:100%;background:var(--amber);width:0%;transition:width 0.2s;"></div>
+      </div>
+    </div>
+
+    <div id="import-results" style="display:none;">
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem;" id="import-results-title"></div>
+      <div style="max-height:320px;overflow-y:auto;" id="import-results-list"></div>
+    </div>
+
+    <div class="modal-actions" style="margin-top:1.5rem;">
+      <div style="font-size:0.7rem;color:var(--text-hint);" id="import-count-label"></div>
+      <div style="flex:1;"></div>
+      <button class="btn" onclick="closeImportModal()">Cancelar</button>
+      <button class="btn primary" id="import-confirm-btn" style="display:none;" onclick="confirmImport()">Salvar todos</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="overlay">
   <div class="modal">
     <h2 id="modal-title">Editar</h2>
@@ -1279,6 +1318,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════
    SUPABASE CONFIG
@@ -3331,10 +3371,241 @@ loadFromSupabase().then(function() {
   buildSparklines();
 });
 
-// Register Service Worker for PWA
+/* ═══════════════════════════════════════════════════════════
+   IMPORTADOR DE CONTRATOS
+═══════════════════════════════════════════════════════════ */
+var importedClients = [];
+
+function openImportModal() {
+  importedClients = [];
+  document.getElementById('import-progress').style.display = 'none';
+  document.getElementById('import-results').style.display = 'none';
+  document.getElementById('import-confirm-btn').style.display = 'none';
+  document.getElementById('import-count-label').textContent = '';
+  document.getElementById('import-file-input').value = '';
+  document.getElementById('import-overlay').classList.add('open');
+}
+
+function closeImportModal() {
+  document.getElementById('import-overlay').classList.remove('open');
+}
+
+function handleImportDrop(e) {
+  e.preventDefault();
+  document.getElementById('import-dropzone').style.background = '';
+  var files = e.dataTransfer.files;
+  handleImportFiles(files);
+}
+
+async function handleImportFiles(files) {
+  if (!files || !files.length) return;
+  var docxFiles = Array.from(files).filter(function(f) { return f.name.endsWith('.docx'); });
+  if (!docxFiles.length) { alert('Selecione arquivos .docx'); return; }
+
+  document.getElementById('import-progress').style.display = 'block';
+  document.getElementById('import-results').style.display = 'none';
+  document.getElementById('import-confirm-btn').style.display = 'none';
+  importedClients = [];
+
+  var total = docxFiles.length;
+  var done = 0;
+
+  for (var i = 0; i < docxFiles.length; i++) {
+    document.getElementById('import-progress-text').textContent =
+      'Processando ' + (i+1) + ' de ' + total + ': ' + docxFiles[i].name;
+    document.getElementById('import-progress-bar').style.width = Math.round((i/total)*100) + '%';
+    try {
+      var client = await extractClientFromDocx(docxFiles[i]);
+      if (client) importedClients.push(client);
+      done++;
+    } catch(e) {
+      console.warn('Erro ao processar', docxFiles[i].name, e);
+    }
+  }
+
+  document.getElementById('import-progress-bar').style.width = '100%';
+  document.getElementById('import-progress-text').textContent = 'Concluído — ' + done + ' contratos processados';
+
+  renderImportResults();
+}
+
+async function extractClientFromDocx(file) {
+  // Read docx as zip, extract document.xml text
+  var arrayBuffer = await file.arrayBuffer();
+  var zip = await JSZip.loadAsync(arrayBuffer);
+  var xmlEntry = zip.file('word/document.xml');
+  if (!xmlEntry) return null;
+  var xmlText = await xmlEntry.async('string');
+
+  // Extract plain text from XML
+  var text = xmlText
+    .replace(/<w:br[^>]*\/>/g, '\n')
+    .replace(/<w:p[ >][^>]*>/g, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  var client = { id: uid(), status: 'Finalizado', nome: '', email: '', tel: '', dataCasamento: '', local: '', valor: 0, pago: 0, contrato: '', notas: '' };
+
+  // ── Nome dos noivos ──────────────────────────────────────
+  // Formato novo: "Nome completo dos noivos: X e Y"
+  var m = text.match(/Nome completo dos noivos\s*[:\-]\s*([^\n]+)/i);
+  if (m) { client.nome = m[1].trim(); }
+  else {
+    // Formato antigo: "Nome completo do noivo: X" + "Nome completo da noiva: Y"
+    var noivo = text.match(/Nome completo do noivo\s*[:\-]\s*([^\n]+)/i);
+    var noiva = text.match(/Nome completo da noiva\s*[:\-]\s*([^\n]+)/i);
+    if (noiva && noivo) client.nome = noiva[1].trim() + ' e ' + noivo[1].trim();
+    else if (noiva) client.nome = noiva[1].trim();
+    else if (noivo) client.nome = noivo[1].trim();
+  }
+
+  // ── Data do casamento ────────────────────────────────────
+  // Formato novo: "Data do casamento: DD/MM/AAAA"
+  var dm = text.match(/Data do casamento\s*[:\-]\s*([\d]{2}\/[\d]{2}\/[\d]{4})/i);
+  if (!dm) dm = text.match(/Data\s*[:\-]\s*([\d]{2}\/[\d]{2}\/[\d]{4})/i);
+  if (!dm) {
+    // "25 de fevereiro de 2012" or similar
+    var meses = {janeiro:'01',fevereiro:'02',março:'03',abril:'04',maio:'05',junho:'06',julho:'07',agosto:'08',setembro:'09',outubro:'10',novembro:'11',dezembro:'12'};
+    var dm2 = text.match(/(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/i);
+    if (dm2) {
+      var mes = meses[dm2[2].toLowerCase()];
+      if (mes) dm = [null, ('0'+dm2[1]).slice(-2)+'/'+mes+'/'+dm2[3]];
+    }
+  }
+  if (dm) {
+    var parts = (dm[1]||dm).split('/');
+    if (parts.length === 3) client.dataCasamento = parts[2]+'-'+parts[1]+'-'+parts[0];
+  }
+
+  // ── Local ────────────────────────────────────────────────
+  var lm = text.match(/Local do casamento\s*[:\-]\s*([^\n]+)/i);
+  if (!lm) lm = text.match(/Cerim[oô]nia\s*[:\-]\s*([^\n]+)/i);
+  if (!lm) lm = text.match(/Local\s*[:\-]\s*([^\n]+)/i);
+  if (lm) client.local = lm[1].trim();
+
+  // ── Valor ────────────────────────────────────────────────
+  var vm = text.match(/Valor total do servi[cç]o\s*[:\-]\s*R\$\s*([\d.,]+)/i);
+  if (!vm) vm = text.match(/Valor\s*[:\-]\s*R\$\s*([\d.,]+)/i);
+  if (!vm) vm = text.match(/investimento[^\n]*R\$\s*([\d.,]+)/i);
+  if (!vm) {
+    // "R$10400,00" anywhere
+    var vm2 = text.match(/R\$\s*([\d]{3,6}[,.][\d]{2})/);
+    if (vm2) vm = vm2;
+  }
+  if (vm) {
+    var valStr = (vm[1]||vm[0]).replace(/\./g,'').replace(',','.');
+    client.valor = parseFloat(valStr) || 0;
+  }
+
+  // ── Email ────────────────────────────────────────────────
+  // Skip Jeff's email
+  var emails = text.match(/[\w.\-+]+@[\w.\-]+\.\w{2,}/g) || [];
+  var clientEmail = emails.find(function(e) { return !e.includes('jeffmunchow') && !e.includes('fritz'); });
+  if (clientEmail) client.email = clientEmail;
+
+  // ── Telefone ─────────────────────────────────────────────
+  // Match client phone (not Jeff's +55 53 991373131)
+  var phones = text.match(/\+?[\d\s()\-]{10,20}/g) || [];
+  var clientPhone = phones.find(function(p) {
+    var clean = p.replace(/\D/g,'');
+    return clean.length >= 10 && !clean.includes('5399137') && !clean.includes('44877');
+  });
+  if (clientPhone) client.tel = clientPhone.trim();
+
+  // ── Data do contrato ─────────────────────────────────────
+  // Try filename first: "2026-03-07-Casamento-..."
+  var fnDate = file.name.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (fnDate) client.contrato = fnDate[1]+'-'+fnDate[2]+'-'+fnDate[3];
+
+  // ── Nome fallback from filename ──────────────────────────
+  if (!client.nome) {
+    var fnName = file.name.replace(/^\d{4}-\d{2}-\d{2}-Casamento-/, '').replace('.docx','').replace(/_/g,' ').replace(/__/g,' & ');
+    client.nome = fnName;
+  }
+
+  client._filename = file.name;
+  return client;
+}
+
+function renderImportResults() {
+  var list = importedClients;
+  document.getElementById('import-results').style.display = 'block';
+  document.getElementById('import-results-title').textContent =
+    list.length + ' cliente' + (list.length !== 1 ? 's' : '') + ' encontrado' + (list.length !== 1 ? 's' : '') + ' — revise antes de salvar:';
+
+  var html = list.map(function(c, i) {
+    return '<div style="background:var(--surface2);border-radius:var(--radius-sm);padding:0.85rem 1rem;margin-bottom:6px;">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">' +
+        '<div style="font-size:0.82rem;font-weight:500;color:var(--text);">' + (c.nome||'—') + '</div>' +
+        '<div style="display:flex;gap:8px;">' +
+          '<button class="btn" style="font-size:0.68rem;padding:3px 10px;" onclick="editImportClient('+i+')">Editar</button>' +
+          '<button class="btn" style="font-size:0.68rem;padding:3px 10px;color:var(--coral);" onclick="removeImportClient('+i+')">Remover</button>' +
+        '</div>' +
+      '</div>' +
+      '<div style="font-size:0.7rem;color:var(--text-hint);margin-top:4px;display:flex;gap:16px;flex-wrap:wrap;">' +
+        (c.dataCasamento ? '<span>📅 ' + fmtDate(c.dataCasamento) + '</span>' : '') +
+        (c.local ? '<span>📍 ' + c.local + '</span>' : '') +
+        (c.valor ? '<span>💰 ' + fmtMoney(c.valor) + '</span>' : '') +
+        (c.email ? '<span>✉️ ' + c.email + '</span>' : '') +
+      '</div>' +
+      '<div style="font-size:0.64rem;color:var(--text-hint);margin-top:2px;opacity:0.6;">' + c._filename + '</div>' +
+    '</div>';
+  }).join('');
+
+  if (!html) html = '<div style="font-size:0.78rem;color:var(--text-hint);padding:1rem;">Nenhum cliente extraído.</div>';
+  document.getElementById('import-results-list').innerHTML = html;
+
+  var existing = getClients().map(function(c){ return c.nome.toLowerCase().trim(); });
+  var newCount = list.filter(function(c){ return !existing.includes(c.nome.toLowerCase().trim()); }).length;
+  var dupCount = list.length - newCount;
+
+  document.getElementById('import-count-label').textContent =
+    newCount + ' novos' + (dupCount > 0 ? ', ' + dupCount + ' já existentes (serão ignorados)' : '');
+  document.getElementById('import-confirm-btn').style.display = list.length > 0 ? 'inline-flex' : 'none';
+}
+
+function editImportClient(i) {
+  var c = importedClients[i];
+  var nome = prompt('Nome:', c.nome||'');
+  if (nome === null) return;
+  var local = prompt('Local:', c.local||'');
+  var valor = prompt('Valor total (R$):', c.valor||'');
+  importedClients[i].nome = nome;
+  importedClients[i].local = local||'';
+  importedClients[i].valor = parseFloat(valor)||0;
+  renderImportResults();
+}
+
+function removeImportClient(i) {
+  importedClients.splice(i, 1);
+  renderImportResults();
+}
+
+function confirmImport() {
+  var existing = getClients();
+  var existingNames = existing.map(function(c){ return c.nome.toLowerCase().trim(); });
+  var toAdd = importedClients.filter(function(c){ return !existingNames.includes(c.nome.toLowerCase().trim()); });
+
+  toAdd.forEach(function(c) { delete c._filename; });
+  var updated = existing.concat(toAdd);
+  saveClients(updated);
+  closeImportModal();
+  renderClientes();
+  renderResumo();
+  alert(toAdd.length + ' cliente' + (toAdd.length !== 1 ? 's' : '') + ' importado' + (toAdd.length !== 1 ? 's' : '') + ' com sucesso!');
+}
+
+document.getElementById('import-overlay').addEventListener('click', function(e) {
+  if (e.target.id === 'import-overlay') closeImportModal();
+});
+
+// Desregistra qualquer service worker antigo para garantir atualizações automáticas
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw.js');
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    regs.forEach(function(r) { r.unregister(); });
   });
 }
 </script>
