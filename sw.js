@@ -1,31 +1,49 @@
-// Network-first: sempre busca versão nova, usa cache só se offline
+// Cache com timestamp único — muda a cada deploy, força atualização automática
+const CACHE = 'jeff-v20260324190250';
+
 self.addEventListener('install', function(e) {
-  self.skipWaiting(); // ativa imediatamente, sem esperar aba fechar
+  e.waitUntil(
+    caches.open(CACHE).then(function(cache) {
+      return cache.add('/');
+    })
+  );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', function(e) {
+  // Remove todos os caches antigos
   e.waitUntil(
     caches.keys().then(function(keys) {
-      return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+      return Promise.all(
+        keys.filter(function(k) { return k !== CACHE; })
+            .map(function(k) { return caches.delete(k); })
+      );
     }).then(function() {
-      return self.clients.claim(); // assume controle de todas as abas abertas
+      return self.clients.claim();
     })
   );
 });
 
 self.addEventListener('fetch', function(e) {
-  // Sempre tenta buscar da rede primeiro
   e.respondWith(
-    fetch(e.request).then(function(response) {
-      // Salva cópia fresca no cache para uso offline
-      var clone = response.clone();
-      caches.open('jeff-v' + Date.now()).then(function(cache) {
-        cache.put(e.request, clone);
-      });
+    // Rede primeiro — sempre tenta pegar versão mais recente
+    fetch(e.request.clone()).then(function(response) {
+      // Salva cópia no cache para uso offline
+      if (response.status === 200) {
+        var clone = response.clone();
+        caches.open(CACHE).then(function(cache) {
+          cache.put(e.request, clone);
+        });
+      }
       return response;
     }).catch(function() {
-      // Só usa cache se estiver offline
-      return caches.match(e.request);
+      // Sem internet: usa o que estava no cache
+      return caches.match(e.request).then(function(cached) {
+        return cached || new Response('Sem conexão. Abra o app quando tiver internet para carregar.', {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+        });
+      });
     })
   );
 });

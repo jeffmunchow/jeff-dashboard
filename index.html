@@ -3602,10 +3602,13 @@ document.getElementById('import-overlay').addEventListener('click', function(e) 
   if (e.target.id === 'import-overlay') closeImportModal();
 });
 
-// Desregistra qualquer service worker antigo para garantir atualizações automáticas
+// Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(function(regs) {
-    regs.forEach(function(r) { r.unregister(); });
+    regs.forEach(function(r) { r.unregister(); }); // limpa versões antigas
+  });
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js');
   });
 }
 </script>
