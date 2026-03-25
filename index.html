@@ -45,25 +45,26 @@
     display: flex; flex-direction: column; align-items: center;
     padding: 14px 0; z-index: 100; transition: background 0.25s, border-color 0.25s;
   }
-  .sidebar-home {
+  .sidebar-top { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-bottom: 2px; }
+  .sidebar-btn {
     display: flex; align-items: center; justify-content: center;
     width: 30px; height: 30px; border-radius: 8px; border: none;
     background: transparent; color: var(--text-muted); cursor: pointer;
     transition: background 0.15s, color 0.15s;
   }
+  .sidebar-btn:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-btn.active { color: var(--amber); }
+  /* Keep old class names working */
+  .sidebar-home { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
   .sidebar-home:hover { background: var(--surface2); color: var(--text); }
-  .sidebar-diary {
-    display: flex; align-items: center; justify-content: center;
-    width: 30px; height: 30px; border-radius: 8px; border: none;
-    background: transparent; color: var(--text-muted); cursor: pointer;
-    transition: background 0.15s, color 0.15s; margin-top: 8px;
-  }
+  .sidebar-diary { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
   .sidebar-diary:hover { background: var(--surface2); color: var(--text); }
   .sidebar-diary.active { color: var(--amber); }
 
   /* Diary view */
   .diary-view { display: none; min-height: 100vh; }
-  .diary-container { max-width: 720px; margin: 0 auto; padding: 2.5rem 2rem; }
+  .diary-container { max-width: 720px; margin: 0 auto; padding: 2.5rem 1.25rem; }
   .diary-date { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 400; letter-spacing: -0.01em; color: var(--text); margin-bottom: 4px; }
   .diary-location { font-size: 0.75rem; color: var(--text-hint); font-weight: 300; margin-bottom: 2rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: color 0.15s; }
   .diary-location:hover { color: var(--text-muted); }
@@ -78,6 +79,7 @@
   .diary-editor {
     width: 100%; min-height: calc(100vh - 260px);
     font-family: 'Playfair Display', serif; font-size: 16px; line-height: 1.875;
+    font-weight: 300;
     color: var(--text); background: transparent; outline: none;
     letter-spacing: 0.01em; word-break: break-word; cursor: text;
   }
@@ -85,11 +87,19 @@
     content: 'Escreva livremente...';
     color: var(--text-hint); font-style: italic; pointer-events: none;
   }
-  .diary-editor p { margin: 0; padding: 0; line-height: 1.875; }
-  .diary-editor p + p { margin-top: 1.4em; }
-  .diary-editor div { margin: 0; padding: 0; line-height: 1.875; }
-  .diary-editor div + div { margin-top: 1.4em; }
-  .diary-editor br { display: block; margin-top: 1.4em; content: ''; }
+  .diary-editor p { margin: 0; padding: 0; line-height: 1.875; font-weight: 300; }
+  .diary-editor p + p { margin-top: 0.6em; }
+  .diary-editor div { margin: 0; padding: 0; line-height: 1.875; font-weight: 300; }
+  .diary-editor div + div { margin-top: 0.6em; }
+  .diary-editor br { display: block; margin-top: 0.6em; content: ''; }
+
+  /* Notes modal (sidebar bottom icon) */
+  .notes-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; display: none; align-items: flex-end; justify-content: flex-start; padding: 0 0 24px 56px; }
+  .notes-modal-overlay.open { display: flex; }
+  .notes-modal { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); width: 340px; padding: 1.25rem; box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+  .notes-modal-title { font-size: 0.65rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+  .notes-modal-textarea { width: 100%; min-height: 180px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; line-height: 1.6; color: var(--text); background: var(--surface2); border: none; outline: none; resize: none; border-radius: var(--radius-sm); padding: 0.75rem; }
+  .notes-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 0.75rem; }
   .diary-divider { height: 0.5px; background: var(--border); margin: 2rem 0; }
   .diary-history { padding: 0 2rem 3rem; max-width: 720px; margin: 0 auto; }
   .diary-history-title { font-size: 0.65rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
@@ -567,24 +577,25 @@
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <div id="diario-view" class="diary-view">
   <div class="sidebar">
-    <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
-      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
-    </button>
-    <button class="sidebar-diary active" onclick="showDiaryView()" title="Diário">
-      <svg width="14" height="15" viewBox="0 0 14 15" fill="none">
-        <rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
-        <path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
-        <rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/>
-      </svg>
-    </button>
-    <button class="sidebar-diary" id="diary-archive-btn" onclick="toggleDiaryArchive()" title="Entradas anteriores">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <rect x="1" y="4" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/>
-        <path d="M1 6h12" stroke="currentColor" stroke-width="1"/>
-        <rect x="3" y="1" width="3" height="3" rx="0.5" stroke="currentColor" stroke-width="1"/>
-        <rect x="8" y="1" width="3" height="3" rx="0.5" stroke="currentColor" stroke-width="1"/>
-      </svg>
-    </button>
+    <div class="sidebar-top">
+      <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
+      </button>
+      <button class="sidebar-diary active" onclick="showDiaryView()" title="Diário">
+        <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/></svg>
+      </button>
+      <button class="sidebar-btn" id="diary-archive-btn" onclick="toggleDiaryArchive()" title="Entradas anteriores">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M1 6h12" stroke="currentColor" stroke-width="1"/><rect x="3" y="1" width="3" height="3" rx="0.5" stroke="currentColor" stroke-width="1"/><rect x="8" y="1" width="3" height="3" rx="0.5" stroke="currentColor" stroke-width="1"/></svg>
+      </button>
+      <button class="sidebar-btn" onclick="" title="Tarefas" style="opacity:0.4;cursor:default;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 5h6M4 7.5h6M4 10h3.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+      </button>
+    </div>
   </div>
 
   <!-- Archive panel -->
@@ -634,12 +645,22 @@
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <div id="studio-view">
   <div class="sidebar">
+    <div class="sidebar-top">
     <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
     </button>
-  <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
-    <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/></svg>
-  </button>
+    <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
+      <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/></svg>
+    </button>
+    <button class="sidebar-btn" onclick="" title="Tarefas" style="opacity:0.4;cursor:default;">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 5h6M4 7.5h6M4 10h3.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="sidebar-bottom">
+    <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    </button>
+  </div>
   </div>
 
   <!-- Header Studio -->
@@ -865,12 +886,22 @@
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <div id="soup-view" style="display:none; min-height:100vh;">
   <div class="sidebar">
+    <div class="sidebar-top">
     <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
     </button>
-  <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
-    <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/></svg>
-  </button>
+    <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
+      <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/></svg>
+    </button>
+    <button class="sidebar-btn" onclick="" title="Tarefas" style="opacity:0.4;cursor:default;">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 5h6M4 7.5h6M4 10h3.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="sidebar-bottom">
+    <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    </button>
+  </div>
   </div>
   <div class="header">
     <div class="header-left">
@@ -1026,12 +1057,22 @@
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <div id="releio-view" style="display:none; min-height:100vh;">
   <div class="sidebar">
+    <div class="sidebar-top">
     <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
     </button>
-  <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
-    <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/></svg>
-  </button>
+    <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
+      <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/></svg>
+    </button>
+    <button class="sidebar-btn" onclick="" title="Tarefas" style="opacity:0.4;cursor:default;">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 5h6M4 7.5h6M4 10h3.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="sidebar-bottom">
+    <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    </button>
+  </div>
   </div>
   <div class="header">
     <div class="header-left">
@@ -1052,6 +1093,7 @@
     <button class="studio-tab"        id="rltab-livros"     onclick="switchReleioTab('livros')">Livros</button>
     <button class="studio-tab"        id="rltab-publicacoes" onclick="switchReleioTab('publicacoes')">Publicações</button>
     <button class="studio-tab"        id="rltab-substack"   onclick="switchReleioTab('substack')">Substack</button>
+    <button class="studio-tab"        id="rltab-tarefas"    onclick="switchReleioTab('tarefas')">Tarefas</button>
 
   </div>
 
@@ -1137,11 +1179,61 @@
       </div></div>
     </div>
 
+    <!-- TAREFAS -->
+    <div class="tab-panel" id="rlpanel-tarefas">
+      <div class="section-header">
+        <div class="section-title">Tarefas</div>
+        <div class="section-actions">
+          <button class="btn primary" onclick="openReleioTarefaModal()">+ Tarefa</button>
+        </div>
+      </div>
+      <div class="table-wrap"><div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Tarefa</th><th>Data</th><th>Projeto</th><th></th></tr></thead>
+          <tbody id="rl-tarefas-tbody"></tbody>
+        </table>
+      </div></div>
+    </div>
 
   </div>
 </div>
 
-<!-- ── CUSTOS MODALS ─────────────────────────────────────────────── -->
+<!-- Notes modal -->
+<div class="notes-modal-overlay" id="notes-modal-overlay" onclick="if(event.target===this)toggleNotesModal()">
+  <div class="notes-modal">
+    <div class="notes-modal-title">Atualizações do sistema</div>
+    <textarea class="notes-modal-textarea" id="notes-modal-text" placeholder="Escreva aqui as atualizações que quer fazer no sistema..."></textarea>
+    <div class="notes-modal-actions">
+      <button class="btn" onclick="copyNotesText()">Copiar</button>
+      <button class="btn" onclick="toggleNotesModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tarefa modal (re.leio) -->
+<div class="overlay" id="rl-tarefa-overlay">
+  <div class="modal" style="max-width:480px;">
+    <h2 id="rl-tarefa-modal-title">Nova tarefa</h2>
+    <div class="modal-2col">
+      <div class="field-row" style="grid-column:1/-1"><label>Tarefa</label><input type="text" id="rltf-tarefa" placeholder="Descrição da tarefa"></div>
+      <div class="field-row"><label>Data</label><input type="date" id="rltf-data"></div>
+      <div class="field-row"><label>Projeto</label>
+        <select id="rltf-projeto">
+          <option value="re.leio">re.leio</option>
+          <option value="Münchow">Münchow</option>
+          <option value="Soup">Soup</option>
+          <option value="Pessoal">Pessoal</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="rltf-delete-btn" style="display:none;color:var(--coral);" onclick="deleteReleioTarefa()">Excluir</button>
+      <div style="flex:1"></div>
+      <button class="btn" onclick="document.getElementById('rl-tarefa-overlay').classList.remove('open')">Cancelar</button>
+      <button class="btn primary" onclick="saveReleioTarefa()">Salvar</button>
+    </div>
+  </div>
+</div> ─────────────────────────────────────────────── -->
 <div class="overlay" id="custo-overlay">
   <div class="modal" style="max-width:520px;">
     <h2 id="custo-modal-title">Novo custo</h2>
@@ -3370,7 +3462,7 @@ function releioLivroTitle(id){var l=getReleioLivros().find(function(x){return x.
 var currentReleioTab='resumo';
 function switchReleioTab(tab){
   currentReleioTab=tab;
-  ['resumo','livros','publicacoes','substack'].forEach(function(t){
+  ['resumo','livros','publicacoes','substack','tarefas'].forEach(function(t){
     var btn=document.getElementById('rltab-'+t);var pan=document.getElementById('rlpanel-'+t);
     if(btn)btn.classList.toggle('active',t===tab);if(pan)pan.classList.toggle('active',t===tab);
   });
@@ -3378,6 +3470,7 @@ function switchReleioTab(tab){
   if(tab==='livros')      renderReleioLivros();
   if(tab==='publicacoes') renderReleioPublicacoes();
   if(tab==='substack')    renderReleioSubstackTab();
+  if(tab==='tarefas')     renderReleioTarefas();
 }
 
 /* RELEIO RESUMO */
@@ -3882,6 +3975,103 @@ function openDiaryEntry(key) {
 document.getElementById('diary-entry-overlay').addEventListener('click', function(e) {
   if (e.target.id === 'diary-entry-overlay') e.target.classList.remove('open');
 });
+
+/* ── NOTES MODAL (sidebar) ───────────────────────────────── */
+function toggleNotesModal() {
+  var el = document.getElementById('notes-modal-overlay');
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) {
+    var saved = localStorage.getItem('sys_notes') || '';
+    document.getElementById('notes-modal-text').value = saved;
+    document.getElementById('notes-modal-text').focus();
+  } else {
+    localStorage.setItem('sys_notes', document.getElementById('notes-modal-text').value);
+  }
+}
+function copyNotesText() {
+  var txt = document.getElementById('notes-modal-text').value;
+  localStorage.setItem('sys_notes', txt);
+  navigator.clipboard.writeText(txt).then(function() {
+    var btn = event.target;
+    btn.textContent = 'Copiado!';
+    setTimeout(function(){ btn.textContent = 'Copiar'; }, 1500);
+  });
+}
+document.getElementById('notes-modal-text') && document.getElementById('notes-modal-text').addEventListener('input', function() {
+  localStorage.setItem('sys_notes', this.value);
+});
+
+/* ── TAREFAS (re.leio) ───────────────────────────────────── */
+function getReleioTarefas() {
+  try { return JSON.parse(localStorage.getItem('releio_tarefas') || '[]'); } catch(e) { return []; }
+}
+function saveReleioTarefas(d) {
+  localStorage.setItem('releio_tarefas', JSON.stringify(d));
+  dbSaveList('releio_tarefas', d);
+}
+
+var editingReleioTarefaId = null;
+function openReleioTarefaModal(id) {
+  editingReleioTarefaId = id || null;
+  if (id) {
+    var t = getReleioTarefas().find(function(x){ return x.id===id; });
+    if (!t) return;
+    document.getElementById('rl-tarefa-modal-title').textContent = 'Editar tarefa';
+    document.getElementById('rltf-tarefa').value  = t.tarefa || '';
+    document.getElementById('rltf-data').value    = t.data || '';
+    document.getElementById('rltf-projeto').value = t.projeto || 're.leio';
+    document.getElementById('rltf-delete-btn').style.display = 'inline-flex';
+  } else {
+    document.getElementById('rl-tarefa-modal-title').textContent = 'Nova tarefa';
+    document.getElementById('rltf-tarefa').value  = '';
+    document.getElementById('rltf-data').value    = '';
+    document.getElementById('rltf-projeto').value = 're.leio';
+    document.getElementById('rltf-delete-btn').style.display = 'none';
+  }
+  document.getElementById('rl-tarefa-overlay').classList.add('open');
+}
+function saveReleioTarefa() {
+  var tarefa = document.getElementById('rltf-tarefa').value.trim();
+  if (!tarefa) { alert('Informe a tarefa.'); return; }
+  var obj = {
+    id:      editingReleioTarefaId || uid(),
+    tarefa:  tarefa,
+    data:    document.getElementById('rltf-data').value,
+    projeto: document.getElementById('rltf-projeto').value
+  };
+  var list = getReleioTarefas();
+  if (editingReleioTarefaId) {
+    var idx = list.findIndex(function(x){ return x.id===editingReleioTarefaId; });
+    if (idx > -1) list[idx] = obj;
+  } else { list.push(obj); }
+  saveReleioTarefas(list);
+  document.getElementById('rl-tarefa-overlay').classList.remove('open');
+  renderReleioTarefas();
+}
+function deleteReleioTarefa() {
+  if (!confirm('Excluir esta tarefa?')) return;
+  saveReleioTarefas(getReleioTarefas().filter(function(x){ return x.id!==editingReleioTarefaId; }));
+  document.getElementById('rl-tarefa-overlay').classList.remove('open');
+  renderReleioTarefas();
+}
+function renderReleioTarefas() {
+  var list = getReleioTarefas();
+  var tbody = document.getElementById('rl-tarefas-tbody');
+  if (!tbody) return;
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-hint);padding:2rem;">Nenhuma tarefa cadastrada</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(function(t) {
+    var dt = t.data ? t.data.split('-').reverse().join('/') : '—';
+    return '<tr>' +
+      '<td>' + t.tarefa + '</td>' +
+      '<td>' + dt + '</td>' +
+      '<td>' + (t.projeto||'—') + '</td>' +
+      '<td><button class="row-action" onclick="openReleioTarefaModal(\'' + t.id + '\')">Editar</button></td>' +
+    '</tr>';
+  }).join('');
+}
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
