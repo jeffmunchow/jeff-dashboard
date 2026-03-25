@@ -558,13 +558,14 @@
     <div class="project-body-clickable" onclick="navigateToProject(event, 'releio-view')" title="Abrir re.leio">
     <div class="metrics-grid">
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores Instagram</div><div class="metric-value" id="r-seguidores">7.000</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-r"></canvas></div></div>
+      <div class="metric-cell"><div class="metric-label">Livros lidos</div><div class="metric-value" id="r-lidos">—</div><div class="metric-sub">total</div></div>
       <div class="metric-cell accent-coral"><div class="metric-label">Livros curados</div><div class="metric-value" id="r-livros">—</div><div class="metric-sub">publicados</div></div>
       <div class="metric-cell"><div class="metric-label">Assinantes</div><div class="metric-value" id="r-assinantes">—</div><div class="metric-sub">newsletter</div></div>
     </div>
     <div class="divider"></div>
     <div class="next-event-widget" id="r-next-event-widget">
-      <div class="nev-label">Próxima publicação</div>
-      <div id="r-nev-content" class="nev-empty">Nenhum livro agendado</div>
+      <div class="nev-label">Próxima tarefa</div>
+      <div id="r-nev-content" class="nev-empty">Nenhuma tarefa cadastrada</div>
     </div>
     <div class="last-updated" id="r-updated">Nunca atualizado</div>
     </div>
@@ -2974,6 +2975,11 @@ function buildSparklines() {
 
 /* ─── DASHBOARD NEXT EVENTS ──────────────────────────────── */
 function renderDashboardNextEvents() {
+  // Populate r-lidos from real livros data
+  var livros = getReleioLivros ? getReleioLivros() : [];
+  var lidos = livros.filter(function(l){ return l.status === 'Lido' || l.status === 'Curado' || l.status === 'Publicado'; }).length;
+  var el = document.getElementById('r-lidos');
+  if (el) el.textContent = lidos || '—';
   // Münchow — próximo evento da agenda
   var now = new Date();
   var evs = getEvents().filter(function(e){ return new Date(e.data) >= now; })
@@ -3020,16 +3026,19 @@ function renderDashboardNextEvents() {
   }).sort(function(a,b){ return new Date(a.data)-new Date(b.data); });
   var rEl = document.getElementById('r-nev-content');
   if (rEl) {
-    if (!pubs.length) {
-      rEl.innerHTML = '<div class="nev-empty">Nenhuma publicação agendada</div>';
+    var today = now.toISOString().split('T')[0];
+    var tasks = getReleioTarefas()
+      .filter(function(t){ return t.data >= today; })
+      .sort(function(a,b){ return a.data.localeCompare(b.data); });
+    if (!tasks.length) {
+      rEl.innerHTML = '<div class="nev-empty">Nenhuma tarefa cadastrada</div>';
     } else {
-      var pub = pubs[0];
-      var daysP = Math.ceil((new Date(pub.data) - now) / 86400000);
-      var livro = getReleioLivros().find(function(l){ return l.id===pub.livroId; });
+      var t = tasks[0];
+      var daysT = Math.ceil((new Date(t.data) - now) / 86400000);
       rEl.innerHTML = '<div class="nev-card">'+
-        '<span class="nev-date-badge coral">'+fmtDate(pub.data)+(daysP<=30?' · '+daysP+'d':'')+'</span>'+
-        '<div class="nev-title">'+(livro?livro.titulo:'—')+'</div>'+
-        '<div class="nev-meta">'+pub.plataforma+' · '+pub.tipo+'</div>'+
+        '<span class="nev-date-badge coral">'+fmtDate(t.data)+(daysT<=30?' · '+daysT+'d':'')+'</span>'+
+        '<div class="nev-title">'+t.tarefa+'</div>'+
+        '<div class="nev-meta">'+t.projeto+'</div>'+
       '</div>';
     }
   }
@@ -4548,6 +4557,45 @@ function renderReleioTarefas() {
     '</tr>';
   }).join('');
 }
+
+/* ── SMART DATE INPUT — digita 25032026 → 25/03/2026 ─────── */
+document.addEventListener('keydown', function(e) {
+  var input = e.target;
+  if (input.type !== 'date') return;
+  // Only handle digit keys
+  var digit = e.key;
+  if (!/^[0-9]$/.test(digit)) return;
+
+  e.preventDefault();
+  var raw = (input.getAttribute('data-raw') || '').replace(/\D/g, '');
+  raw = (raw + digit).slice(0, 8);
+  input.setAttribute('data-raw', raw);
+
+  // Format as YYYY-MM-DD for the input value when we have 8 digits
+  if (raw.length === 8) {
+    var dd = raw.slice(0,2), mm = raw.slice(2,4), yyyy = raw.slice(4,8);
+    var dateStr = yyyy + '-' + mm + '-' + dd;
+    var test = new Date(dateStr);
+    if (!isNaN(test)) {
+      input.value = dateStr;
+      input.setAttribute('data-raw', '');
+      // Trigger change event so dependent functions run
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      // Move focus to next field
+      var fields = Array.from(document.querySelectorAll('input, select, textarea, button'));
+      var idx = fields.indexOf(input);
+      if (idx > -1 && fields[idx+1]) fields[idx+1].focus();
+    }
+  } else if (raw.length === 2 || raw.length === 4) {
+    // Show partial value while typing — day done, move visual feedback
+    // Nothing to do visually for type=date, but keep data-raw
+  }
+}, true);
+
+// Clear data-raw when user manually changes the input
+document.addEventListener('change', function(e) {
+  if (e.target.type === 'date') e.target.setAttribute('data-raw', '');
+});
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
