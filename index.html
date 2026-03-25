@@ -3712,10 +3712,10 @@ function renderDiaryArchive() {
   el.innerHTML = entries.map(function(e) {
     var d = diaryKeyToDate(e.key);
     var dateStr = d ? diaryFormatFullDate(d) : e.key;
-    var preview = e.text.replace(/\n/g,' ').slice(0, 80) + (e.text.length > 80 ? '...' : '');
+    var preview = e.location || '—';
     return '<div onclick="openDiaryEntry(\'' + e.key + '\')" style="padding:0.75rem 0;border-bottom:0.5px solid var(--border);cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity=\'0.6\'" onmouseout="this.style.opacity=\'1\'">' +
       '<div style="font-size:0.8rem;color:var(--text);margin-bottom:3px;">' + dateStr + '</div>' +
-      '<div style="font-size:0.7rem;color:var(--text-hint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (preview || '—') + '</div>' +
+      '<div style="font-size:0.7rem;color:var(--text-hint);">' + preview + '</div>' +
     '</div>';
   }).join('');
 }
