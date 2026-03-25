@@ -3033,15 +3033,26 @@ function renderDashboardNextEvents() {
     if (!tasks.length) {
       rEl.innerHTML = '<div class="nev-empty">Nenhuma tarefa cadastrada</div>';
     } else {
-      var t = tasks[0];
-      var daysT = Math.ceil((new Date(t.data) - now) / 86400000);
-      rEl.innerHTML = '<div class="nev-card">'+
-        '<span class="nev-date-badge coral">'+fmtDate(t.data)+(daysT<=30?' · '+daysT+'d':'')+'</span>'+
-        '<div class="nev-title">'+t.tarefa+'</div>'+
-        '<div class="nev-meta">'+t.projeto+'</div>'+
-      '</div>';
+      var html = '';
+      tasks.slice(0,2).forEach(function(t, i) {
+        var opacity = i === 1 ? 'opacity:0.45;' : '';
+        html += '<div style="display:flex;align-items:center;gap:8px;margin-top:'+(i===0?'0':'6px')+';'+opacity+'">' +
+          '<button onclick="checkReleioTarefaWidget(\''+t.id+'\',event)" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'var(--coral)\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
+          '<span style="font-size:0.68rem;color:var(--text-hint);white-space:nowrap;flex-shrink:0;">'+fmtDate(t.data)+'</span>' +
+          '<span style="font-size:0.82rem;color:var(--text);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+t.tarefa+'</span>' +
+        '</div>';
+      });
+      rEl.innerHTML = html;
     }
   }
+}
+
+function checkReleioTarefaWidget(id, e) {
+  e.stopPropagation(); // don't navigate to re.leio
+  if (!confirm('Marcar tarefa como concluída?')) return;
+  var list = getReleioTarefas().filter(function(t){ return t.id !== id; });
+  saveReleioTarefas(list);
+  renderDashboardNextEvents();
 }
 
 /* ═══════════════════════════════════════════════════════════
