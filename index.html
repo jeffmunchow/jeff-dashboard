@@ -38,13 +38,32 @@
 
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.25s, color 0.25s; }
 
+  /* ── SIDEBAR ──────────────────────────────────────────── */
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 44px; background: var(--surface); border-right: 0.5px solid var(--border);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 14px 0; z-index: 100; transition: background 0.25s, border-color 0.25s;
+  }
+  .sidebar-home {
+    display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 8px; border: none;
+    background: transparent; color: var(--text-muted); cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .sidebar-home:hover { background: var(--surface2); color: var(--text); }
+
+  /* Push content right to account for sidebar */
+  body { padding-left: 44px; }
+  @media(max-width:960px) { body { padding-left: 0; } .sidebar { display: none; } }
+
   .header {
-    padding: 1.75rem 2.5rem 1.5rem;
+    padding: 1rem 2rem 0.85rem;
     border-bottom: 0.5px solid var(--border);
     display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
   }
-  .header-left h1 { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 400; letter-spacing: -0.02em; }
-  .header-left p { font-size: 0.75rem; color: var(--text-hint); margin-top: 3px; font-weight: 300; letter-spacing: 0.05em; text-transform: uppercase; }
+  .header-left h1 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
+  .header-left p { font-size: 0.72rem; color: var(--text-hint); margin-top: 2px; font-weight: 300; letter-spacing: 0.05em; text-transform: uppercase; }
   .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
   .btn {
@@ -94,7 +113,7 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.08);
   }
 
-  .chart-section { padding: 2rem 2.5rem 1.5rem; }
+  .chart-section { padding: 1.5rem 2rem 1.25rem; }
   .chart-card {
     background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border);
     padding: 1.75rem 1.75rem 1.5rem; transition: background 0.25s, border-color 0.25s;
@@ -117,7 +136,7 @@
     transition: background 0.25s, color 0.25s;
   }
 
-  .main { padding: 0 2.5rem 2.5rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
+  .main { padding: 0 2rem 2rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
 
   @media (max-width: 960px) {
     .main { grid-template-columns: 1fr; }
@@ -125,15 +144,20 @@
   }
 
   .project-card { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); overflow: hidden; transition: background 0.25s, border-color 0.25s; }
-  .project-card.clickable { cursor: pointer; }
-  .project-card.clickable:hover { border-color: var(--border-strong); }
-  .project-header { padding: 1.2rem 1.5rem 0.9rem; border-bottom: 0.5px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .project-card.clickable { cursor: default; }
+  .project-card.clickable:hover { border-color: var(--border); }
+  .project-body-clickable { cursor: pointer; }
+  .project-body-clickable:hover { background: var(--surface2); }
+  .project-header { padding: 0.9rem 1.25rem 0.75rem; border-bottom: 0.5px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
   .project-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
   .project-meta { font-size: 0.7rem; color: var(--text-hint); margin-top: 3px; font-weight: 300; }
-  .project-tag { font-size: 0.65rem; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.03em; white-space: nowrap; margin-top: 2px; transition: background 0.25s, color 0.25s; }
-  .tag-amber { background: var(--amber-light); color: var(--amber); }
-  .tag-teal  { background: var(--teal-light);  color: var(--teal); }
-  .tag-coral { background: var(--coral-light);  color: var(--coral); }
+  .project-plus-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 6px; border: 0.5px solid var(--border-strong);
+    background: transparent; color: var(--text-hint); cursor: pointer; font-size: 1rem; line-height: 1;
+    transition: background 0.15s, color 0.15s; flex-shrink: 0; margin-top: 1px;
+  }
+  .project-plus-btn:hover { background: var(--surface2); color: var(--text); }
   .metrics-grid { padding: 1.1rem 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
   .metric-cell { background: var(--surface2); border-radius: var(--radius-sm); padding: 0.8rem 0.9rem; transition: background 0.25s; }
   .metric-label { font-size: 0.64rem; color: var(--text-hint); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 5px; }
@@ -338,15 +362,24 @@
 <body>
 
 <div id="main-view">
+
+<!-- Sidebar -->
+<div class="sidebar" id="main-sidebar">
+  <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+      <path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/>
+      <rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/>
+    </svg>
+  </button>
+</div>
+
 <div class="header">
   <div class="header-left">
     <h1>Bom dia, Jeff.</h1>
     <p id="header-date"></p>
   </div>
   <div class="header-right">
-    <button class="btn" onclick="openEdit('munchow')">+ Münchow</button>
-    <button class="btn" onclick="openEdit('soup')">+ Soup</button>
-    <button class="btn" onclick="openEdit('releio')">+ re.leio</button>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Alternar tema">
       <svg class="icon-sun" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="2" fill="#C4780A"/><line x1="5" y1="0" x2="5" y2="1.5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="8.5" x2="5" y2="10" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="5" x2="1.5" y2="5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="8.5" y1="5" x2="10" y2="5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="1.46" y1="1.46" x2="2.52" y2="2.52" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="7.48" y1="7.48" x2="8.54" y2="8.54" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="8.54" y1="1.46" x2="7.48" y2="2.52" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="2.52" y1="7.48" x2="1.46" y2="8.54" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/></svg>
       <svg class="icon-moon" viewBox="0 0 10 10" fill="none"><path d="M8.5 6.5A4 4 0 0 1 3.5 1.5a4 4 0 1 0 5 5z" fill="#D4902A"/></svg>
@@ -386,11 +419,12 @@
 </div>
 
 <div class="main">
-  <div class="project-card clickable" onclick="navigateToProject(event, 'munchow-studio')" style="cursor:pointer;" title="Clique para abrir o Studio">
+  <div class="project-card">
     <div class="project-header">
       <div><div class="project-name">Münchow</div><div class="project-meta">Studio</div></div>
-      <span class="project-tag tag-amber">Principal</span>
+      <button class="project-plus-btn" onclick="openEdit('munchow')" title="Editar métricas">+</button>
     </div>
+    <div class="project-body-clickable" onclick="navigateToProject(event, 'munchow-studio')" title="Abrir Studio">
     <div class="metrics-grid">
       <div class="metric-cell accent-amber"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="m-faturamento">—</div><div class="metric-sub">R$</div></div>
       <div class="metric-cell"><div class="metric-label">Casamentos / ano</div><div class="metric-value" id="m-casamentos">—</div><div class="metric-sub">confirmados</div></div>
@@ -402,13 +436,15 @@
       <div id="m-nev-content" class="nev-empty">Nenhum evento cadastrado</div>
     </div>
     <div class="last-updated" id="m-updated">Nunca atualizado</div>
+    </div>
   </div>
 
-  <div class="project-card clickable" onclick="navigateToProject(event, 'soup-view')" style="cursor:pointer;" title="Clique para abrir a Soup">
+  <div class="project-card">
     <div class="project-header">
       <div><div class="project-name">Soup</div><div class="project-meta">Travel Club</div></div>
-      <span class="project-tag tag-teal">Crescimento</span>
+      <button class="project-plus-btn" onclick="openEdit('soup')" title="Editar métricas">+</button>
     </div>
+    <div class="project-body-clickable" onclick="navigateToProject(event, 'soup-view')" title="Abrir Soup">
     <div class="metrics-grid">
       <div class="metric-cell accent-teal"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="s-faturamento">—</div><div class="metric-sub">R$</div></div>
       <div class="metric-cell"><div class="metric-label">Clientes ativos</div><div class="metric-value" id="s-clientes">2</div><div class="metric-sub">membros</div></div>
@@ -421,13 +457,15 @@
       <div id="s-nev-content" class="nev-empty">Nenhum evento cadastrado</div>
     </div>
     <div class="last-updated" id="s-updated">Nunca atualizado</div>
+    </div>
   </div>
 
-  <div class="project-card clickable" onclick="navigateToProject(event, 'releio-view')" style="cursor:pointer;" title="Clique para abrir o re.leio">
+  <div class="project-card">
     <div class="project-header">
       <div><div class="project-name">re.leio</div><div class="project-meta">Curadoria literária</div></div>
-      <span class="project-tag tag-coral">Nascendo</span>
+      <button class="project-plus-btn" onclick="openEdit('releio')" title="Editar métricas">+</button>
     </div>
+    <div class="project-body-clickable" onclick="navigateToProject(event, 'releio-view')" title="Abrir re.leio">
     <div class="metrics-grid">
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores Instagram</div><div class="metric-value" id="r-seguidores">7.000</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-r"></canvas></div></div>
       <div class="metric-cell accent-coral"><div class="metric-label">Livros curados</div><div class="metric-value" id="r-livros">—</div><div class="metric-sub">publicados</div></div>
@@ -439,6 +477,7 @@
       <div id="r-nev-content" class="nev-empty">Nenhum livro agendado</div>
     </div>
     <div class="last-updated" id="r-updated">Nunca atualizado</div>
+    </div>
   </div>
 </div>
 
@@ -449,19 +488,17 @@
 <!--  MÜNCHOW STUDIO — SEÇÃO INTERNA                                -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <div id="studio-view">
+  <div class="sidebar">
+    <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
+    </button>
+  </div>
 
   <!-- Header Studio -->
   <div class="header">
-    <div class="header-left" style="display:flex;align-items:center;gap:14px;">
-      <div class="nav-btns">
-        <button class="nav-btn" onclick="showMainDashboard()" title="Voltar">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-      <div>
-        <h1 style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:400;letter-spacing:-0.02em;">Münchow</h1>
-        <p style="font-size:0.75rem;color:var(--text-hint);margin-top:3px;font-weight:300;letter-spacing:0.05em;text-transform:uppercase;">Studio</p>
-      </div>
+    <div class="header-left">
+      <h1 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;letter-spacing:-0.01em;">Münchow</h1>
+      <p style="font-size:0.72rem;color:var(--text-hint);margin-top:2px;font-weight:300;letter-spacing:0.05em;text-transform:uppercase;">Studio</p>
     </div>
     <div class="header-right">
       <span style="font-size:0.72rem;color:var(--text-hint);" id="studio-header-date"></span>
@@ -679,17 +716,15 @@
 <!--  SOUP TRAVEL CLUB — SEÇÃO INTERNA                              -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <div id="soup-view" style="display:none; min-height:100vh;">
+  <div class="sidebar">
+    <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
+    </button>
+  </div>
   <div class="header">
-    <div class="header-left" style="display:flex;align-items:center;gap:14px;">
-      <div class="nav-btns">
-        <button class="nav-btn" onclick="showMainDashboard()" title="Voltar">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-      <div>
-        <h1 style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:400;letter-spacing:-0.02em;">Soup</h1>
-        <p style="font-size:0.75rem;color:var(--text-hint);margin-top:3px;font-weight:300;letter-spacing:0.05em;text-transform:uppercase;">Travel Club</p>
-      </div>
+    <div class="header-left">
+      <h1 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;letter-spacing:-0.01em;">Soup</h1>
+      <p style="font-size:0.72rem;color:var(--text-hint);margin-top:2px;font-weight:300;letter-spacing:0.05em;text-transform:uppercase;">Travel Club</p>
     </div>
     <div class="header-right">
       <span style="font-size:0.72rem;color:var(--text-hint);" id="soup-header-date"></span>
@@ -839,17 +874,15 @@
 <!--  RE.LEIO — SEÇÃO INTERNA                                       -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <div id="releio-view" style="display:none; min-height:100vh;">
+  <div class="sidebar">
+    <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
+    </button>
+  </div>
   <div class="header">
-    <div class="header-left" style="display:flex;align-items:center;gap:14px;">
-      <div class="nav-btns">
-        <button class="nav-btn" onclick="showMainDashboard()" title="Voltar">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-      <div>
-        <h1 style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:400;letter-spacing:-0.02em;">re.leio</h1>
-        <p style="font-size:0.75rem;color:var(--text-hint);margin-top:3px;font-weight:300;letter-spacing:0.05em;text-transform:uppercase;">Curadoria literária</p>
-      </div>
+    <div class="header-left">
+      <h1 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;letter-spacing:-0.01em;">re.leio</h1>
+      <p style="font-size:0.72rem;color:var(--text-hint);margin-top:2px;font-weight:300;letter-spacing:0.05em;text-transform:uppercase;">Curadoria literária</p>
     </div>
     <div class="header-right">
       <span style="font-size:0.72rem;color:var(--text-hint);" id="releio-header-date"></span>
@@ -2441,8 +2474,33 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') close
 var sparkData = {
   m: { start: 200, end: 3524, color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#D4902A' : '#C4780A'; } },
   s: { start: 21, end: 1519, color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#18926E' : '#0A7864'; } },
-  r: { start: 1, end: 7000, color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#CC4A28' : '#C43A1A'; } }
+  r: { start: 1, end: 7000, color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#CC4A28' : '#C43A1A'; }, realData: true }
 };
+
+// re.leio real data: dia 1 = 24/03/2026 com 1 seguidor, hoje = 7000
+function buildReleioSparkData() {
+  var startDate = new Date('2026-03-24');
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var msPerDay = 86400000;
+  var daysDiff = Math.max(1, Math.round((today - startDate) / msPerDay) + 1);
+  var endFollowers = parseInt(localStorage.getItem('dash_r-seguidores')) || 7000;
+
+  // Build daily points from day 1 to today
+  var pts = [];
+  var labels = [];
+  for (var i = 0; i < daysDiff; i++) {
+    var t = daysDiff > 1 ? i / (daysDiff - 1) : 1;
+    var curve = t * t * (3 - 2 * t);
+    var noise = 1 + Math.sin(i * 2.3) * 0.02;
+    pts.push(Math.max(1, Math.round((1 + (endFollowers - 1) * curve) * noise)));
+    var d = new Date(startDate.getTime() + i * msPerDay);
+    labels.push(d.getDate() + '/' + (d.getMonth()+1));
+  }
+  pts[0] = 1;
+  pts[pts.length - 1] = endFollowers;
+  return { pts: pts, labels: labels };
+}
 
 function genGrowthCurve(start, end, steps) {
   var pts = [];
@@ -2466,13 +2524,23 @@ function buildSparklines() {
     var canvas = document.getElementById('spark-' + key);
     if (!canvas) return;
     var d = sparkData[key];
-    var data = genGrowthCurve(d.start, d.end, 12);
     var col = d.color();
+
+    var data, labels;
+    if (key === 'r') {
+      var rd = buildReleioSparkData();
+      data = rd.pts;
+      labels = rd.labels;
+    } else {
+      data = genGrowthCurve(d.start, d.end, 12);
+      labels = MON_S;
+    }
+
     if (sparkInstances[key]) { sparkInstances[key].destroy(); }
     sparkInstances[key] = new Chart(canvas, {
       type: 'line',
       data: {
-        labels: MON_S,
+        labels: labels,
         datasets: [{
           data: data,
           borderColor: col,
@@ -2480,10 +2548,7 @@ function buildSparklines() {
           pointRadius: 0,
           pointHitRadius: 6,
           tension: 0.4,
-          fill: {
-            target: 'origin',
-            above: col + '18'
-          }
+          fill: { target: 'origin', above: col + '18' }
         }]
       },
       options: {
@@ -2503,15 +2568,12 @@ function buildSparklines() {
             padding: 6,
             displayColors: false,
             callbacks: {
-              title: function(items) { return MON_S[items[0].dataIndex]; },
+              title: function(items) { return labels[items[0].dataIndex]; },
               label: function(ctx) { return ctx.parsed.y.toLocaleString('pt-BR') + ' seg.'; }
             }
           }
         },
-        scales: {
-          x: { display: false },
-          y: { display: false }
-        },
+        scales: { x: { display: false }, y: { display: false } },
         layout: { padding: 0 }
       }
     });
