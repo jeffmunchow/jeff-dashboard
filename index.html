@@ -64,7 +64,7 @@
 
   /* Diary view */
   .diary-view { display: none; min-height: 100vh; }
-  .diary-container { max-width: 720px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+  .diary-container { max-width: 720px; margin: 0 auto; padding: 2.5rem 2.5rem; }
   .diary-date { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 400; letter-spacing: -0.01em; color: var(--text); margin-bottom: 4px; }
   .diary-location { font-size: 0.75rem; color: var(--text-hint); font-weight: 300; margin-bottom: 2rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: color 0.15s; }
   .diary-location:hover { color: var(--text-muted); }
@@ -289,7 +289,7 @@
   .field-row input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; color: var(--text); outline: none; transition: background 0.25s, border-color 0.25s, color 0.25s; }
   .field-row input:focus { border-color: var(--border-strong); }
   .modal-actions { display: flex; gap: 8px; margin-top: 1.5rem; justify-content: flex-end; }
-  .footer { text-align: center; padding: 0.5rem 1.25rem 1.25rem; font-size: 0.68rem; color: var(--text-hint); font-weight: 300; font-style: italic; letter-spacing: 0.01em; }
+  .footer { text-align: center; padding: 0.25rem 1.25rem 0.75rem; font-size: 0.68rem; color: var(--text-hint); font-weight: 300; font-style: italic; letter-spacing: 0.01em; }
 
   /* ─── STUDIO VIEW ─────────────────────────────────────────────── */
   #studio-view { display: none; min-height: 100vh; }
@@ -926,6 +926,7 @@
     <button class="studio-tab"        id="soupstab-milhas"    onclick="switchSoupTab('milhas')">Milhas</button>
     <button class="studio-tab"        id="soupstab-financeiro" onclick="switchSoupTab('financeiro')">Financeiro</button>
     <button class="studio-tab"        id="soupstab-marketing" onclick="switchSoupTab('marketing')">Marketing</button>
+    <button class="studio-tab"        id="soupstab-prospectos" onclick="switchSoupTab('prospectos')">Prospectos</button>
   </div>
 
   <div class="studio-body">
@@ -1052,14 +1053,28 @@
           <button class="btn primary" onclick="openSoupMktModal()">+ Ideia</button>
         </div>
       </div>
-      <div id="soup-mkt-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-top:0.5rem;"></div>
+      <div id="soup-mkt-grid" style="margin-top:0.5rem;"></div>
+    </div>
+
+    <!-- PROSPECTOS -->
+    <div class="tab-panel" id="souppanel-prospectos">
+      <div class="section-header">
+        <div class="section-title">Clientes em potencial</div>
+        <div class="section-actions">
+          <input type="text" id="soup-prosp-search" placeholder="Buscar..." oninput="renderSoupProspectos()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:5px 10px;color:var(--text);outline:none;width:160px;">
+          <button class="btn primary" onclick="openSoupProspModal()">+ Prospecto</button>
+        </div>
+      </div>
+      <div class="table-wrap"><div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Nome</th><th>Contato</th><th>Origem</th><th>Notas</th><th></th></tr></thead>
+          <tbody id="soup-prosp-tbody"></tbody>
+        </table>
+      </div></div>
     </div>
 
   </div>
 </div>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!--  RE.LEIO — SEÇÃO INTERNA                                       -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <div id="releio-view" style="display:none; min-height:100vh;">
   <div class="sidebar">
@@ -1212,6 +1227,26 @@
     <div class="notes-modal-actions">
       <button class="btn" onclick="copyNotesText()">Copiar</button>
       <button class="btn" onclick="toggleNotesModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Prospecto modal (Soup) -->
+<div class="overlay" id="soup-prosp-overlay">
+  <div class="modal" style="max-width:480px;">
+    <h2 id="soup-prosp-modal-title">Novo prospecto</h2>
+    <div class="modal-2col">
+      <div class="field-row" style="grid-column:1/-1"><label>Nome</label><input type="text" id="prospf-nome" placeholder="Nome do cliente"></div>
+      <div class="field-row"><label>Email</label><input type="text" id="prospf-email" placeholder="email@email.com"></div>
+      <div class="field-row"><label>Telefone</label><input type="text" id="prospf-tel" placeholder="(51) 99999-9999"></div>
+      <div class="field-row"><label>Origem</label><input type="text" id="prospf-origem" placeholder="Instagram, indicação..."></div>
+      <div class="field-row" style="grid-column:1/-1"><label>Notas</label><textarea id="prospf-notas" rows="2" placeholder="Observações..."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="prospf-delete-btn" style="display:none;color:var(--coral);" onclick="deleteSoupProsp()">Excluir</button>
+      <div style="flex:1"></div>
+      <button class="btn" onclick="document.getElementById('soup-prosp-overlay').classList.remove('open')">Cancelar</button>
+      <button class="btn primary" onclick="saveSoupProsp()">Salvar</button>
     </div>
   </div>
 </div>
@@ -3151,17 +3186,18 @@ function soupMemberName(id) { var m=getSoupMembros().find(function(x){return x.i
 var currentSoupTab = 'resumo';
 function switchSoupTab(tab) {
   currentSoupTab = tab;
-  ['resumo','membros','viagens','milhas','financeiro','marketing'].forEach(function(t){
+  ['resumo','membros','viagens','milhas','financeiro','marketing','prospectos'].forEach(function(t){
     var btn=document.getElementById('soupstab-'+t); var pan=document.getElementById('souppanel-'+t);
     if(btn) btn.classList.toggle('active',t===tab);
     if(pan) pan.classList.toggle('active',t===tab);
   });
-  if(tab==='resumo')     renderSoupResumo();
-  if(tab==='membros')    renderSoupMembros();
-  if(tab==='viagens')    renderSoupViagens();
-  if(tab==='milhas')     renderSoupMilhas();
-  if(tab==='financeiro') renderSoupFinanceiro();
-  if(tab==='marketing')  renderSoupMarketing();
+  if(tab==='resumo')      renderSoupResumo();
+  if(tab==='membros')     renderSoupMembros();
+  if(tab==='viagens')     renderSoupViagens();
+  if(tab==='milhas')      renderSoupMilhas();
+  if(tab==='financeiro')  renderSoupFinanceiro();
+  if(tab==='marketing')   renderSoupMarketing();
+  if(tab==='prospectos')  renderSoupProspectos();
 }
 
 /* SOUP RESUMO */
@@ -4084,20 +4120,99 @@ function renderSoupMarketing() {
   var list = getSoupMkt().filter(function(i){
     return (!cat || i.cat === cat) && (!status || i.status === status);
   });
-  var grid = document.getElementById('soup-mkt-grid');
-  if (!grid) return;
+  var el = document.getElementById('soup-mkt-grid');
+  if (!el) return;
   if (!list.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-hint);padding:3rem;font-size:0.8rem;">Nenhuma ideia encontrada</div>';
+    el.innerHTML = '<div style="text-align:center;color:var(--text-hint);padding:3rem;font-size:0.8rem;">Nenhuma ideia encontrada</div>';
     return;
   }
-  grid.innerHTML = list.map(function(item) {
-    var col = CAT_COLORS[item.cat] || 'var(--amber)';
-    var usedStyle = item.status === 'usado' ? 'opacity:0.45;' : '';
-    return '<div style="background:var(--surface);border:0.5px solid var(--border);border-left:3px solid '+col+';border-radius:var(--radius-sm);padding:1rem 1.1rem;cursor:pointer;transition:opacity 0.15s;'+usedStyle+'" onclick="openSoupMktModal(\''+item.id+'\')">' +
-      '<div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:'+col+';margin-bottom:6px;font-weight:500;">'+item.cat+'</div>' +
-      '<div style="font-size:0.82rem;color:var(--text);line-height:1.5;">'+item.ideia+'</div>' +
-      (item.status==='usado' ? '<div style="font-size:0.62rem;color:var(--text-hint);margin-top:8px;">✓ Utilizada</div>' : '') +
-    '</div>';
+  el.innerHTML = '<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th>Ideia</th><th>Categoria</th><th>Status</th><th></th></tr></thead><tbody>' +
+    list.map(function(item) {
+      var col = CAT_COLORS[item.cat] || 'var(--amber)';
+      var statusLabel = item.status === 'usado' ? '<span style="color:var(--text-hint);">✓ Utilizada</span>' : '<span style="color:var(--teal);">Disponível</span>';
+      return '<tr style="' + (item.status==='usado' ? 'opacity:0.5;' : '') + '">' +
+        '<td style="max-width:420px;">' + item.ideia + '</td>' +
+        '<td><span style="font-size:0.65rem;font-weight:500;color:'+col+';text-transform:uppercase;letter-spacing:0.06em;">'+item.cat+'</span></td>' +
+        '<td>' + statusLabel + '</td>' +
+        '<td><button class="row-action" onclick="openSoupMktModal(\''+item.id+'\')">Editar</button></td>' +
+      '</tr>';
+    }).join('') +
+  '</tbody></table></div></div>';
+}
+
+/* ── PROSPECTOS (Soup) ───────────────────────────────────── */
+function getSoupProsp() {
+  try { return JSON.parse(localStorage.getItem('soup_prospectos') || '[]'); } catch(e){ return []; }
+}
+function saveSoupProspData(d) {
+  localStorage.setItem('soup_prospectos', JSON.stringify(d));
+  dbSaveList('soup_prospectos', d);
+}
+
+var editingSoupProspId = null;
+function openSoupProspModal(id) {
+  editingSoupProspId = id || null;
+  var del = document.getElementById('prospf-delete-btn');
+  if (id) {
+    var p = getSoupProsp().find(function(x){ return x.id===id; });
+    if (!p) return;
+    document.getElementById('soup-prosp-modal-title').textContent = 'Editar prospecto';
+    document.getElementById('prospf-nome').value   = p.nome   || '';
+    document.getElementById('prospf-email').value  = p.email  || '';
+    document.getElementById('prospf-tel').value    = p.tel    || '';
+    document.getElementById('prospf-origem').value = p.origem || '';
+    document.getElementById('prospf-notas').value  = p.notas  || '';
+    del.style.display = 'inline-flex';
+  } else {
+    document.getElementById('soup-prosp-modal-title').textContent = 'Novo prospecto';
+    ['prospf-nome','prospf-email','prospf-tel','prospf-origem','prospf-notas'].forEach(function(id){ document.getElementById(id).value=''; });
+    del.style.display = 'none';
+  }
+  document.getElementById('soup-prosp-overlay').classList.add('open');
+}
+function saveSoupProsp() {
+  var nome = document.getElementById('prospf-nome').value.trim();
+  if (!nome) { alert('Informe o nome.'); return; }
+  var obj = {
+    id:     editingSoupProspId || uid(),
+    nome:   nome,
+    email:  document.getElementById('prospf-email').value.trim(),
+    tel:    document.getElementById('prospf-tel').value.trim(),
+    origem: document.getElementById('prospf-origem').value.trim(),
+    notas:  document.getElementById('prospf-notas').value.trim()
+  };
+  var list = getSoupProsp();
+  if (editingSoupProspId) {
+    var idx = list.findIndex(function(x){ return x.id===editingSoupProspId; });
+    if (idx > -1) list[idx] = obj; else list.push(obj);
+  } else { list.push(obj); }
+  saveSoupProspData(list);
+  document.getElementById('soup-prosp-overlay').classList.remove('open');
+  renderSoupProspectos();
+}
+function deleteSoupProsp() {
+  if (!confirm('Remover este prospecto?')) return;
+  saveSoupProspData(getSoupProsp().filter(function(x){ return x.id!==editingSoupProspId; }));
+  document.getElementById('soup-prosp-overlay').classList.remove('open');
+  renderSoupProspectos();
+}
+function renderSoupProspectos() {
+  var q = (document.getElementById('soup-prosp-search')||{value:''}).value.toLowerCase();
+  var list = getSoupProsp().filter(function(p){ return !q || p.nome.toLowerCase().includes(q) || (p.email||'').toLowerCase().includes(q); });
+  var tbody = document.getElementById('soup-prosp-tbody');
+  if (!tbody) return;
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-hint);padding:2rem;">Nenhum prospecto cadastrado</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(function(p) {
+    return '<tr>' +
+      '<td class="td-name">' + p.nome + '</td>' +
+      '<td>' + (p.email || '—') + (p.tel ? '<br><span style="font-size:0.7rem;color:var(--text-hint);">' + p.tel + '</span>' : '') + '</td>' +
+      '<td>' + (p.origem || '—') + '</td>' +
+      '<td style="max-width:200px;color:var(--text-muted);font-size:0.72rem;">' + (p.notas || '—') + '</td>' +
+      '<td><button class="row-action" onclick="openSoupProspModal(\'' + p.id + '\')">Editar</button></td>' +
+    '</tr>';
   }).join('');
 }
 
