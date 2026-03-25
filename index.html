@@ -52,6 +52,40 @@
     transition: background 0.15s, color 0.15s;
   }
   .sidebar-home:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-diary {
+    display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 8px; border: none;
+    background: transparent; color: var(--text-muted); cursor: pointer;
+    transition: background 0.15s, color 0.15s; margin-top: 8px;
+  }
+  .sidebar-diary:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-diary.active { color: var(--amber); }
+
+  /* Diary view */
+  .diary-view { display: none; min-height: 100vh; }
+  .diary-container { max-width: 720px; margin: 0 auto; padding: 2.5rem 2rem; }
+  .diary-date { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 400; letter-spacing: -0.01em; color: var(--text); margin-bottom: 4px; }
+  .diary-location { font-size: 0.75rem; color: var(--text-hint); font-weight: 300; margin-bottom: 2rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: color 0.15s; }
+  .diary-location:hover { color: var(--text-muted); }
+  .diary-location-input { font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: var(--text-muted); background: transparent; border: none; border-bottom: 0.5px solid var(--border-strong); outline: none; padding: 1px 0; width: 220px; }
+  .diary-textarea {
+    width: 100%; min-height: calc(100vh - 260px);
+    font-family: 'Playfair Display', serif; font-size: 1rem; line-height: 1.85;
+    color: var(--text); background: transparent; border: none; outline: none;
+    resize: none; letter-spacing: 0.01em;
+  }
+  .diary-textarea::placeholder { color: var(--text-hint); font-style: italic; }
+  .diary-divider { height: 0.5px; background: var(--border); margin: 2rem 0; }
+  .diary-history { padding: 0 2rem 3rem; max-width: 720px; margin: 0 auto; }
+  .diary-history-title { font-size: 0.65rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+  .diary-entry-item { padding: 0.9rem 0; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: opacity 0.15s; }
+  .diary-entry-item:hover { opacity: 0.7; }
+  .diary-entry-date { font-size: 0.8rem; color: var(--text); font-weight: 400; margin-bottom: 3px; }
+  .diary-entry-preview { font-size: 0.72rem; color: var(--text-hint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .diary-entry-empty { font-size: 0.75rem; color: var(--text-hint); font-style: italic; padding: 1rem 0; }
+
+  /* Diary modal for past entries */
+  .diary-modal-content { font-family: 'Playfair Display', serif; font-size: 0.95rem; line-height: 1.85; white-space: pre-wrap; color: var(--text); max-height: 60vh; overflow-y: auto; }
 
   /* Push content right to account for sidebar */
   body { padding-left: 44px; }
@@ -406,6 +440,13 @@
       <svg class="icon-sun" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="2" fill="#C4780A"/><line x1="5" y1="0" x2="5" y2="1.5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="8.5" x2="5" y2="10" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="5" x2="1.5" y2="5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="8.5" y1="5" x2="10" y2="5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="1.46" y1="1.46" x2="2.52" y2="2.52" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="7.48" y1="7.48" x2="8.54" y2="8.54" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="8.54" y1="1.46" x2="7.48" y2="2.52" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="2.52" y1="7.48" x2="1.46" y2="8.54" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/></svg>
       <svg class="icon-moon" viewBox="0 0 10 10" fill="none"><path d="M8.5 6.5A4 4 0 0 1 3.5 1.5a4 4 0 1 0 5 5z" fill="#D4902A"/></svg>
     </button>
+  <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
+    <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+      <path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+      <rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/>
+    </svg>
+  </button>
   </div>
 </div>
 
@@ -507,6 +548,59 @@
 </div><!-- #main-view -->
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
+<!--  DIÁRIO PESSOAL                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div id="diario-view" class="diary-view">
+  <div class="sidebar">
+    <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
+    </button>
+    <button class="sidebar-diary active" onclick="showDiaryView()" title="Diário">
+      <svg width="14" height="15" viewBox="0 0 14 15" fill="none">
+        <rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+        <rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="diary-container">
+    <div class="diary-date" id="diary-today-date"></div>
+    <div id="diary-location-wrap">
+      <span class="diary-location" id="diary-location-display" onclick="editDiaryLocation()">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="4" r="2" stroke="currentColor" stroke-width="1"/><path d="M5 2C5 2 2 4.5 2 6a3 3 0 0 0 6 0C8 4.5 5 2 5 2z" stroke="currentColor" stroke-width="1" fill="none"/></svg>
+        <span id="diary-location-text">Parque Anchieta, Pelotas, RS</span>
+      </span>
+      <input type="text" class="diary-location-input" id="diary-location-input"
+        style="display:none" placeholder="Local..."
+        onblur="saveDiaryLocation()" onkeydown="if(event.key==='Enter')saveDiaryLocation()">
+    </div>
+    <textarea class="diary-textarea" id="diary-textarea"
+      placeholder="Escreva livremente..."
+      oninput="autosaveDiary()"></textarea>
+  </div>
+
+  <div class="diary-history" id="diary-history-section">
+    <div class="diary-divider" style="max-width:720px;margin:0 auto 2rem;"></div>
+    <div class="diary-history-title">Entradas anteriores</div>
+    <div id="diary-history-list"></div>
+  </div>
+</div>
+
+<!-- Diary past entry modal -->
+<div class="overlay" id="diary-entry-overlay">
+  <div class="modal" style="max-width:640px;">
+    <h2 id="diary-entry-modal-date" style="font-family:'Playfair Display',serif;font-weight:400;font-size:1.1rem;"></h2>
+    <div style="font-size:0.72rem;color:var(--text-hint);margin-bottom:1.25rem;" id="diary-entry-modal-location"></div>
+    <div class="diary-modal-content" id="diary-entry-modal-content"></div>
+    <div class="modal-actions" style="margin-top:1.5rem;">
+      <div style="flex:1;"></div>
+      <button class="btn" onclick="document.getElementById('diary-entry-overlay').classList.remove('open')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
 <!--  MÜNCHOW STUDIO — SEÇÃO INTERNA                                -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <div id="studio-view">
@@ -514,6 +608,13 @@
     <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
     </button>
+  <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
+    <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+      <path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+      <rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/>
+    </svg>
+  </button>
   </div>
 
   <!-- Header Studio -->
@@ -742,6 +843,13 @@
     <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
     </button>
+  <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
+    <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+      <path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+      <rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/>
+    </svg>
+  </button>
   </div>
   <div class="header">
     <div class="header-left">
@@ -900,6 +1008,13 @@
     <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
     </button>
+  <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
+    <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+      <path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+      <rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/>
+    </svg>
+  </button>
   </div>
   <div class="header">
     <div class="header-left">
@@ -1670,7 +1785,7 @@ function showReleioView() {
 }
 
 function showMainDashboard() {
-  ['studio-view','soup-view','releio-view'].forEach(function(id){
+  ['studio-view','soup-view','releio-view','diario-view'].forEach(function(id){
     document.getElementById(id).style.display = 'none';
   });
   document.getElementById('main-view').style.display = 'block';
@@ -3533,6 +3648,148 @@ loadFromSupabase().then(function() {
 /* ═══════════════════════════════════════════════════════════
    IMPORTADOR DE CONTRATOS
 ═══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   DIÁRIO PESSOAL
+═══════════════════════════════════════════════════════════ */
+var _diaryAutoSaveTimer = null;
+var _diaryTodayKey = null;
+
+function diaryTodayKey() {
+  var d = new Date();
+  return 'diary_' + d.getFullYear() + '_' + ('0'+(d.getMonth()+1)).slice(-2) + '_' + ('0'+d.getDate()).slice(-2);
+}
+
+function diaryFormatFullDate(d) {
+  var days = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  var months = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  return days[d.getDay()] + ', ' + d.getDate() + ' de ' + months[d.getMonth()] + ' de ' + d.getFullYear();
+}
+
+function diaryKeyToDate(key) {
+  // key format: diary_YYYY_MM_DD
+  var parts = key.replace('diary_','').split('_');
+  if (parts.length < 3) return null;
+  return new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+}
+
+function getDiaryEntries() {
+  var entries = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (k && k.startsWith('diary_') && k !== 'diary_location') {
+      try {
+        var val = JSON.parse(localStorage.getItem(k));
+        if (val && val.text) entries.push({ key: k, text: val.text, location: val.location || '' });
+      } catch(e) {}
+    }
+  }
+  return entries.sort(function(a,b){ return b.key.localeCompare(a.key); });
+}
+
+function showDiaryView() {
+  ['main-view','studio-view','soup-view','releio-view'].forEach(function(id){
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById('diario-view').style.display = 'block';
+  window.scrollTo(0,0);
+  initDiary();
+}
+
+function initDiary() {
+  var now = new Date();
+  var todayKey = diaryTodayKey();
+
+  // Set today's date
+  document.getElementById('diary-today-date').textContent = diaryFormatFullDate(now);
+
+  // Set location
+  var savedLocation = localStorage.getItem('diary_location') || 'Parque Anchieta, Pelotas, RS';
+  document.getElementById('diary-location-text').textContent = savedLocation;
+  document.getElementById('diary-location-input').value = savedLocation;
+
+  // Load today's entry (or start fresh)
+  _diaryTodayKey = todayKey;
+  var todayData = null;
+  try { todayData = JSON.parse(localStorage.getItem(todayKey)); } catch(e) {}
+  var textarea = document.getElementById('diary-textarea');
+  textarea.value = (todayData && todayData.text) ? todayData.text : '';
+  textarea.focus();
+
+  // Render history (all entries except today)
+  renderDiaryHistory(todayKey);
+}
+
+function autosaveDiary() {
+  clearTimeout(_diaryAutoSaveTimer);
+  _diaryAutoSaveTimer = setTimeout(function() {
+    saveDiaryToday();
+  }, 600);
+}
+
+function saveDiaryToday() {
+  if (!_diaryTodayKey) return;
+  var text = document.getElementById('diary-textarea').value;
+  var location = localStorage.getItem('diary_location') || 'Parque Anchieta, Pelotas, RS';
+  var data = { text: text, location: location, savedAt: new Date().toISOString() };
+  localStorage.setItem(_diaryTodayKey, JSON.stringify(data));
+  // Also sync to Supabase
+  dbMetricSave(_diaryTodayKey, JSON.stringify(data));
+}
+
+function editDiaryLocation() {
+  document.getElementById('diary-location-display').style.display = 'none';
+  var input = document.getElementById('diary-location-input');
+  input.style.display = 'inline-block';
+  input.focus();
+  input.select();
+}
+
+function saveDiaryLocation() {
+  var val = document.getElementById('diary-location-input').value.trim();
+  if (!val) val = 'Parque Anchieta, Pelotas, RS';
+  localStorage.setItem('diary_location', val);
+  document.getElementById('diary-location-text').textContent = val;
+  document.getElementById('diary-location-display').style.display = 'inline-flex';
+  document.getElementById('diary-location-input').style.display = 'none';
+  // Update today's saved entry with new location
+  saveDiaryToday();
+}
+
+function renderDiaryHistory(todayKey) {
+  var entries = getDiaryEntries().filter(function(e){ return e.key !== todayKey; });
+  var el = document.getElementById('diary-history-list');
+  var section = document.getElementById('diary-history-section');
+  if (!entries.length) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  el.innerHTML = entries.map(function(e) {
+    var d = diaryKeyToDate(e.key);
+    var dateStr = d ? diaryFormatFullDate(d) : e.key;
+    var preview = e.text.replace(/\n/g,' ').slice(0, 120) + (e.text.length > 120 ? '...' : '');
+    return '<div class="diary-entry-item" onclick="openDiaryEntry(\'' + e.key + '\')">' +
+      '<div class="diary-entry-date">' + dateStr + '</div>' +
+      '<div class="diary-entry-preview">' + preview + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function openDiaryEntry(key) {
+  var data = null;
+  try { data = JSON.parse(localStorage.getItem(key)); } catch(e) {}
+  if (!data) return;
+  var d = diaryKeyToDate(key);
+  document.getElementById('diary-entry-modal-date').textContent = d ? diaryFormatFullDate(d) : key;
+  document.getElementById('diary-entry-modal-location').textContent = data.location || '';
+  document.getElementById('diary-entry-modal-content').textContent = data.text || '';
+  document.getElementById('diary-entry-overlay').classList.add('open');
+}
+
+document.getElementById('diary-entry-overlay').addEventListener('click', function(e) {
+  if (e.target.id === 'diary-entry-overlay') e.target.classList.remove('open');
+});
+
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(function(regs) {
