@@ -82,7 +82,8 @@
     font-weight: 300; -webkit-font-smoothing: antialiased;
     color: var(--text); background: transparent; outline: none;
     letter-spacing: 0.01em; word-break: break-word; cursor: text;
-    padding-left: 60px; padding-right: 60px; box-sizing: border-box;
+    padding-left: 60px !important; padding-right: 60px !important;
+    box-sizing: border-box !important;
   }
   .diary-editor:empty::before {
     content: 'Escreva livremente...';
@@ -608,6 +609,7 @@
   </div>
 
   <div class="diary-container">
+    <div style="padding-left:60px;padding-right:60px;">
     <div class="diary-date" id="diary-today-date"></div>
     <div id="diary-location-wrap">
       <span class="diary-location" id="diary-location-display" onclick="editDiaryLocation()">
@@ -617,11 +619,13 @@
         style="display:none" placeholder="Local..."
         onblur="saveDiaryLocation()" onkeydown="if(event.key==='Enter')saveDiaryLocation()">
     </div>
+    </div>
+    <div style="padding-left:60px;padding-right:60px;">
     <div class="diary-editor" id="diary-textarea"
       contenteditable="true"
       oninput="autosaveDiary()"
-      onkeydown="diaryHandleKey(event)"
-      style="padding-left:60px;padding-right:60px;box-sizing:border-box;"></div>
+      onkeydown="diaryHandleKey(event)"></div>
+    </div>
   </div>
 
   <div class="diary-history" id="diary-history-section">
