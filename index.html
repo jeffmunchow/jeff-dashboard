@@ -316,8 +316,6 @@
 
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
-  /* Failsafe padding for panels that may not be inside studio-body */
-  #rlpanel-tarefas.active, #rlpanel-financeiro.active { padding: 2rem 2.5rem !important; }
 
   /* Summary cards */
   .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 1rem; margin-bottom: 1.75rem; }
@@ -1204,8 +1202,6 @@
       </div></div>
     </div>
 
-    </div>
-
     <!-- FINANCEIRO re.leio -->
     <div class="tab-panel" id="rlpanel-financeiro">
       <div class="section-header">
@@ -1236,7 +1232,7 @@
     </div>
 
     <!-- TAREFAS -->
-    <div class="tab-panel" id="rlpanel-tarefas" style="padding:0;">
+    <div class="tab-panel" id="rlpanel-tarefas">
       <div class="section-header">
         <div class="section-title">Tarefas</div>
         <div class="section-actions">
