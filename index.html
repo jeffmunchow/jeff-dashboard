@@ -94,11 +94,11 @@
   .diary-editor br { display: block; margin-top: 0.6em; content: ''; }
 
   /* Notes modal (sidebar bottom icon) */
-  .notes-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; display: none; align-items: flex-end; justify-content: flex-start; padding: 0 0 24px 56px; }
+  .notes-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; display: none; align-items: center; justify-content: center; }
   .notes-modal-overlay.open { display: flex; }
-  .notes-modal { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); width: 340px; padding: 1.25rem; box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
-  .notes-modal-title { font-size: 0.65rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
-  .notes-modal-textarea { width: 100%; min-height: 180px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; line-height: 1.6; color: var(--text); background: var(--surface2); border: none; outline: none; resize: none; border-radius: var(--radius-sm); padding: 0.75rem; }
+  .notes-modal { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); width: 480px; max-width: 90vw; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+  .notes-modal-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--text); margin-bottom: 1.25rem; }
+  .notes-modal-textarea { width: 100%; min-height: 200px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; line-height: 1.6; color: var(--text); background: var(--surface2); border: none; outline: none; resize: none; border-radius: var(--radius-sm); padding: 0.75rem; box-sizing: border-box; }
   .notes-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 0.75rem; }
   .diary-divider { height: 0.5px; background: var(--border); margin: 2rem 0; }
   .diary-history { padding: 0 2rem 3rem; max-width: 720px; margin: 0 auto; }
@@ -446,20 +446,22 @@
 
 <!-- Sidebar -->
 <div class="sidebar" id="main-sidebar">
-  <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
-    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-      <path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-      <rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/>
-      <rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/>
-    </svg>
-  </button>
-  <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
-    <svg width="14" height="15" viewBox="0 0 14 15" fill="none">
-      <rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
-      <path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
-      <rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/>
-    </svg>
-  </button>
+  <div class="sidebar-top">
+    <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
+    </button>
+    <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
+      <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/></svg>
+    </button>
+    <button class="sidebar-btn" onclick="" title="Tarefas" style="opacity:0.4;cursor:default;">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 5h6M4 7.5h6M4 10h3.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="sidebar-bottom">
+    <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    </button>
+  </div>
 </div>
 
 <div class="header">
