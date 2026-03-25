@@ -2492,43 +2492,35 @@ function deleteTodo(id) {
 });
 
 async function loadFromSupabase() {
-  // Load all collections from Supabase into localStorage cache
   var tables = [
-    ['studio_clients','studio_clients'],['studio_events','studio_events'],
-    ['studio_pends','studio_pends'],['studio_fin','studio_fin'],
-    ['studio_todos','studio_todos'],['studio_custos','studio_custos'],
-    ['studio_packages','studio_packages'],
-    ['soup_membros','soup_membros'],['soup_viagens','soup_viagens'],
-    ['soup_milhas','soup_milhas'],['soup_fin','soup_fin'],['soup_todos','soup_todos'],
-    ['releio_livros','releio_livros'],['releio_publicacoes','releio_publicacoes'],
-    ['releio_substack','releio_substack'],['releio_todos','releio_todos']
+    'studio_clients','studio_events','studio_pends','studio_fin',
+    'studio_todos','studio_custos','studio_packages',
+    'soup_membros','soup_viagens','soup_milhas','soup_fin','soup_todos',
+    'releio_livros','releio_publicacoes','releio_substack','releio_todos'
   ];
-  for (var i = 0; i < tables.length; i++) {
-    var tbl = tables[i][0];
-    var lsKey = tables[i][1];
-    try {
-      var list = await dbLoad(tbl);
-      if (list && list.length > 0) {
-        // map back to studio_/soup_/releio_ localStorage keys
-        var parts = tbl.split('_');
-        var prefix = parts[0]; // studio, soup, releio
-        var suffix = parts.slice(1).join('_');
-        localStorage.setItem(prefix + '_' + suffix, JSON.stringify(list));
-      }
-    } catch(e) { /* keep localStorage version */ }
-  }
-  // Load dashboard metrics
   var metricIds = ['m-faturamento','m-casamentos','m-seguidores',
                    's-faturamento','s-clientes','s-seguidores','s-milhas',
                    'r-seguidores','r-livros','r-assinantes',
                    'm-updated','s-updated','r-updated'];
-  for (var j = 0; j < metricIds.length; j++) {
-    var key = metricIds[j];
-    try {
-      var val = await dbMetricLoad(key);
-      if (val) localStorage.setItem('dash_' + key, val);
-    } catch(e) {}
-  }
+
+  // Load all tables in parallel
+  await Promise.all([
+    ...tables.map(function(tbl) {
+      return dbLoad(tbl).then(function(list) {
+        if (list && list.length > 0) {
+          var parts = tbl.split('_');
+          var prefix = parts[0];
+          var suffix = parts.slice(1).join('_');
+          localStorage.setItem(prefix + '_' + suffix, JSON.stringify(list));
+        }
+      }).catch(function(){});
+    }),
+    ...metricIds.map(function(key) {
+      return dbMetricLoad(key).then(function(val) {
+        if (val) localStorage.setItem('dash_' + key, val);
+      }).catch(function(){});
+    })
+  ]);
 }
 
 function init() {
@@ -3637,14 +3629,28 @@ toggleTheme = function() {
   buildSparklines();
 };
 
-// Bootstrap: load from Supabase, then init
-loadFromSupabase().then(function() {
-  init();
-  buildSparklines();
-}).catch(function() {
-  init();
-  buildSparklines();
-});
+// Carrega imediatamente do cache local — sem esperar o Supabase
+init();
+buildSparklines();
+
+// Sincroniza com Supabase em background depois que o app já está visível
+setTimeout(function() {
+  loadFromSupabase().then(function() {
+    // Re-renderiza só o que pode ter mudado desde o último acesso
+    renderDashboardNextEvents();
+    var ids = ['m-faturamento','m-casamentos','m-seguidores',
+               's-faturamento','s-clientes','s-seguidores','s-milhas',
+               'r-seguidores','r-livros','r-assinantes',
+               'm-updated','s-updated','r-updated'];
+    ids.forEach(function(id) {
+      var val = localStorage.getItem('dash_' + id);
+      if (!val) return;
+      var el = document.getElementById(id);
+      if (el && el.tagName !== 'TEXTAREA') el.textContent = val;
+    });
+    buildSparklines();
+  });
+}, 100);
 
 /* ═══════════════════════════════════════════════════════════
    IMPORTADOR DE CONTRATOS
