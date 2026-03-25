@@ -85,9 +85,11 @@
     content: 'Escreva livremente...';
     color: var(--text-hint); font-style: italic; pointer-events: none;
   }
-  /* Enter cria um <p> com margin-top para separar parágrafos */
-  .diary-editor p { margin: 0; padding: 0; }
-  .diary-editor p + p { margin-top: 0.9em; }
+  .diary-editor p { margin: 0; padding: 0; line-height: 1.875; }
+  .diary-editor p + p { margin-top: 1.4em; }
+  .diary-editor div { margin: 0; padding: 0; line-height: 1.875; }
+  .diary-editor div + div { margin-top: 1.4em; }
+  .diary-editor br { display: block; margin-top: 1.4em; content: ''; }
   .diary-divider { height: 0.5px; background: var(--border); margin: 2rem 0; }
   .diary-history { padding: 0 2rem 3rem; max-width: 720px; margin: 0 auto; }
   .diary-history-title { font-size: 0.65rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
@@ -603,7 +605,8 @@
     </div>
     <div class="diary-editor" id="diary-textarea"
       contenteditable="true"
-      oninput="autosaveDiary()"></div>
+      oninput="autosaveDiary()"
+      onkeydown="diaryHandleKey(event)"></div>
   </div>
 
   <div class="diary-history" id="diary-history-section">
@@ -3782,6 +3785,27 @@ function initDiary() {
 
   // Render history (all entries except today)
   renderDiaryHistory(todayKey);
+}
+
+function diaryHandleKey(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  // Insert a blank line (double br) to simulate paragraph spacing
+  var sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  var range = sel.getRangeAt(0);
+  range.deleteContents();
+  // Insert two line breaks — first moves to new line, second creates the visual gap
+  var br1 = document.createElement('br');
+  var br2 = document.createElement('br');
+  range.insertNode(br2);
+  range.insertNode(br1);
+  // Move cursor after br2
+  range.setStartAfter(br2);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
+  autosaveDiary();
 }
 
 function autosaveDiary() {
