@@ -75,7 +75,19 @@
     resize: none; letter-spacing: 0.01em;
     word-break: break-word; overflow-wrap: break-word;
   }
-  .diary-textarea::placeholder { color: var(--text-hint); font-style: italic; }
+  .diary-editor {
+    width: 100%; min-height: calc(100vh - 260px);
+    font-family: 'Playfair Display', serif; font-size: 16px; line-height: 1.875;
+    color: var(--text); background: transparent; outline: none;
+    letter-spacing: 0.01em; word-break: break-word; cursor: text;
+  }
+  .diary-editor:empty::before {
+    content: 'Escreva livremente...';
+    color: var(--text-hint); font-style: italic; pointer-events: none;
+  }
+  /* Enter cria um <p> com margin-top para separar parágrafos */
+  .diary-editor p { margin: 0; padding: 0; }
+  .diary-editor p + p { margin-top: 0.9em; }
   .diary-divider { height: 0.5px; background: var(--border); margin: 2rem 0; }
   .diary-history { padding: 0 2rem 3rem; max-width: 720px; margin: 0 auto; }
   .diary-history-title { font-size: 0.65rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
@@ -589,9 +601,9 @@
         style="display:none" placeholder="Local..."
         onblur="saveDiaryLocation()" onkeydown="if(event.key==='Enter')saveDiaryLocation()">
     </div>
-    <textarea class="diary-textarea" id="diary-textarea"
-      placeholder="Escreva livremente..."
-      oninput="autosaveDiary()"></textarea>
+    <div class="diary-editor" id="diary-textarea"
+      contenteditable="true"
+      oninput="autosaveDiary()"></div>
   </div>
 
   <div class="diary-history" id="diary-history-section">
@@ -3757,9 +3769,16 @@ function initDiary() {
   _diaryTodayKey = todayKey;
   var todayData = null;
   try { todayData = JSON.parse(localStorage.getItem(todayKey)); } catch(e) {}
-  var textarea = document.getElementById('diary-textarea');
-  textarea.value = (todayData && todayData.text) ? todayData.text : '';
-  textarea.focus();
+  var editor = document.getElementById('diary-textarea');
+  if (todayData && todayData.text) {
+    // Convert plain text to paragraphs for contenteditable
+    editor.innerHTML = todayData.text.split('\n').map(function(line) {
+      return '<p>' + (line || '<br>') + '</p>';
+    }).join('');
+  } else {
+    editor.innerHTML = '';
+  }
+  editor.focus();
 
   // Render history (all entries except today)
   renderDiaryHistory(todayKey);
@@ -3774,11 +3793,15 @@ function autosaveDiary() {
 
 function saveDiaryToday() {
   if (!_diaryTodayKey) return;
-  var text = document.getElementById('diary-textarea').value;
+  var editor = document.getElementById('diary-textarea');
+  // Extract plain text from paragraphs, preserving line breaks
+  var text = Array.from(editor.querySelectorAll('p')).map(function(p) {
+    return p.innerText || '';
+  }).join('\n');
+  if (!text) text = editor.innerText || '';
   var location = localStorage.getItem('diary_location') || 'Parque Anchieta, Pelotas, RS';
   var data = { text: text, location: location, savedAt: new Date().toISOString() };
   localStorage.setItem(_diaryTodayKey, JSON.stringify(data));
-  // Also sync to Supabase
   dbMetricSave(_diaryTodayKey, JSON.stringify(data));
 }
 
