@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Dashboard">
 <meta name="theme-color" content="#F7F4EF">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -64,7 +64,7 @@
 
   /* Diary view */
   .diary-view { display: none; min-height: 100vh; }
-  .diary-container { max-width: 720px; margin: 0 auto; padding: 2.5rem 1.25rem; }
+  .diary-container { max-width: 720px; margin: 0 auto; padding: 2.5rem 0.5rem; }
   .diary-date { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 400; letter-spacing: -0.01em; color: var(--text); margin-bottom: 4px; }
   .diary-location { font-size: 0.75rem; color: var(--text-hint); font-weight: 300; margin-bottom: 2rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: color 0.15s; }
   .diary-location:hover { color: var(--text-muted); }
@@ -78,20 +78,20 @@
   }
   .diary-editor {
     width: 100%; min-height: calc(100vh - 260px);
-    font-family: 'Playfair Display', serif; font-size: 16px; line-height: 1.875;
-    font-weight: 300;
+    font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.875;
+    font-weight: 300; -webkit-font-smoothing: antialiased;
     color: var(--text); background: transparent; outline: none;
     letter-spacing: 0.01em; word-break: break-word; cursor: text;
   }
   .diary-editor:empty::before {
     content: 'Escreva livremente...';
-    color: var(--text-hint); font-style: italic; pointer-events: none;
+    color: var(--text-hint); font-style: italic; pointer-events: none; font-weight: 300;
   }
   .diary-editor p { margin: 0; padding: 0; line-height: 1.875; font-weight: 300; }
-  .diary-editor p + p { margin-top: 0.6em; }
+  .diary-editor p + p { margin-top: 0.45em; }
   .diary-editor div { margin: 0; padding: 0; line-height: 1.875; font-weight: 300; }
-  .diary-editor div + div { margin-top: 0.6em; }
-  .diary-editor br { display: block; margin-top: 0.6em; content: ''; }
+  .diary-editor div + div { margin-top: 0.45em; }
+  .diary-editor br { display: block; margin-top: 0.45em; content: ''; }
 
   /* Notes modal (sidebar bottom icon) */
   .notes-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; display: none; align-items: center; justify-content: center; }
