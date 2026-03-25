@@ -1269,7 +1269,7 @@
   <div class="modal" style="max-width:440px;">
     <h2 id="rl-fin-modal-title">Nova entrada</h2>
     <div class="modal-2col">
-      <div class="field-row"><label>Data</label><input type="date" id="rlfinf-data"></div>
+      <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="rlfinf-data"></div>
       <div class="field-row"><label>Fonte</label>
         <select id="rlfinf-fonte">
           <option value="Amazon Afiliados">Amazon Afiliados</option>
@@ -1348,7 +1348,7 @@
     <h2 id="rl-tarefa-modal-title">Nova tarefa</h2>
     <div class="modal-2col">
       <div class="field-row" style="grid-column:1/-1"><label>Tarefa</label><input type="text" id="rltf-tarefa" placeholder="Descrição da tarefa"></div>
-      <div class="field-row"><label>Data</label><input type="date" id="rltf-data"></div>
+      <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="rltf-data"></div>
       <div class="field-row"><label>Projeto</label>
         <select id="rltf-projeto">
           <option value="re.leio">re.leio</option>
@@ -1384,7 +1384,7 @@
       <div class="field-row"><label>Pacote vinculado</label>
         <select id="cuf-pacote"><option value="">— nenhum —</option></select>
       </div>
-      <div class="field-row"><label>Data</label><input type="date" id="cuf-data"></div>
+      <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="cuf-data"></div>
       <div class="field-row" style="grid-column:1/-1;"><label>Observação</label><textarea id="cuf-obs" rows="2" placeholder="Detalhes..."></textarea></div>
     </div>
     <div class="modal-actions">
@@ -1430,7 +1430,7 @@
       <div class="field-row"><label>Status</label>
         <select id="smf-status"><option>Ativo</option><option>Pausado</option><option>Cancelado</option><option>Prospect</option></select>
       </div>
-      <div class="field-row"><label>Início</label><input type="date" id="smf-inicio"></div>
+      <div class="field-row"><label>Início</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="smf-inicio"></div>
       <div class="field-row" style="grid-column:1/-1;"><label>Notas</label><textarea id="smf-notas" rows="2" placeholder="Preferências, programas de milhas favoritos..."></textarea></div>
     </div>
     <div class="modal-actions">
@@ -1448,8 +1448,8 @@
     <div class="modal-2col">
       <div class="field-row"><label>Destino</label><input type="text" id="svf-destino" placeholder="ex: Lisboa, Portugal"></div>
       <div class="field-row"><label>Membro</label><select id="svf-membro"><option value="">— nenhum —</option></select></div>
-      <div class="field-row"><label>Data de ida</label><input type="date" id="svf-data-ida"></div>
-      <div class="field-row"><label>Data de volta</label><input type="date" id="svf-data-volta"></div>
+      <div class="field-row"><label>Data de ida</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="svf-data-ida"></div>
+      <div class="field-row"><label>Data de volta</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="svf-data-volta"></div>
       <div class="field-row"><label>Cia aérea / Programa</label><input type="text" id="svf-cia" placeholder="ex: LATAM / Smiles"></div>
       <div class="field-row"><label>Milhas utilizadas</label><input type="number" id="svf-milhas" placeholder="ex: 45000"></div>
       <div class="field-row"><label>Status</label>
@@ -1476,7 +1476,7 @@
       <select id="smlf-tipo"><option>Acúmulo</option><option>Resgate</option><option>Expiração</option><option>Transferência</option><option>Bônus</option></select>
     </div>
     <div class="field-row"><label>Milhas</label><input type="number" id="smlf-milhas" placeholder="ex: 10000"></div>
-    <div class="field-row"><label>Data</label><input type="date" id="smlf-data"></div>
+    <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="smlf-data"></div>
     <div class="field-row"><label>Observação</label><input type="text" id="smlf-obs" placeholder="ex: Compra passagem Lisboa"></div>
     <div class="modal-actions">
       <button class="btn" id="soup-milhas-delete-btn" style="display:none;color:var(--coral);" onclick="deleteSoupMilhas()">Excluir</button>
@@ -1492,7 +1492,7 @@
     <h2 id="soup-fin-modal-title">Nova entrada</h2>
     <div class="field-row"><label>Descrição</label><input type="text" id="sff-desc" placeholder="ex: Mensalidade João Silva"></div>
     <div class="field-row"><label>Valor (R$)</label><input type="number" id="sff-valor" placeholder="ex: 297"></div>
-    <div class="field-row"><label>Data</label><input type="date" id="sff-data"></div>
+    <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="sff-data"></div>
     <div class="field-row"><label>Categoria</label>
       <select id="sff-cat"><option>Mensalidade</option><option>Setup</option><option>Serviço avulso</option><option>Ferramentas</option><option>Marketing</option><option>Outro</option></select>
     </div>
@@ -1517,7 +1517,7 @@
       <div class="field-row"><label>Editora</label><input type="text" id="rlf-editora" placeholder="ex: HarperCollins"></div>
       <div class="field-row"><label>Gênero</label><input type="text" id="rlf-genero" placeholder="ex: Fantasia"></div>
       <div class="field-row"><label>Páginas</label><input type="number" id="rlf-paginas" placeholder="ex: 432" min="1"></div>
-      <div class="field-row"><label>Finalizado em</label><input type="date" id="rlf-finalizado"></div>
+      <div class="field-row"><label>Finalizado em</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="rlf-finalizado"></div>
       <div class="field-row"><label>Status</label>
         <select id="rlf-status"><option>Fila</option><option>Lendo</option><option>Lido</option><option>Curado</option><option>Publicado</option></select>
       </div>
@@ -1546,7 +1546,7 @@
       <div class="field-row"><label>Status</label>
         <select id="rlpf-status"><option>Rascunho</option><option>Agendado</option><option>Publicado</option></select>
       </div>
-      <div class="field-row"><label>Data</label><input type="date" id="rlpf-data"></div>
+      <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="rlpf-data"></div>
       <div class="field-row"><label>Link</label><input type="text" id="rlpf-link" placeholder="https://..."></div>
       <div class="field-row" style="grid-column:1/-1;"><label>Notas</label><textarea id="rlpf-notas" rows="2" placeholder="Ideias, frases chave..."></textarea></div>
     </div>
@@ -1567,7 +1567,7 @@
     <div class="field-row"><label>Status</label>
       <select id="rlsf-status"><option>Rascunho</option><option>Agendado</option><option>Publicado</option></select>
     </div>
-    <div class="field-row"><label>Data</label><input type="date" id="rlsf-data"></div>
+    <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="rlsf-data"></div>
     <div class="field-row"><label>Aberturas</label><input type="number" id="rlsf-aberturas" placeholder="ex: 124"></div>
     <div class="modal-actions">
       <button class="btn" id="rl-sub-delete-btn" style="display:none;color:var(--coral);" onclick="deleteReleioSub()">Excluir</button>
@@ -1587,7 +1587,7 @@
       <div class="field-row" style="grid-column:1/-1;"><label>Nome completo</label><input type="text" id="cf-nome" placeholder="Nome dos noivos"></div>
       <div class="field-row" style="grid-column:1/-1;"><label>Local do casamento</label><input type="text" id="cf-local" placeholder="Local da cerimônia ou recepção"></div>
 
-      <div class="field-row"><label>Data do casamento</label><input type="date" id="cf-data"></div>
+      <div class="field-row"><label>Data do casamento</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="cf-data"></div>
       <div class="field-row"><label>Status</label>
         <select id="cf-status">
           <option>Prospect</option>
@@ -1611,7 +1611,7 @@
       <div class="field-row"><label>Valor total (R$)</label><input type="number" id="cf-valor" placeholder="Valor do contrato"></div>
       <div class="field-row"><label>Valor pago (R$)</label><input type="number" id="cf-pago" placeholder="Valor já recebido"></div>
 
-      <div class="field-row" style="grid-column:1/-1;"><label>Data do contrato</label><input type="date" id="cf-contrato"></div>
+      <div class="field-row" style="grid-column:1/-1;"><label>Data do contrato</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="cf-contrato"></div>
       <div class="field-row" style="grid-column:1/-1;"><label>Notas</label><textarea id="cf-notas" rows="3" placeholder="Preferências, estilo, observações..."></textarea></div>
     </div>
 
@@ -1670,7 +1670,7 @@
     <div class="field-row"><label>Cliente</label>
       <select id="pf-cliente"><option value="">— geral —</option></select>
     </div>
-    <div class="field-row"><label>Prazo</label><input type="date" id="pf-prazo"></div>
+    <div class="field-row"><label>Prazo</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="pf-prazo"></div>
     <div class="field-row"><label>Prioridade</label>
       <select id="pf-prio"><option value="normal">Normal</option><option value="alta">Alta</option><option value="baixa">Baixa</option></select>
     </div>
@@ -1689,7 +1689,7 @@
     <h2 id="fin-modal-title">Nova Entrada</h2>
     <div class="field-row"><label>Descrição</label><input type="text" id="ff-desc" placeholder="ex: Sinal casamento Maria & João"></div>
     <div class="field-row"><label>Valor (R$)</label><input type="number" id="ff-valor" placeholder="ex: 4500"></div>
-    <div class="field-row"><label>Data</label><input type="date" id="ff-data"></div>
+    <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="ff-data"></div>
     <div class="field-row"><label>Categoria</label>
       <select id="ff-cat">
         <option>Contrato</option><option>Sinal</option><option>Parcela</option><option>Saldo final</option>
@@ -2230,12 +2230,12 @@ function openClientModal(id) {
     document.getElementById('cf-tel').value      = c.tel||'';
     document.getElementById('cf-cpf').value      = c.cpf||'';
     document.getElementById('cf-rg').value       = c.rg||'';
-    document.getElementById('cf-data').value     = c.dataCasamento||'';
+    setDateValue('cf-data', c.dataCasamento||'');
     document.getElementById('cf-local').value    = c.local||'';
     document.getElementById('cf-status').value   = c.status||'Prospect';
     document.getElementById('cf-valor').value    = c.valor||'';
     document.getElementById('cf-pago').value     = c.pago||'';
-    document.getElementById('cf-contrato').value = c.contrato||'';
+    setDateValue('cf-contrato', c.contrato||'');
     document.getElementById('cf-notas').value    = c.notas||'';
     document.getElementById('client-delete-btn').style.display = 'inline-flex';
     _loadAnexoForClient(c);
@@ -2324,11 +2324,11 @@ function gerarContrato() {
   var tel      = document.getElementById('cf-tel').value.trim()   || '_______________';
   var cpf      = document.getElementById('cf-cpf').value.trim()   || '_______________';
   var rg       = document.getElementById('cf-rg').value.trim()    || '_______________';
-  var data     = document.getElementById('cf-data').value;
+  var data     = getDateValue('cf-data');
   var local    = document.getElementById('cf-local').value.trim() || '_______________';
   var valor    = document.getElementById('cf-valor').value;
   var pago     = document.getElementById('cf-pago').value;
-  var contrato = document.getElementById('cf-contrato').value;
+  var contrato = getDateValue('cf-contrato');
   var notas    = document.getElementById('cf-notas').value.trim();
 
   function fmt(d) {
@@ -2413,12 +2413,12 @@ function saveClient() {
     tel:           document.getElementById('cf-tel').value.trim(),
     cpf:           document.getElementById('cf-cpf').value.trim(),
     rg:            document.getElementById('cf-rg').value.trim(),
-    dataCasamento: document.getElementById('cf-data').value,
+    dataCasamento: getDateValue('cf-data'),
     local:         document.getElementById('cf-local').value.trim(),
     status:        document.getElementById('cf-status').value,
     valor:         parseFloat(document.getElementById('cf-valor').value)||0,
     pago:          parseFloat(document.getElementById('cf-pago').value)||0,
-    contrato:      document.getElementById('cf-contrato').value,
+    contrato:      getDateValue('cf-contrato'),
     notas:         document.getElementById('cf-notas').value.trim(),
     // Preserve existing anexo if no new one was attached; use new one if available
     anexo:         _anexoData || (existing ? existing.anexo : null)
@@ -2574,7 +2574,7 @@ function openPendModal(id) {
     document.getElementById('pend-modal-title').textContent = 'Editar Pendência';
     document.getElementById('pf-titulo').value    = p.titulo||'';
     document.getElementById('pf-cliente').value   = p.clienteId||'';
-    document.getElementById('pf-prazo').value     = p.prazo||'';
+    setDateValue('pf-prazo', p.prazo||'');
     document.getElementById('pf-prio').value      = p.prio||'normal';
     document.getElementById('pend-delete-btn').style.display = 'inline-flex';
   } else {
@@ -2593,7 +2593,7 @@ function savePend() {
     id:        editingPendId || uid(),
     titulo:    document.getElementById('pf-titulo').value.trim(),
     clienteId: document.getElementById('pf-cliente').value,
-    prazo:     document.getElementById('pf-prazo').value,
+    prazo:     getDateValue('pf-prazo'),
     prio:      document.getElementById('pf-prio').value,
     feito:     false
   };
@@ -2665,7 +2665,7 @@ function openFinModal(tipo, id) {
     document.getElementById('fin-modal-title').textContent = 'Editar Lançamento';
     document.getElementById('ff-desc').value   = e.desc||'';
     document.getElementById('ff-valor').value  = e.valor||'';
-    document.getElementById('ff-data').value   = e.data||'';
+    setDateValue('ff-data', e.data||'');
     document.getElementById('ff-cat').value    = e.cat||'Contrato';
     document.getElementById('ff-cliente').value= e.clienteId||'';
     document.getElementById('ff-tipo').value   = e.tipo||'entrada';
@@ -2673,7 +2673,7 @@ function openFinModal(tipo, id) {
   } else {
     document.getElementById('fin-modal-title').textContent = tipo==='entrada' ? 'Nova Entrada' : 'Nova Saída';
     ['ff-desc','ff-valor'].forEach(function(id){ document.getElementById(id).value=''; });
-    document.getElementById('ff-data').value    = new Date().toISOString().split('T')[0];
+    setDateValue('ff-data', new Date().toISOString().split('T')[0]);
     document.getElementById('ff-cat').value     = tipo==='entrada' ? 'Contrato' : 'Equipamento';
     document.getElementById('ff-cliente').value = '';
     document.getElementById('ff-tipo').value    = tipo||'entrada';
@@ -2688,7 +2688,7 @@ function saveFin() {
     id:        editingFinId || uid(),
     desc:      document.getElementById('ff-desc').value.trim(),
     valor:     parseFloat(document.getElementById('ff-valor').value)||0,
-    data:      document.getElementById('ff-data').value,
+    data:      getDateValue('ff-data'),
     cat:       document.getElementById('ff-cat').value,
     clienteId: document.getElementById('ff-cliente').value,
     tipo:      document.getElementById('ff-tipo').value
@@ -3150,7 +3150,7 @@ function openCustoModal(id) {
     document.getElementById('cuf-valor').value  = c.valor||'';
     document.getElementById('cuf-cliente').value= c.clienteId||'';
     document.getElementById('cuf-pacote').value = c.pacoteId||'';
-    document.getElementById('cuf-data').value   = c.data||'';
+    setDateValue('cuf-data', c.data||'');
     document.getElementById('cuf-obs').value    = c.obs||'';
     document.getElementById('custo-delete-btn').style.display='inline-flex';
   } else {
@@ -3170,7 +3170,7 @@ function saveCusto() {
     valor:     parseFloat(document.getElementById('cuf-valor').value)||0,
     clienteId: document.getElementById('cuf-cliente').value,
     pacoteId:  document.getElementById('cuf-pacote').value,
-    data:      document.getElementById('cuf-data').value,
+    data:      getDateValue('cuf-data'),
     obs:       document.getElementById('cuf-obs').value.trim()
   };
   if (!obj.desc) { alert('Informe a descrição.'); return; }
@@ -3371,7 +3371,7 @@ function openSoupMemberModal(id) {
     document.getElementById('smf-nome').value=m.nome||'';document.getElementById('smf-email').value=m.email||'';
     document.getElementById('smf-tel').value=m.tel||'';document.getElementById('smf-plano').value=m.plano||'Essencial';
     document.getElementById('smf-mensalidade').value=m.mensalidade||'';document.getElementById('smf-milhas').value=m.milhas||'';
-    document.getElementById('smf-status').value=m.status||'Ativo';document.getElementById('smf-inicio').value=m.inicio||'';
+    document.getElementById('smf-status').value=m.status||'Ativo';setDateValue('smf-inicio', m.inicio||'');
     document.getElementById('smf-notas').value=m.notas||'';
     document.getElementById('soup-member-delete-btn').style.display='inline-flex';
   } else {
@@ -3388,7 +3388,7 @@ function saveSoupMember(){
     email:document.getElementById('smf-email').value.trim(),tel:document.getElementById('smf-tel').value.trim(),
     plano:document.getElementById('smf-plano').value,mensalidade:parseFloat(document.getElementById('smf-mensalidade').value)||0,
     milhas:parseFloat(document.getElementById('smf-milhas').value)||0,status:document.getElementById('smf-status').value,
-    inicio:document.getElementById('smf-inicio').value,notas:document.getElementById('smf-notas').value.trim()};
+    inicio:getDateValue('smf-inicio'),notas:document.getElementById('smf-notas').value.trim()};
   if(!obj.nome){alert('Informe o nome.');return;}
   var list=getSoupMembros();
   if(editingSoupMemberId){var idx=list.findIndex(function(m){return m.id===editingSoupMemberId;});if(idx>-1)list[idx]=obj;else list.push(obj);}
@@ -3438,7 +3438,7 @@ function openSoupViagemModal(id){
     var v=getSoupViagens().find(function(x){return x.id===id;});if(!v)return;
     document.getElementById('soup-viagem-modal-title').textContent='Editar viagem';
     document.getElementById('svf-destino').value=v.destino||'';document.getElementById('svf-membro').value=v.membroId||'';
-    document.getElementById('svf-data-ida').value=v.dataIda||'';document.getElementById('svf-data-volta').value=v.dataVolta||'';
+    setDateValue('svf-data-ida', v.dataIda||'');setDateValue('svf-data-volta', v.dataVolta||'');
     document.getElementById('svf-cia').value=v.cia||'';document.getElementById('svf-milhas').value=v.milhas||'';
     document.getElementById('svf-status').value=v.status||'Planejando';document.getElementById('svf-economia').value=v.economia||'';
     document.getElementById('svf-notas').value=v.notas||'';
@@ -3454,8 +3454,8 @@ function openSoupViagemModal(id){
 function closeSoupViagemModal(){document.getElementById('soup-viagem-overlay').classList.remove('open');}
 function saveSoupViagem(){
   var obj={id:editingSoupViagemId||uid(),destino:document.getElementById('svf-destino').value.trim(),
-    membroId:document.getElementById('svf-membro').value,dataIda:document.getElementById('svf-data-ida').value,
-    dataVolta:document.getElementById('svf-data-volta').value,cia:document.getElementById('svf-cia').value.trim(),
+    membroId:document.getElementById('svf-membro').value,dataIda:getDateValue('svf-data-ida'),
+    dataVolta:getDateValue('svf-data-volta'),cia:document.getElementById('svf-cia').value.trim(),
     milhas:parseFloat(document.getElementById('svf-milhas').value)||0,status:document.getElementById('svf-status').value,
     economia:parseFloat(document.getElementById('svf-economia').value)||0,notas:document.getElementById('svf-notas').value.trim()};
   if(!obj.destino){alert('Informe o destino.');return;}
@@ -3497,12 +3497,12 @@ function openSoupMilhasModal(id){
     document.getElementById('soup-milhas-modal-title').textContent='Editar lançamento';
     document.getElementById('smlf-membro').value=m.membroId||'';document.getElementById('smlf-programa').value=m.programa||'';
     document.getElementById('smlf-tipo').value=m.tipo||'Acúmulo';document.getElementById('smlf-milhas').value=m.milhas||'';
-    document.getElementById('smlf-data').value=m.data||'';document.getElementById('smlf-obs').value=m.obs||'';
+    setDateValue('smlf-data', m.data||'');document.getElementById('smlf-obs').value=m.obs||'';
     document.getElementById('soup-milhas-delete-btn').style.display='inline-flex';
   } else {
     document.getElementById('soup-milhas-modal-title').textContent='Lançamento de milhas';
     ['smlf-programa','smlf-milhas','smlf-obs'].forEach(function(id){document.getElementById(id).value='';});
-    document.getElementById('smlf-tipo').value='Acúmulo';document.getElementById('smlf-data').value=new Date().toISOString().split('T')[0];
+    document.getElementById('smlf-tipo').value='Acúmulo';setDateValue('smlf-data', new Date().toISOString().split('T')[0]);
     document.getElementById('soup-milhas-delete-btn').style.display='none';
   }
   document.getElementById('soup-milhas-overlay').classList.add('open');
@@ -3511,7 +3511,7 @@ function closeSoupMilhasModal(){document.getElementById('soup-milhas-overlay').c
 function saveSoupMilhas(){
   var obj={id:editingSoupMilhasId||uid(),membroId:document.getElementById('smlf-membro').value,
     programa:document.getElementById('smlf-programa').value.trim(),tipo:document.getElementById('smlf-tipo').value,
-    milhas:parseFloat(document.getElementById('smlf-milhas').value)||0,data:document.getElementById('smlf-data').value,
+    milhas:parseFloat(document.getElementById('smlf-milhas').value)||0,data:getDateValue('smlf-data'),
     obs:document.getElementById('smlf-obs').value.trim()};
   var list=getSoupMilhas();
   if(editingSoupMilhasId){var idx=list.findIndex(function(m){return m.id===editingSoupMilhasId;});if(idx>-1)list[idx]=obj;else list.push(obj);}
@@ -3559,7 +3559,7 @@ function openSoupFinModal(tipo,id){
     var f=getSoupFin().find(function(x){return x.id===id;});if(!f)return;
     document.getElementById('soup-fin-modal-title').textContent='Editar lançamento';
     document.getElementById('sff-desc').value=f.desc||'';document.getElementById('sff-valor').value=f.valor||'';
-    document.getElementById('sff-data').value=f.data||'';document.getElementById('sff-cat').value=f.cat||'Mensalidade';
+    setDateValue('sff-data', f.data||'');document.getElementById('sff-cat').value=f.cat||'Mensalidade';
     document.getElementById('sff-membro').value=f.membroId||'';document.getElementById('sff-tipo').value=f.tipo||'entrada';
     document.getElementById('soup-fin-delete-btn').style.display='inline-flex';
   } else {
@@ -3573,7 +3573,7 @@ function openSoupFinModal(tipo,id){
 function closeSoupFinModal(){document.getElementById('soup-fin-overlay').classList.remove('open');}
 function saveSoupFin(){
   var obj={id:editingSoupFinId||uid(),desc:document.getElementById('sff-desc').value.trim(),
-    valor:parseFloat(document.getElementById('sff-valor').value)||0,data:document.getElementById('sff-data').value,
+    valor:parseFloat(document.getElementById('sff-valor').value)||0,data:getDateValue('sff-data'),
     cat:document.getElementById('sff-cat').value,membroId:document.getElementById('sff-membro').value,
     tipo:document.getElementById('sff-tipo').value};
   if(!obj.desc){alert('Informe a descrição.');return;}
@@ -3728,7 +3728,7 @@ function openReleioLivroModal(id){
     document.getElementById('rl-livro-modal-title').textContent='Editar livro';
     document.getElementById('rlf-titulo').value=l.titulo||'';document.getElementById('rlf-autor').value=l.autor||'';
     document.getElementById('rlf-editora').value=l.editora||'';document.getElementById('rlf-genero').value=l.genero||'';
-    document.getElementById('rlf-paginas').value=l.paginas||'';document.getElementById('rlf-finalizado').value=l.finalizado||'';
+    document.getElementById('rlf-paginas').value=l.paginas||'';setDateValue('rlf-finalizado', l.finalizado||'');
     document.getElementById('rlf-status').value=l.status||'Fila';
     document.getElementById('rlf-resumo').value=l.resumo||'';
     document.getElementById('rl-livro-delete-btn').style.display='inline-flex';
@@ -3746,7 +3746,7 @@ function saveReleioLivro(){
     autor:document.getElementById('rlf-autor').value.trim(),editora:document.getElementById('rlf-editora').value.trim(),
     genero:document.getElementById('rlf-genero').value.trim(),
     paginas:document.getElementById('rlf-paginas').value||'',
-    finalizado:document.getElementById('rlf-finalizado').value||'',
+    finalizado:getDateValue('rlf-finalizado')||'',
     status:document.getElementById('rlf-status').value,resumo:document.getElementById('rlf-resumo').value.trim(),
     avaliacao: (getReleioLivros().find(function(x){return x.id===editingReleioLivroId;})||{}).avaliacao||0};
   if(!obj.titulo){alert('Informe o título.');return;}
@@ -3789,7 +3789,7 @@ function openReleioPublicacaoModal(id){
     document.getElementById('rl-pub-modal-title').textContent='Editar publicação';
     document.getElementById('rlpf-livro').value=p.livroId||'';document.getElementById('rlpf-platform').value=p.plataforma||'Instagram';
     document.getElementById('rlpf-tipo').value=p.tipo||'Resenha';document.getElementById('rlpf-status').value=p.status||'Rascunho';
-    document.getElementById('rlpf-data').value=p.data||'';document.getElementById('rlpf-link').value=p.link||'';
+    setDateValue('rlpf-data', p.data||'');document.getElementById('rlpf-link').value=p.link||'';
     document.getElementById('rlpf-notas').value=p.notas||'';
     document.getElementById('rl-pub-delete-btn').style.display='inline-flex';
   } else {
@@ -3805,7 +3805,7 @@ function closeReleioPublicacaoModal(){document.getElementById('rl-pub-overlay').
 function saveReleioPublicacao(){
   var obj={id:editingReleioPubId||uid(),livroId:document.getElementById('rlpf-livro').value,
     plataforma:document.getElementById('rlpf-platform').value,tipo:document.getElementById('rlpf-tipo').value,
-    status:document.getElementById('rlpf-status').value,data:document.getElementById('rlpf-data').value,
+    status:document.getElementById('rlpf-status').value,data:getDateValue('rlpf-data'),
     link:document.getElementById('rlpf-link').value.trim(),notas:document.getElementById('rlpf-notas').value.trim()};
   var list=getReleioPublicacoes();
   if(editingReleioPubId){var idx=list.findIndex(function(p){return p.id===editingReleioPubId;});if(idx>-1)list[idx]=obj;else list.push(obj);}
@@ -3845,7 +3845,7 @@ function openReleioSubstackModal(id){
     var s=getReleioSubstack().find(function(x){return x.id===id;});if(!s)return;
     document.getElementById('rl-sub-modal-title').textContent='Editar newsletter';
     document.getElementById('rlsf-titulo').value=s.titulo||'';document.getElementById('rlsf-livro').value=s.livroId||'';
-    document.getElementById('rlsf-status').value=s.status||'Rascunho';document.getElementById('rlsf-data').value=s.data||'';
+    document.getElementById('rlsf-status').value=s.status||'Rascunho';setDateValue('rlsf-data', s.data||'');
     document.getElementById('rlsf-aberturas').value=s.aberturas||'';
     document.getElementById('rl-sub-delete-btn').style.display='inline-flex';
   } else {
@@ -3860,7 +3860,7 @@ function closeReleioSubstackModal(){document.getElementById('rl-sub-overlay').cl
 function saveReleioSubstack(){
   var obj={id:editingReleioSubId||uid(),titulo:document.getElementById('rlsf-titulo').value.trim(),
     livroId:document.getElementById('rlsf-livro').value,status:document.getElementById('rlsf-status').value,
-    data:document.getElementById('rlsf-data').value,aberturas:parseInt(document.getElementById('rlsf-aberturas').value)||0};
+    data:getDateValue('rlsf-data'),aberturas:parseInt(document.getElementById('rlsf-aberturas').value)||0};
   if(!obj.titulo){alert('Informe o título.');return;}
   var list=getReleioSubstack();
   if(editingReleioSubId){var idx=list.findIndex(function(s){return s.id===editingReleioSubId;});if(idx>-1)list[idx]=obj;else list.push(obj);}
@@ -4373,14 +4373,14 @@ function openRlFinModal(id) {
     var e = getReleioFin().find(function(x){ return x.id===id; });
     if (!e) return;
     document.getElementById('rl-fin-modal-title').textContent = 'Editar entrada';
-    document.getElementById('rlfinf-data').value   = e.data   || '';
+    setDateValue('rlfinf-data', e.data   || '');
     document.getElementById('rlfinf-fonte').value  = e.fonte  || 'Amazon Afiliados';
     document.getElementById('rlfinf-desc').value   = e.desc   || '';
     document.getElementById('rlfinf-valor').value  = e.valor  || '';
     del.style.display = 'inline-flex';
   } else {
     document.getElementById('rl-fin-modal-title').textContent = 'Nova entrada';
-    document.getElementById('rlfinf-data').value   = new Date().toISOString().split('T')[0];
+    setDateValue('rlfinf-data', new Date().toISOString().split('T')[0]);
     document.getElementById('rlfinf-fonte').value  = 'Amazon Afiliados';
     document.getElementById('rlfinf-desc').value   = '';
     document.getElementById('rlfinf-valor').value  = '';
@@ -4393,7 +4393,7 @@ function saveRlFin() {
   if (!valor) { alert('Informe o valor.'); return; }
   var obj = {
     id:    editingRlFinId || uid(),
-    data:  document.getElementById('rlfinf-data').value,
+    data:  getDateValue('rlfinf-data'),
     fonte: document.getElementById('rlfinf-fonte').value,
     desc:  document.getElementById('rlfinf-desc').value.trim(),
     valor: valor
@@ -4514,13 +4514,13 @@ function openReleioTarefaModal(id) {
     if (!t) return;
     document.getElementById('rl-tarefa-modal-title').textContent = 'Editar tarefa';
     document.getElementById('rltf-tarefa').value  = t.tarefa || '';
-    document.getElementById('rltf-data').value    = t.data || '';
+    setDateValue('rltf-data', t.data || '');
     document.getElementById('rltf-projeto').value = t.projeto || 're.leio';
     document.getElementById('rltf-delete-btn').style.display = 'inline-flex';
   } else {
     document.getElementById('rl-tarefa-modal-title').textContent = 'Nova tarefa';
     document.getElementById('rltf-tarefa').value  = '';
-    document.getElementById('rltf-data').value    = '';
+    setDateValue('rltf-data', '');
     document.getElementById('rltf-projeto').value = 're.leio';
     document.getElementById('rltf-delete-btn').style.display = 'none';
   }
@@ -4532,7 +4532,7 @@ function saveReleioTarefa() {
   var obj = {
     id:      editingReleioTarefaId || uid(),
     tarefa:  tarefa,
-    data:    document.getElementById('rltf-data').value,
+    data:    getDateValue('rltf-data'),
     projeto: document.getElementById('rltf-projeto').value
   };
   var list = getReleioTarefas();
@@ -4572,40 +4572,84 @@ function renderReleioTarefas() {
 /* ── SMART DATE INPUT — digita 25032026 → 25/03/2026 ─────── */
 document.addEventListener('keydown', function(e) {
   var input = e.target;
-  if (input.type !== 'date') return;
-  // Only handle digit keys
-  var digit = e.key;
-  if (!/^[0-9]$/.test(digit)) return;
+  if (!input.classList || !input.classList.contains('smart-date-input')) return;
+
+  var key = e.key;
+
+  // Allow Tab, Backspace, Delete, Arrow keys
+  if (key === 'Tab' || key === 'Escape') return;
+  if (key === 'Backspace' || key === 'Delete') {
+    input.setAttribute('data-raw', '');
+    input.value = '';
+    return;
+  }
+  if (!/^[0-9]$/.test(key)) return;
 
   e.preventDefault();
   var raw = (input.getAttribute('data-raw') || '').replace(/\D/g, '');
-  raw = (raw + digit).slice(0, 8);
+  raw = (raw + key).slice(0, 8);
   input.setAttribute('data-raw', raw);
 
-  // Format as YYYY-MM-DD for the input value when we have 8 digits
+  // Format display: DD/MM/AAAA with slashes as you type
+  var display = '';
+  if (raw.length <= 2) display = raw;
+  else if (raw.length <= 4) display = raw.slice(0,2) + '/' + raw.slice(2);
+  else display = raw.slice(0,2) + '/' + raw.slice(2,4) + '/' + raw.slice(4);
+  input.value = display;
+
+  // When 8 digits complete, validate and store internal value
   if (raw.length === 8) {
     var dd = raw.slice(0,2), mm = raw.slice(2,4), yyyy = raw.slice(4,8);
     var dateStr = yyyy + '-' + mm + '-' + dd;
-    var test = new Date(dateStr);
-    if (!isNaN(test)) {
-      input.value = dateStr;
-      input.setAttribute('data-raw', '');
-      // Trigger change event so dependent functions run
+    var test = new Date(dateStr + 'T00:00:00');
+    if (!isNaN(test) && test.getFullYear() > 1900) {
+      input.setAttribute('data-value', dateStr); // internal YYYY-MM-DD
       input.dispatchEvent(new Event('change', { bubbles: true }));
-      // Move focus to next field
-      var fields = Array.from(document.querySelectorAll('input, select, textarea, button'));
+      // Move to next focusable field
+      var fields = Array.from(document.querySelectorAll('input:not([disabled]), select, textarea'));
       var idx = fields.indexOf(input);
       if (idx > -1 && fields[idx+1]) fields[idx+1].focus();
+    } else {
+      input.setAttribute('data-raw', '');
+      input.value = '';
     }
-  } else if (raw.length === 2 || raw.length === 4) {
-    // Show partial value while typing — day done, move visual feedback
-    // Nothing to do visually for type=date, but keep data-raw
   }
 }, true);
 
-// Clear data-raw when user manually changes the input
-document.addEventListener('change', function(e) {
-  if (e.target.type === 'date') e.target.setAttribute('data-raw', '');
+// Helper: get YYYY-MM-DD value from a smart date input
+function getDateValue(inputId) {
+  var el = document.getElementById(inputId);
+  if (!el) return '';
+  // Try data-value first (set after 8 digits)
+  var dv = el.getAttribute('data-value');
+  if (dv) return dv;
+  // Try parsing current display value DD/MM/YYYY
+  var v = (el.value || '').trim();
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
+    var parts = v.split('/');
+    return parts[2] + '-' + parts[1] + '-' + parts[0];
+  }
+  return '';
+}
+
+// Helper: set display value from YYYY-MM-DD
+function setDateValue(inputId, isoDate) {
+  var el = document.getElementById(inputId);
+  if (!el) return;
+  if (!isoDate) { el.value = ''; el.setAttribute('data-raw',''); el.setAttribute('data-value',''); return; }
+  var parts = isoDate.split('-');
+  if (parts.length === 3) {
+    el.value = parts[2] + '/' + parts[1] + '/' + parts[0];
+    el.setAttribute('data-value', isoDate);
+    el.setAttribute('data-raw', parts[2] + parts[1] + parts[0]);
+  }
+}
+
+// Clear data-raw when user manually clears the field
+document.addEventListener('input', function(e) {
+  var input = e.target;
+  if (!input.classList || !input.classList.contains('smart-date-input')) return;
+  if (!input.value) { input.setAttribute('data-raw',''); input.setAttribute('data-value',''); }
 });
 
 // Registra service worker — atualiza automaticamente e funciona offline
