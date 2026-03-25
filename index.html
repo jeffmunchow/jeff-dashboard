@@ -1234,10 +1234,15 @@
     </div>
 
     <!-- TAREFAS -->
-    <div class="tab-panel" id="rlpanel-tarefas">
+    <div class="tab-panel" id="rlpanel-tarefas" style="padding:0;">
       <div class="section-header">
         <div class="section-title">Tarefas</div>
         <div class="section-actions">
+          <select id="rl-tarefa-filter" onchange="renderReleioTarefas()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:5px 10px;color:var(--text);outline:none;">
+            <option value="pendente">A fazer</option>
+            <option value="concluida">Concluídas</option>
+            <option value="">Todas</option>
+          </select>
           <button class="btn primary" onclick="openReleioTarefaModal()">+ Tarefa</button>
         </div>
       </div>
@@ -3028,7 +3033,7 @@ function renderDashboardNextEvents() {
   if (rEl) {
     var today = now.toISOString().split('T')[0];
     var tasks = getReleioTarefas()
-      .filter(function(t){ return t.data >= today; })
+      .filter(function(t){ return !t.done && t.data >= today; })
       .sort(function(a,b){ return a.data.localeCompare(b.data); });
     if (!tasks.length) {
       rEl.innerHTML = '<div class="nev-empty">Nenhuma tarefa cadastrada</div>';
@@ -3047,10 +3052,21 @@ function renderDashboardNextEvents() {
   }
 }
 
+function toggleReleioTarefaDone(id) {
+  var list = getReleioTarefas();
+  var item = list.find(function(t){ return t.id === id; });
+  if (!item) return;
+  item.done = !item.done;
+  saveReleioTarefas(list);
+  renderReleioTarefas();
+}
+
 function checkReleioTarefaWidget(id, e) {
-  e.stopPropagation(); // don't navigate to re.leio
-  if (!confirm('Marcar tarefa como concluída?')) return;
-  var list = getReleioTarefas().filter(function(t){ return t.id !== id; });
+  e.stopPropagation();
+  var list = getReleioTarefas();
+  var item = list.find(function(t){ return t.id === id; });
+  if (!item) return;
+  item.done = true;
   saveReleioTarefas(list);
   renderDashboardNextEvents();
 }
@@ -4551,20 +4567,30 @@ function deleteReleioTarefa() {
   renderReleioTarefas();
 }
 function renderReleioTarefas() {
-  var list = getReleioTarefas();
+  var filter = (document.getElementById('rl-tarefa-filter') || {value: 'pendente'}).value;
+  var all = getReleioTarefas();
+  var list = all.filter(function(t) {
+    if (filter === 'pendente')  return !t.done;
+    if (filter === 'concluida') return !!t.done;
+    return true;
+  });
   var tbody = document.getElementById('rl-tarefas-tbody');
   if (!tbody) return;
   if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-hint);padding:2rem;">Nenhuma tarefa cadastrada</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-hint);padding:2rem;">Nenhuma tarefa encontrada</td></tr>';
     return;
   }
   tbody.innerHTML = list.map(function(t) {
-    var dt = t.data ? t.data.split('-').reverse().join('/') : '—';
-    return '<tr>' +
+    var dt = t.data ? (t.data.includes('-') ? t.data.split('-').reverse().join('/') : t.data) : '—';
+    var doneStyle = t.done ? 'opacity:0.45;text-decoration:line-through;' : '';
+    return '<tr style="' + doneStyle + '">' +
       '<td>' + t.tarefa + '</td>' +
       '<td>' + dt + '</td>' +
       '<td>' + (t.projeto||'—') + '</td>' +
-      '<td><button class="row-action" onclick="openReleioTarefaModal(\'' + t.id + '\')">Editar</button></td>' +
+      '<td style="display:flex;gap:6px;align-items:center;">' +
+        '<button class="row-action" onclick="toggleReleioTarefaDone(\'' + t.id + '\')" style="' + (t.done ? 'color:var(--teal);' : '') + '">' + (t.done ? '✓ Feita' : 'Concluir') + '</button>' +
+        '<button class="row-action" onclick="openReleioTarefaModal(\'' + t.id + '\')">Editar</button>' +
+      '</td>' +
     '</tr>';
   }).join('');
 }
