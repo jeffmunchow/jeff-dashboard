@@ -261,18 +261,18 @@
   #client-overlay input::placeholder,
   #client-overlay textarea::placeholder { color: var(--border-strong); opacity: 1; }
   .notes-area textarea:focus { border-color: var(--border-strong); }
-  .last-updated { padding: 0.5rem 1.5rem 1rem; font-size: 0.64rem; color: var(--text-hint); font-weight: 300; }
+  .last-updated { display: none; }
 
   /* Next event widget on dashboard cards */
   .next-event-widget { padding: 0.85rem 1.5rem 0.9rem; }
   .nev-label { font-size: 0.62rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
-  .nev-empty { font-size: 0.78rem; color: var(--text-hint); font-style: italic; }
-  .nev-card { display: flex; flex-direction: column; gap: 2px; }
-  .nev-title { font-size: 0.85rem; color: var(--text); font-weight: 500; }
+  .nev-empty { font-size: 0.78rem; color: var(--text-hint); }
+  .nev-card { display: flex; flex-direction: row; align-items: baseline; gap: 10px; }
+  .nev-title { font-size: 0.82rem; color: var(--text); font-weight: 400; }
   .nev-meta { font-size: 0.72rem; color: var(--text-muted); }
-  .nev-date-badge { display: inline-block; font-size: 0.68rem; padding: 2px 8px; border-radius: 20px; background: var(--amber-light); color: var(--amber); margin-bottom: 4px; }
-  .nev-date-badge.teal { background: var(--teal-light); color: var(--teal); }
-  .nev-date-badge.coral { background: var(--coral-light); color: var(--coral); }
+  .nev-date-badge { display: inline-block; font-size: 0.68rem; color: var(--text-hint); font-weight: 300; white-space: nowrap; flex-shrink: 0; background: none; padding: 0; }
+  .nev-date-badge.teal  { color: var(--text-hint); background: none; padding: 0; }
+  .nev-date-badge.coral { color: var(--text-hint); background: none; padding: 0; }
 
   /* Sparkline follower cells */
   .metric-cell.has-spark { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
@@ -557,10 +557,10 @@
     </div>
     <div class="project-body-clickable" onclick="navigateToProject(event, 'releio-view')" title="Abrir re.leio">
     <div class="metrics-grid">
-      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores Instagram</div><div class="metric-value" id="r-seguidores">7.000</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-r"></canvas></div></div>
-      <div class="metric-cell"><div class="metric-label">Livros lidos</div><div class="metric-value" id="r-lidos">—</div><div class="metric-sub">total</div></div>
-      <div class="metric-cell accent-coral"><div class="metric-label">Livros curados</div><div class="metric-value" id="r-livros">—</div><div class="metric-sub">publicados</div></div>
+      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="r-seguidores">7.000</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-r"></canvas></div></div>
+      <div class="metric-cell"><div class="metric-label">Livros lidos</div><div class="metric-value" id="r-lidos">—</div></div>
       <div class="metric-cell"><div class="metric-label">Assinantes</div><div class="metric-value" id="r-assinantes">—</div><div class="metric-sub">newsletter</div></div>
+      <div class="metric-cell accent-coral"><div class="metric-label">Livros curados</div><div class="metric-value" id="r-livros">—</div></div>
     </div>
     <div class="divider"></div>
     <div class="next-event-widget" id="r-next-event-widget">
