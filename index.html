@@ -316,6 +316,8 @@
 
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
+  /* Failsafe padding for panels that may not be inside studio-body */
+  #rlpanel-tarefas.active, #rlpanel-financeiro.active { padding: 2rem 2.5rem !important; }
 
   /* Summary cards */
   .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 1rem; margin-bottom: 1.75rem; }
