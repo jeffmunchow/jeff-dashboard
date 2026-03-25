@@ -64,9 +64,9 @@
 
   /* Diary view */
   .diary-view { display: none; min-height: 100vh; }
-  .diary-container { max-width: 720px; margin: 0 auto; padding: 2.5rem 2.5rem; }
-  .diary-date { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 400; letter-spacing: -0.01em; color: var(--text); margin-bottom: 4px; }
-  .diary-location { font-size: 0.75rem; color: var(--text-hint); font-weight: 300; margin-bottom: 2rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: color 0.15s; }
+  .diary-container { max-width: 720px; margin: 0 auto; padding: 2.5rem 0; }
+  .diary-date { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 400; letter-spacing: -0.01em; color: var(--text); margin-bottom: 4px; padding: 0 2.5rem; }
+  .diary-location { font-size: 0.75rem; color: var(--text-hint); font-weight: 300; margin-bottom: 2rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: color 0.15s; padding: 0 2.5rem; }
   .diary-location:hover { color: var(--text-muted); }
   .diary-location-input { font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: var(--text-muted); background: transparent; border: none; border-bottom: 0.5px solid var(--border-strong); outline: none; padding: 1px 0; width: 220px; }
   .diary-textarea {
@@ -82,6 +82,7 @@
     font-weight: 300; -webkit-font-smoothing: antialiased;
     color: var(--text); background: transparent; outline: none;
     letter-spacing: 0.01em; word-break: break-word; cursor: text;
+    padding: 0 2.5rem; box-sizing: border-box;
   }
   .diary-editor:empty::before {
     content: 'Escreva livremente...';
