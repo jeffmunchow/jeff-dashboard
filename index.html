@@ -87,11 +87,11 @@
     content: 'Escreva livremente...';
     color: var(--text-hint); font-style: italic; pointer-events: none; font-weight: 300;
   }
-  .diary-editor p { margin: 0; padding: 0; line-height: 1.875; font-weight: 300; }
+  .diary-editor p  { margin: 0; padding: 0; line-height: 1.875; font-weight: 300; min-height: 1.875em; }
   .diary-editor p + p { margin-top: 0.7em; }
-  .diary-editor div { margin: 0; padding: 0; line-height: 1.875; font-weight: 300; }
+  .diary-editor div { margin: 0; padding: 0; line-height: 1.875; font-weight: 300; min-height: 1.875em; }
   .diary-editor div + div { margin-top: 0.7em; }
-  .diary-editor br { display: block; content: ''; }
+  .diary-editor br { display: block; }
 
   /* Notes modal (sidebar bottom icon) */
   .notes-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; display: none; align-items: center; justify-content: center; }
@@ -119,7 +119,7 @@
   /* Dashboard header — sem borda, centralizado verticalmente */
   #main-view > .header {
     border-bottom: none;
-    padding: 1.1rem 2rem;
+    padding: 1.75rem 2rem 0.75rem;
     justify-content: space-between;
     align-items: center;
   }
@@ -289,7 +289,7 @@
   .field-row input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; color: var(--text); outline: none; transition: background 0.25s, border-color 0.25s, color 0.25s; }
   .field-row input:focus { border-color: var(--border-strong); }
   .modal-actions { display: flex; gap: 8px; margin-top: 1.5rem; justify-content: flex-end; }
-  .footer { text-align: center; padding: 1.25rem; font-size: 0.68rem; color: var(--text-hint); font-weight: 300; font-style: italic; letter-spacing: 0.01em; }
+  .footer { text-align: center; padding: 0.5rem 1.25rem 1.25rem; font-size: 0.68rem; color: var(--text-hint); font-weight: 300; font-style: italic; letter-spacing: 0.01em; }
 
   /* ─── STUDIO VIEW ─────────────────────────────────────────────── */
   #studio-view { display: none; min-height: 100vh; }
@@ -3888,6 +3888,9 @@ function showDiaryView() {
 }
 
 function initDiary() {
+  // Tell the browser to use <div> on Enter (Safari default, most consistent)
+  try { document.execCommand('defaultParagraphSeparator', false, 'div'); } catch(e){}
+
   var now = new Date();
   var todayKey = diaryTodayKey();
 
@@ -3919,26 +3922,10 @@ function initDiary() {
 }
 
 function diaryHandleKey(e) {
-  if (e.key !== 'Enter') return;
-  e.preventDefault();
-  var sel = window.getSelection();
-  if (!sel.rangeCount) return;
-  var range = sel.getRangeAt(0);
-  range.deleteContents();
-
-  // Create a new paragraph and move cursor into it
-  var p = document.createElement('p');
-  p.appendChild(document.createElement('br')); // needed so cursor lands inside
-  range.insertNode(p);
-
-  // If we were inside a text node or inline element, wrap preceding content in a p too
-  // Move cursor inside the new paragraph
-  var newRange = document.createRange();
-  newRange.setStart(p, 0);
-  newRange.collapse(true);
-  sel.removeAllRanges();
-  sel.addRange(newRange);
-  autosaveDiary();
+  // Let the browser handle Enter natively — we just autosave
+  if (e.key === 'Enter') {
+    setTimeout(autosaveDiary, 10);
+  }
 }
 
 function autosaveDiary() {
