@@ -344,7 +344,7 @@
   /* Table */
   .data-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
   .data-table th { text-align: left; font-size: 0.64rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 400; padding: 10px 12px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
-  .data-table td { padding: 11px 12px; border-bottom: 0.5px solid var(--border); color: var(--text-muted); vertical-align: middle; background: transparent; }
+  .data-table td { padding: 11px 12px; border-bottom: 0.5px solid var(--border); border-top: none; color: var(--text-muted); vertical-align: middle; background: transparent; }
   /* Sort indicator */
   .data-table th { cursor: default; }
   .data-table th[onclick] { cursor: pointer; }
@@ -3855,6 +3855,10 @@ function renderReleioLivros(){
     var col = _livrosSortCol, dir = _livrosSortDir;
     list = list.slice().sort(function(a, b) {
       var va = a[col] || '', vb = b[col] || '';
+      // Empty values always go to the bottom regardless of direction
+      if (!va && vb) return 1;
+      if (va && !vb) return -1;
+      if (!va && !vb) return 0;
       if (col === 'paginas' || col === 'avaliacao') {
         va = parseFloat(va) || 0; vb = parseFloat(vb) || 0;
         return (va - vb) * dir;
