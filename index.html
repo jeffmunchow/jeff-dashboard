@@ -455,57 +455,6 @@
   .nav-btns { display: flex; align-items: center; gap: 6px; }
   .nav-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border-radius: 8px; border: 0.5px solid var(--border-strong); background: transparent; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
   .nav-btn:hover { background: var(--surface2); color: var(--text); }
-
-  /* ── TAREFAS VIEW ──────────────────────────────────────────── */
-  #tarefas-view { display:none; min-height:100vh; }
-  .tarefas-week-bar { display:flex; align-items:center; gap:4px; padding:0 1.25rem 0 0; border-bottom:0.5px solid var(--border); background:var(--surface); height:48px; overflow-x:auto; }
-  .tarefas-week-nav { background:none; border:none; color:var(--text-hint); cursor:pointer; padding:4px 8px; border-radius:6px; font-size:1rem; line-height:1; transition:background 0.15s; flex-shrink:0; }
-  .tarefas-week-nav:hover { background:var(--surface2); color:var(--text); }
-  .tarefas-day-btn { background:none; border:none; cursor:pointer; padding:5px 10px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.72rem; color:var(--text-muted); transition:background 0.15s,color 0.15s; display:flex; flex-direction:column; align-items:center; gap:1px; min-width:48px; flex-shrink:0; }
-  .tarefas-day-btn:hover { background:var(--surface2); color:var(--text); }
-  .tarefas-day-btn.active { background:var(--amber); color:#fff; border-radius:8px; }
-  .tarefas-day-btn .day-name { font-size:0.58rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:500; }
-  .tarefas-day-btn .day-num  { font-size:0.85rem; font-weight:400; }
-  .tarefas-today-btn { margin-left:4px; font-family:'DM Sans',sans-serif; font-size:0.67rem; background:none; border:0.5px solid var(--border-strong); border-radius:6px; padding:3px 8px; color:var(--text-hint); cursor:pointer; flex-shrink:0; }
-  .tarefas-today-btn:hover { background:var(--surface2); color:var(--text); }
-  .tarefas-body { display:flex; gap:0; height:calc(100vh - 104px); overflow:hidden; }
-  .tarefas-list-panel { width:50%; border-right:0.5px solid var(--border); overflow-y:auto; padding:1.25rem; flex-shrink:0; }
-  .tarefas-list-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
-  .tarefas-list-title { font-family:'Playfair Display',serif; font-size:0.9rem; font-weight:600; color:var(--text); }
-  .tarefas-list-date  { font-size:0.68rem; color:var(--text-hint); }
-  .tarefas-item { display:flex; align-items:flex-start; gap:9px; padding:9px 0; border-bottom:0.5px solid var(--border); cursor:pointer; }
-  .tarefas-item:last-child { border-bottom:none; }
-  .tarefas-item:hover { opacity:0.75; }
-  .tarefas-item.done .tarefas-item-title { text-decoration:line-through; color:var(--text-hint); }
-  .tarefas-item-check { width:15px; height:15px; border-radius:50%; border:1.2px solid var(--border-strong); flex-shrink:0; margin-top:2px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s,border-color 0.15s; }
-  .tarefas-item-check.checked { background:var(--teal); border-color:var(--teal); }
-  .tarefas-item-check.checked::after { content:'✓'; font-size:8px; color:#fff; }
-  .tarefas-item-body  { flex:1; min-width:0; }
-  .tarefas-item-title { font-size:0.8rem; color:var(--text); margin-bottom:2px; line-height:1.35; }
-  .tarefas-item-meta  { font-size:0.67rem; color:var(--text-hint); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
-  .tarefas-item-proj  { font-size:0.6rem; padding:1px 6px; border-radius:10px; font-weight:500; }
-  .proj-pessoal { background:rgba(90,100,130,0.15); color:#7A8AAA; }
-  .proj-munchow { background:rgba(196,120,10,0.12); color:var(--amber); }
-  .proj-soup    { background:rgba(10,120,100,0.12); color:var(--teal); }
-  .proj-releio  { background:rgba(196,58,26,0.12); color:var(--coral); }
-  .tarefas-empty { text-align:center; padding:3rem 0; color:var(--text-hint); font-size:0.78rem; font-style:italic; }
-  .tarefas-grid-panel { flex:1; overflow-y:auto; position:relative; background:var(--bg); }
-  .tarefas-hour-row   { display:flex; align-items:flex-start; min-height:52px; position:relative; }
-  .tarefas-hour-label { width:52px; flex-shrink:0; font-size:0.63rem; color:var(--text-hint); padding:5px 8px 0 12px; user-select:none; text-align:right; }
-  .tarefas-hour-slot  { flex:1; border-top:0.5px solid var(--border); min-height:52px; position:relative; cursor:pointer; }
-  .tarefas-hour-slot:hover { background:rgba(196,120,10,0.03); }
-  #tf-hora, #tf-hora-fim { max-height:200px; overflow-y:auto; }
-  .tarefas-block { position:absolute; left:58px; right:16px; border-radius:6px; padding:3px 8px; cursor:pointer; overflow:hidden; z-index:2; }
-  .tarefas-block:hover { filter:brightness(1.1); }
-  .tarefas-block-title { font-size:0.7rem; font-weight:500; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .tarefas-block-time  { font-size:0.6rem; color:rgba(255,255,255,0.82); }
-  .block-pessoal { background:#7A8AAA; }
-  .block-munchow { background:var(--amber); }
-  .block-soup    { background:var(--teal); }
-  .block-releio  { background:var(--coral); }
-  .tarefas-now-line { position:absolute; left:58px; right:12px; height:1.5px; background:var(--coral); z-index:4; pointer-events:none; }
-  .tarefas-now-dot  { position:absolute; left:50px; width:8px; height:8px; border-radius:50%; background:var(--coral); z-index:4; margin-top:-3px; pointer-events:none; }
-  .conflict-banner { background:rgba(196,58,26,0.12); border:0.5px solid var(--coral); border-radius:6px; padding:6px 10px; font-size:0.72rem; color:var(--coral); margin-bottom:0.75rem; display:none; }
 </style>
 </head>
 <body>
@@ -524,15 +473,15 @@
     <button class="sidebar-btn" onclick="showCitacoesView()" title="Citações">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 6.5C2.5 5.1 3.6 4 5 4h.5V2.5H5C2.8 2.5 1 4.3 1 6.5v3.5h3.5V6.5H2.5z" fill="currentColor" opacity="0.9"/><path d="M8.5 6.5C8.5 5.1 9.6 4 11 4h.5V2.5H11C8.8 2.5 7 4.3 7 6.5v3.5h3.5V6.5H8.5z" fill="currentColor" opacity="0.9"/></svg>
     </button>
-    <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-      </button>
+    <button class="sidebar-btn" onclick="" title="Tarefas" style="opacity:0.4;cursor:default;">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+    </button>
   </div>
   <div class="sidebar-bottom">
     <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.1</div>
+    <div class="sidebar-version">v.1.0</div>
   </div>
 </div>
 
@@ -578,7 +527,7 @@
       Simulação de 52 semanas — cenário plausível de crescimento. Será substituído pelos dados reais quando você quiser.
     </div>
   
-    <div class="sidebar-version">v.1.1</div>
+    <div class="sidebar-version">v.1.0</div>
   </div>
 </div>
 
@@ -667,7 +616,7 @@
       <button class="sidebar-btn" onclick="showCitacoesView()" title="Citações">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 6.5C2.5 5.1 3.6 4 5 4h.5V2.5H5C2.8 2.5 1 4.3 1 6.5v3.5h3.5V6.5H2.5z" fill="currentColor" opacity="0.9"/><path d="M8.5 6.5C8.5 5.1 9.6 4 11 4h.5V2.5H11C8.8 2.5 7 4.3 7 6.5v3.5h3.5V6.5H8.5z" fill="currentColor" opacity="0.9"/></svg>
       </button>
-      <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
+      <button class="sidebar-btn" onclick="" title="Tarefas" style="opacity:0.4;cursor:default;">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       </button>
     </div>
@@ -677,7 +626,7 @@
       </button>
     </div>
   
-    <div class="sidebar-version">v.1.1</div>
+    <div class="sidebar-version">v.1.0</div>
   </div>
 
   <!-- Archive panel -->
@@ -736,7 +685,7 @@
       <button class="sidebar-btn active" onclick="showCitacoesView()" title="Citações" style="color:var(--amber);">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 6.5C2.5 5.1 3.6 4 5 4h.5V2.5H5C2.8 2.5 1 4.3 1 6.5v3.5h3.5V6.5H2.5z" fill="currentColor" opacity="0.9"/><path d="M8.5 6.5C8.5 5.1 9.6 4 11 4h.5V2.5H11C8.8 2.5 7 4.3 7 6.5v3.5h3.5V6.5H8.5z" fill="currentColor" opacity="0.9"/></svg>
       </button>
-      <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
+      <button class="sidebar-btn" onclick="" title="Tarefas" style="opacity:0.4;cursor:default;">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       </button>
     </div>
@@ -746,7 +695,7 @@
       </button>
     </div>
   
-    <div class="sidebar-version">v.1.1</div>
+    <div class="sidebar-version">v.1.0</div>
   </div>
 
   <div class="header" style="border-bottom:0.5px solid var(--border);">
@@ -797,114 +746,6 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!--  TAREFAS                                                        -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<div id="tarefas-view">
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="sidebar-top">
-      <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
-      </button>
-      <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
-        <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/></svg>
-      </button>
-      <button class="sidebar-btn" onclick="showCitacoesView()" title="Citações">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 6.5C2.5 5.1 3.6 4 5 4h.5V2.5H5C2.8 2.5 1 4.3 1 6.5v3.5h3.5V6.5H2.5z" fill="currentColor" opacity="0.9"/><path d="M8.5 6.5C8.5 5.1 9.6 4 11 4h.5V2.5H11C8.8 2.5 7 4.3 7 6.5v3.5h3.5V6.5H8.5z" fill="currentColor" opacity="0.9"/></svg>
-      </button>
-      <button class="sidebar-btn active" onclick="showTarefasView()" title="Tarefas" style="color:var(--amber);">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-      </button>
-    </div>
-    <div class="sidebar-bottom">
-      <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-      </button>
-      <div class="sidebar-version">v.1.1</div>
-    </div>
-  </div>
-
-  <!-- Header -->
-  <div class="header" style="border-bottom:0.5px solid var(--border);">
-    <div class="header-left">
-      <h1 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;letter-spacing:-0.01em;">Tarefas</h1>
-      <p id="tarefas-header-date" style="font-size:0.72rem;color:var(--text-hint);margin-top:2px;font-weight:300;"></p>
-    </div>
-    <div class="header-right">
-      <button class="btn primary" onclick="openTarefaModal()">+ Tarefa</button>
-      <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
-        <svg class="icon-sun" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="2" fill="#C4780A"/><line x1="5" y1="0" x2="5" y2="1.5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="8.5" x2="5" y2="10" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="5" x2="1.5" y2="5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="8.5" y1="5" x2="10" y2="5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="1.46" y1="1.46" x2="2.52" y2="2.52" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="7.48" y1="7.48" x2="8.54" y2="8.54" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="8.54" y1="1.46" x2="7.48" y2="2.52" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="2.52" y1="7.48" x2="1.46" y2="8.54" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/></svg>
-        <svg class="icon-moon" viewBox="0 0 10 10" fill="none"><path d="M8.5 6.5A4 4 0 0 1 3.5 1.5a4 4 0 1 0 5 5z" fill="#D4902A"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Week bar -->
-  <div class="tarefas-week-bar">
-    <button class="tarefas-week-nav" onclick="tarefasNavWeek(-1)">&#8249;</button>
-    <div id="tarefas-days-bar" style="display:flex;gap:2px;"></div>
-    <button class="tarefas-week-nav" onclick="tarefasNavWeek(1)">&#8250;</button>
-    <button class="tarefas-today-btn" onclick="tarefasGoToday()">Hoje</button>
-  </div>
-
-  <!-- Body: list + grid -->
-  <div class="tarefas-body">
-    <!-- List -->
-    <div class="tarefas-list-panel">
-      <div class="tarefas-list-header">
-        <div class="tarefas-list-title" id="tarefas-list-title">Tarefas do dia</div>
-        <div style="display:flex;gap:4px;">
-          <button onclick="setTarefaFilter('all')" id="tf-all" class="btn" style="font-size:0.65rem;padding:2px 8px;opacity:0.5;">Todas</button>
-          <button onclick="setTarefaFilter('open')" id="tf-open" class="btn primary" style="font-size:0.65rem;padding:2px 8px;">A fazer</button>
-        </div>
-      </div>
-      <div id="tarefas-conflict-banner" class="conflict-banner"></div>
-      <div id="tarefas-list-body"></div>
-    </div>
-    <!-- Grid -->
-    <div class="tarefas-grid-panel" id="tarefas-grid-panel">
-      <div id="tarefas-grid-inner" style="padding:1.5rem 1rem 2rem;position:relative;"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Tarefa modal -->
-<div class="overlay" id="tarefa-overlay">
-  <div class="modal" style="max-width:480px;">
-    <h2 id="tarefa-modal-title">Nova tarefa</h2>
-    <div class="modal-2col">
-      <div class="field-row" style="grid-column:1/-1;"><label>Título</label><input type="text" id="tf-titulo" placeholder="O que precisa ser feito?"></div>
-      <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" id="tf-data" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10"></div>
-      <div class="field-row"><label>Projeto</label>
-        <select id="tf-projeto">
-          <option value="pessoal">Pessoal</option>
-          <option value="munchow">Münchow</option>
-          <option value="soup">Soup</option>
-          <option value="releio">re.leio</option>
-        </select>
-      </div>
-      <div class="field-row"><label>Horário de início</label>
-        <select id="tf-hora" size="5" style="height:108px;overflow-y:auto;border-radius:var(--radius-sm);border:0.5px solid var(--border-strong);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.75rem;width:100%;padding:2px 0;">
-          <option value="">Sem horário</option>
-        </select>
-      </div>
-      <div class="field-row"><label>Horário de término</label>
-        <select id="tf-hora-fim" size="5" style="height:108px;overflow-y:auto;border-radius:var(--radius-sm);border:0.5px solid var(--border-strong);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.75rem;width:100%;padding:2px 0;">
-          <option value="">Sem fim</option>
-        </select>
-      </div>
-    </div>
-    <div id="tf-conflict-msg" style="display:none;background:rgba(196,58,26,0.1);border:0.5px solid var(--coral);border-radius:6px;padding:8px 12px;font-size:0.72rem;color:var(--coral);margin-bottom:0.75rem;"></div>
-    <div class="modal-actions">
-      <button class="btn" id="tf-delete-btn" style="display:none;color:var(--coral);" onclick="deleteTarefa()">Excluir</button>
-      <div style="flex:1"></div>
-      <button class="btn" onclick="document.getElementById('tarefa-overlay').classList.remove('open')">Cancelar</button>
-      <button class="btn primary" onclick="saveTarefa()">Salvar</button>
-    </div>
-  </div>
-</div>
-
 <div id="studio-view">
   <div class="sidebar">
     <div class="sidebar-top">
@@ -917,9 +758,9 @@
     <button class="sidebar-btn" onclick="showCitacoesView()" title="Citações">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 6.5C2.5 5.1 3.6 4 5 4h.5V2.5H5C2.8 2.5 1 4.3 1 6.5v3.5h3.5V6.5H2.5z" fill="currentColor" opacity="0.9"/><path d="M8.5 6.5C8.5 5.1 9.6 4 11 4h.5V2.5H11C8.8 2.5 7 4.3 7 6.5v3.5h3.5V6.5H8.5z" fill="currentColor" opacity="0.9"/></svg>
     </button>
-    <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-      </button>
+    <button class="sidebar-btn" onclick="" title="Tarefas" style="opacity:0.4;cursor:default;">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+    </button>
   </div>
   <div class="sidebar-bottom">
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
@@ -927,7 +768,7 @@
     </button>
   </div>
   
-    <div class="sidebar-version">v.1.1</div>
+    <div class="sidebar-version">v.1.0</div>
   </div>
 
   <!-- Header Studio -->
@@ -1163,9 +1004,9 @@
     <button class="sidebar-btn" onclick="showCitacoesView()" title="Citações">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 6.5C2.5 5.1 3.6 4 5 4h.5V2.5H5C2.8 2.5 1 4.3 1 6.5v3.5h3.5V6.5H2.5z" fill="currentColor" opacity="0.9"/><path d="M8.5 6.5C8.5 5.1 9.6 4 11 4h.5V2.5H11C8.8 2.5 7 4.3 7 6.5v3.5h3.5V6.5H8.5z" fill="currentColor" opacity="0.9"/></svg>
     </button>
-    <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-      </button>
+    <button class="sidebar-btn" onclick="" title="Tarefas" style="opacity:0.4;cursor:default;">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+    </button>
   </div>
   <div class="sidebar-bottom">
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
@@ -1173,7 +1014,7 @@
     </button>
   </div>
   
-    <div class="sidebar-version">v.1.1</div>
+    <div class="sidebar-version">v.1.0</div>
   </div>
   <div class="header">
     <div class="header-left">
@@ -1358,9 +1199,9 @@
     <button class="sidebar-btn" onclick="showCitacoesView()" title="Citações">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 6.5C2.5 5.1 3.6 4 5 4h.5V2.5H5C2.8 2.5 1 4.3 1 6.5v3.5h3.5V6.5H2.5z" fill="currentColor" opacity="0.9"/><path d="M8.5 6.5C8.5 5.1 9.6 4 11 4h.5V2.5H11C8.8 2.5 7 4.3 7 6.5v3.5h3.5V6.5H8.5z" fill="currentColor" opacity="0.9"/></svg>
     </button>
-    <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-      </button>
+    <button class="sidebar-btn" onclick="" title="Tarefas" style="opacity:0.4;cursor:default;">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+    </button>
   </div>
   <div class="sidebar-bottom">
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
@@ -1368,7 +1209,7 @@
     </button>
   </div>
   
-    <div class="sidebar-version">v.1.1</div>
+    <div class="sidebar-version">v.1.0</div>
   </div>
   <div class="header">
     <div class="header-left">
@@ -1630,7 +1471,29 @@
 </div>
 
 <!-- Tarefa modal (re.leio) -->
-<!-- rl-tarefa-overlay replaced by shared tarefa modal -->
+<div class="overlay" id="rl-tarefa-overlay">
+  <div class="modal" style="max-width:480px;">
+    <h2 id="rl-tarefa-modal-title">Nova tarefa</h2>
+    <div class="modal-2col">
+      <div class="field-row" style="grid-column:1/-1"><label>Tarefa</label><input type="text" id="rltf-tarefa" placeholder="Descrição da tarefa"></div>
+      <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="rltf-data"></div>
+      <div class="field-row"><label>Projeto</label>
+        <select id="rltf-projeto">
+          <option value="re.leio">re.leio</option>
+          <option value="Münchow">Münchow</option>
+          <option value="Soup">Soup</option>
+          <option value="Pessoal">Pessoal</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="rltf-delete-btn" style="display:none;color:var(--coral);" onclick="deleteReleioTarefa()">Excluir</button>
+      <div style="flex:1"></div>
+      <button class="btn" onclick="document.getElementById('rl-tarefa-overlay').classList.remove('open')">Cancelar</button>
+      <button class="btn primary" onclick="saveReleioTarefa()">Salvar</button>
+    </div>
+  </div>
+</div>
 <div class="overlay" id="custo-overlay">
   <div class="modal" style="max-width:520px;">
     <h2 id="custo-modal-title">Novo custo</h2>
@@ -2288,7 +2151,7 @@ function navigateToProject(e, proj) {
   else if (proj === 'releio-view') showReleioView();
 }
 
-var ALL_VIEWS = ['main-view','studio-view','soup-view','releio-view','diario-view','citacoes-view','tarefas-view'];
+var ALL_VIEWS = ['main-view','studio-view','soup-view','releio-view','diario-view','citacoes-view'];
 function hideAllViews() {
   ALL_VIEWS.forEach(function(id){
     var el = document.getElementById(id);
@@ -3311,7 +3174,7 @@ function renderDashboardNextEvents() {
   if (rEl) {
     var today = now.toISOString().split('T')[0];
     var tasks = getReleioTarefas()
-      .filter(function(t){ return !t.done && t.data && t.data >= today; })
+      .filter(function(t){ return !t.done && t.data >= today; })
       .sort(function(a,b){ return a.data.localeCompare(b.data); });
     if (!tasks.length) {
       rEl.innerHTML = '<div class="nev-empty">Nenhuma tarefa cadastrada</div>';
@@ -3322,7 +3185,7 @@ function renderDashboardNextEvents() {
         html += '<div style="display:flex;align-items:center;gap:8px;margin-top:'+(i===0?'0':'6px')+';'+opacity+'">' +
           '<button onclick="checkReleioTarefaWidget(\''+t.id+'\',event)" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'var(--coral)\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
           '<span style="font-size:0.68rem;color:var(--text-hint);white-space:nowrap;flex-shrink:0;">'+fmtDate(t.data)+'</span>' +
-          '<span style="font-size:0.82rem;color:var(--text);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(t.titulo||t.tarefa||'')+'</span>' +
+          '<span style="font-size:0.82rem;color:var(--text);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+t.tarefa+'</span>' +
         '</div>';
       });
       rEl.innerHTML = html;
@@ -3330,7 +3193,24 @@ function renderDashboardNextEvents() {
   }
 }
 
-// toggleReleioTarefaDone and checkReleioTarefaWidget defined in re.leio tasks section
+function toggleReleioTarefaDone(id) {
+  var list = getReleioTarefas();
+  var item = list.find(function(t){ return t.id === id; });
+  if (!item) return;
+  item.done = !item.done;
+  saveReleioTarefas(list);
+  renderReleioTarefas();
+}
+
+function checkReleioTarefaWidget(id, e) {
+  e.stopPropagation();
+  var list = getReleioTarefas();
+  var item = list.find(function(t){ return t.id === id; });
+  if (!item) return;
+  item.done = true;
+  saveReleioTarefas(list);
+  renderDashboardNextEvents();
+}
 
 /* ═══════════════════════════════════════════════════════════
    CUSTOS — DATA & RENDER
@@ -3960,12 +3840,8 @@ function renderReleioResumo(){
 
 /* RELEIO LIVROS */
 /* ── LIVROS: SORT ─────────────────────────────────────────── */
-// Persist sort state across sessions
-var _livrosSortState = (function(){
-  try { return JSON.parse(localStorage.getItem('livros_sort')||'null'); } catch(e){ return null; }
-})();
-var _livrosSortCol = _livrosSortState ? _livrosSortState.col : null;
-var _livrosSortDir = _livrosSortState ? _livrosSortState.dir : 1;
+var _livrosSortCol = null;
+var _livrosSortDir = 1; // 1 = asc, -1 = desc
 
 function sortLivros(col) {
   if (_livrosSortCol === col) {
@@ -3974,7 +3850,6 @@ function sortLivros(col) {
     _livrosSortCol = col;
     _livrosSortDir = 1;
   }
-  localStorage.setItem('livros_sort', JSON.stringify({col:_livrosSortCol, dir:_livrosSortDir}));
   // Update sort indicators
   ['titulo','autor','editora','genero','paginas','finalizado','status','avaliacao'].forEach(function(c) {
     var el = document.getElementById('sort-livros-' + c);
@@ -3985,11 +3860,6 @@ function sortLivros(col) {
 }
 
 function renderReleioLivros(){
-  // Restore sort indicator
-  ['titulo','autor','editora','genero','paginas','finalizado','status','avaliacao'].forEach(function(c) {
-    var el = document.getElementById('sort-livros-' + c);
-    if (el) el.textContent = (c === _livrosSortCol) ? (_livrosSortDir === 1 ? ' ↑' : ' ↓') : '';
-  });
   var q=(document.getElementById('rl-livro-search')||{value:''}).value.toLowerCase();
   var sf=(document.getElementById('rl-livro-status-filter')||{value:''}).value;
   var list=getReleioLivros().filter(function(l){
@@ -4957,55 +4827,58 @@ function renderRlFin() {
 }
 
 /* ── TAREFAS (re.leio) ───────────────────────────────────── */
-/* ── RE.LEIO TAREFAS — usa a mesma store das Tarefas globais ── */
 function getReleioTarefas() {
-  // Re.leio tasks are stored in tarefas_v1, filtered by projeto='releio'
-  return getTarefas().filter(function(t){ return t.projeto === 'releio'; });
+  try { return JSON.parse(localStorage.getItem('releio_tarefas') || '[]'); } catch(e) { return []; }
 }
-function saveReleioTarefas(list) {
-  // Not used directly — re.leio saves via saveTarefasData
+function saveReleioTarefas(d) {
+  localStorage.setItem('releio_tarefas', JSON.stringify(d));
+  dbSaveList('releio_tarefas', d);
 }
 
 var editingReleioTarefaId = null;
 function openReleioTarefaModal(id) {
-  // Open the shared Tarefas modal, pre-set projeto to 'releio'
-  openTarefaModal(id);
-  if (!id) {
-    // For new tasks from re.leio: pre-select releio and today's date
-    setTimeout(function() {
-      var projSel = document.getElementById('tf-projeto');
-      if (projSel) projSel.value = 'releio';
-    }, 10);
+  editingReleioTarefaId = id || null;
+  if (id) {
+    var t = getReleioTarefas().find(function(x){ return x.id===id; });
+    if (!t) return;
+    document.getElementById('rl-tarefa-modal-title').textContent = 'Editar tarefa';
+    document.getElementById('rltf-tarefa').value  = t.tarefa || '';
+    setDateValue('rltf-data', t.data || '');
+    document.getElementById('rltf-projeto').value = t.projeto || 're.leio';
+    document.getElementById('rltf-delete-btn').style.display = 'inline-flex';
+  } else {
+    document.getElementById('rl-tarefa-modal-title').textContent = 'Nova tarefa';
+    document.getElementById('rltf-tarefa').value  = '';
+    setDateValue('rltf-data', '');
+    document.getElementById('rltf-projeto').value = 're.leio';
+    document.getElementById('rltf-delete-btn').style.display = 'none';
   }
+  document.getElementById('rl-tarefa-overlay').classList.add('open');
 }
-
 function saveReleioTarefa() {
-  saveTarefa(); // delegate to shared save
-}
-
-function deleteReleioTarefa() {
-  deleteTarefa(); // delegate to shared delete
-}
-
-function toggleReleioTarefaDone(id) {
-  var list = getTarefas();
-  var item = list.find(function(t){ return t.id === id; });
-  if (!item) return;
-  item.done = !item.done;
-  saveTarefasData(list);
+  var tarefa = document.getElementById('rltf-tarefa').value.trim();
+  if (!tarefa) { alert('Informe a tarefa.'); return; }
+  var obj = {
+    id:      editingReleioTarefaId || uid(),
+    tarefa:  tarefa,
+    data:    getDateValue('rltf-data'),
+    projeto: document.getElementById('rltf-projeto').value
+  };
+  var list = getReleioTarefas();
+  if (editingReleioTarefaId) {
+    var idx = list.findIndex(function(x){ return x.id===editingReleioTarefaId; });
+    if (idx > -1) list[idx] = obj;
+  } else { list.push(obj); }
+  saveReleioTarefas(list);
+  document.getElementById('rl-tarefa-overlay').classList.remove('open');
   renderReleioTarefas();
 }
-
-function checkReleioTarefaWidget(id, e) {
-  e.stopPropagation();
-  var list = getTarefas();
-  var item = list.find(function(t){ return t.id === id; });
-  if (!item) return;
-  item.done = true;
-  saveTarefasData(list);
-  renderDashboardNextEvents();
+function deleteReleioTarefa() {
+  if (!confirm('Excluir esta tarefa?')) return;
+  saveReleioTarefas(getReleioTarefas().filter(function(x){ return x.id!==editingReleioTarefaId; }));
+  document.getElementById('rl-tarefa-overlay').classList.remove('open');
+  renderReleioTarefas();
 }
-
 function renderReleioTarefas() {
   var filter = (document.getElementById('rl-tarefa-filter') || {value: 'pendente'}).value;
   var all = getReleioTarefas();
@@ -5024,7 +4897,7 @@ function renderReleioTarefas() {
     var dt = t.data ? (t.data.includes('-') ? t.data.split('-').reverse().join('/') : t.data) : '—';
     var doneStyle = t.done ? 'opacity:0.45;text-decoration:line-through;' : '';
     return '<tr style="' + doneStyle + '">' +
-      '<td>' + (t.titulo || t.tarefa || '') + '</td>' +
+      '<td>' + t.tarefa + '</td>' +
       '<td>' + dt + '</td>' +
       '<td>' + (t.projeto||'—') + '</td>' +
       '<td style="display:flex;gap:6px;align-items:center;">' +
@@ -5250,465 +5123,18 @@ document.addEventListener('keydown', function(e) {
     case '3': e.preventDefault(); showSoupView(); break;
     case '4': e.preventDefault(); showReleioView(); break;
     case '5': e.preventDefault(); showCitacoesView(); break;
-    case '6': e.preventDefault(); showTarefasView(); break;
     // Backtick varia por layout de teclado — cobre todas as variantes
     case '`': case "'": case '"': case '~': case 'Dead':
       e.preventDefault(); toggleNotesModal(); break;
   }
 }, true);
 
-/* ── TAREFAS ─────────────────────────────────────────────────── */
-var _tarefasSelectedDate = null; // 'YYYY-MM-DD'
-var _tarefasWeekOffset  = 0;     // weeks from current
-var _tarefasFilter      = 'open'; // 'open' | 'all'
-var _editingTarefaId    = null;
-var _tarefasNowTimer    = null;
-
-var HORA_START = 6;
-var HORA_END   = 22;
-var HORA_SLOT  = 52; // px per hour
-
-function getTarefas() {
-  try { return JSON.parse(localStorage.getItem('tarefas_v1') || '[]'); } catch(e){ return []; }
-}
-function saveTarefasData(d) {
-  localStorage.setItem('tarefas_v1', JSON.stringify(d));
-  dbMetricSave('tarefas_v1', JSON.stringify(d));
-}
-
-// ── Navigation ──────────────────────────────────────────────────
-function showTarefasView() {
-  hideAllViews();
-  document.getElementById('tarefas-view').style.display = 'block';
-  var now = new Date();
-  if (!_tarefasSelectedDate) _tarefasSelectedDate = _dateKey(now);
-  _tarefasWeekOffset = 0;
-  _updateTarefasHeader();
-  renderTarefasWeekBar();
-  renderTarefasList();
-  renderTarefasGrid();
-  _startNowLine();
-  window.scrollTo(0,0);
-}
-
-function _dateKey(d) {
-  return d.getFullYear() + '-' + _pad(d.getMonth()+1) + '-' + _pad(d.getDate());
-}
-function _pad(n) { return n < 10 ? '0'+n : ''+n; }
-
-function _updateTarefasHeader() {
-  var d = _selectedDateObj();
-  var days = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
-  var months = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  document.getElementById('tarefas-header-date').textContent = days[d.getDay()] + ', ' + d.getDate() + ' de ' + months[d.getMonth()];
-}
-
-function _selectedDateObj() {
-  var parts = (_tarefasSelectedDate || _dateKey(new Date())).split('-');
-  return new Date(+parts[0], +parts[1]-1, +parts[2]);
-}
-
-function tarefasNavWeek(dir) {
-  _tarefasWeekOffset += dir;
-  renderTarefasWeekBar();
-}
-
-function tarefasGoToday() {
-  _tarefasWeekOffset = 0;
-  _tarefasSelectedDate = _dateKey(new Date());
-  _updateTarefasHeader();
-  renderTarefasWeekBar();
-  renderTarefasList();
-  renderTarefasGrid();
-}
-
-function tarefasSelectDay(dateKey) {
-  _tarefasSelectedDate = dateKey;
-  _updateTarefasHeader();
-  renderTarefasWeekBar();
-  renderTarefasList();
-  renderTarefasGrid();
-}
-
-function renderTarefasWeekBar() {
-  var bar = document.getElementById('tarefas-days-bar');
-  if (!bar) return;
-  var today = _dateKey(new Date());
-  var now = new Date();
-  // Find Monday of current week + offset
-  var sunday = new Date(now);
-  var dow = sunday.getDay(); // 0=Sun..6=Sat
-  sunday.setDate(sunday.getDate() - dow + _tarefasWeekOffset * 7);
-
-  var html = '';
-  var dayNames = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  for (var i = 0; i < 14; i++) {
-    // Add subtle divider between week 1 and week 2
-    if (i === 7) {
-      html += '<div style="width:0.5px;height:28px;background:var(--border-strong);margin:0 4px;flex-shrink:0;align-self:center;"></div>';
-    }
-    var d = new Date(sunday);
-    d.setDate(sunday.getDate() + i);
-    var key = _dateKey(d);
-    var active = key === _tarefasSelectedDate ? ' active' : '';
-    var isToday = key === today ? ' style="font-weight:600;"' : '';
-    html += '<button class="tarefas-day-btn' + active + '" onclick="tarefasSelectDay(\'' + key + '\')"' + isToday + '>' +
-      '<span class="day-name">' + dayNames[i % 7] + '</span>' +
-      '<span class="day-num">' + d.getDate() + '</span>' +
-    '</button>';
-  }
-  bar.innerHTML = html;
-}
-
-// ── List ────────────────────────────────────────────────────────
-function setTarefaFilter(f) {
-  _tarefasFilter = f;
-  document.getElementById('tf-all').style.opacity  = f === 'all'  ? '1' : '0.45';
-  document.getElementById('tf-open').style.opacity = f === 'open' ? '1' : '0.45';
-  document.getElementById('tf-all').className  = f === 'all'  ? 'btn primary' : 'btn';
-  document.getElementById('tf-open').className = f === 'open' ? 'btn primary' : 'btn';
-  renderTarefasList();
-}
-
-function renderTarefasList() {
-  var el = document.getElementById('tarefas-list-body');
-  if (!el) return;
-  var all = getTarefas().filter(function(t){ return t.data === _tarefasSelectedDate; });
-  if (_tarefasFilter === 'open') all = all.filter(function(t){ return !t.done; });
-  all.sort(function(a,b){
-    if (!a.hora && b.hora) return 1;
-    if (a.hora && !b.hora) return -1;
-    return (a.hora||'').localeCompare(b.hora||'');
-  });
-
-  // Conflict check
-  var conflicts = _findConflicts(_tarefasSelectedDate);
-  var banner = document.getElementById('tarefas-conflict-banner');
-  if (conflicts.length && banner) {
-    banner.style.display = 'block';
-    banner.textContent = '⚠ Conflito de horário: ' + conflicts.map(function(c){ return c.hora; }).join(', ');
-  } else if (banner) {
-    banner.style.display = 'none';
-  }
-
-  if (!all.length) {
-    el.innerHTML = '<div class="tarefas-empty">' + (_tarefasFilter === 'open' ? 'Nenhuma tarefa para hoje.' : 'Nenhuma tarefa neste dia.') + '</div>';
-    return;
-  }
-  el.innerHTML = all.map(function(t) {
-    var projClass = 'proj-' + (t.projeto || 'pessoal');
-    var projLabel = { pessoal:'Pessoal', munchow:'Münchow', soup:'Soup', releio:'re.leio' }[t.projeto||'pessoal'];
-    var meta = [];
-    if (t.hora) meta.push(t.hora + (t.horaFim ? ' – ' + t.horaFim : (t.duracao ? ' · ' + _durLabel(t.duracao) : '')));
-    return '<div class="tarefas-item' + (t.done?' done':'') + '" onclick="openTarefaModal(\'' + t.id + '\')">' +
-      '<div class="tarefas-item-check' + (t.done?' checked':'') + '" onclick="toggleTarefaDone(event,\'' + t.id + '\')"></div>' +
-      '<div class="tarefas-item-body">' +
-        '<div class="tarefas-item-title">' + t.titulo + '</div>' +
-        '<div class="tarefas-item-meta">' +
-          (meta.length ? '<span>' + meta.join(' ') + '</span>' : '') +
-          '<span class="tarefas-item-proj ' + projClass + '">' + projLabel + '</span>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function toggleTarefaDone(e, id) {
-  e.stopPropagation();
-  var list = getTarefas();
-  var t = list.find(function(x){ return x.id===id; });
-  if (!t) return;
-  t.done = !t.done;
-  saveTarefasData(list);
-  renderTarefasList();
-  renderTarefasGrid();
-}
-
-function _durLabel(min) {
-  min = parseInt(min)||60;
-  if (min < 60) return min + 'min';
-  var h = Math.floor(min/60), m = min%60;
-  return h + 'h' + (m ? m : '');
-}
-
-// ── Grid ────────────────────────────────────────────────────────
-function renderTarefasGrid() {
-  var inner = document.getElementById('tarefas-grid-inner');
-  if (!inner) return;
-  var tasks = getTarefas().filter(function(t){ return t.data === _tarefasSelectedDate && t.hora && !t.done; });
-  var today = _dateKey(new Date());
-  var isToday = _tarefasSelectedDate === today;
-
-  var html = '<div style="position:relative;">';
-  for (var h = HORA_START; h <= HORA_END; h++) {
-    var hLabel = h + ':00';
-    html += '<div class="tarefas-hour-row">' +
-      '<div class="tarefas-hour-label">' + hLabel + '</div>' +
-      '<div class="tarefas-hour-slot" onclick="openTarefaModalForHour(' + h + ')"></div>' +
-    '</div>';
-  }
-
-  // Place task blocks
-  tasks.forEach(function(t) {
-    var parts = t.hora.split(':');
-    var hh = parseInt(parts[0]), mm = parseInt(parts[1]||0);
-    if (hh < HORA_START || hh > HORA_END) return;
-    var dur = parseInt(t.duracao)||60;
-    var topPx  = (hh - HORA_START) * HORA_SLOT + (mm / 60) * HORA_SLOT + 1;
-    var heightPx = Math.max(20, (dur / 60) * HORA_SLOT - 2);
-    var projClass = 'block-' + (t.projeto||'pessoal');
-    html += '<div class="tarefas-block ' + projClass + '" style="top:' + topPx + 'px;height:' + heightPx + 'px;" onclick="openTarefaModal(\'' + t.id + '\')">' +
-      '<div class="tarefas-block-title">' + t.titulo + '</div>' +
-      '<div class="tarefas-block-time">' + t.hora + (t.horaFim ? ' – ' + t.horaFim : '') + '</div>' +
-    '</div>';
-  });
-
-  html += '</div>';
-  inner.innerHTML = html;
-
-  // Now line
-  if (isToday) _drawNowLine();
-}
-
-function _drawNowLine() {
-  var inner = document.getElementById('tarefas-grid-inner');
-  if (!inner) return;
-  // Remove existing
-  inner.querySelectorAll('.tarefas-now-line,.tarefas-now-dot').forEach(function(el){ el.remove(); });
-  var now = new Date();
-  var hh = now.getHours(), mm = now.getMinutes();
-  if (hh < HORA_START || hh > HORA_END) return;
-  var topPx = (hh - HORA_START) * HORA_SLOT + (mm / 60) * HORA_SLOT;
-  var line = document.createElement('div');
-  line.className = 'tarefas-now-line';
-  line.style.top = topPx + 'px';
-  var dot = document.createElement('div');
-  dot.className = 'tarefas-now-dot';
-  dot.style.top = topPx + 'px';
-  inner.querySelector('div').appendChild(line);
-  inner.querySelector('div').appendChild(dot);
-}
-
-function _startNowLine() {
-  clearInterval(_tarefasNowTimer);
-  _drawNowLine();
-  _tarefasNowTimer = setInterval(function(){
-    if (_tarefasSelectedDate === _dateKey(new Date())) _drawNowLine();
-  }, 60000);
-}
-
-// ── Conflict detection ─────────────────────────────────────────
-function _findConflicts(dateKey) {
-  var tasks = getTarefas().filter(function(t){ return t.data===dateKey && t.hora && !t.done; });
-  var conflicts = [];
-  for (var i=0; i<tasks.length; i++) {
-    for (var j=i+1; j<tasks.length; j++) {
-      if (_tasksOverlap(tasks[i], tasks[j])) {
-        if (!conflicts.find(function(c){ return c.id===tasks[i].id; })) conflicts.push(tasks[i]);
-        if (!conflicts.find(function(c){ return c.id===tasks[j].id; })) conflicts.push(tasks[j]);
-      }
-    }
-  }
-  return conflicts;
-}
-
-function _horaToMin(hStr) {
-  var p = (hStr||'00:00').split(':');
-  return parseInt(p[0])*60 + parseInt(p[1]||0);
-}
-
-function _taskMinutes(t) {
-  var parts = (t.hora||'00:00').split(':');
-  return parseInt(parts[0])*60 + parseInt(parts[1]||0);
-}
-
-function _tasksOverlap(a, b) {
-  var aStart = _taskMinutes(a), aEnd = aStart + (parseInt(a.duracao)||60);
-  var bStart = _taskMinutes(b), bEnd = bStart + (parseInt(b.duracao)||60);
-  return aStart < bEnd && bStart < aEnd;
-}
-
-// ── Modal ───────────────────────────────────────────────────────
-function _buildHoraOptions() {
-  var mins = ['00','15','30','45'];
-  var sel = document.getElementById('tf-hora');
-  if (sel) {
-    var html = '<option value="">Sem horário</option>';
-    for (var h=HORA_START; h<=HORA_END; h++) {
-      for (var m=0; m<mins.length; m++) {
-        if (h===HORA_END && m>0) break;
-        html += '<option value="' + _pad(h) + ':' + mins[m] + '">' + _pad(h) + ':' + mins[m] + '</option>';
-      }
-    }
-    sel.innerHTML = html;
-  }
-  _buildHoraFimOptions('');
-}
-
-function _buildHoraFimOptions(horaInicio) {
-  var sel = document.getElementById('tf-hora-fim');
-  if (!sel) return;
-  var mins = ['00','15','30','45'];
-  var html = '<option value="">Sem fim</option>';
-  // Start from horaInicio+15min if set
-  var startH = HORA_START, startM = 0;
-  if (horaInicio) {
-    var p = horaInicio.split(':');
-    startH = parseInt(p[0]); startM = parseInt(p[1]||0) + 15;
-    if (startM >= 60) { startH++; startM -= 60; }
-  }
-  for (var h=HORA_START; h<=HORA_END; h++) {
-    for (var m=0; m<mins.length; m++) {
-      var mVal = parseInt(mins[m]);
-      if (h < startH || (h===startH && mVal < startM)) continue;
-      if (h===HORA_END && m>0) break;
-      html += '<option value="' + _pad(h) + ':' + mins[m] + '">' + _pad(h) + ':' + mins[m] + '</option>';
-    }
-  }
-  sel.innerHTML = html;
-}
-
-function openTarefaModal(id) {
-  _editingTarefaId = id || null;
-  _buildHoraOptions();
-  var delBtn = document.getElementById('tf-delete-btn');
-  if (id) {
-    var t = getTarefas().find(function(x){ return x.id===id; });
-    if (!t) return;
-    document.getElementById('tarefa-modal-title').textContent = 'Editar tarefa';
-    document.getElementById('tf-titulo').value = t.titulo||'';
-    setDateValue('tf-data', t.data||'');
-    document.getElementById('tf-hora').value = t.hora||'';
-    _buildHoraFimOptions(t.hora||'');
-    document.getElementById('tf-hora-fim').value = t.horaFim||'';
-    document.getElementById('tf-projeto').value = t.projeto||'pessoal';
-    delBtn.style.display = 'inline-flex';
-  } else {
-    document.getElementById('tarefa-modal-title').textContent = 'Nova tarefa';
-    document.getElementById('tf-titulo').value = '';
-    setDateValue('tf-data', _tarefasSelectedDate||'');
-    document.getElementById('tf-hora').value = '';
-    _buildHoraFimOptions('');
-    document.getElementById('tf-hora-fim').value = '';
-    document.getElementById('tf-projeto').value = 'pessoal';
-    delBtn.style.display = 'none';
-  }
-  document.getElementById('tf-conflict-msg').style.display = 'none';
-  document.getElementById('tarefa-overlay').classList.add('open');
-}
-
-function openTarefaModalForHour(h) {
-  openTarefaModal();
-  var horaVal = _pad(h) + ':00';
-  document.getElementById('tf-hora').value = horaVal;
-  _buildHoraFimOptions(horaVal);
-}
-
-// Live conflict check in modal
-document.addEventListener('change', function(e) {
-  if (e.target.id === 'tf-hora') {
-    _buildHoraFimOptions(e.target.value);
-    _checkModalConflict();
-  }
-  if (e.target.id === 'tf-hora-fim') {
-    _checkModalConflict();
-  }
-});
-
-function _checkModalConflict() {
-  var msgEl = document.getElementById('tf-conflict-msg');
-  if (!msgEl) return;
-  var hora    = document.getElementById('tf-hora').value;
-  var horaFim = document.getElementById('tf-hora-fim').value;
-  var data    = getDateValue('tf-data') || _tarefasSelectedDate;
-  if (!hora || !data) { msgEl.style.display='none'; return; }
-  var dur = horaFim ? _horaToMin(horaFim) - _horaToMin(hora) : 60;
-  if (dur <= 0) { msgEl.style.display='none'; return; }
-  var fake = { id:'__preview__', hora:hora, duracao:dur, data:data };
-  var existing = getTarefas().filter(function(t){
-    return t.data===data && t.hora && t.id!==(_editingTarefaId||'__none__') && !t.done;
-  });
-  var clash = existing.filter(function(t){ return _tasksOverlap(fake, t); });
-  if (clash.length) {
-    msgEl.style.display = 'block';
-    msgEl.textContent = '⚠ Conflito com: ' + clash.map(function(t){ return '"'+t.titulo+'" às '+t.hora; }).join(', ');
-  } else {
-    msgEl.style.display = 'none';
-  }
-}
-
-function saveTarefa() {
-  var titulo = document.getElementById('tf-titulo').value.trim();
-  if (!titulo) { alert('Informe o título.'); return; }
-  var data = getDateValue('tf-data') || _tarefasSelectedDate;
-  var hora    = document.getElementById('tf-hora').value;
-  var horaFim = document.getElementById('tf-hora-fim').value;
-  var duracao = (hora && horaFim) ? _horaToMin(horaFim) - _horaToMin(hora) : 60;
-  if (duracao <= 0) duracao = 60;
-  var obj = {
-    id:      _editingTarefaId || uid(),
-    titulo:  titulo,
-    data:    data,
-    hora:    hora,
-    horaFim: horaFim,
-    duracao: duracao,
-    projeto: document.getElementById('tf-projeto').value,
-    done:    false
-  };
-  if (_editingTarefaId) {
-    var existing = getTarefas().find(function(t){ return t.id===_editingTarefaId; });
-    if (existing) obj.done = existing.done;
-  }
-  var list = getTarefas();
-  if (_editingTarefaId) {
-    var idx = list.findIndex(function(t){ return t.id===_editingTarefaId; });
-    if (idx>-1) list[idx]=obj; else list.push(obj);
-  } else {
-    list.push(obj);
-  }
-  saveTarefasData(list);
-  document.getElementById('tarefa-overlay').classList.remove('open');
-  renderTarefasList();
-  renderTarefasGrid();
-  // Also refresh re.leio tarefas table if visible
-  if (obj.projeto === 'releio') renderReleioTarefas();
-}
-
-function deleteTarefa() {
-  if (!confirm('Excluir esta tarefa?')) return;
-  saveTarefasData(getTarefas().filter(function(t){ return t.id!==_editingTarefaId; }));
-  document.getElementById('tarefa-overlay').classList.remove('open');
-  renderTarefasList();
-  renderTarefasGrid();
-}
-
-document.getElementById('tarefa-overlay').addEventListener('click', function(e){
-  if (e.target.id==='tarefa-overlay') e.target.classList.remove('open');
-});
-
-// Load tarefas from Supabase on init
-dbMetricLoad('tarefas_v1').then(function(val){
-  if (!val) return;
-  try {
-    var remote = JSON.parse(val);
-    if (remote && remote.length && !getTarefas().length) {
-      localStorage.setItem('tarefas_v1', val);
-    }
-  } catch(e){}
-}).catch(function(){});
-
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
-  // Limpa service workers e caches para garantir versão mais recente
+  // Limpa todos os service workers para garantir versão mais recente
   navigator.serviceWorker.getRegistrations().then(function(regs) {
     regs.forEach(function(r) { r.unregister(); });
   });
-  // Also clear all caches
-  if (window.caches) {
-    caches.keys().then(function(names) {
-      names.forEach(function(name) { caches.delete(name); });
-    });
-  }
 }
 </script>
 </body>
