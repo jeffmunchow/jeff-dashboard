@@ -494,6 +494,7 @@
   .tarefas-hour-label { width:52px; flex-shrink:0; font-size:0.63rem; color:var(--text-hint); padding:5px 8px 0 12px; user-select:none; text-align:right; }
   .tarefas-hour-slot  { flex:1; border-top:0.5px solid var(--border); min-height:52px; position:relative; cursor:pointer; }
   .tarefas-hour-slot:hover { background:rgba(196,120,10,0.03); }
+  #tf-hora, #tf-hora-fim { max-height:200px; overflow-y:auto; }
   .tarefas-block { position:absolute; left:6px; right:6px; border-radius:6px; padding:3px 8px; cursor:pointer; overflow:hidden; z-index:2; }
   .tarefas-block:hover { filter:brightness(1.1); }
   .tarefas-block-title { font-size:0.7rem; font-weight:500; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -884,12 +885,12 @@
         </select>
       </div>
       <div class="field-row"><label>Horário de início</label>
-        <select id="tf-hora">
+        <select id="tf-hora" size="5" style="height:108px;overflow-y:auto;border-radius:var(--radius-sm);border:0.5px solid var(--border-strong);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.75rem;width:100%;padding:2px 0;">
           <option value="">Sem horário</option>
         </select>
       </div>
       <div class="field-row"><label>Horário de término</label>
-        <select id="tf-hora-fim">
+        <select id="tf-hora-fim" size="5" style="height:108px;overflow-y:auto;border-radius:var(--radius-sm);border:0.5px solid var(--border-strong);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.75rem;width:100%;padding:2px 0;">
           <option value="">Sem fim</option>
         </select>
       </div>
@@ -5305,8 +5306,8 @@ var _tarefasFilter      = 'open'; // 'open' | 'all'
 var _editingTarefaId    = null;
 var _tarefasNowTimer    = null;
 
-var HORA_START = 7;
-var HORA_END   = 20;
+var HORA_START = 6;
+var HORA_END   = 22;
 var HORA_SLOT  = 52; // px per hour
 
 function getTarefas() {
@@ -5377,19 +5378,19 @@ function renderTarefasWeekBar() {
   var today = _dateKey(new Date());
   var now = new Date();
   // Find Monday of current week + offset
-  var monday = new Date(now);
-  var dow = monday.getDay() || 7; // 1=Mon..7=Sun
-  monday.setDate(monday.getDate() - dow + 1 + _tarefasWeekOffset * 7);
+  var sunday = new Date(now);
+  var dow = sunday.getDay(); // 0=Sun..6=Sat
+  sunday.setDate(sunday.getDate() - dow + _tarefasWeekOffset * 7);
 
   var html = '';
-  var dayNames = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  var dayNames = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   for (var i = 0; i < 14; i++) {
     // Add subtle divider between week 1 and week 2
     if (i === 7) {
       html += '<div style="width:0.5px;height:28px;background:var(--border-strong);margin:0 4px;flex-shrink:0;align-self:center;"></div>';
     }
-    var d = new Date(monday);
-    d.setDate(monday.getDate() + i);
+    var d = new Date(sunday);
+    d.setDate(sunday.getDate() + i);
     var key = _dateKey(d);
     var active = key === _tarefasSelectedDate ? ' active' : '';
     var isToday = key === today ? ' style="font-weight:600;"' : '';
