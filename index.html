@@ -5699,10 +5699,16 @@ dbMetricLoad('tarefas_v1').then(function(val){
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
-  // Limpa todos os service workers para garantir versão mais recente
+  // Limpa service workers e caches para garantir versão mais recente
   navigator.serviceWorker.getRegistrations().then(function(regs) {
     regs.forEach(function(r) { r.unregister(); });
   });
+  // Also clear all caches
+  if (window.caches) {
+    caches.keys().then(function(names) {
+      names.forEach(function(name) { caches.delete(name); });
+    });
+  }
 }
 </script>
 </body>
