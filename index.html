@@ -495,7 +495,7 @@
   .tarefas-hour-slot  { flex:1; border-top:0.5px solid var(--border); min-height:52px; position:relative; cursor:pointer; }
   .tarefas-hour-slot:hover { background:rgba(196,120,10,0.03); }
   #tf-hora, #tf-hora-fim { max-height:200px; overflow-y:auto; }
-  .tarefas-block { position:absolute; left:58px; right:16px; border-radius:6px; padding:3px 8px 13px 8px; cursor:grab; overflow:hidden; z-index:2; user-select:none; }
+  .tarefas-block { position:absolute; left:58px; right:16px; border-radius:6px; padding:3px 8px 13px 8px; cursor:grab; overflow:hidden; z-index:2; user-select:none; touch-action:none; }
   .tarefas-block:hover { filter:brightness(1.1); }
   .tarefas-block:active { cursor:grabbing; }
   .tarefas-block-title { font-size:0.7rem; font-weight:500; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; pointer-events:none; }
@@ -5462,11 +5462,11 @@ function renderTarefasGrid() {
     html += '<div class="tarefas-block ' + projClass + '" ' +
       'data-id="' + t.id + '" ' +
       'style="top:' + topPx + 'px;height:' + heightPx + 'px;" ' +
-      'onmousedown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'move\')" ' +
+      'onpointerdown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'move\')" ' +
       'onclick="tarefasBlockClick(event,\'' + t.id + '\')">' +
       '<div class="tarefas-block-title">' + t.titulo + '</div>' +
       '<div class="tarefas-block-time" id="block-time-' + t.id + '">' + t.hora + (t.horaFim ? ' – ' + t.horaFim : '') + '</div>' +
-      '<div class="tarefas-block-resize" onmousedown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'resize\')"></div>' +
+      '<div class="tarefas-block-resize" onpointerdown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'resize\')"></div>' +
     '</div>';
   });
 
@@ -5729,8 +5729,10 @@ function tarefasBlockMouseDown(e, id, mode) {
     dragged: false
   };
 
-  document.addEventListener('mousemove', _onDragMove, true);
-  document.addEventListener('mouseup', _onDragUp, true);
+  document.addEventListener('pointermove', _onDragMove, true);
+  document.addEventListener('pointerup', _onDragUp, true);
+  // Capture pointer so events keep firing even outside element
+  try { e.target.setPointerCapture(e.pointerId); } catch(ex){}
 }
 
 function _snapToSlot(px) {
@@ -5788,8 +5790,8 @@ function _onDragMove(e) {
 }
 
 function _onDragUp(e) {
-  document.removeEventListener('mousemove', _onDragMove, true);
-  document.removeEventListener('mouseup', _onDragUp, true);
+  document.removeEventListener('pointermove', _onDragMove, true);
+  document.removeEventListener('pointerup', _onDragUp, true);
   if (!_drag || !_drag.dragged) { _drag = null; return; }
 
   var block = document.querySelector('.tarefas-block[data-id="' + _drag.id + '"]');
