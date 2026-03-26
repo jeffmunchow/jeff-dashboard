@@ -4938,10 +4938,10 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'u') { e.preventDefault(); document.execCommand('underline'); }
 });
 
-/* ── ATALHOS GLOBAIS (Cmd+Option+1..5, Cmd+Option+`) ────────────── */
-/* Cmd+1-9 é interceptado pelo Safari/macOS — usamos Cmd+Option que passa livre */
+/* ── ATALHOS GLOBAIS (Ctrl+1..5, Ctrl+`) ────────────────────────── */
+/* Cmd+número é interceptado pelo macOS. Ctrl+número chega livre à página. */
 document.addEventListener('keydown', function(e) {
-  if (!e.metaKey || !e.altKey) return;
+  if (!e.ctrlKey || e.metaKey || e.altKey) return;
   if (document.querySelector('.overlay.open')) return;
   switch(e.key) {
     case '1': e.preventDefault(); showDiaryView(); break;
