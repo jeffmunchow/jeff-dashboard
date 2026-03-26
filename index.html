@@ -4930,7 +4930,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 /* ── ATALHOS GLOBAIS (Ctrl+1..5, Ctrl+`) ────────────────────────── */
-/* Capture phase + no conditions on active element — works everywhere */
+/* Capture phase — works everywhere, mesmo dentro do diário */
 document.addEventListener('keydown', function(e) {
   if (!e.ctrlKey || e.metaKey || e.altKey) return;
   if (document.querySelector('.overlay.open')) return;
@@ -4940,32 +4940,11 @@ document.addEventListener('keydown', function(e) {
     case '3': e.preventDefault(); showSoupView(); break;
     case '4': e.preventDefault(); showReleioView(); break;
     case '5': e.preventDefault(); showCitacoesView(); break;
-    case '`': e.preventDefault(); toggleNotesModal(); break;
+    // Backtick varia por layout de teclado — cobre todas as variantes
+    case '`': case "'": case '"': case '~': case 'Dead':
+      e.preventDefault(); toggleNotesModal(); break;
   }
 }, true);
-
-/* ── KEY LOGGER temporário para diagnóstico ─────────────────────── */
-(function() {
-  var box = document.createElement('div');
-  box.id = 'key-debug-box';
-  box.style.cssText = 'position:fixed;bottom:16px;right:16px;background:rgba(0,0,0,0.82);color:#fff;padding:10px 14px;border-radius:8px;font-family:monospace;font-size:12px;z-index:9999;min-width:200px;pointer-events:none;';
-  box.innerHTML = '<div style="opacity:0.5;font-size:10px;margin-bottom:4px;">teclas recebidas</div><div id="klog"></div>';
-  document.body.appendChild(box);
-  document.addEventListener('keydown', function(e) {
-    var c = [];
-    if (e.ctrlKey) c.push('Ctrl');
-    if (e.metaKey) c.push('Cmd');
-    if (e.altKey) c.push('Opt');
-    c.push('"'+e.key+'"');
-    var el = document.getElementById('klog');
-    if (!el) return;
-    var line = document.createElement('div');
-    line.style.color = '#4ade80';
-    line.textContent = c.join('+');
-    el.insertBefore(line, el.firstChild);
-    if (el.children.length > 6) el.removeChild(el.lastChild);
-  }, true);
-})();
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
