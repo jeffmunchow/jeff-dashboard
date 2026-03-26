@@ -4965,12 +4965,14 @@ document.addEventListener('keydown', function(e) {
   // Don't handle number keys here — let global shortcut handler take them
 });
 
-/* ── ATALHOS GLOBAIS (Ctrl+1..5, Ctrl+`) ────────────────────────── */
+/* ── ATALHOS GLOBAIS (Ctrl+0..5, Ctrl+Tab, Ctrl+`) ──────────────── */
 /* Capture phase — works everywhere, mesmo dentro do diário */
 document.addEventListener('keydown', function(e) {
   if (!e.ctrlKey || e.metaKey || e.altKey) return;
   if (document.querySelector('.overlay.open')) return;
   switch(e.key) {
+    case '0':
+    case 'Tab': e.preventDefault(); showMainDashboard(); break;
     case '1': e.preventDefault(); showDiaryView(); break;
     case '2': e.preventDefault(); showStudio(); break;
     case '3': e.preventDefault(); showSoupView(); break;
