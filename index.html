@@ -500,7 +500,8 @@
   .tarefas-block:active { cursor:grabbing; }
   .tarefas-block-title { font-size:0.7rem; font-weight:500; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; pointer-events:none; }
   .tarefas-block-time  { font-size:0.6rem; color:rgba(255,255,255,0.82); pointer-events:none; }
-  .tarefas-block-resize { position:absolute; bottom:0; left:0; right:0; height:10px; cursor:ns-resize; background:transparent; border-radius:0 0 6px 6px; }
+  .tarefas-block-resize { position:absolute; bottom:0; left:0; right:0; height:10px; cursor:s-resize; background:transparent; border-radius:0 0 6px 6px; touch-action:none; z-index:3; }
+  .tarefas-block-move  { position:absolute; top:0; left:0; right:0; height:10px; cursor:n-resize; background:transparent; border-radius:6px 6px 0 0; touch-action:none; z-index:3; }
   .block-pessoal { background:#7A8AAA; }
   .block-munchow { background:var(--amber); }
   .block-soup    { background:var(--teal); }
@@ -5464,6 +5465,7 @@ function renderTarefasGrid() {
       'style="top:' + topPx + 'px;height:' + heightPx + 'px;" ' +
       'onpointerdown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'move\')" ' +
       'onclick="tarefasBlockClick(event,\'' + t.id + '\')">' +
+      '<div class="tarefas-block-move" onpointerdown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'move\')"></div>' +
       '<div class="tarefas-block-title">' + t.titulo + '</div>' +
       '<div class="tarefas-block-time" id="block-time-' + t.id + '">' + t.hora + (t.horaFim ? ' – ' + t.horaFim : '') + '</div>' +
       '<div class="tarefas-block-resize" onpointerdown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'resize\')"></div>' +
