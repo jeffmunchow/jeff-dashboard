@@ -4124,7 +4124,7 @@ function renderDiaryArchive() {
   el.innerHTML = entries.map(function(e) {
     var d = diaryKeyToDate(e.key);
     var dateStr = d ? diaryFormatFullDate(d) : e.key;
-    var preview = (e.text || '').replace(/\s+/g,' ').trim().slice(0, 80) || (e.location || '—');
+    var preview = e.location || '—';
     return '<div onclick="openDiaryEntry(\'' + e.key + '\')" style="padding:0.75rem 0;border-bottom:0.5px solid var(--border);cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity=\'0.6\'" onmouseout="this.style.opacity=\'1\'">' +
       '<div style="font-size:0.8rem;color:var(--text);margin-bottom:3px;">' + dateStr + '</div>' +
       '<div style="font-size:0.7rem;color:var(--text-hint);font-style:italic;">' + preview + (preview.length >= 80 ? '…' : '') + '</div>' +
@@ -4273,14 +4273,7 @@ function renderDiaryHistory(todayKey) {
   el.innerHTML = entries.map(function(e) {
     var d = diaryKeyToDate(e.key);
     var dateStr = d ? diaryFormatFullDate(d) : e.key;
-    var rawText = e.text || '';
-    // If text is empty but html exists, strip tags for preview
-    if (!rawText.trim() && e.html) {
-      var tmp = document.createElement('div');
-      tmp.innerHTML = e.html;
-      rawText = tmp.innerText || tmp.textContent || '';
-    }
-    var preview = rawText.replace(/\s+/g,' ').trim().slice(0, 120) + (rawText.length > 120 ? '…' : '');
+    var preview = e.location || '—';
     return '<div class="diary-entry-item" onclick="openDiaryEntry(\'' + e.key + '\')">' +
       '<div class="diary-entry-date">' + dateStr + '</div>' +
       '<div class="diary-entry-preview">' + preview + '</div>' +
