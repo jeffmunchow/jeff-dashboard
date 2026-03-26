@@ -638,23 +638,15 @@
       onkeydown="diaryHandleKey(event)"></div>
   </div>
 
-  <div class="diary-history" id="diary-history-section">
-    <div class="diary-divider" style="max-width:720px;margin:0 auto 2rem;"></div>
-    <div class="diary-history-title">Entradas anteriores</div>
-    <div id="diary-history-list"></div>
-  </div>
+  <div class="diary-history" id="diary-history-section" style="display:none;"></div>
 </div>
 
-<!-- Diary past entry modal -->
-<div class="overlay" id="diary-entry-overlay">
-  <div class="modal" style="max-width:640px;">
-    <h2 id="diary-entry-modal-date" style="font-family:'Playfair Display',serif;font-weight:400;font-size:1.1rem;"></h2>
-    <div style="font-size:0.72rem;color:var(--text-hint);margin-bottom:1.25rem;" id="diary-entry-modal-location"></div>
-    <div class="diary-modal-content" id="diary-entry-modal-content"></div>
-    <div class="modal-actions" style="margin-top:1.5rem;">
-      <div style="flex:1;"></div>
-      <button class="btn" onclick="document.getElementById('diary-entry-overlay').classList.remove('open')">Fechar</button>
-    </div>
+<!-- Past diary entry view — same layout as today, editable -->
+<div id="diary-past-view" style="display:none;position:fixed;left:44px;top:0;right:0;bottom:0;background:var(--bg);z-index:80;overflow-y:auto;">
+  <div class="diary-container">
+    <div class="diary-date" id="diary-past-date" style="opacity:0.6;"></div>
+    <div style="font-size:0.75rem;color:var(--text-hint);margin-bottom:2rem;" id="diary-past-location"></div>
+    <div class="diary-editor" id="diary-past-textarea" contenteditable="true" oninput="autosavePastDiary()"></div>
   </div>
 </div>
 
@@ -4134,7 +4126,11 @@ function renderDiaryArchive() {
 
 function showDiaryView() {
   hideAllViews();
-  // Close archive panel when entering fresh
+  // Close past entry view if open
+  var pastView = document.getElementById('diary-past-view');
+  if (pastView) pastView.style.display = 'none';
+  _diaryPastKey = null;
+  // Close archive panel
   var panel = document.getElementById('diary-archive-panel');
   if (panel) panel.style.display = 'none';
   var btn = document.getElementById('diary-archive-btn');
@@ -4262,59 +4258,70 @@ function saveDiaryLocation() {
 }
 
 function renderDiaryHistory(todayKey) {
-  var entries = getDiaryEntries().filter(function(e){ return e.key !== todayKey; });
-  var el = document.getElementById('diary-history-list');
-  var section = document.getElementById('diary-history-section');
-  if (!entries.length) {
-    section.style.display = 'none';
-    return;
-  }
-  section.style.display = 'block';
-  el.innerHTML = entries.map(function(e) {
-    var d = diaryKeyToDate(e.key);
-    var dateStr = d ? diaryFormatFullDate(d) : e.key;
-    var preview = e.location || '—';
-    return '<div class="diary-entry-item" onclick="openDiaryEntry(\'' + e.key + '\')">' +
-      '<div class="diary-entry-date">' + dateStr + '</div>' +
-      '<div class="diary-entry-preview">' + preview + '</div>' +
-    '</div>';
-  }).join('');
+  // Footer entries removed — history accessible via sidebar archive panel only
 }
+
+var _diaryPastKey = null;
+var _diaryPastSaveTimer = null;
 
 function openDiaryEntry(key) {
   var data = null;
   try { data = JSON.parse(localStorage.getItem(key)); } catch(e) {}
   if (data) {
-    _renderDiaryEntryModal(key, data);
+    _openPastDiaryView(key, data);
   } else {
-    // Try Supabase if not in localStorage
     dbMetricLoad(key).then(function(val) {
       if (!val) return;
       try {
         var remote = JSON.parse(val);
-        if (remote) {
-          localStorage.setItem(key, val); // cache it
-          _renderDiaryEntryModal(key, remote);
-        }
+        if (remote) { localStorage.setItem(key, val); _openPastDiaryView(key, remote); }
       } catch(e) {}
     }).catch(function(){});
   }
 }
 
-function _renderDiaryEntryModal(key, data) {
+function _openPastDiaryView(key, data) {
+  _diaryPastKey = key;
   var d = diaryKeyToDate(key);
-  document.getElementById('diary-entry-modal-date').textContent = d ? diaryFormatFullDate(d) : key;
-  document.getElementById('diary-entry-modal-location').textContent = data.location || '';
-  var content = document.getElementById('diary-entry-modal-content');
+  document.getElementById('diary-past-date').textContent = d ? diaryFormatFullDate(d) : key;
+  document.getElementById('diary-past-location').textContent = data.location || '';
+  var editor = document.getElementById('diary-past-textarea');
   if (data.html && data.html.trim()) {
-    content.innerHTML = data.html;
+    editor.innerHTML = data.html;
+  } else if (data.text && data.text.trim()) {
+    editor.innerHTML = data.text.split('\n').map(function(l){ return '<div>'+(l||'<br>')+'</div>'; }).join('');
   } else {
-    content.textContent = data.text || '';
+    editor.innerHTML = '';
   }
-  document.getElementById('diary-entry-overlay').classList.add('open');
+  document.getElementById('diary-past-view').style.display = 'block';
+  // Close archive panel
+  var panel = document.getElementById('diary-archive-panel');
+  if (panel) panel.style.display = 'none';
+  var btn = document.getElementById('diary-archive-btn');
+  if (btn) btn.classList.remove('active');
+  editor.focus();
 }
 
-document.getElementById('diary-entry-overlay').addEventListener('click', function(e) {
+function autosavePastDiary() {
+  if (!_diaryPastKey) return;
+  clearTimeout(_diaryPastSaveTimer);
+  _diaryPastSaveTimer = setTimeout(function() {
+    var editor = document.getElementById('diary-past-textarea');
+    if (!editor) return;
+    var html = editor.innerHTML || '';
+    var text = editor.innerText || editor.textContent || '';
+    if (!text.trim()) return;
+    var existing = null;
+    try { existing = JSON.parse(localStorage.getItem(_diaryPastKey)); } catch(e) {}
+    var location = (existing && existing.location) || '';
+    var data = { text: text, html: html, location: location, savedAt: new Date().toISOString() };
+    localStorage.setItem(_diaryPastKey, JSON.stringify(data));
+    dbMetricSave(_diaryPastKey, JSON.stringify(data));
+  }, 1500);
+}
+
+// Close past view listener (handled by showDiaryView clicking sidebar icon)
+document.getElementById('diary-entry-overlay') && document.getElementById('diary-entry-overlay').addEventListener('click', function(e){
   if (e.target.id === 'diary-entry-overlay') e.target.classList.remove('open');
 });
 
