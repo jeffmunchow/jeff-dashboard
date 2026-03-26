@@ -864,7 +864,7 @@
     </div>
     <!-- Grid -->
     <div class="tarefas-grid-panel" id="tarefas-grid-panel">
-      <div id="tarefas-grid-inner" style="padding:0 1rem 2rem;position:relative;"></div>
+      <div id="tarefas-grid-inner" style="padding:1.5rem 1rem 2rem;position:relative;"></div>
     </div>
   </div>
 </div>
@@ -1630,29 +1630,7 @@
 </div>
 
 <!-- Tarefa modal (re.leio) -->
-<div class="overlay" id="rl-tarefa-overlay">
-  <div class="modal" style="max-width:480px;">
-    <h2 id="rl-tarefa-modal-title">Nova tarefa</h2>
-    <div class="modal-2col">
-      <div class="field-row" style="grid-column:1/-1"><label>Tarefa</label><input type="text" id="rltf-tarefa" placeholder="Descrição da tarefa"></div>
-      <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="rltf-data"></div>
-      <div class="field-row"><label>Projeto</label>
-        <select id="rltf-projeto">
-          <option value="re.leio">re.leio</option>
-          <option value="Münchow">Münchow</option>
-          <option value="Soup">Soup</option>
-          <option value="Pessoal">Pessoal</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn" id="rltf-delete-btn" style="display:none;color:var(--coral);" onclick="deleteReleioTarefa()">Excluir</button>
-      <div style="flex:1"></div>
-      <button class="btn" onclick="document.getElementById('rl-tarefa-overlay').classList.remove('open')">Cancelar</button>
-      <button class="btn primary" onclick="saveReleioTarefa()">Salvar</button>
-    </div>
-  </div>
-</div>
+<!-- rl-tarefa-overlay replaced by shared tarefa modal -->
 <div class="overlay" id="custo-overlay">
   <div class="modal" style="max-width:520px;">
     <h2 id="custo-modal-title">Novo custo</h2>
@@ -3333,7 +3311,7 @@ function renderDashboardNextEvents() {
   if (rEl) {
     var today = now.toISOString().split('T')[0];
     var tasks = getReleioTarefas()
-      .filter(function(t){ return !t.done && t.data >= today; })
+      .filter(function(t){ return !t.done && t.data && t.data >= today; })
       .sort(function(a,b){ return a.data.localeCompare(b.data); });
     if (!tasks.length) {
       rEl.innerHTML = '<div class="nev-empty">Nenhuma tarefa cadastrada</div>';
@@ -3344,7 +3322,7 @@ function renderDashboardNextEvents() {
         html += '<div style="display:flex;align-items:center;gap:8px;margin-top:'+(i===0?'0':'6px')+';'+opacity+'">' +
           '<button onclick="checkReleioTarefaWidget(\''+t.id+'\',event)" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'var(--coral)\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
           '<span style="font-size:0.68rem;color:var(--text-hint);white-space:nowrap;flex-shrink:0;">'+fmtDate(t.data)+'</span>' +
-          '<span style="font-size:0.82rem;color:var(--text);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+t.tarefa+'</span>' +
+          '<span style="font-size:0.82rem;color:var(--text);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(t.titulo||t.tarefa||'')+'</span>' +
         '</div>';
       });
       rEl.innerHTML = html;
@@ -3352,24 +3330,7 @@ function renderDashboardNextEvents() {
   }
 }
 
-function toggleReleioTarefaDone(id) {
-  var list = getReleioTarefas();
-  var item = list.find(function(t){ return t.id === id; });
-  if (!item) return;
-  item.done = !item.done;
-  saveReleioTarefas(list);
-  renderReleioTarefas();
-}
-
-function checkReleioTarefaWidget(id, e) {
-  e.stopPropagation();
-  var list = getReleioTarefas();
-  var item = list.find(function(t){ return t.id === id; });
-  if (!item) return;
-  item.done = true;
-  saveReleioTarefas(list);
-  renderDashboardNextEvents();
-}
+// toggleReleioTarefaDone and checkReleioTarefaWidget defined in re.leio tasks section
 
 /* ═══════════════════════════════════════════════════════════
    CUSTOS — DATA & RENDER
@@ -4996,58 +4957,55 @@ function renderRlFin() {
 }
 
 /* ── TAREFAS (re.leio) ───────────────────────────────────── */
+/* ── RE.LEIO TAREFAS — usa a mesma store das Tarefas globais ── */
 function getReleioTarefas() {
-  try { return JSON.parse(localStorage.getItem('releio_tarefas') || '[]'); } catch(e) { return []; }
+  // Re.leio tasks are stored in tarefas_v1, filtered by projeto='releio'
+  return getTarefas().filter(function(t){ return t.projeto === 'releio'; });
 }
-function saveReleioTarefas(d) {
-  localStorage.setItem('releio_tarefas', JSON.stringify(d));
-  dbSaveList('releio_tarefas', d);
+function saveReleioTarefas(list) {
+  // Not used directly — re.leio saves via saveTarefasData
 }
 
 var editingReleioTarefaId = null;
 function openReleioTarefaModal(id) {
-  editingReleioTarefaId = id || null;
-  if (id) {
-    var t = getReleioTarefas().find(function(x){ return x.id===id; });
-    if (!t) return;
-    document.getElementById('rl-tarefa-modal-title').textContent = 'Editar tarefa';
-    document.getElementById('rltf-tarefa').value  = t.tarefa || '';
-    setDateValue('rltf-data', t.data || '');
-    document.getElementById('rltf-projeto').value = t.projeto || 're.leio';
-    document.getElementById('rltf-delete-btn').style.display = 'inline-flex';
-  } else {
-    document.getElementById('rl-tarefa-modal-title').textContent = 'Nova tarefa';
-    document.getElementById('rltf-tarefa').value  = '';
-    setDateValue('rltf-data', '');
-    document.getElementById('rltf-projeto').value = 're.leio';
-    document.getElementById('rltf-delete-btn').style.display = 'none';
+  // Open the shared Tarefas modal, pre-set projeto to 'releio'
+  openTarefaModal(id);
+  if (!id) {
+    // For new tasks from re.leio: pre-select releio and today's date
+    setTimeout(function() {
+      var projSel = document.getElementById('tf-projeto');
+      if (projSel) projSel.value = 'releio';
+    }, 10);
   }
-  document.getElementById('rl-tarefa-overlay').classList.add('open');
 }
+
 function saveReleioTarefa() {
-  var tarefa = document.getElementById('rltf-tarefa').value.trim();
-  if (!tarefa) { alert('Informe a tarefa.'); return; }
-  var obj = {
-    id:      editingReleioTarefaId || uid(),
-    tarefa:  tarefa,
-    data:    getDateValue('rltf-data'),
-    projeto: document.getElementById('rltf-projeto').value
-  };
-  var list = getReleioTarefas();
-  if (editingReleioTarefaId) {
-    var idx = list.findIndex(function(x){ return x.id===editingReleioTarefaId; });
-    if (idx > -1) list[idx] = obj;
-  } else { list.push(obj); }
-  saveReleioTarefas(list);
-  document.getElementById('rl-tarefa-overlay').classList.remove('open');
-  renderReleioTarefas();
+  saveTarefa(); // delegate to shared save
 }
+
 function deleteReleioTarefa() {
-  if (!confirm('Excluir esta tarefa?')) return;
-  saveReleioTarefas(getReleioTarefas().filter(function(x){ return x.id!==editingReleioTarefaId; }));
-  document.getElementById('rl-tarefa-overlay').classList.remove('open');
+  deleteTarefa(); // delegate to shared delete
+}
+
+function toggleReleioTarefaDone(id) {
+  var list = getTarefas();
+  var item = list.find(function(t){ return t.id === id; });
+  if (!item) return;
+  item.done = !item.done;
+  saveTarefasData(list);
   renderReleioTarefas();
 }
+
+function checkReleioTarefaWidget(id, e) {
+  e.stopPropagation();
+  var list = getTarefas();
+  var item = list.find(function(t){ return t.id === id; });
+  if (!item) return;
+  item.done = true;
+  saveTarefasData(list);
+  renderDashboardNextEvents();
+}
+
 function renderReleioTarefas() {
   var filter = (document.getElementById('rl-tarefa-filter') || {value: 'pendente'}).value;
   var all = getReleioTarefas();
@@ -5066,7 +5024,7 @@ function renderReleioTarefas() {
     var dt = t.data ? (t.data.includes('-') ? t.data.split('-').reverse().join('/') : t.data) : '—';
     var doneStyle = t.done ? 'opacity:0.45;text-decoration:line-through;' : '';
     return '<tr style="' + doneStyle + '">' +
-      '<td>' + t.tarefa + '</td>' +
+      '<td>' + (t.titulo || t.tarefa || '') + '</td>' +
       '<td>' + dt + '</td>' +
       '<td>' + (t.projeto||'—') + '</td>' +
       '<td style="display:flex;gap:6px;align-items:center;">' +
@@ -5712,6 +5670,8 @@ function saveTarefa() {
   document.getElementById('tarefa-overlay').classList.remove('open');
   renderTarefasList();
   renderTarefasGrid();
+  // Also refresh re.leio tarefas table if visible
+  if (obj.projeto === 'releio') renderReleioTarefas();
 }
 
 function deleteTarefa() {
