@@ -627,7 +627,6 @@
       <input type="text" class="diary-location-input" id="diary-location-input"
         style="display:none" placeholder="Local..."
         onblur="saveDiaryLocation()" onkeydown="if(event.key==='Enter')saveDiaryLocation()">
-      <span id="diary-saved-indicator" style="font-size:0.62rem;color:var(--text-hint);margin-left:10px;opacity:0;transition:opacity 0.4s;">salvo</span>
     </div>
     <div class="diary-editor" id="diary-textarea"
       contenteditable="true"
@@ -4217,8 +4216,6 @@ function saveDiaryToday() {
   var location = localStorage.getItem('diary_location') || 'Parque Anchieta, Pelotas, RS';
   var data = { text: text, html: html, location: location, savedAt: new Date().toISOString() };
   localStorage.setItem(_diaryTodayKey, JSON.stringify(data));
-  // Visual feedback
-  _showDiarySavedIndicator();
 }
 
 function saveDiarySupabase() {
@@ -4227,15 +4224,6 @@ function saveDiarySupabase() {
   try { stored = JSON.parse(localStorage.getItem(_diaryTodayKey)); } catch(e){}
   if (!stored || !stored.text.trim()) return; // never sync empty
   dbMetricSave(_diaryTodayKey, JSON.stringify(stored));
-}
-
-var _savedIndicatorTimer = null;
-function _showDiarySavedIndicator() {
-  var el = document.getElementById('diary-saved-indicator');
-  if (!el) return;
-  el.style.opacity = '1';
-  clearTimeout(_savedIndicatorTimer);
-  _savedIndicatorTimer = setTimeout(function(){ el.style.opacity = '0'; }, 1200);
 }
 
 // On page unload, do a final save
@@ -4936,10 +4924,11 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'i') { e.preventDefault(); document.execCommand('italic'); }
   if (e.key === 't') { e.preventDefault(); document.execCommand('strikeThrough'); }
   if (e.key === 'u') { e.preventDefault(); document.execCommand('underline'); }
+  // Don't handle number keys here — let global shortcut handler take them
 });
 
 /* ── ATALHOS GLOBAIS (Ctrl+1..5, Ctrl+`) ────────────────────────── */
-/* Cmd+número é interceptado pelo macOS. Ctrl+número chega livre à página. */
+/* Capture phase + no conditions on active element — works everywhere */
 document.addEventListener('keydown', function(e) {
   if (!e.ctrlKey || e.metaKey || e.altKey) return;
   if (document.querySelector('.overlay.open')) return;
@@ -4951,7 +4940,7 @@ document.addEventListener('keydown', function(e) {
     case '5': e.preventDefault(); showCitacoesView(); break;
     case '`': e.preventDefault(); toggleNotesModal(); break;
   }
-}, true);
+}, true); /* capture:true — fires before any element handler, even inside contenteditable */
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
