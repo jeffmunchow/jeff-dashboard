@@ -344,7 +344,15 @@
   /* Table */
   .data-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
   .data-table th { text-align: left; font-size: 0.64rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 400; padding: 10px 12px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
-  .data-table td { padding: 11px 12px; border-bottom: 0.5px solid var(--border); color: var(--text-muted); vertical-align: middle; }
+  .data-table td { padding: 11px 12px; border-bottom: 0.5px solid var(--border); color: var(--text-muted); vertical-align: middle; background: transparent; }
+  /* Sort indicator */
+  .data-table th { cursor: default; }
+  .data-table th[onclick] { cursor: pointer; }
+  .data-table th[onclick]:hover { color: var(--text); }
+  /* Autocomplete dropdown */
+  .ac-dropdown { position:absolute; top:100%; left:0; right:0; background:var(--surface); border:0.5px solid var(--border-strong); border-radius:var(--radius-sm); z-index:200; max-height:160px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+  .ac-dropdown div { padding:7px 12px; font-size:0.78rem; cursor:pointer; color:var(--text); }
+  .ac-dropdown div:hover { background:var(--surface2); }
 
   /* Star rating */
   .star-rating { display: inline-flex; gap: 2px; align-items: center; }
@@ -1242,8 +1250,18 @@
         </div>
       </div>
       <div class="table-wrap"><div class="table-scroll">
-        <table class="data-table">
-          <thead><tr><th>Título</th><th>Autor</th><th>Editora</th><th>Gênero</th><th>Páginas</th><th>Finalizado em</th><th>Status</th><th>Avaliação</th><th></th></tr></thead>
+        <table class="data-table" id="rl-livros-table">
+          <thead><tr>
+            <th onclick="sortLivros('titulo')" style="cursor:pointer;user-select:none;">Título <span id="sort-livros-titulo"></span></th>
+            <th onclick="sortLivros('autor')" style="cursor:pointer;user-select:none;">Autor <span id="sort-livros-autor"></span></th>
+            <th onclick="sortLivros('editora')" style="cursor:pointer;user-select:none;">Editora <span id="sort-livros-editora"></span></th>
+            <th onclick="sortLivros('genero')" style="cursor:pointer;user-select:none;">Gênero <span id="sort-livros-genero"></span></th>
+            <th onclick="sortLivros('paginas')" style="cursor:pointer;user-select:none;text-align:center;">Páginas <span id="sort-livros-paginas"></span></th>
+            <th onclick="sortLivros('finalizado')" style="cursor:pointer;user-select:none;">Finalizado em <span id="sort-livros-finalizado"></span></th>
+            <th onclick="sortLivros('status')" style="cursor:pointer;user-select:none;">Status <span id="sort-livros-status"></span></th>
+            <th onclick="sortLivros('avaliacao')" style="cursor:pointer;user-select:none;">Avaliação <span id="sort-livros-avaliacao"></span></th>
+            <th></th>
+          </tr></thead>
           <tbody id="rl-livros-tbody"></tbody>
         </table>
       </div></div>
@@ -1609,8 +1627,16 @@
     <div class="modal-2col">
       <div class="field-row"><label>Título</label><input type="text" id="rlf-titulo" placeholder="ex: O Senhor dos Anéis"></div>
       <div class="field-row"><label>Autor</label><input type="text" id="rlf-autor" placeholder="ex: J.R.R. Tolkien"></div>
-      <div class="field-row"><label>Editora</label><input type="text" id="rlf-editora" placeholder="ex: HarperCollins"></div>
-      <div class="field-row"><label>Gênero</label><input type="text" id="rlf-genero" placeholder="ex: Fantasia"></div>
+      <div class="field-row" style="position:relative;">
+        <label>Editora</label>
+        <input type="text" id="rlf-editora" placeholder="ex: HarperCollins" autocomplete="off" oninput="showAcSuggestions('rlf-editora','ac-editora','editora')" onblur="setTimeout(function(){hideAc('ac-editora')},150)">
+        <div id="ac-editora" class="ac-dropdown" style="display:none;"></div>
+      </div>
+      <div class="field-row" style="position:relative;">
+        <label>Gênero</label>
+        <input type="text" id="rlf-genero" placeholder="ex: Fantasia" autocomplete="off" oninput="showAcSuggestions('rlf-genero','ac-genero','genero')" onblur="setTimeout(function(){hideAc('ac-genero')},150)">
+        <div id="ac-genero" class="ac-dropdown" style="display:none;"></div>
+      </div>
       <div class="field-row"><label>Páginas</label><input type="number" id="rlf-paginas" placeholder="ex: 432" min="1"></div>
       <div class="field-row"><label>Finalizado em</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="rlf-finalizado"></div>
       <div class="field-row"><label>Status</label>
@@ -3798,12 +3824,44 @@ function renderReleioResumo(){
 }
 
 /* RELEIO LIVROS */
+/* ── LIVROS: SORT ─────────────────────────────────────────── */
+var _livrosSortCol = null;
+var _livrosSortDir = 1; // 1 = asc, -1 = desc
+
+function sortLivros(col) {
+  if (_livrosSortCol === col) {
+    _livrosSortDir *= -1;
+  } else {
+    _livrosSortCol = col;
+    _livrosSortDir = 1;
+  }
+  // Update sort indicators
+  ['titulo','autor','editora','genero','paginas','finalizado','status','avaliacao'].forEach(function(c) {
+    var el = document.getElementById('sort-livros-' + c);
+    if (!el) return;
+    el.textContent = (c === col) ? (_livrosSortDir === 1 ? ' ↑' : ' ↓') : '';
+  });
+  renderReleioLivros();
+}
+
 function renderReleioLivros(){
   var q=(document.getElementById('rl-livro-search')||{value:''}).value.toLowerCase();
   var sf=(document.getElementById('rl-livro-status-filter')||{value:''}).value;
   var list=getReleioLivros().filter(function(l){
     return(!q||l.titulo.toLowerCase().includes(q)||(l.autor||'').toLowerCase().includes(q))&&(!sf||l.status===sf);
   });
+  // Sort
+  if (_livrosSortCol) {
+    var col = _livrosSortCol, dir = _livrosSortDir;
+    list = list.slice().sort(function(a, b) {
+      var va = a[col] || '', vb = b[col] || '';
+      if (col === 'paginas' || col === 'avaliacao') {
+        va = parseFloat(va) || 0; vb = parseFloat(vb) || 0;
+        return (va - vb) * dir;
+      }
+      return va.toString().localeCompare(vb.toString(), 'pt-BR') * dir;
+    });
+  }
   var tbody=document.getElementById('rl-livros-tbody');if(!tbody)return;
   if(!list.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text-hint);padding:2rem;">Nenhum livro encontrado</td></tr>';return;}
   tbody.innerHTML=list.map(function(l){
@@ -3828,6 +3886,34 @@ function renderReleioLivros(){
   }).join('');
 }
 
+/* ── AUTOCOMPLETE (editora / gênero) ──────────────────────── */
+function showAcSuggestions(inputId, dropId, field) {
+  var input = document.getElementById(inputId);
+  var drop = document.getElementById(dropId);
+  if (!input || !drop) return;
+  var q = input.value.trim().toLowerCase();
+  if (!q) { drop.style.display = 'none'; return; }
+  var values = getReleioLivros()
+    .map(function(l){ return (l[field] || '').trim(); })
+    .filter(function(v, i, arr){ return v && arr.indexOf(v) === i; }) // unique
+    .filter(function(v){ return v.toLowerCase().includes(q); })
+    .sort();
+  if (!values.length) { drop.style.display = 'none'; return; }
+  drop.innerHTML = values.map(function(v) {
+    return '<div onmousedown="pickAc(\'' + inputId + '\',\'' + dropId + '\',\'' + v.replace(/'/g,"\\'") + '\')">' + v + '</div>';
+  }).join('');
+  drop.style.display = 'block';
+}
+function pickAc(inputId, dropId, val) {
+  var el = document.getElementById(inputId);
+  if (el) el.value = val;
+  hideAc(dropId);
+}
+function hideAc(dropId) {
+  var el = document.getElementById(dropId);
+  if (el) el.style.display = 'none';
+}
+
 function setLivroRating(id, val){
   var list=getReleioLivros();
   var l=list.find(function(x){return x.id===id;});
@@ -3850,7 +3936,10 @@ function openReleioLivroModal(id){
     document.getElementById('rl-livro-delete-btn').style.display='inline-flex';
   } else {
     document.getElementById('rl-livro-modal-title').textContent='Novo livro';
-    ['rlf-titulo','rlf-autor','rlf-editora','rlf-genero','rlf-paginas','rlf-finalizado','rlf-resumo'].forEach(function(id){document.getElementById(id).value='';});
+    ['rlf-titulo','rlf-autor','rlf-editora','rlf-genero','rlf-paginas','rlf-resumo'].forEach(function(fid){document.getElementById(fid).value='';});
+    // Clear smart date field completely including cached raw/value
+    var dateEl = document.getElementById('rlf-finalizado');
+    if (dateEl) { dateEl.value=''; dateEl.setAttribute('data-raw',''); dateEl.setAttribute('data-value',''); }
     document.getElementById('rlf-status').value='Fila';
     document.getElementById('rl-livro-delete-btn').style.display='none';
   }
@@ -4991,11 +5080,9 @@ document.addEventListener('keydown', function(e) {
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
+  // Limpa todos os service workers para garantir versão mais recente
   navigator.serviceWorker.getRegistrations().then(function(regs) {
-    regs.forEach(function(r) { r.unregister(); }); // limpa versões antigas
-  });
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw.js');
+    regs.forEach(function(r) { r.unregister(); });
   });
 }
 </script>
