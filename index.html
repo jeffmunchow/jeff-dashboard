@@ -92,10 +92,11 @@
   .diary-editor div { margin: 0; padding: 0; line-height: 1.875; font-weight: 300; min-height: 1.875em; }
   .diary-editor div + div { margin-top: 0.7em; }
   .diary-editor br { display: block; }
-  /* Formatting — bold more prominent, italic, strikethrough */
+  /* Formatting — bold more prominent, italic, strikethrough, underline */
   .diary-editor strong, .diary-editor b { font-weight: 700 !important; color: var(--text); }
   .diary-editor em, .diary-editor i { font-style: italic; }
   .diary-editor s, .diary-editor strike { text-decoration: line-through; color: var(--text-muted); }
+  .diary-editor u { text-decoration: underline; }
 
   /* Notes modal (sidebar bottom icon) */
   .notes-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; display: none; align-items: center; justify-content: center; }
@@ -4876,7 +4877,7 @@ document.getElementById('cit-overlay').addEventListener('click', function(e){
   if (e.target.id === 'cit-overlay') e.target.classList.remove('open');
 });
 
-/* ── FORMATAÇÃO DO DIÁRIO (Cmd+B, Cmd+I, Cmd+T) ──────────── */
+/* ── FORMATAÇÃO DO DIÁRIO (Cmd+B, Cmd+I, Cmd+T, Cmd+S) ──────────── */
 document.addEventListener('keydown', function(e) {
   var editor = document.getElementById('diary-textarea');
   if (!editor) return;
@@ -4886,14 +4887,20 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'b') { e.preventDefault(); document.execCommand('bold'); }
   if (e.key === 'i') { e.preventDefault(); document.execCommand('italic'); }
   if (e.key === 't') { e.preventDefault(); document.execCommand('strikeThrough'); }
+  if (e.key === 'u') { e.preventDefault(); document.execCommand('underline'); }
 });
 
 /* ── ATALHOS DE TECLADO GLOBAIS (Cmd+1..5, Cmd+`) ───────── */
 document.addEventListener('keydown', function(e) {
-  // Require Cmd (Mac) or Ctrl (Windows)
-  if (!e.metaKey && !e.ctrlKey) return;
+  // Only fire on Cmd (Mac) — not Ctrl to avoid interfering with text editing
+  if (!e.metaKey) return;
   // Don't fire if a modal is open
   if (document.querySelector('.overlay.open')) return;
+  // Don't fire if focus is in the diary editor (let diary formatting handle it)
+  var diaryEditor = document.getElementById('diary-textarea');
+  if (diaryEditor && (document.activeElement === diaryEditor || diaryEditor.contains(document.activeElement))) {
+    return; // diary editor handles its own Cmd shortcuts
+  }
 
   switch(e.key) {
     case '1': e.preventDefault(); showDiaryView(); break;
@@ -4903,7 +4910,7 @@ document.addEventListener('keydown', function(e) {
     case '5': e.preventDefault(); showCitacoesView(); break;
     case '`': e.preventDefault(); toggleNotesModal(); break;
   }
-});
+}, true); // capture phase — fires before any child handler, regardless of focus
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
