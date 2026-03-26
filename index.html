@@ -115,7 +115,11 @@
   .diary-entry-empty { font-size: 0.75rem; color: var(--text-hint); font-style: italic; padding: 1rem 0; }
 
   /* Diary modal for past entries */
-  .diary-modal-content { font-family: 'Playfair Display', serif; font-size: 0.95rem; line-height: 1.85; white-space: pre-wrap; color: var(--text); max-height: 60vh; overflow-y: auto; }
+  .diary-modal-content { font-family: 'Playfair Display', serif; font-size: 0.95rem; line-height: 1.85; color: var(--text); max-height: 60vh; overflow-y: auto; }
+  .diary-modal-content strong, .diary-modal-content b { font-weight: 700; }
+  .diary-modal-content em, .diary-modal-content i { font-style: italic; }
+  .diary-modal-content u { text-decoration: underline; }
+  .diary-modal-content s, .diary-modal-content strike { text-decoration: line-through; }
 
   /* Push content right to account for sidebar */
   body { padding-left: 44px; }
@@ -4085,7 +4089,10 @@ function getDiaryEntries() {
     if (k && k.startsWith('diary_') && k !== 'diary_location') {
       try {
         var val = JSON.parse(localStorage.getItem(k));
-        if (val && val.text) entries.push({ key: k, text: val.text, location: val.location || '' });
+        // Accept entries with either text or html content
+        if (val && (val.text || val.html)) {
+          entries.push({ key: k, text: val.text || '', html: val.html || '', location: val.location || '' });
+        }
       } catch(e) {}
     }
   }
@@ -4117,10 +4124,10 @@ function renderDiaryArchive() {
   el.innerHTML = entries.map(function(e) {
     var d = diaryKeyToDate(e.key);
     var dateStr = d ? diaryFormatFullDate(d) : e.key;
-    var preview = e.location || '—';
+    var preview = (e.text || '').replace(/\s+/g,' ').trim().slice(0, 80) || (e.location || '—');
     return '<div onclick="openDiaryEntry(\'' + e.key + '\')" style="padding:0.75rem 0;border-bottom:0.5px solid var(--border);cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity=\'0.6\'" onmouseout="this.style.opacity=\'1\'">' +
       '<div style="font-size:0.8rem;color:var(--text);margin-bottom:3px;">' + dateStr + '</div>' +
-      '<div style="font-size:0.7rem;color:var(--text-hint);">' + preview + '</div>' +
+      '<div style="font-size:0.7rem;color:var(--text-hint);font-style:italic;">' + preview + (preview.length >= 80 ? '…' : '') + '</div>' +
     '</div>';
   }).join('');
 }
@@ -4266,7 +4273,14 @@ function renderDiaryHistory(todayKey) {
   el.innerHTML = entries.map(function(e) {
     var d = diaryKeyToDate(e.key);
     var dateStr = d ? diaryFormatFullDate(d) : e.key;
-    var preview = e.text.replace(/\n/g,' ').slice(0, 120) + (e.text.length > 120 ? '...' : '');
+    var rawText = e.text || '';
+    // If text is empty but html exists, strip tags for preview
+    if (!rawText.trim() && e.html) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = e.html;
+      rawText = tmp.innerText || tmp.textContent || '';
+    }
+    var preview = rawText.replace(/\s+/g,' ').trim().slice(0, 120) + (rawText.length > 120 ? '…' : '');
     return '<div class="diary-entry-item" onclick="openDiaryEntry(\'' + e.key + '\')">' +
       '<div class="diary-entry-date">' + dateStr + '</div>' +
       '<div class="diary-entry-preview">' + preview + '</div>' +
@@ -4277,11 +4291,33 @@ function renderDiaryHistory(todayKey) {
 function openDiaryEntry(key) {
   var data = null;
   try { data = JSON.parse(localStorage.getItem(key)); } catch(e) {}
-  if (!data) return;
+  if (data) {
+    _renderDiaryEntryModal(key, data);
+  } else {
+    // Try Supabase if not in localStorage
+    dbMetricLoad(key).then(function(val) {
+      if (!val) return;
+      try {
+        var remote = JSON.parse(val);
+        if (remote) {
+          localStorage.setItem(key, val); // cache it
+          _renderDiaryEntryModal(key, remote);
+        }
+      } catch(e) {}
+    }).catch(function(){});
+  }
+}
+
+function _renderDiaryEntryModal(key, data) {
   var d = diaryKeyToDate(key);
   document.getElementById('diary-entry-modal-date').textContent = d ? diaryFormatFullDate(d) : key;
   document.getElementById('diary-entry-modal-location').textContent = data.location || '';
-  document.getElementById('diary-entry-modal-content').textContent = data.text || '';
+  var content = document.getElementById('diary-entry-modal-content');
+  if (data.html && data.html.trim()) {
+    content.innerHTML = data.html;
+  } else {
+    content.textContent = data.text || '';
+  }
   document.getElementById('diary-entry-overlay').classList.add('open');
 }
 
