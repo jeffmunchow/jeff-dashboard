@@ -5465,7 +5465,7 @@ function renderTarefasGrid() {
       'style="top:' + topPx + 'px;height:' + heightPx + 'px;" ' +
       'onpointerdown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'move\')" ' +
       'onclick="tarefasBlockClick(event,\'' + t.id + '\')">' +
-      '<div class="tarefas-block-move" onpointerdown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'move\')"></div>' +
+      '<div class="tarefas-block-move" onpointerdown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'resize-top\')"></div>' +
       '<div class="tarefas-block-title">' + t.titulo + '</div>' +
       '<div class="tarefas-block-time" id="block-time-' + t.id + '">' + t.hora + (t.horaFim ? ' – ' + t.horaFim : '') + '</div>' +
       '<div class="tarefas-block-resize" onpointerdown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'resize\')"></div>' +
@@ -5716,7 +5716,7 @@ function tarefasBlockClick(e, id) {
 }
 
 function tarefasBlockMouseDown(e, id, mode) {
-  if (mode === 'resize') e.stopPropagation();
+  if (mode === 'resize' || mode === 'resize-top') e.stopPropagation();
   e.preventDefault();
   e.stopPropagation();
   var block = document.querySelector('.tarefas-block[data-id="' + id + '"]');
@@ -5766,7 +5766,6 @@ function _onDragMove(e) {
     var maxTop = (HORA_END - HORA_START) * HORA_SLOT;
     newTop = Math.min(newTop, maxTop);
     block.style.top = newTop + 'px';
-    // Update time label live
     var hora = _pxToHora(newTop);
     var dur = parseInt(_drag.startHeight / HORA_SLOT * 60);
     var horaFimMins = _horaToMin(hora) + dur;
@@ -5775,12 +5774,24 @@ function _onDragMove(e) {
     if (timeEl) timeEl.textContent = hora + ' – ' + horaFim;
     block.style.opacity = '0.85';
 
+  } else if (_drag.mode === 'resize-top') {
+    // Moving top edge: top increases, height decreases (and vice versa)
+    var newTop2 = _snapToSlot(Math.max(0, _drag.startTop + dy));
+    var newHeight2 = Math.max(HORA_SLOT/4, _drag.startHeight - (newTop2 - _drag.startTop));
+    newTop2 = _drag.startTop + _drag.startHeight - newHeight2; // recalc top from height
+    block.style.top    = newTop2 + 'px';
+    block.style.height = newHeight2 + 'px';
+    var hora2 = _pxToHora(newTop2);
+    var endH2 = _pxToHora(newTop2 + newHeight2);
+    var timeEl2 = document.getElementById('block-time-' + _drag.id);
+    if (timeEl2) timeEl2.textContent = hora2 + ' – ' + endH2;
+    block.style.opacity = '0.85';
+
   } else if (_drag.mode === 'resize') {
     var newHeight = _snapToSlot(Math.max(HORA_SLOT/4, _drag.startHeight + dy));
     var maxH = (HORA_END - HORA_START) * HORA_SLOT - _drag.startTop;
     newHeight = Math.min(newHeight, maxH);
     block.style.height = newHeight + 'px';
-    // Update time label live
     var horaStart = _pxToHora(_drag.startTop);
     var durMins = Math.round(newHeight / HORA_SLOT * 60);
     var endMins = _horaToMin(horaStart) + durMins;
@@ -5811,6 +5822,13 @@ function _onDragUp(e) {
     var endMins = _horaToMin(newHora) + dur;
     t.hora    = newHora;
     t.horaFim = _pad(Math.floor(endMins/60)) + ':' + _pad(endMins%60);
+
+  } else if (_drag.mode === 'resize-top') {
+    var newTop2 = parseInt(block.style.top) || 0;
+    var newH2   = parseInt(block.style.height) || HORA_SLOT;
+    t.hora    = _pxToHora(newTop2);
+    t.horaFim = _pxToHora(newTop2 + newH2);
+    t.duracao = Math.round(newH2 / HORA_SLOT * 60);
 
   } else if (_drag.mode === 'resize') {
     var newHeight = parseInt(block.style.height) || HORA_SLOT;
