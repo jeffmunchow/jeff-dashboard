@@ -2112,8 +2112,16 @@ function navigateToProject(e, proj) {
   else if (proj === 'releio-view') showReleioView();
 }
 
+var ALL_VIEWS = ['main-view','studio-view','soup-view','releio-view','diario-view','citacoes-view'];
+function hideAllViews() {
+  ALL_VIEWS.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+}
+
 function showStudio() {
-  document.getElementById('main-view').style.display = 'none';
+  hideAllViews();
   document.getElementById('studio-view').style.display = 'block';
   var d = new Date();
   var DAYS   = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
@@ -2124,7 +2132,7 @@ function showStudio() {
 }
 
 function showSoupView() {
-  document.getElementById('main-view').style.display = 'none';
+  hideAllViews();
   document.getElementById('soup-view').style.display = 'block';
   var d = new Date();
   var DAYS   = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
@@ -2135,7 +2143,7 @@ function showSoupView() {
 }
 
 function showReleioView() {
-  document.getElementById('main-view').style.display = 'none';
+  hideAllViews();
   document.getElementById('releio-view').style.display = 'block';
   var d = new Date();
   var DAYS   = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
@@ -2146,9 +2154,7 @@ function showReleioView() {
 }
 
 function showMainDashboard() {
-  ['studio-view','soup-view','releio-view','diario-view','citacoes-view'].forEach(function(id){
-    document.getElementById(id).style.display = 'none';
-  });
+  hideAllViews();
   document.getElementById('main-view').style.display = 'block';
   window.scrollTo(0,0);
   renderDashboardNextEvents();
@@ -4120,9 +4126,7 @@ function renderDiaryArchive() {
 }
 
 function showDiaryView() {
-  ['main-view','studio-view','soup-view','releio-view'].forEach(function(id){
-    document.getElementById(id).style.display = 'none';
-  });
+  hideAllViews();
   // Close archive panel when entering fresh
   var panel = document.getElementById('diary-archive-panel');
   if (panel) panel.style.display = 'none';
@@ -4816,9 +4820,7 @@ function saveCitacoesData(d) {
 }
 
 function showCitacoesView() {
-  ['main-view','studio-view','soup-view','releio-view','diario-view'].forEach(function(id){
-    document.getElementById(id).style.display = 'none';
-  });
+  hideAllViews();
   document.getElementById('citacoes-view').style.display = 'block';
   window.scrollTo(0,0);
   renderCitacoes();
