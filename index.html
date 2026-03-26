@@ -16,7 +16,7 @@
 
   :root {
     --bg: #F7F4EF; --surface: #FFFFFF; --surface2: #F0EDE6;
-    --border: rgba(0,0,0,0.05); --border-strong: rgba(0,0,0,0.11);
+    --border: rgba(0,0,0,0.04); --border-strong: rgba(0,0,0,0.09);
     --text: #1A1814; --text-muted: #6B6660; --text-hint: #B0ABA6;
     --amber: #C4780A; --amber-light: #FDF3E3;
     --teal: #0A7864;  --teal-light: #E3F4EF;
@@ -27,7 +27,7 @@
   }
   [data-theme="dark"] {
     --bg: #111009; --surface: #1A1814; --surface2: #211E18;
-    --border: rgba(255,255,255,0.05); --border-strong: rgba(255,255,255,0.09);
+    --border: rgba(255,255,255,0.04); --border-strong: rgba(255,255,255,0.07);
     --text: #EDE9E3; --text-muted: #9E9892; --text-hint: #5C5854;
     --amber: #D4902A; --amber-light: #221808;
     --teal: #18926E;  --teal-light: #091E15;
@@ -3855,10 +3855,18 @@ function renderReleioLivros(){
     var col = _livrosSortCol, dir = _livrosSortDir;
     list = list.slice().sort(function(a, b) {
       var va = a[col] || '', vb = b[col] || '';
-      // Empty values always go to the bottom regardless of direction
-      if (!va && vb) return 1;
-      if (va && !vb) return -1;
-      if (!va && !vb) return 0;
+      if (col === 'finalizado') {
+        // No finish date = currently reading
+        // desc (dir=-1, newest first): reading books at TOP → return -1 when a is empty
+        // asc  (dir= 1, oldest first): reading books at BOTTOM → return 1 when a is empty
+        if (!va && !vb) return 0;
+        if (!va) return 1 * dir;   // dir=-1 → -1 (a first=top) ✓  dir=1 → 1 (b first=a last=bottom) ✓
+        if (!vb) return -1 * dir;  // dir=-1 → 1 (b first=top) ✓  dir=1 → -1 (a first=b last) ✓
+      } else {
+        if (!va && vb) return 1;
+        if (va && !vb) return -1;
+        if (!va && !vb) return 0;
+      }
       if (col === 'paginas' || col === 'avaliacao') {
         va = parseFloat(va) || 0; vb = parseFloat(vb) || 0;
         return (va - vb) * dir;
