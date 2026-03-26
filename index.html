@@ -87,10 +87,9 @@
     content: 'Escreva livremente...';
     color: var(--text-hint); font-style: italic; pointer-events: none; font-weight: 400;
   }
-  /* margin-bottom on every block = consistent spacing after Enter always */
-  .diary-editor p   { margin: 0 0 0.55em 0; padding: 0; line-height: 1.875; min-height: 1.875em; }
-  .diary-editor div { margin: 0 0 0.55em 0; padding: 0; line-height: 1.875; min-height: 1.875em; }
-  .diary-editor div:last-child, .diary-editor p:last-child { margin-bottom: 0; }
+  /* padding-bottom on each block — Safari-safe, works on every Enter */
+  .diary-editor p   { margin: 0; padding: 0 0 0.6em 0; line-height: 1.875; min-height: 1.875em; }
+  .diary-editor div { margin: 0; padding: 0 0 0.6em 0; line-height: 1.875; min-height: 1.875em; }
   .diary-editor br { display: block; }
   /* Formatting */
   .diary-editor strong, .diary-editor b { font-weight: 600 !important; color: var(--text); }
@@ -4315,25 +4314,6 @@ function initDiary() {
 
 function diaryHandleKey(e) {
   if (e.key === 'Enter') {
-    e.preventDefault();
-    // Insert a new paragraph div at cursor position
-    var sel = window.getSelection();
-    if (!sel || !sel.rangeCount) return;
-    var range = sel.getRangeAt(0);
-    range.deleteContents();
-
-    var newDiv = document.createElement('div');
-    // If the current line is empty, insert a <br> so the div has height
-    newDiv.innerHTML = '<br>';
-    range.insertNode(newDiv);
-
-    // Move cursor inside the new div
-    var newRange = document.createRange();
-    newRange.setStart(newDiv, 0);
-    newRange.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(newRange);
-
     setTimeout(autosaveDiary, 10);
   }
 }
