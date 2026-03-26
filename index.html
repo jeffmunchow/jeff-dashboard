@@ -4314,8 +4314,26 @@ function initDiary() {
 }
 
 function diaryHandleKey(e) {
-  // Let the browser handle Enter natively — we just autosave
   if (e.key === 'Enter') {
+    e.preventDefault();
+    // Insert a new paragraph div at cursor position
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    var range = sel.getRangeAt(0);
+    range.deleteContents();
+
+    var newDiv = document.createElement('div');
+    // If the current line is empty, insert a <br> so the div has height
+    newDiv.innerHTML = '<br>';
+    range.insertNode(newDiv);
+
+    // Move cursor inside the new div
+    var newRange = document.createRange();
+    newRange.setStart(newDiv, 0);
+    newRange.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+
     setTimeout(autosaveDiary, 10);
   }
 }
