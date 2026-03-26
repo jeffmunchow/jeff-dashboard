@@ -644,8 +644,10 @@
 <!-- Past diary entry view — same layout as today, editable -->
 <div id="diary-past-view" style="display:none;position:fixed;left:44px;top:0;right:0;bottom:0;background:var(--bg);z-index:80;overflow-y:auto;">
   <div class="diary-container">
-    <div class="diary-date" id="diary-past-date" style="opacity:0.6;"></div>
-    <div style="font-size:0.75rem;color:var(--text-hint);margin-bottom:2rem;" id="diary-past-location"></div>
+    <div class="diary-date" id="diary-past-date"></div>
+    <div id="diary-past-location-wrap">
+      <span class="diary-location" id="diary-past-location"></span>
+    </div>
     <div class="diary-editor" id="diary-past-textarea" contenteditable="true" oninput="autosavePastDiary()"></div>
   </div>
 </div>
@@ -2114,6 +2116,10 @@ function hideAllViews() {
     var el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
+  // Always close past diary view when navigating away
+  var past = document.getElementById('diary-past-view');
+  if (past) past.style.display = 'none';
+  _diaryPastKey = null;
 }
 
 function showStudio() {
@@ -4055,6 +4061,8 @@ setTimeout(function() {
 ═══════════════════════════════════════════════════════════ */
 var _diaryAutoSaveTimer = null;
 var _diaryTodayKey = null;
+var _diaryPastKey = null;
+var _diaryPastSaveTimer = null;
 
 function diaryTodayKey() {
   var d = new Date();
@@ -4260,9 +4268,6 @@ function saveDiaryLocation() {
 function renderDiaryHistory(todayKey) {
   // Footer entries removed — history accessible via sidebar archive panel only
 }
-
-var _diaryPastKey = null;
-var _diaryPastSaveTimer = null;
 
 function openDiaryEntry(key) {
   var data = null;
