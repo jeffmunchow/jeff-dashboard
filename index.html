@@ -627,6 +627,7 @@
       <input type="text" class="diary-location-input" id="diary-location-input"
         style="display:none" placeholder="Local..."
         onblur="saveDiaryLocation()" onkeydown="if(event.key==='Enter')saveDiaryLocation()">
+      <span id="diary-saved-indicator" style="font-size:0.62rem;color:var(--text-hint);margin-left:10px;opacity:0;transition:opacity 0.4s;">salvo</span>
     </div>
     <div class="diary-editor" id="diary-textarea"
       contenteditable="true"
@@ -4148,18 +4149,34 @@ function initDiary() {
   document.getElementById('diary-location-text').textContent = savedLocation;
   document.getElementById('diary-location-input').value = savedLocation;
 
-  // Load today's entry (or start fresh)
+  // Load today's entry — NEVER wipe existing content
   _diaryTodayKey = todayKey;
   var todayData = null;
   try { todayData = JSON.parse(localStorage.getItem(todayKey)); } catch(e) {}
   var editor = document.getElementById('diary-textarea');
-  if (todayData && todayData.text) {
-    // Convert plain text to paragraphs for contenteditable
+  if (todayData && todayData.html && todayData.html.trim()) {
+    editor.innerHTML = todayData.html;
+  } else if (todayData && todayData.text && todayData.text.trim()) {
     editor.innerHTML = todayData.text.split('\n').map(function(line) {
-      return '<p>' + (line || '<br>') + '</p>';
+      return '<div>' + (line || '<br>') + '</div>';
     }).join('');
   } else {
     editor.innerHTML = '';
+    // Recover from Supabase if localStorage is empty
+    dbMetricLoad(todayKey).then(function(val) {
+      if (!val) return;
+      try {
+        var remote = JSON.parse(val);
+        var hasContent = remote && ((remote.html && remote.html.trim()) || (remote.text && remote.text.trim()));
+        if (!hasContent || editor.innerText.trim()) return;
+        if (remote.html && remote.html.trim()) {
+          editor.innerHTML = remote.html;
+        } else {
+          editor.innerHTML = remote.text.split('\n').map(function(l){ return '<div>'+(l||'<br>')+'</div>'; }).join('');
+        }
+        localStorage.setItem(todayKey, val);
+      } catch(e) {}
+    }).catch(function(){});
   }
   editor.focus();
 
@@ -4175,25 +4192,56 @@ function diaryHandleKey(e) {
 }
 
 function autosaveDiary() {
+  // Save immediately to localStorage (no delay — never lose a keystroke)
+  saveDiaryToday();
+  // Also sync to Supabase with a small debounce to avoid flooding
   clearTimeout(_diaryAutoSaveTimer);
   _diaryAutoSaveTimer = setTimeout(function() {
-    saveDiaryToday();
-  }, 600);
+    saveDiarySupabase();
+  }, 1500);
 }
 
 function saveDiaryToday() {
   if (!_diaryTodayKey) return;
   var editor = document.getElementById('diary-textarea');
-  // Extract plain text from paragraphs, preserving line breaks
-  var text = Array.from(editor.querySelectorAll('p')).map(function(p) {
-    return p.innerText || '';
-  }).join('\n');
-  if (!text) text = editor.innerText || '';
+  if (!editor) return;
+  var html = editor.innerHTML || '';
+  var text = editor.innerText || editor.textContent || '';
+  // Don't overwrite a saved entry with empty content
+  // (protects against accidental wipes on init)
+  if (!text.trim() && !html.trim()) {
+    var existing = null;
+    try { existing = JSON.parse(localStorage.getItem(_diaryTodayKey)); } catch(e){}
+    if (existing && existing.text && existing.text.trim()) return; // keep existing
+  }
   var location = localStorage.getItem('diary_location') || 'Parque Anchieta, Pelotas, RS';
-  var data = { text: text, location: location, savedAt: new Date().toISOString() };
+  var data = { text: text, html: html, location: location, savedAt: new Date().toISOString() };
   localStorage.setItem(_diaryTodayKey, JSON.stringify(data));
-  dbMetricSave(_diaryTodayKey, JSON.stringify(data));
+  // Visual feedback
+  _showDiarySavedIndicator();
 }
+
+function saveDiarySupabase() {
+  if (!_diaryTodayKey) return;
+  var stored = null;
+  try { stored = JSON.parse(localStorage.getItem(_diaryTodayKey)); } catch(e){}
+  if (!stored || !stored.text.trim()) return; // never sync empty
+  dbMetricSave(_diaryTodayKey, JSON.stringify(stored));
+}
+
+var _savedIndicatorTimer = null;
+function _showDiarySavedIndicator() {
+  var el = document.getElementById('diary-saved-indicator');
+  if (!el) return;
+  el.style.opacity = '1';
+  clearTimeout(_savedIndicatorTimer);
+  _savedIndicatorTimer = setTimeout(function(){ el.style.opacity = '0'; }, 1200);
+}
+
+// On page unload, do a final save
+window.addEventListener('beforeunload', function() {
+  saveDiaryToday();
+});
 
 function editDiaryLocation() {
   document.getElementById('diary-location-display').style.display = 'none';
@@ -4877,7 +4925,7 @@ document.getElementById('cit-overlay').addEventListener('click', function(e){
   if (e.target.id === 'cit-overlay') e.target.classList.remove('open');
 });
 
-/* ── FORMATAÇÃO DO DIÁRIO (Cmd+B, Cmd+I, Cmd+T, Cmd+S) ──────────── */
+/* ── FORMATAÇÃO DO DIÁRIO (Cmd+B, Cmd+I, Cmd+T, Cmd+U) ──────────── */
 document.addEventListener('keydown', function(e) {
   var editor = document.getElementById('diary-textarea');
   if (!editor) return;
@@ -4890,18 +4938,11 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'u') { e.preventDefault(); document.execCommand('underline'); }
 });
 
-/* ── ATALHOS DE TECLADO GLOBAIS (Cmd+1..5, Cmd+`) ───────── */
+/* ── ATALHOS GLOBAIS (Cmd+Option+1..5, Cmd+Option+`) ────────────── */
+/* Cmd+1-9 é interceptado pelo Safari/macOS — usamos Cmd+Option que passa livre */
 document.addEventListener('keydown', function(e) {
-  // Only fire on Cmd (Mac) — not Ctrl to avoid interfering with text editing
-  if (!e.metaKey) return;
-  // Don't fire if a modal is open
+  if (!e.metaKey || !e.altKey) return;
   if (document.querySelector('.overlay.open')) return;
-  // Don't fire if focus is in the diary editor (let diary formatting handle it)
-  var diaryEditor = document.getElementById('diary-textarea');
-  if (diaryEditor && (document.activeElement === diaryEditor || diaryEditor.contains(document.activeElement))) {
-    return; // diary editor handles its own Cmd shortcuts
-  }
-
   switch(e.key) {
     case '1': e.preventDefault(); showDiaryView(); break;
     case '2': e.preventDefault(); showStudio(); break;
@@ -4910,7 +4951,7 @@ document.addEventListener('keydown', function(e) {
     case '5': e.preventDefault(); showCitacoesView(); break;
     case '`': e.preventDefault(); toggleNotesModal(); break;
   }
-}, true); // capture phase — fires before any child handler, regardless of focus
+}, true);
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
