@@ -495,10 +495,12 @@
   .tarefas-hour-slot  { flex:1; border-top:0.5px solid var(--border); min-height:52px; position:relative; cursor:pointer; }
   .tarefas-hour-slot:hover { background:rgba(196,120,10,0.03); }
   #tf-hora, #tf-hora-fim { max-height:200px; overflow-y:auto; }
-  .tarefas-block { position:absolute; left:58px; right:16px; border-radius:6px; padding:3px 8px; cursor:pointer; overflow:hidden; z-index:2; }
+  .tarefas-block { position:absolute; left:58px; right:16px; border-radius:6px; padding:3px 8px; cursor:grab; overflow:hidden; z-index:2; user-select:none; }
   .tarefas-block:hover { filter:brightness(1.1); }
+  .tarefas-block:active { cursor:grabbing; }
   .tarefas-block-title { font-size:0.7rem; font-weight:500; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .tarefas-block-time  { font-size:0.6rem; color:rgba(255,255,255,0.82); }
+  .tarefas-block-resize { position:absolute; bottom:0; left:0; right:0; height:8px; cursor:ns-resize; background:rgba(0,0,0,0.15); border-radius:0 0 6px 6px; }
   .block-pessoal { background:#7A8AAA; }
   .block-munchow { background:var(--amber); }
   .block-soup    { background:var(--teal); }
@@ -5457,9 +5459,14 @@ function renderTarefasGrid() {
     var topPx  = (hh - HORA_START) * HORA_SLOT + (mm / 60) * HORA_SLOT + 1;
     var heightPx = Math.max(20, (dur / 60) * HORA_SLOT - 2);
     var projClass = 'block-' + (t.projeto||'pessoal');
-    html += '<div class="tarefas-block ' + projClass + '" style="top:' + topPx + 'px;height:' + heightPx + 'px;" onclick="openTarefaModal(\'' + t.id + '\')">' +
+    html += '<div class="tarefas-block ' + projClass + '" ' +
+      'data-id="' + t.id + '" ' +
+      'style="top:' + topPx + 'px;height:' + heightPx + 'px;" ' +
+      'onmousedown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'move\')" ' +
+      'onclick="tarefasBlockClick(event,\'' + t.id + '\')">' +
       '<div class="tarefas-block-title">' + t.titulo + '</div>' +
-      '<div class="tarefas-block-time">' + t.hora + (t.horaFim ? ' – ' + t.horaFim : '') + '</div>' +
+      '<div class="tarefas-block-time" id="block-time-' + t.id + '">' + t.hora + (t.horaFim ? ' – ' + t.horaFim : '') + '</div>' +
+      '<div class="tarefas-block-resize" onmousedown="tarefasBlockMouseDown(event,\'' + t.id + '\',\'resize\')"></div>' +
     '</div>';
   });
 
@@ -5696,6 +5703,131 @@ dbMetricLoad('tarefas_v1').then(function(val){
     }
   } catch(e){}
 }).catch(function(){});
+
+/* ── TAREFAS DRAG: mover e redimensionar blocos ──────────────── */
+var _drag = null; // { id, mode:'move'|'resize', startY, startTop, startHeight, slotTop }
+
+function tarefasBlockClick(e, id) {
+  // Only open modal if it wasn't a drag
+  if (_drag && _drag.dragged) { e.stopPropagation(); return; }
+  openTarefaModal(id);
+}
+
+function tarefasBlockMouseDown(e, id, mode) {
+  if (mode === 'resize') e.stopPropagation(); // don't trigger move
+  e.preventDefault();
+  var block = document.querySelector('.tarefas-block[data-id="' + id + '"]');
+  if (!block) return;
+  var inner = document.getElementById('tarefas-grid-inner');
+  if (!inner) return;
+  var slotTop = inner.getBoundingClientRect().top + inner.scrollTop;
+  // Account for scroll of grid panel
+  var panel = document.getElementById('tarefas-grid-panel');
+  var panelScroll = panel ? panel.scrollTop : 0;
+
+  _drag = {
+    id: id,
+    mode: mode,
+    startY: e.clientY,
+    startTop: parseInt(block.style.top) || 0,
+    startHeight: parseInt(block.style.height) || 52,
+    innerTop: inner.getBoundingClientRect().top - panelScroll,
+    dragged: false
+  };
+
+  document.addEventListener('mousemove', _onDragMove);
+  document.addEventListener('mouseup', _onDragUp);
+}
+
+function _snapToSlot(px) {
+  // Snap to 15-min intervals
+  var mins15 = HORA_SLOT / 4;
+  return Math.round(px / mins15) * mins15;
+}
+
+function _pxToHora(px) {
+  var totalMins = Math.round((px / HORA_SLOT) * 60);
+  var hh = HORA_START + Math.floor(totalMins / 60);
+  var mm = totalMins % 60;
+  hh = Math.max(HORA_START, Math.min(HORA_END, hh));
+  mm = Math.max(0, Math.min(45, Math.round(mm / 15) * 15));
+  if (mm === 60) { hh++; mm = 0; }
+  return _pad(hh) + ':' + _pad(mm);
+}
+
+function _onDragMove(e) {
+  if (!_drag) return;
+  var dy = e.clientY - _drag.startY;
+  if (Math.abs(dy) > 3) _drag.dragged = true;
+
+  var block = document.querySelector('.tarefas-block[data-id="' + _drag.id + '"]');
+  if (!block) return;
+
+  if (_drag.mode === 'move') {
+    var newTop = _snapToSlot(Math.max(0, _drag.startTop + dy));
+    var maxTop = (HORA_END - HORA_START) * HORA_SLOT;
+    newTop = Math.min(newTop, maxTop);
+    block.style.top = newTop + 'px';
+    // Update time label live
+    var hora = _pxToHora(newTop);
+    var dur = parseInt(_drag.startHeight / HORA_SLOT * 60);
+    var horaFimMins = _horaToMin(hora) + dur;
+    var horaFim = _pad(Math.floor(horaFimMins/60)) + ':' + _pad(horaFimMins%60);
+    var timeEl = document.getElementById('block-time-' + _drag.id);
+    if (timeEl) timeEl.textContent = hora + ' – ' + horaFim;
+    block.style.opacity = '0.85';
+
+  } else if (_drag.mode === 'resize') {
+    var newHeight = _snapToSlot(Math.max(HORA_SLOT/4, _drag.startHeight + dy));
+    var maxH = (HORA_END - HORA_START) * HORA_SLOT - _drag.startTop;
+    newHeight = Math.min(newHeight, maxH);
+    block.style.height = newHeight + 'px';
+    // Update time label live
+    var horaStart = _pxToHora(_drag.startTop);
+    var durMins = Math.round(newHeight / HORA_SLOT * 60);
+    var endMins = _horaToMin(horaStart) + durMins;
+    var horaFimR = _pad(Math.floor(endMins/60)) + ':' + _pad(endMins%60);
+    var timeElR = document.getElementById('block-time-' + _drag.id);
+    if (timeElR) timeElR.textContent = horaStart + ' – ' + horaFimR;
+    block.style.opacity = '0.85';
+  }
+}
+
+function _onDragUp(e) {
+  document.removeEventListener('mousemove', _onDragMove);
+  document.removeEventListener('mouseup', _onDragUp);
+  if (!_drag || !_drag.dragged) { _drag = null; return; }
+
+  var block = document.querySelector('.tarefas-block[data-id="' + _drag.id + '"]');
+  if (!block) { _drag = null; return; }
+  block.style.opacity = '1';
+
+  var list = getTarefas();
+  var t = list.find(function(x){ return x.id === _drag.id; });
+  if (!t) { _drag = null; return; }
+
+  if (_drag.mode === 'move') {
+    var newTop = parseInt(block.style.top) || 0;
+    var newHora = _pxToHora(newTop);
+    var dur = parseInt(t.duracao) || 60;
+    var endMins = _horaToMin(newHora) + dur;
+    t.hora    = newHora;
+    t.horaFim = _pad(Math.floor(endMins/60)) + ':' + _pad(endMins%60);
+
+  } else if (_drag.mode === 'resize') {
+    var newHeight = parseInt(block.style.height) || HORA_SLOT;
+    var durMins = Math.round(newHeight / HORA_SLOT * 60);
+    durMins = Math.max(15, Math.round(durMins / 15) * 15);
+    var endM = _horaToMin(t.hora) + durMins;
+    t.duracao = durMins;
+    t.horaFim = _pad(Math.floor(endM/60)) + ':' + _pad(endM%60);
+  }
+
+  saveTarefasData(list);
+  _drag = null;
+  renderTarefasList();
+  renderTarefasGrid();
+}
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
