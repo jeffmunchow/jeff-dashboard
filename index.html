@@ -3136,6 +3136,9 @@ function saveEdit() {
     if (el) el.textContent = val;
     localStorage.setItem('dash_' + f.id, val);
     dbMetricSave(f.id, val);
+    // Record follower history point for seguidores fields
+    var projKey = f.id === 'm-seguidores' ? 'm' : f.id === 's-seguidores' ? 's' : f.id === 'r-seguidores' ? 'r' : null;
+    if (projKey) recordFollowerPoint(projKey, val);
   });
   var now = new Date();
   var ts = 'Atualizado em ' + now.toLocaleDateString('pt-BR') + ' às ' +
@@ -3145,6 +3148,7 @@ function saveEdit() {
   localStorage.setItem('dash_' + p.suffix + '-updated', ts);
   dbMetricSave(p.suffix + '-updated', ts);
   closeEdit();
+  buildSparklines();
 }
 
 document.getElementById('overlay').addEventListener('click', function(e) {
@@ -3152,7 +3156,75 @@ document.getElementById('overlay').addEventListener('click', function(e) {
 });
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeEdit(); });
 
-/* Sparkline follower growth data (simulated 12 months) */
+/* ── FOLLOWER HISTORY — registro real por data ── */
+var SPARK_FOLLOWER_IDS = { m: 'm-seguidores', s: 's-seguidores', r: 'r-seguidores' };
+var SPARK_HISTORY_KEY  = { m: 'followers_history_m', s: 'followers_history_s', r: 'followers_history_r' };
+
+function _todayKey() { return new Date().toISOString().split('T')[0]; }
+
+function getFollowerHistory(proj) {
+  try { return JSON.parse(localStorage.getItem(SPARK_HISTORY_KEY[proj]) || '[]'); } catch(e) { return []; }
+}
+
+function saveFollowerHistory(proj, history) {
+  localStorage.setItem(SPARK_HISTORY_KEY[proj], JSON.stringify(history));
+  // Backup to Supabase using dbMetricSave
+  dbMetricSave(SPARK_HISTORY_KEY[proj], JSON.stringify(history));
+}
+
+function recordFollowerPoint(proj, value) {
+  var num = parseInt(String(value).replace(/\D/g,''));
+  if (!num || isNaN(num)) return;
+  var history = getFollowerHistory(proj);
+  var today = _todayKey();
+  // Update today's entry if exists, otherwise append
+  var idx = history.findIndex(function(p){ return p.d === today; });
+  if (idx >= 0) {
+    history[idx].v = num;
+  } else {
+    history.push({ d: today, v: num });
+  }
+  // Sort by date
+  history.sort(function(a,b){ return a.d.localeCompare(b.d); });
+  saveFollowerHistory(proj, history);
+}
+
+// Seed real re.leio follower history (fixed known data points)
+(function() {
+  var seed = [{"d": "2026-03-23", "v": 1}, {"d": "2026-03-24", "v": 1}, {"d": "2026-03-25", "v": 2}, {"d": "2026-03-26", "v": 2}, {"d": "2026-03-27", "v": 5}];
+  var existing = getFollowerHistory('r');
+  // Merge seed with existing — seed wins for its dates
+  var merged = {};
+  existing.forEach(function(p){ merged[p.d] = p.v; });
+  seed.forEach(function(p){ merged[p.d] = p.v; }); // seed overwrites
+  var arr = Object.keys(merged).sort().map(function(d){ return {d:d, v:merged[d]}; });
+  localStorage.setItem(SPARK_HISTORY_KEY['r'], JSON.stringify(arr));
+  dbMetricSave(SPARK_HISTORY_KEY['r'], JSON.stringify(arr));
+})();
+
+// Load follower history from Supabase on init
+['m','s','r'].forEach(function(proj) {
+  dbMetricLoad(SPARK_HISTORY_KEY[proj]).then(function(val) {
+    if (!val) return;
+    try {
+      var remote = JSON.parse(val);
+      var local = getFollowerHistory(proj);
+      // Merge: keep all unique dates, prefer higher value on conflict
+      var merged = {};
+      local.concat(remote).forEach(function(p){ 
+        if (!merged[p.d] || p.v > merged[p.d]) merged[p.d] = p.v;
+      });
+      // Re-apply seed to protect known real data
+      if (proj === 'r') {
+        var seed = [{"d": "2026-03-23", "v": 1}, {"d": "2026-03-24", "v": 1}, {"d": "2026-03-25", "v": 2}, {"d": "2026-03-26", "v": 2}, {"d": "2026-03-27", "v": 5}];
+        seed.forEach(function(p){ merged[p.d] = p.v; });
+      }
+      var arr = Object.keys(merged).sort().map(function(d){ return {d:d, v:merged[d]}; });
+      localStorage.setItem(SPARK_HISTORY_KEY[proj], JSON.stringify(arr));
+    } catch(e){}
+  }).catch(function(){});
+});
+
 var sparkData = {
   m: { start: 200,  startDate: '2014-01-01', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#D4902A' : '#C4780A'; } },
   s: { start: 1,    startDate: '2026-01-01', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#18926E' : '#0A7864'; } },
@@ -3165,25 +3237,70 @@ var _sparkDefaults  = { m: 3524, s: 22, r: 7000 };
 
 function buildSparkDataForKey(key) {
   var d = sparkData[key];
-  var startDate = new Date(d.startDate + 'T00:00:00');
-  var today = new Date(); today.setHours(0,0,0,0);
-  var msPerDay = 86400000;
-  var daysDiff = Math.max(2, Math.round((today - startDate) / msPerDay) + 1);
-  var endVal = parseInt(localStorage.getItem(_sparkStoreKeys[key])) || _sparkDefaults[key];
+  var history = getFollowerHistory(key);
+  var today = _todayKey();
+  var endVal = parseInt((localStorage.getItem('dash_' + SPARK_FOLLOWER_IDS[key]) || '').replace(/\D/g,'')) || _sparkDefaults[key];
 
-  // Cap to max 730 points (2 years) for performance — sample if longer
-  var stride = daysDiff > 730 ? Math.ceil(daysDiff / 730) : 1;
+  // Ensure we have at least startDate point and today point
+  var startEntry = { d: d.startDate, v: d.start };
+  var todayEntry = { d: today, v: endVal };
+
+  // Merge history with start and today
+  var allPoints = [startEntry];
+  history.forEach(function(p) {
+    if (p.d > d.startDate) allPoints.push(p);
+  });
+  // Ensure today is included/updated
+  var todayIdx = allPoints.findIndex(function(p){ return p.d === today; });
+  if (todayIdx >= 0) allPoints[todayIdx].v = endVal;
+  else allPoints.push(todayEntry);
+  allPoints.sort(function(a,b){ return a.d.localeCompare(b.d); });
+
+  // Build daily series by linear interpolation between known points
+  var firstDate = new Date(allPoints[0].d + 'T00:00:00');
+  var lastDate  = new Date(allPoints[allPoints.length-1].d + 'T00:00:00');
+  var msPerDay  = 86400000;
+  var totalDays = Math.round((lastDate - firstDate) / msPerDay) + 1;
+
+  // Cap at 730 points for performance
+  var stride = totalDays > 730 ? Math.ceil(totalDays / 730) : 1;
   var pts = [], labels = [];
-  for (var i = 0; i < daysDiff; i += stride) {
-    var t = daysDiff > 1 ? i / (daysDiff - 1) : 1;
-    var curve = t * t * (3 - 2 * t);
-    var noise = 1 + Math.sin(i * 2.3) * 0.015 + Math.cos(i * 1.7) * 0.01;
-    pts.push(Math.max(d.start, Math.round((d.start + (endVal - d.start) * curve) * noise)));
-    var day = new Date(startDate.getTime() + i * msPerDay);
+
+  // Convert allPoints to a map for quick lookup
+  var ptMap = {};
+  allPoints.forEach(function(p){ ptMap[p.d] = p.v; });
+
+  // Known points sorted for interpolation
+  var known = allPoints.slice();
+
+  function interpolate(dateStr) {
+    if (ptMap[dateStr] !== undefined) return ptMap[dateStr];
+    // Find surrounding points
+    var prev = null, next = null;
+    for (var k = 0; k < known.length; k++) {
+      if (known[k].d <= dateStr) prev = known[k];
+      if (known[k].d >= dateStr && !next) next = known[k];
+    }
+    if (!prev && next) return next.v;
+    if (prev && !next) return prev.v;
+    if (prev && next && prev.d === next.d) return prev.v;
+    // Linear interpolation
+    var t1 = new Date(prev.d + 'T00:00:00').getTime();
+    var t2 = new Date(next.d + 'T00:00:00').getTime();
+    var tc = new Date(dateStr + 'T00:00:00').getTime();
+    var ratio = (tc - t1) / (t2 - t1);
+    return Math.round(prev.v + (next.v - prev.v) * ratio);
+  }
+
+  for (var i = 0; i < totalDays; i += stride) {
+    var day = new Date(firstDate.getTime() + i * msPerDay);
+    var ds = day.toISOString().split('T')[0];
+    pts.push(interpolate(ds));
     labels.push(day.getDate() + '/' + (day.getMonth()+1) + '/' + day.getFullYear());
   }
-  pts[0] = d.start;
-  pts[pts.length - 1] = endVal;
+
+  // Ensure last point is exact
+  if (pts.length > 0) pts[pts.length-1] = endVal;
   return { pts: pts, labels: labels };
 }
 
