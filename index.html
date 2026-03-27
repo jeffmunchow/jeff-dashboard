@@ -261,6 +261,7 @@
   .nev-meta { font-size: 0.72rem; color: var(--text-muted); }
   .nev-date-badge { display: inline-block; font-size: 0.68rem; color: var(--text-hint); font-weight: 300; white-space: nowrap; flex-shrink: 0; background: none; padding: 0; }
   .nev-slot:hover { opacity: 0.85 !important; }
+  .nev-slot[onclick]:hover { opacity: 0.85 !important; }
   .nev-date-badge.coral { color: var(--text-hint); background: none; padding: 0; }
   /* Sparkline follower cells */
   .metric-cell.has-spark { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
@@ -3272,16 +3273,17 @@ function renderDashboardNextEvents() {
   var now = new Date();
   var today = now.toISOString().split('T')[0];
 
-  // ── Helper: render 4 slots, blank when empty, hover effect
+  // ── Helper: render 4 slots, blank when empty, hover effect + click to edit
   function _renderSlots(items, renderFn) {
     var html = '';
     for (var i = 0; i < 4; i++) {
       if (items[i]) {
-        // 100% if item is today, 35% otherwise
         var itemDate = items[i].data || items[i].dataIda || '';
         var isToday = itemDate === today;
         var op = isToday ? '1' : '0.35';
-        html += '<div class="nev-slot" data-op="' + op + '" style="opacity:' + op + ';margin-top:' + (i > 0 ? '7px' : '0') + ';cursor:default;transition:opacity 0.15s;">' + renderFn(items[i]) + '</div>';
+        var tarefaId = items[i]._tarefaId || '';
+        var clickAttr = tarefaId ? ' onclick="openTarefaModal(\'' + tarefaId + '\')" style="opacity:' + op + ';margin-top:' + (i > 0 ? '7px' : '0') + ';cursor:pointer;transition:opacity 0.15s;"' : ' style="opacity:' + op + ';margin-top:' + (i > 0 ? '7px' : '0') + ';cursor:default;transition:opacity 0.15s;"';
+        html += '<div class="nev-slot" data-op="' + op + '"' + clickAttr + '>' + renderFn(items[i]) + '</div>';
       } else {
         html += '<div style="margin-top:' + (i > 0 ? '7px' : '0') + ';min-height:18px;"></div>';
       }
@@ -3295,7 +3297,7 @@ function renderDashboardNextEvents() {
   var tarefasEvento = getTarefas().filter(function(t){
     return t.projeto === 'munchow' && t.evento && t.data && t.data >= today && !t.done;
   }).map(function(t){
-    return { data: t.data, titulo: t.titulo, tipo: t.evento, local: '', clienteId: '', _fromTarefa: true };
+    return { data: t.data, titulo: t.titulo, tipo: t.evento, local: '', clienteId: '', _fromTarefa: true, _tarefaId: t.id };
   });
   var allEvs = evs.concat(tarefasEvento).sort(function(a,b){ return a.data.localeCompare(b.data); });
   var mEl = document.getElementById('m-nev-content');
@@ -3322,7 +3324,7 @@ function renderDashboardNextEvents() {
   // Merge: viagens first, then tarefas not already covered by viagem on same date
   var soupItems = [];
   viagensUp.forEach(function(v){ soupItems.push({ _type:'viagem', data: v.dataIda, titulo: v.destino, meta: (v.cia||'—') + (v.membroId ? ' · ' + soupMemberName(v.membroId) : '') }); });
-  soupTarefas.forEach(function(t){ soupItems.push({ _type:'tarefa', data: t.data, titulo: t.titulo, meta: '' }); });
+  soupTarefas.forEach(function(t){ soupItems.push({ _type:'tarefa', data: t.data, titulo: t.titulo, meta: '', _tarefaId: t.id }); });
   soupItems.sort(function(a,b){ return a.data.localeCompare(b.data); });
   var sEl = document.getElementById('s-nev-content');
   if (sEl) {
@@ -3341,6 +3343,7 @@ function renderDashboardNextEvents() {
   // ── re.leio: tarefas
   var relTasks = getReleioTarefas()
     .filter(function(t){ return !t.done && t.data && t.data >= today; })
+    .map(function(t){ t._tarefaId = t.id; return t; })
     .sort(function(a,b){ return a.data.localeCompare(b.data); });
   var rEl = document.getElementById('r-nev-content');
   if (rEl) {
