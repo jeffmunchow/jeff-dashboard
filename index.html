@@ -860,7 +860,8 @@
           <option value="Casamento">Casamento</option>
           <option value="Sessão">Sessão</option>
           <option value="15 anos">15 anos</option>
-          <option value="Ensaio">Ensaio</option>
+          <option value="Religioso">Religioso</option>
+          <option value="Welcome Party">Welcome Party</option>
           <option value="Outro">Outro</option>
         </select>
       </div>
@@ -3255,77 +3256,86 @@ function renderDashboardNextEvents() {
   var lidos = livros.filter(function(l){ return l.status === 'Lido' || l.status === 'Curado' || l.status === 'Publicado'; }).length;
   var el = document.getElementById('r-lidos');
   if (el) el.textContent = lidos || '—';
-  // Münchow — próximo evento: agenda + tarefas com evento definido
+
   var now = new Date();
-  var evs = getEvents().filter(function(e){ return new Date(e.data) >= now; })
-    .sort(function(a,b){ return new Date(a.data)-new Date(b.data); });
-  // Also include tarefas from Münchow that have an evento type set
+  var today = now.toISOString().split('T')[0];
+
+  // ── Helper: render 3 slots, filling gaps with placeholder rows
+  function _renderSlots(items, renderFn, emptyLabel) {
+    var html = '';
+    for (var i = 0; i < 3; i++) {
+      var opacity = i === 0 ? '1' : i === 1 ? '0.55' : '0.3';
+      if (items[i]) {
+        html += '<div style="opacity:' + opacity + ';margin-top:' + (i > 0 ? '7px' : '0') + ';">' + renderFn(items[i]) + '</div>';
+      } else {
+        html += '<div style="opacity:0.2;margin-top:' + (i > 0 ? '7px' : '0') + ';font-size:0.75rem;color:var(--text-hint);">— ' + emptyLabel + ' —</div>';
+      }
+    }
+    return html;
+  }
+
+  // ── Münchow: agenda events + tarefas with evento set
+  var evs = getEvents().filter(function(e){ return e.data >= today; })
+    .sort(function(a,b){ return a.data.localeCompare(b.data); });
   var tarefasEvento = getTarefas().filter(function(t){
-    return t.projeto === 'munchow' && t.evento && t.data && new Date(t.data + 'T00:00:00') >= now && !t.done;
+    return t.projeto === 'munchow' && t.evento && t.data && t.data >= today && !t.done;
   }).map(function(t){
     return { data: t.data, titulo: t.titulo, tipo: t.evento, local: '', clienteId: '', _fromTarefa: true };
   });
-  var allEvs = evs.concat(tarefasEvento).sort(function(a,b){ return new Date(a.data)-new Date(b.data); });
+  var allEvs = evs.concat(tarefasEvento).sort(function(a,b){ return a.data.localeCompare(b.data); });
   var mEl = document.getElementById('m-nev-content');
   if (mEl) {
-    if (!allEvs.length) {
-      mEl.innerHTML = '<div class="nev-empty">Nenhum evento cadastrado</div>';
-    } else {
-      var ev = allEvs[0];
-      var dt = new Date(ev.data + (ev._fromTarefa ? 'T00:00:00' : ''));
-      var daysLeft = Math.ceil((dt - now) / 86400000);
-      var badge = daysLeft <= 7 ? 'coral' : daysLeft <= 30 ? '' : 'teal';
-      mEl.innerHTML = '<div class="nev-card">'+
-        '<span class="nev-date-badge '+badge+'">'+fmtDate(ev.data)+(daysLeft<=30?' · '+daysLeft+'d':'')+'</span>'+
-        '<div class="nev-title">'+ev.titulo+'</div>'+
-        '<div class="nev-meta">'+ev.tipo+(ev.local?' · '+ev.local:'')+(ev.clienteId?' · '+clientName(ev.clienteId):'')+'</div>'+
+    mEl.innerHTML = _renderSlots(allEvs, function(ev) {
+      var daysLeft = Math.ceil((new Date(ev.data + 'T00:00:00') - now) / 86400000);
+      return '<div style="display:flex;flex-direction:column;gap:1px;">' +
+        '<div style="display:flex;gap:8px;align-items:baseline;">' +
+          '<span style="font-size:0.68rem;color:var(--text-hint);flex-shrink:0;">' + fmtDate(ev.data) + (daysLeft <= 30 ? ' · ' + daysLeft + 'd' : '') + '</span>' +
+          '<span class="nev-title">' + ev.titulo + '</span>' +
+        '</div>' +
+        (ev.tipo ? '<div class="nev-meta">' + ev.tipo + (ev.local ? ' · ' + ev.local : '') + (ev.clienteId ? ' · ' + clientName(ev.clienteId) : '') + '</div>' : '') +
       '</div>';
-    }
+    }, 'sem evento');
   }
 
-  // Soup — próxima viagem
+  // ── Soup: viagens + tarefas Soup
   var viagensUp = getSoupViagens().filter(function(v){
-    return new Date(v.dataIda) >= now && v.status !== 'Cancelado';
-  }).sort(function(a,b){ return new Date(a.dataIda)-new Date(b.dataIda); });
+    return v.dataIda >= today && v.status !== 'Cancelado';
+  }).sort(function(a,b){ return a.dataIda.localeCompare(b.dataIda); });
+  var soupTarefas = getTarefas().filter(function(t){
+    return t.projeto === 'soup' && t.data && t.data >= today && !t.done;
+  }).sort(function(a,b){ return a.data.localeCompare(b.data); });
+  // Merge: viagens first, then tarefas not already covered by viagem on same date
+  var soupItems = [];
+  viagensUp.forEach(function(v){ soupItems.push({ _type:'viagem', data: v.dataIda, titulo: v.destino, meta: (v.cia||'—') + (v.membroId ? ' · ' + soupMemberName(v.membroId) : '') }); });
+  soupTarefas.forEach(function(t){ soupItems.push({ _type:'tarefa', data: t.data, titulo: t.titulo, meta: '' }); });
+  soupItems.sort(function(a,b){ return a.data.localeCompare(b.data); });
   var sEl = document.getElementById('s-nev-content');
   if (sEl) {
-    if (!viagensUp.length) {
-      sEl.innerHTML = '<div class="nev-empty">Nenhuma viagem cadastrada</div>';
-    } else {
-      var v = viagensUp[0];
-      var daysV = Math.ceil((new Date(v.dataIda) - now) / 86400000);
-      sEl.innerHTML = '<div class="nev-card">'+
-        '<span class="nev-date-badge teal">'+fmtDate(v.dataIda)+(daysV<=60?' · '+daysV+'d':'')+'</span>'+
-        '<div class="nev-title">'+v.destino+'</div>'+
-        '<div class="nev-meta">'+(v.cia||'—')+(v.membroId?' · '+soupMemberName(v.membroId):'')+'</div>'+
+    sEl.innerHTML = _renderSlots(soupItems, function(item) {
+      var daysLeft = Math.ceil((new Date(item.data + 'T00:00:00') - now) / 86400000);
+      return '<div style="display:flex;flex-direction:column;gap:1px;">' +
+        '<div style="display:flex;gap:8px;align-items:baseline;">' +
+          '<span style="font-size:0.68rem;color:var(--text-hint);flex-shrink:0;">' + fmtDate(item.data) + (daysLeft <= 60 ? ' · ' + daysLeft + 'd' : '') + '</span>' +
+          '<span class="nev-title">' + item.titulo + '</span>' +
+        '</div>' +
+        (item.meta ? '<div class="nev-meta">' + item.meta + '</div>' : '') +
       '</div>';
-    }
+    }, 'sem evento');
   }
 
-  // re.leio — próxima publicação
-  var pubs = getReleioPublicacoes().filter(function(p){
-    return p.data && new Date(p.data) >= now && p.status !== 'Publicado';
-  }).sort(function(a,b){ return new Date(a.data)-new Date(b.data); });
+  // ── re.leio: tarefas
+  var relTasks = getReleioTarefas()
+    .filter(function(t){ return !t.done && t.data && t.data >= today; })
+    .sort(function(a,b){ return a.data.localeCompare(b.data); });
   var rEl = document.getElementById('r-nev-content');
   if (rEl) {
-    var today = now.toISOString().split('T')[0];
-    var tasks = getReleioTarefas()
-      .filter(function(t){ return !t.done && t.data && t.data >= today; })
-      .sort(function(a,b){ return a.data.localeCompare(b.data); });
-    if (!tasks.length) {
-      rEl.innerHTML = '<div class="nev-empty">Nenhuma tarefa cadastrada</div>';
-    } else {
-      var html = '';
-      tasks.slice(0,2).forEach(function(t, i) {
-        var opacity = i === 1 ? 'opacity:0.45;' : '';
-        html += '<div style="display:flex;align-items:center;gap:8px;margin-top:'+(i===0?'0':'6px')+';'+opacity+'">' +
-          '<button onclick="checkReleioTarefaWidget(\''+t.id+'\',event)" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'var(--coral)\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
-          '<span style="font-size:0.68rem;color:var(--text-hint);white-space:nowrap;flex-shrink:0;">'+fmtDate(t.data)+'</span>' +
-          '<span style="font-size:0.82rem;color:var(--text);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(t.titulo||t.tarefa||'')+'</span>' +
-        '</div>';
-      });
-      rEl.innerHTML = html;
-    }
+    rEl.innerHTML = _renderSlots(relTasks, function(t) {
+      return '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<button onclick="checkReleioTarefaWidget(\'' + t.id + '\',event)" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'var(--coral)\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
+        '<span style="font-size:0.68rem;color:var(--text-hint);white-space:nowrap;flex-shrink:0;">' + fmtDate(t.data) + '</span>' +
+        '<span style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (t.titulo||t.tarefa||'') + '</span>' +
+      '</div>';
+    }, 'sem tarefa');
   }
 }
 
