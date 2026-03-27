@@ -10,10 +10,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Dashboard">
 <meta name="theme-color" content="#F7F4EF">
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:wght@400;600&family=DM+Sans:ital,wght@0,300;0,400;0,500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
     --bg: #F7F4EF; --surface: #FFFFFF; --surface2: #F0EDE6;
     --border: rgba(0,0,0,0.04); --border-strong: rgba(0,0,0,0.09);
@@ -35,9 +34,7 @@
     --toggle-bg: #3A3630; --toggle-knob: #1A1814; --toggle-knob-shadow: rgba(0,0,0,0.4);
     --pill-bg: #2A2620; --pill-active: #3A3630; --pill-text: #5C5854; --pill-active-text: #EDE9E3;
   }
-
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.25s, color 0.25s; }
-
   /* ── SIDEBAR ──────────────────────────────────────────── */
   .sidebar {
     position: fixed; left: 0; top: 0; bottom: 0;
@@ -62,7 +59,6 @@
   .sidebar-diary { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
   .sidebar-diary:hover { background: var(--surface2); color: var(--text); }
   .sidebar-diary.active { color: var(--amber); }
-
   /* Diary view */
   .diary-view { display: none; min-height: 100vh; }
   .diary-container { max-width: 900px; margin: 0 auto; padding: 2.5rem 0; }
@@ -97,7 +93,6 @@
   .diary-editor em, .diary-editor i { font-style: italic; }
   .diary-editor s, .diary-editor strike { text-decoration: line-through; color: var(--text-muted); }
   .diary-editor u { text-decoration: underline; }
-
   /* Notes modal (sidebar bottom icon) */
   .notes-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; display: none; align-items: center; justify-content: center; }
   .notes-modal-overlay.open { display: flex; }
@@ -113,18 +108,15 @@
   .diary-entry-date { font-size: 0.8rem; color: var(--text); font-weight: 400; margin-bottom: 3px; }
   .diary-entry-preview { font-size: 0.72rem; color: var(--text-hint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .diary-entry-empty { font-size: 0.75rem; color: var(--text-hint); font-style: italic; padding: 1rem 0; }
-
   /* Diary modal for past entries */
   .diary-modal-content { font-family: 'Lora', serif; font-size: 0.95rem; line-height: 1.85; color: var(--text); max-height: 60vh; overflow-y: auto; }
   .diary-modal-content strong, .diary-modal-content b { font-weight: 600; }
   .diary-modal-content em, .diary-modal-content i { font-style: italic; }
   .diary-modal-content u { text-decoration: underline; }
   .diary-modal-content s, .diary-modal-content strike { text-decoration: line-through; }
-
   /* Push content right to account for sidebar */
   body { padding-left: 44px; }
   @media(max-width:960px) { body { padding-left: 0; } .sidebar { display: none; } }
-
   /* Dashboard header — sem borda, centralizado verticalmente */
   #main-view > .header {
     border-bottom: none;
@@ -136,7 +128,6 @@
   #studio-view .header,
   #soup-view .header,
   #releio-view .header { border-bottom: 0.5px solid var(--border); }
-
   .header {
     padding: 1rem 2rem 0.85rem;
     border-bottom: 0.5px solid var(--border);
@@ -153,7 +144,6 @@
   #soup-view .header-left p,
   #releio-view .header-left p { font-size: 0.7rem; color: var(--text-hint); margin-top: 3px; font-weight: 300; letter-spacing: 0; text-transform: none; }
   .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-
   .btn {
     font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 400;
     padding: 6px 15px; border-radius: 40px; border: 0.5px solid var(--border-strong);
@@ -162,7 +152,6 @@
   .btn:hover { background: var(--surface); color: var(--text); }
   .btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
   .btn.primary:hover { opacity: 0.82; }
-
   .theme-toggle {
     position: relative; width: 44px; height: 24px;
     background: var(--toggle-bg); border-radius: 12px;
@@ -183,7 +172,6 @@
   .theme-toggle .icon-moon { left: 5px; opacity: 0; }
   [data-theme="dark"] .theme-toggle .icon-sun  { opacity: 0; }
   [data-theme="dark"] .theme-toggle .icon-moon { opacity: 1; }
-
   /* Chart mode pill toggle */
   .chart-mode-toggle {
     display: flex; align-items: center;
@@ -200,7 +188,6 @@
     background: var(--pill-active); color: var(--pill-active-text);
     box-shadow: 0 1px 2px rgba(0,0,0,0.08);
   }
-
   .chart-section { padding: 0.75rem 2rem 1.25rem; }
   .chart-card {
     background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border);
@@ -211,26 +198,21 @@
   .chart-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
   .chart-subtitle { font-size: 0.7rem; color: var(--text-hint); font-weight: 300; }
   .chart-header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-
   .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.72rem; color: var(--text-muted); align-items: center; }
   .legend-item { display: flex; align-items: center; gap: 5px; }
   .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .legend-sep { width: 0.5px; height: 12px; background: var(--border-strong); margin: 0 2px; }
   .legend-line { display: inline-block; width: 18px; height: 1px; vertical-align: middle; margin-right: 4px; }
-
   .sim-notice {
     margin-top: 1.25rem; padding: 9px 14px; background: var(--amber-light);
     border-radius: var(--radius-sm); font-size: 0.7rem; color: var(--amber); line-height: 1.5;
     transition: background 0.25s, color 0.25s;
   }
-
   .main { padding: 0 2rem 2rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
-
   @media (max-width: 960px) {
     .main { grid-template-columns: 1fr; }
     .header, .main, .chart-section { padding-left: 1.25rem; padding-right: 1.25rem; }
   }
-
   .project-card { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border); overflow: hidden; transition: background 0.25s, border-color 0.25s; }
   .project-card.clickable { cursor: default; }
   .project-card.clickable:hover { border-color: var(--border); }
@@ -265,13 +247,11 @@
     line-height: 1.6; min-height: 60px; transition: background 0.25s, border-color 0.25s, color 0.25s;
   }
   .notes-area textarea::placeholder { color: var(--text-hint); }
-
   /* Softer placeholder for client modal */
   #client-overlay input::placeholder,
   #client-overlay textarea::placeholder { color: var(--border-strong); opacity: 1; }
   .notes-area textarea:focus { border-color: var(--border-strong); }
   .last-updated { display: none; }
-
   /* Next event widget on dashboard cards */
   .next-event-widget { padding: 0.85rem 1.5rem 0.9rem; }
   .nev-label { font-size: 0.62rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
@@ -282,13 +262,11 @@
   .nev-date-badge { display: inline-block; font-size: 0.68rem; color: var(--text-hint); font-weight: 300; white-space: nowrap; flex-shrink: 0; background: none; padding: 0; }
   .nev-date-badge.teal  { color: var(--text-hint); background: none; padding: 0; }
   .nev-date-badge.coral { color: var(--text-hint); background: none; padding: 0; }
-
   /* Sparkline follower cells */
   .metric-cell.has-spark { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
   .metric-cell.has-spark .spark-left { flex: 1; min-width: 0; }
   .metric-cell.has-spark .spark-chart { width: 72px; height: 36px; flex-shrink: 0; }
   .metric-cell.has-spark .spark-chart canvas { display: block; width: 100%; height: 100%; }
-
   .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
   .overlay.open { display: flex; }
   .modal { background: var(--surface); border-radius: var(--radius); border: 0.5px solid var(--border-strong); width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; padding: 1.75rem; transition: background 0.25s; }
@@ -299,11 +277,9 @@
   .field-row input:focus { border-color: var(--border-strong); }
   .modal-actions { display: flex; gap: 8px; margin-top: 1.5rem; justify-content: flex-end; }
   .footer { text-align: center; padding: 0.25rem 1.25rem 0.75rem; font-size: 0.68rem; color: var(--text-hint); font-weight: 300; font-style: italic; letter-spacing: 0.01em; }
-
   /* ─── STUDIO VIEW ─────────────────────────────────────────────── */
   #studio-view { display: none; min-height: 100vh; }
   #main-view {}
-
   .studio-tabs {
     display: flex; align-items: center; gap: 2px;
     padding: 0 2.5rem; border-bottom: 0.5px solid var(--border);
@@ -319,13 +295,10 @@
   #soup-view .studio-tab.active { border-bottom-color: var(--teal); }
   #releio-view .studio-tab.active { border-bottom-color: var(--coral); }
   .studio-tab:hover:not(.active) { color: var(--text-muted); }
-
   .studio-body { padding: 2rem 2.5rem; }
   @media(max-width:960px){ .studio-body { padding: 1.25rem; } .studio-tabs { padding: 0 1.25rem; } }
-
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
-
   /* Summary cards */
   .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 1rem; margin-bottom: 1.75rem; }
   .sum-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; }
@@ -335,12 +308,10 @@
   .sum-card.accent-amber .sum-value { color: var(--amber); }
   .sum-card.accent-teal  .sum-value { color: var(--teal); }
   .sum-card.accent-coral .sum-value { color: var(--coral); }
-
   /* Section title */
   .section-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
   .section-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; }
   .section-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
   /* Table */
   .data-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
   .data-table th { text-align: left; font-size: 0.64rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 400; padding: 10px 12px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
@@ -353,7 +324,6 @@
   .ac-dropdown { position:absolute; top:100%; left:0; right:0; background:var(--surface); border:0.5px solid var(--border-strong); border-radius:var(--radius-sm); z-index:200; max-height:160px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
   .ac-dropdown div { padding:7px 12px; font-size:0.78rem; cursor:pointer; color:var(--text); }
   .ac-dropdown div:hover { background:var(--surface2); }
-
   /* Star rating */
   .star-rating { display: inline-flex; gap: 2px; align-items: center; }
   .star { font-size: 0.9rem; cursor: pointer; color: var(--border-strong); transition: color 0.1s; line-height: 1; user-select: none; }
@@ -366,7 +336,6 @@
   .data-table .td-name { color: var(--text); font-weight: 400; }
   .table-wrap { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
   .table-scroll { overflow-x: auto; }
-
   /* Status badge */
   .badge { display: inline-block; font-size: 0.62rem; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.02em; white-space: nowrap; }
   .badge-prospect    { background: var(--surface2); color: var(--text-hint); }
@@ -378,7 +347,6 @@
   .badge-entregue    { background: #E8F5E9; color: #2E7D32; }
   [data-theme="dark"] .badge-entregue { background: #0A1F0B; color: #66BB6A; }
   .badge-finalizado  { background: var(--surface2); color: var(--text-hint); }
-
   /* Agenda items */
   .agenda-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border-radius: var(--radius); overflow: hidden; border: 0.5px solid var(--border); }
   .agenda-item { background: var(--surface); padding: 0.9rem 1.25rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
@@ -389,7 +357,6 @@
   .agenda-sub { font-size: 0.68rem; color: var(--text-hint); margin-top: 2px; }
   .agenda-item.past { opacity: 0.45; }
   .agenda-empty { background: var(--surface); padding: 2rem; text-align: center; font-size: 0.78rem; color: var(--text-hint); border-radius: var(--radius); border: 0.5px solid var(--border); }
-
   /* Todo */
   .todo-list { display: flex; flex-direction: column; gap: 1px; }
   .todo-item { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 0.75rem 1rem; display: flex; align-items: flex-start; gap: 10px; transition: opacity 0.2s; }
@@ -403,7 +370,6 @@
   .todo-cat { font-size: 0.62rem; color: var(--text-hint); margin-top: 2px; }
   .todo-del { background: none; border: none; color: var(--text-hint); cursor: pointer; font-size: 0.9rem; padding: 0 2px; opacity: 0; transition: opacity 0.15s; }
   .todo-item:hover .todo-del { opacity: 1; }
-
   /* Add todo row */
   .add-todo-row { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
   .add-todo-row input, .add-todo-row select {
@@ -414,7 +380,6 @@
   }
   .add-todo-row input { flex: 1; min-width: 180px; }
   .add-todo-row input:focus, .add-todo-row select:focus { border-color: var(--amber); }
-
   /* Financeiro */
   .fin-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 1rem; margin-bottom: 1.75rem; }
   .fin-entry { background: var(--teal-light); border-radius: var(--radius-sm); padding: 0.9rem 1rem; }
@@ -425,11 +390,9 @@
   .fin-entry .fin-val { color: var(--teal); }
   .fin-exit  .fin-val { color: var(--coral); }
   .fin-balance .fin-val { color: var(--amber); }
-
   /* Pending tasks */
   .pend-group { margin-bottom: 1.5rem; }
   .pend-group-title { font-size: 0.7rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-
   /* Filter row */
   .filter-row { display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center; }
   .filter-row input, .filter-row select {
@@ -439,23 +402,19 @@
   }
   .filter-row input { min-width: 160px; }
   .filter-row input:focus, .filter-row select:focus { border-color: var(--amber); }
-
   /* Table row actions */
   .row-action { background: none; border: none; cursor: pointer; color: var(--text-hint); font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; transition: color 0.15s, background 0.15s; }
   .row-action:hover { color: var(--text); background: var(--surface2); }
-
   /* Studio modal specifics */
   .modal-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
   @media(max-width:520px){ .modal-2col { grid-template-columns: 1fr; } }
   .field-row select { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; color: var(--text); outline: none; }
   .field-row textarea { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; color: var(--text); outline: none; resize: none; }
-
   /* Breadcrumb hint */
   .back-btn { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; }
   .nav-btns { display: flex; align-items: center; gap: 6px; }
   .nav-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border-radius: 8px; border: 0.5px solid var(--border-strong); background: transparent; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
   .nav-btn:hover { background: var(--surface2); color: var(--text); }
-
   /* ── TAREFAS VIEW ──────────────────────────────────────────── */
   #tarefas-view { display:none; min-height:100vh; }
   .tarefas-week-bar { display:flex; align-items:center; gap:4px; padding:0 1.25rem 0 0; border-bottom:0.5px solid var(--border); background:var(--surface); height:48px; overflow-x:auto; }
@@ -491,7 +450,7 @@
   .tarefas-empty { text-align:center; padding:3rem 0; color:var(--text-hint); font-size:0.78rem; font-style:italic; }
   .tarefas-grid-panel { flex:1; overflow-y:auto; position:relative; background:var(--bg); }
   .tarefas-hour-row   { display:flex; align-items:flex-start; min-height:52px; position:relative; }
-  .tarefas-hour-label { width:52px; flex-shrink:0; font-size:0.63rem; color:var(--text-hint); padding:5px 4px 0 8px; user-select:none; text-align:right; }
+  .tarefas-hour-label { width:52px; flex-shrink:0; font-size:0.63rem; color:var(--text-hint); padding:0 4px 0 8px; user-select:none; text-align:right; transform:translateY(-50%); }
   .tarefas-hour-slot  { flex:1; border-top:0.5px solid var(--border); min-height:52px; position:relative; cursor:pointer; }
   .tarefas-hour-slot:hover { background:rgba(196,120,10,0.03); }
   #tf-hora, #tf-hora-fim { max-height:200px; overflow-y:auto; }
@@ -580,7 +539,7 @@
     <div class="sim-notice">
       Simulação de 52 semanas — cenário plausível de crescimento. Será substituído pelos dados reais quando você quiser.
     </div>
-  
+
     <div class="sidebar-version">v.1.2</div>
   </div>
 </div>
@@ -679,7 +638,7 @@
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
     </div>
-  
+
     <div class="sidebar-version">v.1.2</div>
   </div>
 
@@ -748,7 +707,7 @@
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
     </div>
-  
+
     <div class="sidebar-version">v.1.2</div>
   </div>
 
@@ -929,7 +888,7 @@
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
   </div>
-  
+
     <div class="sidebar-version">v.1.2</div>
   </div>
 
@@ -1175,7 +1134,7 @@
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
   </div>
-  
+
     <div class="sidebar-version">v.1.2</div>
   </div>
   <div class="header">
@@ -1370,7 +1329,7 @@
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
   </div>
-  
+
     <div class="sidebar-version">v.1.2</div>
   </div>
   <div class="header">
@@ -1633,7 +1592,7 @@
 </div>
 
 <!-- Tarefa modal (re.leio) -->
-<!-- rl-tarefa-overlay replaced by shared tarefa modal -->
+
 <div class="overlay" id="custo-overlay">
   <div class="modal" style="max-width:520px;">
     <h2 id="custo-modal-title">Novo custo</h2>
@@ -2307,8 +2266,7 @@ function showStudio() {
   hideAllViews();
   document.getElementById('studio-view').style.display = 'block';
   var d = new Date();
-  var DAYS   = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-  var MONTHS = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
   document.getElementById('studio-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
   window.scrollTo(0,0);
   switchStudioTab('resumo');
@@ -2318,8 +2276,7 @@ function showSoupView() {
   hideAllViews();
   document.getElementById('soup-view').style.display = 'block';
   var d = new Date();
-  var DAYS   = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-  var MONTHS = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
   document.getElementById('soup-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
   window.scrollTo(0,0);
   switchSoupTab('resumo');
@@ -2329,8 +2286,7 @@ function showReleioView() {
   hideAllViews();
   document.getElementById('releio-view').style.display = 'block';
   var d = new Date();
-  var DAYS   = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-  var MONTHS = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
   document.getElementById('releio-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
   window.scrollTo(0,0);
   switchReleioTab('resumo');
@@ -2442,7 +2398,7 @@ function renderResumo() {
   document.getElementById('ss-fat').textContent    = fmtMoney(totalValor);
   document.getElementById('ss-recv').textContent   = fmtMoney(aReceber);
   document.getElementById('ss-wed').textContent    = weddings;
-  
+
   document.getElementById('ss-ticket').textContent = ticket > 0 ? fmtMoney(ticket) : '—';
 
   // mini agenda
@@ -3333,7 +3289,6 @@ function renderDashboardNextEvents() {
   }
 }
 
-// toggleReleioTarefaDone and checkReleioTarefaWidget defined in re.leio tasks section
 
 /* ═══════════════════════════════════════════════════════════
    CUSTOS — DATA & RENDER
@@ -3558,8 +3513,8 @@ function getSoupFin()       { return soupLoad('fin')      ||[]; }
 function getSoupTodos()     { return soupLoad('todos')    ||[]; }
 function saveSoupMembros(d) { soupSave('membros',d); dbSaveList('soup_membros', d); }
 function saveSoupViagens(d) { soupSave('viagens',d); dbSaveList('soup_viagens', d); }
-function saveSoupMilhas(d)  { soupSave('milhas',d);  dbSaveList('soup_milhas',  d); }
-function saveSoupFin(d)     { soupSave('fin',d);     dbSaveList('soup_fin',     d); }
+function saveSoupMilhasData(d)  { soupSave('milhas',d);  dbSaveList('soup_milhas',  d); }
+function saveSoupFinData(d)     { soupSave('fin',d);     dbSaveList('soup_fin',     d); }
 function saveSoupTodos(d)   { soupSave('todos',d);   dbSaveList('soup_todos',   d); }
 function soupMemberName(id) { var m=getSoupMembros().find(function(x){return x.id===id;}); return m?m.nome:'—'; }
 
@@ -3796,11 +3751,11 @@ function saveSoupMilhas(){
   var list=getSoupMilhas();
   if(editingSoupMilhasId){var idx=list.findIndex(function(m){return m.id===editingSoupMilhasId;});if(idx>-1)list[idx]=obj;else list.push(obj);}
   else list.push(obj);
-  saveSoupMilhas(list);closeSoupMilhasModal();renderSoupMilhas();
+  saveSoupMilhasData(list);closeSoupMilhasModal();renderSoupMilhas();
 }
 function deleteSoupMilhas(){
   if(!confirm('Excluir lançamento?'))return;
-  saveSoupMilhas(getSoupMilhas().filter(function(m){return m.id!==editingSoupMilhasId;}));
+  _saveSoupMilhasData(getSoupMilhas().filter(function(m){return m.id!==editingSoupMilhasId;}));
   closeSoupMilhasModal();renderSoupMilhas();
 }
 
@@ -3860,11 +3815,11 @@ function saveSoupFin(){
   var list=getSoupFin();
   if(editingSoupFinId){var idx=list.findIndex(function(f){return f.id===editingSoupFinId;});if(idx>-1)list[idx]=obj;else list.push(obj);}
   else list.push(obj);
-  saveSoupFin(list);closeSoupFinModal();renderSoupFinanceiro();renderSoupResumo();
+  saveSoupFinData(list);closeSoupFinModal();renderSoupFinanceiro();renderSoupResumo();
 }
 function deleteSoupFin(){
   if(!confirm('Excluir lançamento?'))return;
-  saveSoupFin(getSoupFin().filter(function(f){return f.id!==editingSoupFinId;}));
+  _saveSoupFinData(getSoupFin().filter(function(f){return f.id!==editingSoupFinId;}));
   closeSoupFinModal();renderSoupFinanceiro();renderSoupResumo();
 }
 
