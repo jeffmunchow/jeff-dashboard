@@ -2396,6 +2396,18 @@ function fmtDate(str) {
   if (parts.length<3) return str;
   return parts[2]+'/'+parts[1]+'/'+parts[0];
 }
+function fmtDateWidget(str) {
+  if (!str) return '—';
+  var dateStr = str.split('T')[0];
+  var parts = dateStr.split('-');
+  if (parts.length < 3) return str;
+  var d = new Date(dateStr + 'T00:00:00');
+  var todayStr = new Date().toISOString().split('T')[0];
+  var dayAbbr = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  var formatted = parts[2] + '/' + parts[1] + '/' + parts[0];
+  if (dateStr === todayStr) return 'Hoje. ' + formatted;
+  return dayAbbr[d.getDay()] + '. ' + formatted;
+}
 function fmtMoney(v) {
   if (!v && v!==0) return '—';
   return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
@@ -3292,7 +3304,7 @@ function renderDashboardNextEvents() {
       var daysLeft = Math.ceil((new Date(ev.data + 'T00:00:00') - now) / 86400000);
       return '<div style="display:flex;flex-direction:column;gap:1px;">' +
         '<div style="display:flex;gap:8px;align-items:baseline;">' +
-          '<span style="font-size:0.68rem;color:var(--text-hint);flex-shrink:0;">' + fmtDate(ev.data) + (daysLeft <= 30 ? ' · ' + daysLeft + 'd' : '') + '</span>' +
+          '<span style="font-size:0.68rem;color:var(--text-hint);flex-shrink:0;">' + fmtDateWidget(ev.data) + (daysLeft <= 30 ? ' · ' + daysLeft + 'd' : '') + '</span>' +
           '<span class="nev-title">' + ev.titulo + '</span>' +
         '</div>' +
         (ev.tipo ? '<div class="nev-meta">' + ev.tipo + (ev.local ? ' · ' + ev.local : '') + (ev.clienteId ? ' · ' + clientName(ev.clienteId) : '') + '</div>' : '') +
@@ -3318,7 +3330,7 @@ function renderDashboardNextEvents() {
       var daysLeft = Math.ceil((new Date(item.data + 'T00:00:00') - now) / 86400000);
       return '<div style="display:flex;flex-direction:column;gap:1px;">' +
         '<div style="display:flex;gap:8px;align-items:baseline;">' +
-          '<span style="font-size:0.68rem;color:var(--text-hint);flex-shrink:0;">' + fmtDate(item.data) + (daysLeft <= 60 ? ' · ' + daysLeft + 'd' : '') + '</span>' +
+          '<span style="font-size:0.68rem;color:var(--text-hint);flex-shrink:0;">' + fmtDateWidget(item.data) + (daysLeft <= 60 ? ' · ' + daysLeft + 'd' : '') + '</span>' +
           '<span class="nev-title">' + item.titulo + '</span>' +
         '</div>' +
         (item.meta ? '<div class="nev-meta">' + item.meta + '</div>' : '') +
@@ -3335,7 +3347,7 @@ function renderDashboardNextEvents() {
     rEl.innerHTML = _renderSlots(relTasks, function(t) {
       return '<div style="display:flex;align-items:center;gap:8px;">' +
         '<button onclick="checkReleioTarefaWidget(\'' + t.id + '\',event)" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'var(--coral)\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
-        '<span style="font-size:0.68rem;color:var(--text-hint);white-space:nowrap;flex-shrink:0;">' + fmtDate(t.data) + '</span>' +
+        '<span style="font-size:0.68rem;color:var(--text-hint);white-space:nowrap;flex-shrink:0;">' + fmtDateWidget(t.data) + '</span>' +
         '<span style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (t.titulo||t.tarefa||'') + '</span>' +
       '</div>';
     });
