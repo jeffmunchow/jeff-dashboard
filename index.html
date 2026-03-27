@@ -443,6 +443,7 @@
   .proj-tarefas-day-btn .day-num  { display:block; font-size:0.85rem; font-weight:500; margin-top:1px; }
   .proj-tarefas-day-btn.active-coral { background:var(--coral); color:#fff; border-radius:8px; }
   .proj-tarefas-day-btn.active-teal  { background:var(--teal);  color:#fff; border-radius:8px; }
+  .proj-tarefas-day-btn.active-amber { background:var(--amber); color:#fff; border-radius:8px; }
   .proj-tarefas-list-header { display:flex; align-items:center; justify-content:flex-end; padding:8px 1.5rem 6px; flex-shrink:0; }
   .tarefas-item { display:flex; align-items:flex-start; gap:9px; padding:9px 0; border-bottom:0.5px solid var(--border); cursor:pointer; }
   .tarefas-item:last-child { border-bottom:none; }
@@ -923,7 +924,7 @@
     <button class="studio-tab"        id="stab-pendencias" onclick="switchStudioTab('pendencias')">Pendências</button>
     <button class="studio-tab"        id="stab-financeiro" onclick="switchStudioTab('financeiro')">Financeiro</button>
     <button class="studio-tab"        id="stab-custos"     onclick="switchStudioTab('custos')">Custos</button>
-    <button class="studio-tab"        id="stab-todo"       onclick="switchStudioTab('todo')">To-do</button>
+    <button class="studio-tab"        id="stab-tarefas"    onclick="switchStudioTab('tarefas')">Tarefas</button>
   </div>
 
   <!-- Tab Content -->
@@ -1045,30 +1046,25 @@
     </div>
 
     <!-- ── TO-DO ──────────────────────────────────────── -->
-    <div class="tab-panel" id="spanel-todo">
-      <div class="section-header">
-        <div class="section-title">To-do</div>
-        <div class="section-actions">
-          <select id="todo-filter" onchange="renderTodo()">
-            <option value="open">Pendentes</option>
-            <option value="all">Todas</option>
-            <option value="done">Concluídas</option>
-          </select>
+    <div class="tab-panel" id="spanel-tarefas">
+      <div class="proj-tarefas-wrap">
+        <div class="proj-tarefas-week-bar">
+          <button class="proj-week-arrow" onclick="projTarefasNav('munchow',-1)">‹</button>
+          <div class="proj-tarefas-days" id="munchow-tarefas-days"></div>
+          <button class="proj-week-arrow" onclick="projTarefasNav('munchow',1)">›</button>
+          <button class="btn" style="font-size:0.65rem;padding:2px 10px;margin-left:8px;" onclick="projTarefasToday('munchow')">Hoje</button>
+          <div style="flex:1"></div>
+          <button class="btn primary" style="font-size:0.72rem;" onclick="openMunchowTarefaModal()">+ Tarefa</button>
         </div>
+        <div class="proj-tarefas-list-header">
+          <div class="tarefas-list-title" id="munchow-tarefas-day-title">Tarefas do dia</div>
+          <div style="display:flex;gap:4px;align-items:center;">
+            <button onclick="setProjTarefasFilter('munchow','all')" id="munchow-tf-all" class="btn" style="font-size:0.65rem;padding:2px 8px;opacity:0.5;">Todas</button>
+            <button onclick="setProjTarefasFilter('munchow','open')" id="munchow-tf-open" class="btn primary" style="font-size:0.65rem;padding:2px 8px;">A fazer</button>
+          </div>
+        </div>
+        <div id="munchow-tarefas-list-body" style="flex:1;overflow-y:auto;padding:0 1.5rem;"></div>
       </div>
-      <div class="add-todo-row">
-        <input type="text" id="todo-input" placeholder="Nova tarefa..." onkeydown="if(event.key==='Enter')addTodo()">
-        <select id="todo-cat-input">
-          <option value="Geral">Geral</option>
-          <option value="Equipamento">Equipamento</option>
-          <option value="Marketing">Marketing</option>
-          <option value="Administrativo">Administrativo</option>
-          <option value="Edição">Edição</option>
-          <option value="Cliente">Cliente</option>
-        </select>
-        <button class="btn primary" onclick="addTodo()">Adicionar</button>
-      </div>
-      <div id="todo-list" class="todo-list"></div>
     </div>
 
     <!-- ── CUSTOS ────────────────────────────────────────── -->
@@ -2356,7 +2352,7 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 var currentStudioTab = 'resumo';
 function switchStudioTab(tab) {
   currentStudioTab = tab;
-  ['resumo','clientes','agenda','pendencias','financeiro','custos','todo'].forEach(function(t){
+  ['resumo','clientes','agenda','pendencias','financeiro','custos','tarefas'].forEach(function(t){
     var btn = document.getElementById('stab-'+t);
     var pan = document.getElementById('spanel-'+t);
     if (btn) btn.classList.toggle('active', t===tab);
@@ -2368,7 +2364,7 @@ function switchStudioTab(tab) {
   if (tab==='pendencias') renderPendencias();
   if (tab==='financeiro') renderFinanceiro();
   if (tab==='custos')     renderCustos();
-  if (tab==='todo')       renderTodo();
+  if (tab==='tarefas')    { renderProjTarefasWeekBar('munchow'); renderProjTarefasList('munchow'); }
 }
 
 /* ─── HELPERS ────────────────────────────────────────────── */
@@ -5697,8 +5693,9 @@ function saveTarefa() {
   document.getElementById('tarefa-overlay').classList.remove('open');
   renderTarefasList();
   renderTarefasGrid();
-  if (obj.projeto === 'releio') { renderProjTarefasWeekBar('releio'); renderProjTarefasList('releio'); }
-  if (obj.projeto === 'soup')   { renderProjTarefasWeekBar('soup');   renderProjTarefasList('soup'); }
+  if (obj.projeto === 'releio')  { renderProjTarefasWeekBar('releio');  renderProjTarefasList('releio'); }
+  if (obj.projeto === 'soup')    { renderProjTarefasWeekBar('soup');    renderProjTarefasList('soup'); }
+  if (obj.projeto === 'munchow') { renderProjTarefasWeekBar('munchow'); renderProjTarefasList('munchow'); }
 }
 
 function deleteTarefa() {
@@ -5725,12 +5722,12 @@ dbMetricLoad('tarefas_v1').then(function(val){
 }).catch(function(){});
 
 /* ── PROJ TAREFAS — re.leio e Soup ──────────────────────────── */
-var _projTarefasDate   = { releio: _dateKey(new Date()), soup: _dateKey(new Date()) };
-var _projTarefasOffset = { releio: 0, soup: 0 };
-var _projTarefasFilter = { releio: 'open', soup: 'open' };
+var _projTarefasDate   = { releio: _dateKey(new Date()), soup: _dateKey(new Date()), munchow: _dateKey(new Date()) };
+var _projTarefasOffset = { releio: 0, soup: 0, munchow: 0 };
+var _projTarefasFilter = { releio: 'open', soup: 'open', munchow: 'open' };
 
-var _PROJ_COLOR = { releio: 'active-coral', soup: 'active-teal' };
-var _PROJ_KEY   = { releio: 'releio', soup: 'soup' };
+var _PROJ_COLOR = { releio: 'active-coral', soup: 'active-teal', munchow: 'active-amber' };
+var _PROJ_KEY   = { releio: 'releio', soup: 'soup', munchow: 'munchow' };
 
 function projTarefasNav(proj, dir) {
   _projTarefasOffset[proj] = (_projTarefasOffset[proj]||0) + dir;
@@ -5749,7 +5746,7 @@ function projTarefasSelectDay(proj, key) {
 }
 function setProjTarefasFilter(proj, f) {
   _projTarefasFilter[proj] = f;
-  var prefix = proj === 'releio' ? 'rl' : 'soup';
+  var prefix = proj === 'releio' ? 'rl' : proj === 'soup' ? 'soup' : 'munchow';
   var allBtn  = document.getElementById(prefix + '-tf-all');
   var openBtn = document.getElementById(prefix + '-tf-open');
   if (allBtn)  { allBtn.style.opacity  = f==='all'  ? '1' : '0.5'; allBtn.className  = f==='all'  ? 'btn primary' : 'btn'; }
@@ -5757,7 +5754,7 @@ function setProjTarefasFilter(proj, f) {
   renderProjTarefasList(proj);
 }
 function renderProjTarefasWeekBar(proj) {
-  var barId  = proj === 'releio' ? 'rl-tarefas-days' : 'soup-tarefas-days';
+  var barId  = proj === 'releio' ? 'rl-tarefas-days' : proj === 'soup' ? 'soup-tarefas-days' : 'munchow-tarefas-days';
   var bar = document.getElementById(barId);
   if (!bar) return;
   var today  = _dateKey(new Date());
@@ -5780,8 +5777,8 @@ function renderProjTarefasWeekBar(proj) {
   bar.innerHTML = html;
 }
 function renderProjTarefasList(proj) {
-  var bodyId = proj === 'releio' ? 'rl-tarefas-list-body' : 'soup-tarefas-list-body';
-  var titleId = proj === 'releio' ? 'rl-tarefas-day-title' : 'soup-tarefas-day-title';
+  var bodyId  = proj === 'releio' ? 'rl-tarefas-list-body'   : proj === 'soup' ? 'soup-tarefas-list-body'  : 'munchow-tarefas-list-body';
+  var titleId = proj === 'releio' ? 'rl-tarefas-day-title'   : proj === 'soup' ? 'soup-tarefas-day-title'  : 'munchow-tarefas-day-title';
   var el = document.getElementById(bodyId);
   if (!el) return;
   var selDate = _projTarefasDate[proj];
@@ -5848,6 +5845,14 @@ function _formatDateTitle(dateStr) {
   var d = new Date(dateStr + 'T00:00:00');
   var days = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
   return days[d.getDay()] + ', ' + _pad(d.getDate()) + '/' + _pad(d.getMonth()+1);
+}
+
+function openMunchowTarefaModal() {
+  openTarefaModal();
+  setTimeout(function(){
+    var p = document.getElementById('tf-projeto');
+    if (p) p.value = 'munchow';
+  }, 10);
 }
 
 function openSoupTarefaModal() {
