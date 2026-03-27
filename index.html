@@ -432,6 +432,18 @@
   .tarefas-list-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
   .tarefas-list-title { font-family:'Playfair Display',serif; font-size:0.9rem; font-weight:600; color:var(--text); }
   .tarefas-list-date  { font-size:0.68rem; color:var(--text-hint); }
+  /* ── Proj Tarefas (re.leio / soup) ── */
+  .proj-tarefas-wrap { display:flex; flex-direction:column; height:calc(100vh - 120px); }
+  .proj-tarefas-week-bar { display:flex; align-items:center; gap:4px; padding:10px 1.5rem 8px; border-bottom:0.5px solid var(--border); flex-shrink:0; overflow-x:auto; }
+  .proj-tarefas-days { display:flex; gap:3px; }
+  .proj-week-arrow { background:none; border:none; color:var(--text-hint); font-size:1rem; cursor:pointer; padding:2px 6px; border-radius:4px; }
+  .proj-week-arrow:hover { color:var(--text); }
+  .proj-tarefas-day-btn { background:none; border:none; cursor:pointer; padding:4px 8px; border-radius:8px; text-align:center; min-width:38px; color:var(--text-hint); }
+  .proj-tarefas-day-btn .day-name { display:block; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.04em; }
+  .proj-tarefas-day-btn .day-num  { display:block; font-size:0.85rem; font-weight:500; margin-top:1px; }
+  .proj-tarefas-day-btn.active-coral { background:var(--coral); color:#fff; border-radius:8px; }
+  .proj-tarefas-day-btn.active-teal  { background:var(--teal);  color:#fff; border-radius:8px; }
+  .proj-tarefas-list-header { display:flex; align-items:center; justify-content:space-between; padding:10px 1.5rem 6px; flex-shrink:0; }
   .tarefas-item { display:flex; align-items:flex-start; gap:9px; padding:9px 0; border-bottom:0.5px solid var(--border); cursor:pointer; }
   .tarefas-item:last-child { border-bottom:none; }
   .tarefas-item:hover { opacity:0.75; }
@@ -1159,6 +1171,7 @@
     <button class="studio-tab"        id="soupstab-financeiro" onclick="switchSoupTab('financeiro')">Financeiro</button>
     <button class="studio-tab"        id="soupstab-marketing" onclick="switchSoupTab('marketing')">Marketing</button>
     <button class="studio-tab"        id="soupstab-prospectos" onclick="switchSoupTab('prospectos')">Prospectos</button>
+    <button class="studio-tab"        id="soupstab-tarefas" onclick="switchSoupTab('tarefas')">Tarefas</button>
   </div>
 
   <div class="studio-body">
@@ -1303,6 +1316,28 @@
           <tbody id="soup-prosp-tbody"></tbody>
         </table>
       </div></div>
+    </div>
+
+    <!-- TAREFAS SOUP -->
+    <div class="tab-panel" id="souppanel-tarefas">
+      <div class="proj-tarefas-wrap">
+        <div class="proj-tarefas-week-bar">
+          <button class="proj-week-arrow" onclick="projTarefasNav('soup',-1)">‹</button>
+          <div class="proj-tarefas-days" id="soup-tarefas-days"></div>
+          <button class="proj-week-arrow" onclick="projTarefasNav('soup',1)">›</button>
+          <button class="btn" style="font-size:0.65rem;padding:2px 10px;margin-left:8px;" onclick="projTarefasToday('soup')">Hoje</button>
+          <div style="flex:1"></div>
+          <button class="btn primary" style="font-size:0.72rem;" onclick="openSoupTarefaModal()">+ Tarefa</button>
+        </div>
+        <div class="proj-tarefas-list-header">
+          <div class="tarefas-list-title" id="soup-tarefas-day-title">Tarefas do dia</div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button onclick="setProjTarefasFilter('soup','all')" id="soup-tf-all" class="btn" style="font-size:0.65rem;padding:2px 8px;opacity:0.5;">Todas</button>
+            <button onclick="setProjTarefasFilter('soup','open')" id="soup-tf-open" class="btn primary" style="font-size:0.65rem;padding:2px 8px;">A fazer</button>
+          </div>
+        </div>
+        <div id="soup-tarefas-list-body" style="flex:1;overflow-y:auto;"></div>
+      </div>
     </div>
 
   </div>
@@ -1479,23 +1514,27 @@
 
     <!-- TAREFAS -->
     <div class="tab-panel" id="rlpanel-tarefas">
-      <div class="section-header">
-        <div class="section-title">Tarefas</div>
-        <div class="section-actions">
-          <select id="rl-tarefa-filter" onchange="renderReleioTarefas()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:5px 10px;color:var(--text);outline:none;">
-            <option value="pendente">A fazer</option>
-            <option value="concluida">Concluídas</option>
-            <option value="">Todas</option>
-          </select>
-          <button class="btn primary" onclick="openReleioTarefaModal()">+ Tarefa</button>
+      <div class="proj-tarefas-wrap">
+        <!-- Barra de semana -->
+        <div class="proj-tarefas-week-bar">
+          <button class="proj-week-arrow" onclick="projTarefasNav('releio',-1)">‹</button>
+          <div class="proj-tarefas-days" id="rl-tarefas-days"></div>
+          <button class="proj-week-arrow" onclick="projTarefasNav('releio',1)">›</button>
+          <button class="btn" style="font-size:0.65rem;padding:2px 10px;margin-left:8px;" onclick="projTarefasToday('releio')">Hoje</button>
+          <div style="flex:1"></div>
+          <button class="btn primary" style="font-size:0.72rem;" onclick="openReleioTarefaModal()">+ Tarefa</button>
         </div>
+        <!-- Lista -->
+        <div class="proj-tarefas-list-header">
+          <div class="tarefas-list-title" id="rl-tarefas-day-title">Tarefas do dia</div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span style="font-size:0.68rem;color:var(--text-hint);">Todas</span>
+            <button onclick="setProjTarefasFilter('releio','all')" id="rl-tf-all" class="btn" style="font-size:0.65rem;padding:2px 8px;opacity:0.5;">Todas</button>
+            <button onclick="setProjTarefasFilter('releio','open')" id="rl-tf-open" class="btn primary" style="font-size:0.65rem;padding:2px 8px;">A fazer</button>
+          </div>
+        </div>
+        <div id="rl-tarefas-list-body" style="flex:1;overflow-y:auto;"></div>
       </div>
-      <div class="table-wrap"><div class="table-scroll">
-        <table class="data-table">
-          <thead><tr><th>Tarefa</th><th>Data</th><th>Projeto</th><th></th></tr></thead>
-          <tbody id="rl-tarefas-tbody"></tbody>
-        </table>
-      </div></div>
     </div>
 
   </div>
@@ -3522,7 +3561,7 @@ function soupMemberName(id) { var m=getSoupMembros().find(function(x){return x.i
 var currentSoupTab = 'resumo';
 function switchSoupTab(tab) {
   currentSoupTab = tab;
-  ['resumo','membros','viagens','milhas','financeiro','marketing','prospectos'].forEach(function(t){
+  ['resumo','membros','viagens','milhas','financeiro','marketing','prospectos','tarefas'].forEach(function(t){
     var btn=document.getElementById('soupstab-'+t); var pan=document.getElementById('souppanel-'+t);
     if(btn) btn.classList.toggle('active',t===tab);
     if(pan) pan.classList.toggle('active',t===tab);
@@ -3534,6 +3573,7 @@ function switchSoupTab(tab) {
   if(tab==='financeiro')  renderSoupFinanceiro();
   if(tab==='marketing')   renderSoupMarketing();
   if(tab==='prospectos')  renderSoupProspectos();
+  if(tab==='tarefas')     { renderProjTarefasWeekBar('soup'); renderProjTarefasList('soup'); }
 }
 
 /* SOUP RESUMO */
@@ -5356,13 +5396,13 @@ function renderTarefasList() {
     var projLabel = { pessoal:'Pessoal', munchow:'Münchow', soup:'Soup', releio:'re.leio' }[t.projeto||'pessoal'];
     var meta = [];
     if (t.hora) meta.push(t.hora + (t.horaFim ? ' – ' + t.horaFim : (t.duracao ? ' · ' + _durLabel(t.duracao) : '')));
-    var mutedStyle = muted ? ' style="opacity:0.45;"' : '';
+    var mutedStyle = muted ? ' style="opacity:0.55;"' : '';
     return '<div class="tarefas-item' + (t.done?' done':'') + '"' + mutedStyle + ' onclick="openTarefaModal(\'' + t.id + '\')">' +
       '<div class="tarefas-item-check' + (t.done?' checked':'') + '" onclick="toggleTarefaDone(event,\'' + t.id + '\')"></div>' +
       '<div class="tarefas-item-body">' +
         '<div class="tarefas-item-title">' + t.titulo + '</div>' +
         '<div class="tarefas-item-meta">' +
-          (muted && t.dataLabel ? '<span style="font-weight:500;color:var(--text-muted);">' + t.dataLabel + '</span>' : '') +
+          (muted && t.dataLabel ? '<span>' + t.dataLabel + ' · </span>' : '') +
           (meta.length ? '<span>' + meta.join(' ') + '</span>' : '') +
           '<span class="tarefas-item-proj ' + projClass + '">' + projLabel + '</span>' +
         '</div>' +
@@ -5397,7 +5437,7 @@ function renderTarefasList() {
         t.dataLabel = dayAbbr[d.getDay()] + ', ' + _pad(d.getDate()) + '/' + _pad(d.getMonth()+1) + '/' + d.getFullYear();
       }
     });
-    html += '<div style="height:0.5px;background:var(--border);margin:12px 0 8px;"></div>';
+    
     html += upcoming.map(function(t){ return _taskItemHtml(t, true); }).join('');
   }
 
@@ -5667,8 +5707,8 @@ function saveTarefa() {
   document.getElementById('tarefa-overlay').classList.remove('open');
   renderTarefasList();
   renderTarefasGrid();
-  // Also refresh re.leio tarefas table if visible
-  if (obj.projeto === 'releio') renderReleioTarefas();
+  if (obj.projeto === 'releio') { renderProjTarefasWeekBar('releio'); renderProjTarefasList('releio'); }
+  if (obj.projeto === 'soup')   { renderProjTarefasWeekBar('soup');   renderProjTarefasList('soup'); }
 }
 
 function deleteTarefa() {
@@ -5694,7 +5734,147 @@ dbMetricLoad('tarefas_v1').then(function(val){
   } catch(e){}
 }).catch(function(){});
 
-/* ── TAREFAS DRAG: mover e redimensionar blocos ──────────────── */
+/* ── PROJ TAREFAS — re.leio e Soup ──────────────────────────── */
+var _projTarefasDate   = { releio: _dateKey(new Date()), soup: _dateKey(new Date()) };
+var _projTarefasOffset = { releio: 0, soup: 0 };
+var _projTarefasFilter = { releio: 'open', soup: 'open' };
+
+var _PROJ_COLOR = { releio: 'active-coral', soup: 'active-teal' };
+var _PROJ_KEY   = { releio: 'releio', soup: 'soup' };
+
+function projTarefasNav(proj, dir) {
+  _projTarefasOffset[proj] = (_projTarefasOffset[proj]||0) + dir;
+  renderProjTarefasWeekBar(proj);
+}
+function projTarefasToday(proj) {
+  _projTarefasOffset[proj] = 0;
+  _projTarefasDate[proj] = _dateKey(new Date());
+  renderProjTarefasWeekBar(proj);
+  renderProjTarefasList(proj);
+}
+function projTarefasSelectDay(proj, key) {
+  _projTarefasDate[proj] = key;
+  renderProjTarefasWeekBar(proj);
+  renderProjTarefasList(proj);
+}
+function setProjTarefasFilter(proj, f) {
+  _projTarefasFilter[proj] = f;
+  var prefix = proj === 'releio' ? 'rl' : 'soup';
+  var allBtn  = document.getElementById(prefix + '-tf-all');
+  var openBtn = document.getElementById(prefix + '-tf-open');
+  if (allBtn)  { allBtn.style.opacity  = f==='all'  ? '1' : '0.5'; allBtn.className  = f==='all'  ? 'btn primary' : 'btn'; }
+  if (openBtn) { openBtn.style.opacity = f==='open' ? '1' : '0.5'; openBtn.className = f==='open' ? 'btn primary' : 'btn'; }
+  renderProjTarefasList(proj);
+}
+function renderProjTarefasWeekBar(proj) {
+  var barId  = proj === 'releio' ? 'rl-tarefas-days' : 'soup-tarefas-days';
+  var bar = document.getElementById(barId);
+  if (!bar) return;
+  var today  = _dateKey(new Date());
+  var sunday = new Date();
+  sunday.setDate(sunday.getDate() - sunday.getDay() + (_projTarefasOffset[proj]||0) * 7);
+  var dayNames = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  var html = '';
+  var colorClass = _PROJ_COLOR[proj];
+  for (var i = 0; i < 14; i++) {
+    var d = new Date(sunday); d.setDate(sunday.getDate() + i);
+    var key = _dateKey(d);
+    var isActive = key === _projTarefasDate[proj];
+    var isTodayStyle = key === today ? ' style="font-weight:600;"' : '';
+    html += '<button class="proj-tarefas-day-btn' + (isActive ? ' ' + colorClass : '') + '" ' +
+      'onclick="projTarefasSelectDay(\'' + proj + '\',\'' + key + '\')"' + isTodayStyle + '>' +
+      '<span class="day-name">' + dayNames[i%7] + '</span>' +
+      '<span class="day-num">' + d.getDate() + '</span></button>';
+    if (i === 6) html += '<div style="width:0.5px;height:28px;background:var(--border-strong);margin:0 4px;flex-shrink:0;align-self:center;"></div>';
+  }
+  bar.innerHTML = html;
+}
+function renderProjTarefasList(proj) {
+  var bodyId = proj === 'releio' ? 'rl-tarefas-list-body' : 'soup-tarefas-list-body';
+  var titleId = proj === 'releio' ? 'rl-tarefas-day-title' : 'soup-tarefas-day-title';
+  var el = document.getElementById(bodyId);
+  if (!el) return;
+  var selDate = _projTarefasDate[proj];
+  var projKey = _PROJ_KEY[proj];
+  var flt = _projTarefasFilter[proj] || 'open';
+
+  // Title
+  var titleEl = document.getElementById(titleId);
+  if (titleEl) {
+    var isToday = selDate === _dateKey(new Date());
+    titleEl.textContent = isToday ? 'Tarefas do dia' : _formatDateTitle(selDate);
+  }
+
+  // Tasks for selected day
+  var all = getTarefas().filter(function(t){ return t.data === selDate && t.projeto === projKey; });
+  if (flt === 'open') all = all.filter(function(t){ return !t.done; });
+  all.sort(function(a,b){
+    if (!a.hora && b.hora) return 1; if (a.hora && !b.hora) return -1;
+    return (a.hora||'').localeCompare(b.hora||'');
+  });
+
+  function _itemHtml(t, muted) {
+    var meta = [];
+    if (t.hora) meta.push(t.hora + (t.horaFim ? ' – ' + t.horaFim : ''));
+    var mutedStyle = muted ? ' style="opacity:0.55;"' : '';
+    return '<div class="tarefas-item' + (t.done?' done':'') + '"' + mutedStyle + ' onclick="openTarefaModal(\'' + t.id + '\')">' +
+      '<div class="tarefas-item-check' + (t.done?' checked':'') + '" onclick="event.stopPropagation();toggleTarefaDone(event,\'' + t.id + '\');renderProjTarefasList(\'' + proj + '\')"></div>' +
+      '<div class="tarefas-item-body">' +
+        '<div class="tarefas-item-title">' + t.titulo + '</div>' +
+        (meta.length ? '<div class="tarefas-item-meta"><span>' + meta.join(' ') + '</span></div>' : '') +
+      '</div></div>';
+  }
+
+  var html = all.length ? all.map(function(t){ return _itemHtml(t, false); }).join('')
+    : '<div class="tarefas-empty">Nenhuma tarefa neste dia.</div>';
+
+  // Upcoming from this project
+  var upcoming = getTarefas().filter(function(t){
+    return t.data > selDate && t.projeto === projKey && !t.done;
+  });
+  upcoming.sort(function(a,b){
+    if (a.data !== b.data) return a.data.localeCompare(b.data);
+    return (a.hora||'').localeCompare(b.hora||'');
+  });
+  if (upcoming.length) {
+    var dayAbbr = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+    html += upcoming.map(function(t){
+      var d = new Date(t.data + 'T00:00:00');
+      var lbl = dayAbbr[d.getDay()] + ', ' + _pad(d.getDate()) + '/' + _pad(d.getMonth()+1) + '/' + d.getFullYear();
+      var meta = (t.hora ? lbl + ' · ' + t.hora + (t.horaFim ? ' – ' + t.horaFim : '') : lbl);
+      return '<div class="tarefas-item" style="opacity:0.55;" onclick="openTarefaModal(\'' + t.id + '\')">' +
+        '<div class="tarefas-item-check' + (t.done?' checked':'') + '" onclick="event.stopPropagation();toggleTarefaDone(event,\'' + t.id + '\');renderProjTarefasList(\'' + proj + '\')"></div>' +
+        '<div class="tarefas-item-body">' +
+          '<div class="tarefas-item-title">' + t.titulo + '</div>' +
+          '<div class="tarefas-item-meta"><span>' + meta + '</span></div>' +
+        '</div></div>';
+    }).join('');
+  }
+  el.innerHTML = html;
+}
+
+function _formatDateTitle(dateStr) {
+  if (!dateStr) return 'Tarefas';
+  var d = new Date(dateStr + 'T00:00:00');
+  var days = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  return days[d.getDay()] + ', ' + _pad(d.getDate()) + '/' + _pad(d.getMonth()+1);
+}
+
+function openSoupTarefaModal() {
+  openTarefaModal();
+  setTimeout(function(){
+    var p = document.getElementById('tf-projeto');
+    if (p) p.value = 'soup';
+  }, 10);
+}
+
+function renderReleioTarefas() {
+  // Delegate to proj tarefas renderer
+  renderProjTarefasWeekBar('releio');
+  renderProjTarefasList('releio');
+}
+
+/* ── TAREFAS DRAG ──────────────────────────────────────────── */
 var _drag = null; // { id, mode:'move'|'resize', startY, startTop, startHeight, slotTop }
 
 function tarefasBlockClick(e, id) {
