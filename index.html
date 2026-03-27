@@ -5289,6 +5289,7 @@ var _tarefasSelectedDate = null; // 'YYYY-MM-DD'
 var _tarefasWeekOffset  = 0;     // weeks from current
 var _tarefasFilter      = 'open'; // 'open' | 'all'
 var _editingTarefaId    = null;
+var _tarefasModalOrigin = null;  // view that opened the modal
 var _tarefasNowTimer    = null;
 
 var HORA_START = 6;
@@ -5646,6 +5647,15 @@ function toggleTarefaEventoField() {
 
 function openTarefaModal(id) {
   _editingTarefaId = id || null;
+  // Record which view is currently active so we return to it after saving
+  _tarefasModalOrigin = null;
+  var views = ['main-view','studio-view','soup-view','releio-view','diario-view','citacoes-view','tarefas-view'];
+  for (var v = 0; v < views.length; v++) {
+    var el = document.getElementById(views[v]);
+    if (el && el.style.display !== 'none' && el.style.display !== '') {
+      _tarefasModalOrigin = views[v]; break;
+    }
+  }
   _buildHoraOptions();
   var delBtn = document.getElementById('tf-delete-btn');
   if (id) {
@@ -5750,19 +5760,20 @@ function saveTarefa() {
   }
   saveTarefasData(list);
   document.getElementById('tarefa-overlay').classList.remove('open');
-  renderTarefasList();
-  renderTarefasGrid();
+  var fromTarefas = _tarefasModalOrigin === 'tarefas-view';
+  if (fromTarefas) { renderTarefasList(); renderTarefasGrid(); }
   if (obj.projeto === 'releio')  { renderProjTarefasWeekBar('releio');  renderProjTarefasList('releio'); }
   if (obj.projeto === 'soup')    { renderProjTarefasWeekBar('soup');    renderProjTarefasList('soup'); }
-  if (obj.projeto === 'munchow') { renderProjTarefasWeekBar('munchow'); renderProjTarefasList('munchow'); renderDashboardNextEvents(); }
+  if (obj.projeto === 'munchow') { renderProjTarefasWeekBar('munchow'); renderProjTarefasList('munchow'); }
+  renderDashboardNextEvents();
 }
 
 function deleteTarefa() {
   if (!confirm('Excluir esta tarefa?')) return;
   saveTarefasData(getTarefas().filter(function(t){ return t.id!==_editingTarefaId; }));
   document.getElementById('tarefa-overlay').classList.remove('open');
-  renderTarefasList();
-  renderTarefasGrid();
+  if (_tarefasModalOrigin === 'tarefas-view') { renderTarefasList(); renderTarefasGrid(); }
+  renderDashboardNextEvents();
 }
 
 document.getElementById('tarefa-overlay').addEventListener('click', function(e){
