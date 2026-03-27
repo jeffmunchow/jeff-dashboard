@@ -572,9 +572,9 @@
     </div>
     <div class="project-body-clickable" onclick="navigateToProject(event, 'soup-view')" title="Abrir Soup">
     <div class="metrics-grid">
+      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="s-seguidores">22</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-s"></canvas></div></div>
+      <div class="metric-cell"><div class="metric-label">Clientes ativos</div><div class="metric-value" id="s-clientes">2</div></div>
       <div class="metric-cell accent-teal"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="s-faturamento">—</div><div class="metric-sub">R$</div></div>
-      <div class="metric-cell"><div class="metric-label">Clientes ativos</div><div class="metric-value" id="s-clientes">2</div><div class="metric-sub">membros</div></div>
-      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores Instagram</div><div class="metric-value" id="s-seguidores">1.519</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-s"></canvas></div></div>
       <div class="metric-cell"><div class="metric-label">Milhas gerenciadas</div><div class="metric-value" id="s-milhas">—</div><div class="metric-sub">total acumulado</div></div>
     </div>
     <div class="divider"></div>
@@ -5331,6 +5331,8 @@ function setTarefaFilter(f) {
 function renderTarefasList() {
   var el = document.getElementById('tarefas-list-body');
   if (!el) return;
+
+  // ── Tarefas do dia selecionado ──
   var all = getTarefas().filter(function(t){ return t.data === _tarefasSelectedDate; });
   if (_tarefasFilter === 'open') all = all.filter(function(t){ return !t.done; });
   all.sort(function(a,b){
@@ -5349,26 +5351,57 @@ function renderTarefasList() {
     banner.style.display = 'none';
   }
 
-  if (!all.length) {
-    el.innerHTML = '<div class="tarefas-empty">' + (_tarefasFilter === 'open' ? 'Nenhuma tarefa para hoje.' : 'Nenhuma tarefa neste dia.') + '</div>';
-    return;
-  }
-  el.innerHTML = all.map(function(t) {
+  function _taskItemHtml(t, muted) {
     var projClass = 'proj-' + (t.projeto || 'pessoal');
     var projLabel = { pessoal:'Pessoal', munchow:'Münchow', soup:'Soup', releio:'re.leio' }[t.projeto||'pessoal'];
     var meta = [];
     if (t.hora) meta.push(t.hora + (t.horaFim ? ' – ' + t.horaFim : (t.duracao ? ' · ' + _durLabel(t.duracao) : '')));
-    return '<div class="tarefas-item' + (t.done?' done':'') + '" onclick="openTarefaModal(\'' + t.id + '\')">' +
+    var mutedStyle = muted ? ' style="opacity:0.45;"' : '';
+    return '<div class="tarefas-item' + (t.done?' done':'') + '"' + mutedStyle + ' onclick="openTarefaModal(\'' + t.id + '\')">' +
       '<div class="tarefas-item-check' + (t.done?' checked':'') + '" onclick="toggleTarefaDone(event,\'' + t.id + '\')"></div>' +
       '<div class="tarefas-item-body">' +
         '<div class="tarefas-item-title">' + t.titulo + '</div>' +
         '<div class="tarefas-item-meta">' +
+          (muted && t.dataLabel ? '<span style="font-weight:500;color:var(--text-muted);">' + t.dataLabel + '</span>' : '') +
           (meta.length ? '<span>' + meta.join(' ') + '</span>' : '') +
           '<span class="tarefas-item-proj ' + projClass + '">' + projLabel + '</span>' +
         '</div>' +
       '</div>' +
     '</div>';
-  }).join('');
+  }
+
+  var html = '';
+  if (!all.length) {
+    html += '<div class="tarefas-empty">Nenhuma tarefa neste dia.</div>';
+  } else {
+    html += all.map(function(t){ return _taskItemHtml(t, false); }).join('');
+  }
+
+  // ── Próximas tarefas (dias seguintes, abertas) ──
+  var upcoming = getTarefas().filter(function(t){
+    return t.data > _tarefasSelectedDate && !t.done;
+  });
+  upcoming.sort(function(a,b){
+    if (a.data !== b.data) return a.data.localeCompare(b.data);
+    if (!a.hora && b.hora) return 1;
+    if (a.hora && !b.hora) return -1;
+    return (a.hora||'').localeCompare(b.hora||'');
+  });
+
+  if (upcoming.length) {
+    // Format date label: "SÁB, 28/03/2026"
+    var dayAbbr = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+    upcoming.forEach(function(t){
+      if (t.data) {
+        var d = new Date(t.data + 'T00:00:00');
+        t.dataLabel = dayAbbr[d.getDay()] + ', ' + _pad(d.getDate()) + '/' + _pad(d.getMonth()+1) + '/' + d.getFullYear();
+      }
+    });
+    html += '<div style="height:0.5px;background:var(--border);margin:12px 0 8px;"></div>';
+    html += upcoming.map(function(t){ return _taskItemHtml(t, true); }).join('');
+  }
+
+  el.innerHTML = html;
 }
 
 function toggleTarefaDone(e, id) {
