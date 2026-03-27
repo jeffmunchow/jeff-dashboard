@@ -5648,11 +5648,11 @@ function toggleTarefaEventoField() {
 function openTarefaModal(id) {
   _editingTarefaId = id || null;
   // Record which view is currently active so we return to it after saving
-  _tarefasModalOrigin = null;
-  var views = ['main-view','studio-view','soup-view','releio-view','diario-view','citacoes-view','tarefas-view'];
+  _tarefasModalOrigin = 'main-view'; // default
+  var views = ['studio-view','soup-view','releio-view','diario-view','citacoes-view','tarefas-view'];
   for (var v = 0; v < views.length; v++) {
     var el = document.getElementById(views[v]);
-    if (el && el.style.display !== 'none' && el.style.display !== '') {
+    if (el && el.style.display && el.style.display !== 'none') {
       _tarefasModalOrigin = views[v]; break;
     }
   }
