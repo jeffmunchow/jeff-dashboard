@@ -568,7 +568,7 @@
       <div class="metric-cell accent-amber"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="m-faturamento">—</div><div class="metric-sub">R$</div></div>
     </div>
     <div class="divider"></div>
-    <div class="next-event-widget" id="m-next-event-widget">
+    <div class="next-event-widget" id="m-next-event-widget" onclick="event.stopPropagation()">
       <div class="nev-label">Próximo evento</div>
       <div id="m-nev-content" class="nev-empty">Nenhum evento cadastrado</div>
     </div>
@@ -589,7 +589,7 @@
       <div class="metric-cell"><div class="metric-label">Milhas gerenciadas</div><div class="metric-value" id="s-milhas">—</div><div class="metric-sub">total acumulado</div></div>
     </div>
     <div class="divider"></div>
-    <div class="next-event-widget" id="s-next-event-widget">
+    <div class="next-event-widget" id="s-next-event-widget" onclick="event.stopPropagation()">
       <div class="nev-label">Próxima viagem / evento</div>
       <div id="s-nev-content" class="nev-empty">Nenhum evento cadastrado</div>
     </div>
@@ -610,7 +610,7 @@
       <div class="metric-cell accent-coral"><div class="metric-label">Livros curados</div><div class="metric-value" id="r-livros">—</div></div>
     </div>
     <div class="divider"></div>
-    <div class="next-event-widget" id="r-next-event-widget">
+    <div class="next-event-widget" id="r-next-event-widget" onclick="event.stopPropagation()">
       <div class="nev-label">Próxima tarefa</div>
       <div id="r-nev-content" class="nev-empty">Nenhuma tarefa cadastrada</div>
     </div>
@@ -3282,7 +3282,7 @@ function renderDashboardNextEvents() {
         var isToday = itemDate === today;
         var op = isToday ? '1' : '0.35';
         var tarefaId = items[i]._tarefaId || '';
-        var clickAttr = tarefaId ? ' onclick="openTarefaModal(\'' + tarefaId + '\')" style="opacity:' + op + ';margin-top:' + (i > 0 ? '7px' : '0') + ';cursor:pointer;transition:opacity 0.15s;"' : ' style="opacity:' + op + ';margin-top:' + (i > 0 ? '7px' : '0') + ';cursor:default;transition:opacity 0.15s;"';
+        var clickAttr = tarefaId ? ' onclick="event.stopPropagation();openTarefaModal(\'' + tarefaId + '\')" style="opacity:' + op + ';margin-top:' + (i > 0 ? '7px' : '0') + ';cursor:pointer;transition:opacity 0.15s;"' : ' style="opacity:' + op + ';margin-top:' + (i > 0 ? '7px' : '0') + ';cursor:default;transition:opacity 0.15s;"';
         html += '<div class="nev-slot" data-op="' + op + '"' + clickAttr + '>' + renderFn(items[i]) + '</div>';
       } else {
         html += '<div style="margin-top:' + (i > 0 ? '7px' : '0') + ';min-height:18px;"></div>';
