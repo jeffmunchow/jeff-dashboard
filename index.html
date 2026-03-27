@@ -550,9 +550,7 @@
     <div style="position: relative; width: 100%; height: 320px;">
       <canvas id="mainChart"></canvas>
     </div>
-    <div class="sim-notice">
-      Simulação de 52 semanas — cenário plausível de crescimento. Será substituído pelos dados reais quando você quiser.
-    </div>
+
   </div>
 </div>
 
@@ -564,9 +562,9 @@
     </div>
     <div class="project-body-clickable" onclick="navigateToProject(event, 'munchow-studio')" title="Abrir Studio">
     <div class="metrics-grid">
-      <div class="metric-cell accent-amber"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="m-faturamento">—</div><div class="metric-sub">R$</div></div>
+      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="m-seguidores">3.524</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-m"></canvas></div></div>
       <div class="metric-cell"><div class="metric-label">Casamentos / ano</div><div class="metric-value" id="m-casamentos">—</div><div class="metric-sub">confirmados</div></div>
-      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores Instagram</div><div class="metric-value" id="m-seguidores">3.524</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-m"></canvas></div></div>
+      <div class="metric-cell accent-amber"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="m-faturamento">—</div><div class="metric-sub">R$</div></div>
     </div>
     <div class="divider"></div>
     <div class="next-event-widget" id="m-next-event-widget">
@@ -849,11 +847,21 @@
       <div class="field-row" style="grid-column:1/-1;"><label>Título</label><input type="text" id="tf-titulo" placeholder="O que precisa ser feito?"></div>
       <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" id="tf-data" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10"></div>
       <div class="field-row"><label>Projeto</label>
-        <select id="tf-projeto">
+        <select id="tf-projeto" onchange="toggleTarefaEventoField()">
           <option value="pessoal">Pessoal</option>
           <option value="munchow">Münchow</option>
           <option value="soup">Soup</option>
           <option value="releio">re.leio</option>
+        </select>
+      </div>
+      <div class="field-row" id="tf-evento-row" style="grid-column:1/-1;display:none;"><label>Tipo de evento</label>
+        <select id="tf-evento">
+          <option value="">Não é um evento</option>
+          <option value="Casamento">Casamento</option>
+          <option value="Sessão">Sessão</option>
+          <option value="15 anos">15 anos</option>
+          <option value="Ensaio">Ensaio</option>
+          <option value="Outro">Outro</option>
         </select>
       </div>
       <div class="field-row"><label>Horário de início</label>
@@ -3247,17 +3255,24 @@ function renderDashboardNextEvents() {
   var lidos = livros.filter(function(l){ return l.status === 'Lido' || l.status === 'Curado' || l.status === 'Publicado'; }).length;
   var el = document.getElementById('r-lidos');
   if (el) el.textContent = lidos || '—';
-  // Münchow — próximo evento da agenda
+  // Münchow — próximo evento: agenda + tarefas com evento definido
   var now = new Date();
   var evs = getEvents().filter(function(e){ return new Date(e.data) >= now; })
     .sort(function(a,b){ return new Date(a.data)-new Date(b.data); });
+  // Also include tarefas from Münchow that have an evento type set
+  var tarefasEvento = getTarefas().filter(function(t){
+    return t.projeto === 'munchow' && t.evento && t.data && new Date(t.data + 'T00:00:00') >= now && !t.done;
+  }).map(function(t){
+    return { data: t.data, titulo: t.titulo, tipo: t.evento, local: '', clienteId: '', _fromTarefa: true };
+  });
+  var allEvs = evs.concat(tarefasEvento).sort(function(a,b){ return new Date(a.data)-new Date(b.data); });
   var mEl = document.getElementById('m-nev-content');
   if (mEl) {
-    if (!evs.length) {
+    if (!allEvs.length) {
       mEl.innerHTML = '<div class="nev-empty">Nenhum evento cadastrado</div>';
     } else {
-      var ev = evs[0];
-      var dt = new Date(ev.data);
+      var ev = allEvs[0];
+      var dt = new Date(ev.data + (ev._fromTarefa ? 'T00:00:00' : ''));
       var daysLeft = Math.ceil((dt - now) / 86400000);
       var badge = daysLeft <= 7 ? 'coral' : daysLeft <= 30 ? '' : 'teal';
       mEl.innerHTML = '<div class="nev-card">'+
@@ -5591,6 +5606,16 @@ function _buildHoraFimOptions(horaInicio) {
   sel.innerHTML = html;
 }
 
+function toggleTarefaEventoField() {
+  var proj = document.getElementById('tf-projeto').value;
+  var row = document.getElementById('tf-evento-row');
+  if (row) row.style.display = proj === 'munchow' ? '' : 'none';
+  if (proj !== 'munchow') {
+    var ev = document.getElementById('tf-evento');
+    if (ev) ev.value = '';
+  }
+}
+
 function openTarefaModal(id) {
   _editingTarefaId = id || null;
   _buildHoraOptions();
@@ -5605,6 +5630,8 @@ function openTarefaModal(id) {
     _buildHoraFimOptions(t.hora||'');
     document.getElementById('tf-hora-fim').value = t.horaFim||'';
     document.getElementById('tf-projeto').value = t.projeto||'pessoal';
+    var evEl = document.getElementById('tf-evento');
+    if (evEl) evEl.value = t.evento||'';
     delBtn.style.display = 'inline-flex';
   } else {
     document.getElementById('tarefa-modal-title').textContent = 'Nova tarefa';
@@ -5614,8 +5641,11 @@ function openTarefaModal(id) {
     _buildHoraFimOptions('');
     document.getElementById('tf-hora-fim').value = '';
     document.getElementById('tf-projeto').value = 'pessoal';
+    var evEl2 = document.getElementById('tf-evento');
+    if (evEl2) evEl2.value = '';
     delBtn.style.display = 'none';
   }
+  toggleTarefaEventoField();
   document.getElementById('tf-conflict-msg').style.display = 'none';
   document.getElementById('tarefa-overlay').classList.add('open');
 }
@@ -5676,6 +5706,7 @@ function saveTarefa() {
     horaFim: horaFim,
     duracao: duracao,
     projeto: document.getElementById('tf-projeto').value,
+    evento:  (document.getElementById('tf-evento') ? document.getElementById('tf-evento').value : '') || '',
     done:    false
   };
   if (_editingTarefaId) {
@@ -5695,7 +5726,7 @@ function saveTarefa() {
   renderTarefasGrid();
   if (obj.projeto === 'releio')  { renderProjTarefasWeekBar('releio');  renderProjTarefasList('releio'); }
   if (obj.projeto === 'soup')    { renderProjTarefasWeekBar('soup');    renderProjTarefasList('soup'); }
-  if (obj.projeto === 'munchow') { renderProjTarefasWeekBar('munchow'); renderProjTarefasList('munchow'); }
+  if (obj.projeto === 'munchow') { renderProjTarefasWeekBar('munchow'); renderProjTarefasList('munchow'); renderDashboardNextEvents(); }
 }
 
 function deleteTarefa() {
