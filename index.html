@@ -3263,10 +3263,12 @@ function renderDashboardNextEvents() {
   // ── Helper: render 4 slots, blank when empty, hover effect
   function _renderSlots(items, renderFn) {
     var html = '';
-    var opacities = ['1', '0.55', '0.35', '0.2'];
     for (var i = 0; i < 4; i++) {
-      var op = opacities[i];
       if (items[i]) {
+        // 100% if item is today, 35% otherwise
+        var itemDate = items[i].data || items[i].dataIda || '';
+        var isToday = itemDate === today;
+        var op = isToday ? '1' : '0.35';
         html += '<div class="nev-slot" data-op="' + op + '" style="opacity:' + op + ';margin-top:' + (i > 0 ? '7px' : '0') + ';cursor:default;transition:opacity 0.15s;">' + renderFn(items[i]) + '</div>';
       } else {
         html += '<div style="margin-top:' + (i > 0 ? '7px' : '0') + ';min-height:18px;"></div>';
