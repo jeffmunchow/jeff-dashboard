@@ -590,7 +590,7 @@
     </div>
     <div class="divider"></div>
     <div class="next-event-widget" id="s-next-event-widget" onclick="event.stopPropagation()">
-      <div class="nev-label">Próxima viagem / evento</div>
+      <div class="nev-label">Próxima tarefa</div>
       <div id="s-nev-content" class="nev-empty">Nenhum evento cadastrado</div>
     </div>
     <div class="last-updated" id="s-updated">Nunca atualizado</div>
@@ -3322,20 +3322,18 @@ function renderDashboardNextEvents() {
     return t.projeto === 'soup' && t.data && t.data >= today && !t.done;
   }).sort(function(a,b){ return a.data.localeCompare(b.data); });
   // Merge: viagens first, then tarefas not already covered by viagem on same date
-  var soupItems = [];
-  viagensUp.forEach(function(v){ soupItems.push({ _type:'viagem', data: v.dataIda, titulo: v.destino, meta: (v.cia||'—') + (v.membroId ? ' · ' + soupMemberName(v.membroId) : '') }); });
-  soupTarefas.forEach(function(t){ soupItems.push({ _type:'tarefa', data: t.data, titulo: t.titulo, meta: '', _tarefaId: t.id }); });
+  var soupItems = soupTarefas.map(function(t){
+    return { _type:'tarefa', data: t.data, titulo: t.titulo, meta: '', _tarefaId: t.id };
+  });
   soupItems.sort(function(a,b){ return a.data.localeCompare(b.data); });
   var sEl = document.getElementById('s-nev-content');
   if (sEl) {
     sEl.innerHTML = _renderSlots(soupItems, function(item) {
-      var daysLeft = Math.ceil((new Date(item.data + 'T00:00:00') - now) / 86400000);
       return '<div style="display:flex;flex-direction:column;gap:1px;">' +
         '<div style="display:flex;gap:8px;align-items:baseline;">' +
-          '<span style="font-size:0.68rem;color:var(--text-hint);flex-shrink:0;">' + fmtDateWidget(item.data) + (daysLeft <= 60 ? ' · ' + daysLeft + 'd' : '') + '</span>' +
+          '<span style="font-size:0.68rem;color:var(--text-hint);flex-shrink:0;">' + fmtDateWidget(item.data) + '</span>' +
           '<span class="nev-title">' + item.titulo + '</span>' +
         '</div>' +
-        (item.meta ? '<div class="nev-meta">' + item.meta + '</div>' : '') +
       '</div>';
     });
   }
@@ -4724,7 +4722,22 @@ function renderSoupMarketing() {
         ? '<span style="color:var(--text-hint);">✓ Utilizada</span>'
         : '<span style="color:var(--text-muted);">Disponível</span>';
       var linkCell = item.link
-        ? '<a href="' + item.link + '" target="_blank" style="font-size:0.72rem;color:var(--amber);">ver →</a>'
+        ? (function(url) {
+            var label = 'Link';
+            var u = url.toLowerCase();
+            if (u.includes('instagram.com')) label = 'Instagram';
+            else if (u.includes('tiktok.com')) label = 'TikTok';
+            else if (u.includes('youtube.com') || u.includes('youtu.be')) label = 'YouTube';
+            else if (u.includes('twitter.com') || u.includes('x.com')) label = 'Twitter/X';
+            else if (u.includes('facebook.com')) label = 'Facebook';
+            else if (u.includes('pinterest.com')) label = 'Pinterest';
+            else if (u.includes('linkedin.com')) label = 'LinkedIn';
+            else if (u.includes('substack.com')) label = 'Substack';
+            else if (u.includes('spotify.com')) label = 'Spotify';
+            else if (u.includes('whatsapp.com')) label = 'WhatsApp';
+            else { try { label = new URL(url).hostname.replace('www.','').split('.')[0]; label = label.charAt(0).toUpperCase()+label.slice(1); } catch(e){} }
+            return '<a href="' + url + '" target="_blank" onclick="event.stopPropagation()" style="font-size:0.72rem;color:var(--teal);text-decoration:none;font-weight:500;">' + label + ' →</a>';
+          })(item.link)
         : '<span style="color:var(--text-hint);">—</span>';
       return '<tr style="' + (item.status==='usado' ? 'opacity:0.5;' : '') + '">' +
         '<td style="max-width:380px;">' + item.ideia + '</td>' +
