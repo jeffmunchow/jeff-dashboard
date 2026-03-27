@@ -529,7 +529,7 @@
     <div class="chart-header">
       <div class="chart-header-left">
         <div class="chart-title" id="chartTitle">Faturamento &amp; Lucro — 52 semanas</div>
-        <div class="chart-subtitle" id="chartSubtitle">Pontilhado = faturamento &nbsp;·&nbsp; Sólido = lucro &nbsp;·&nbsp; Dados simulados</div>
+        <div class="chart-subtitle" id="chartSubtitle">Dados simulados</div>
       </div>
       <div class="chart-header-right">
         <div class="legend">
@@ -537,7 +537,7 @@
           <span class="legend-item"><span class="legend-dot" style="background:#0A7864;"></span>Soup</span>
           <span class="legend-item"><span class="legend-dot" style="background:#C43A1A;"></span>re.leio</span>
           <span class="legend-sep"></span>
-          <span class="legend-item" style="color:var(--text-hint);"><span class="legend-line" style="border-top:1px dashed currentColor;"></span>fat.</span>
+          <span class="legend-item" style="color:var(--text-hint);"><span class="legend-line" style="border-top:1px dashed currentColor;"></span>faturamento</span>
           <span class="legend-item" style="color:var(--text-hint);"><span class="legend-line" style="border-top:1px solid currentColor;"></span>lucro</span>
         </div>
         <div class="chart-mode-toggle">
@@ -2258,8 +2258,8 @@ function setChartMode(mode) {
     ? 'Faturamento &amp; Lucro — 52 semanas'
     : 'Faturamento &amp; Lucro — acumulado anual';
   document.getElementById('chartSubtitle').textContent = isWeekly
-    ? 'Pontilhado = faturamento · Sólido = lucro · Dados simulados'
-    : 'Soma acumulada mês a mês · Pontilhado = faturamento · Sólido = lucro';
+    ? 'Dados simulados'
+    : 'Soma acumulada mês a mês';
   buildChart();
 }
 
