@@ -1408,7 +1408,7 @@
     <!-- LIVROS -->
     <div class="tab-panel" id="rlpanel-livros">
       <div class="section-header">
-        <div class="section-title">Biblioteca curada</div>
+        <div class="section-title">Biblioteca</div>
         <div class="section-actions">
           <input type="text" id="rl-livro-search" placeholder="Buscar livro ou autor..." oninput="renderReleioLivros()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
           <select id="rl-livro-status-filter" onchange="renderReleioLivros()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
@@ -4736,7 +4736,7 @@ function renderSoupMarketing() {
             else if (u.includes('spotify.com')) label = 'Spotify';
             else if (u.includes('whatsapp.com')) label = 'WhatsApp';
             else { try { label = new URL(url).hostname.replace('www.','').split('.')[0]; label = label.charAt(0).toUpperCase()+label.slice(1); } catch(e){} }
-            return '<a href="' + url + '" target="_blank" onclick="event.stopPropagation()" style="font-size:0.72rem;color:var(--teal);text-decoration:none;font-weight:500;">' + label + ' →</a>';
+            return '<a href="' + url + '" target="_blank" onclick="event.stopPropagation()" style="font-size:0.72rem;color:var(--text-muted);text-decoration:none;">' + label + '</a>';
           })(item.link)
         : '<span style="color:var(--text-hint);">—</span>';
       return '<tr style="' + (item.status==='usado' ? 'opacity:0.5;' : '') + '">' +
