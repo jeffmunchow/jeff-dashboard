@@ -260,7 +260,7 @@
   .nev-title { font-size: 0.82rem; color: var(--text); font-weight: 400; }
   .nev-meta { font-size: 0.72rem; color: var(--text-muted); }
   .nev-date-badge { display: inline-block; font-size: 0.68rem; color: var(--text-hint); font-weight: 300; white-space: nowrap; flex-shrink: 0; background: none; padding: 0; }
-  .nev-date-badge.teal  { color: var(--text-hint); background: none; padding: 0; }
+  .nev-slot:hover { opacity: 0.85 !important; }
   .nev-date-badge.coral { color: var(--text-hint); background: none; padding: 0; }
   /* Sparkline follower cells */
   .metric-cell.has-spark { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
@@ -3260,15 +3260,16 @@ function renderDashboardNextEvents() {
   var now = new Date();
   var today = now.toISOString().split('T')[0];
 
-  // ── Helper: render 3 slots, filling gaps with placeholder rows
-  function _renderSlots(items, renderFn, emptyLabel) {
+  // ── Helper: render 4 slots, blank when empty, hover effect
+  function _renderSlots(items, renderFn) {
     var html = '';
-    for (var i = 0; i < 3; i++) {
-      var opacity = i === 0 ? '1' : i === 1 ? '0.55' : '0.3';
+    var opacities = ['1', '0.55', '0.35', '0.2'];
+    for (var i = 0; i < 4; i++) {
+      var op = opacities[i];
       if (items[i]) {
-        html += '<div style="opacity:' + opacity + ';margin-top:' + (i > 0 ? '7px' : '0') + ';">' + renderFn(items[i]) + '</div>';
+        html += '<div class="nev-slot" data-op="' + op + '" style="opacity:' + op + ';margin-top:' + (i > 0 ? '7px' : '0') + ';cursor:default;transition:opacity 0.15s;">' + renderFn(items[i]) + '</div>';
       } else {
-        html += '<div style="opacity:0.2;margin-top:' + (i > 0 ? '7px' : '0') + ';font-size:0.75rem;color:var(--text-hint);">— ' + emptyLabel + ' —</div>';
+        html += '<div style="margin-top:' + (i > 0 ? '7px' : '0') + ';min-height:18px;"></div>';
       }
     }
     return html;
@@ -3294,7 +3295,7 @@ function renderDashboardNextEvents() {
         '</div>' +
         (ev.tipo ? '<div class="nev-meta">' + ev.tipo + (ev.local ? ' · ' + ev.local : '') + (ev.clienteId ? ' · ' + clientName(ev.clienteId) : '') + '</div>' : '') +
       '</div>';
-    }, 'sem evento');
+    });
   }
 
   // ── Soup: viagens + tarefas Soup
@@ -3320,7 +3321,7 @@ function renderDashboardNextEvents() {
         '</div>' +
         (item.meta ? '<div class="nev-meta">' + item.meta + '</div>' : '') +
       '</div>';
-    }, 'sem evento');
+    });
   }
 
   // ── re.leio: tarefas
@@ -3335,7 +3336,7 @@ function renderDashboardNextEvents() {
         '<span style="font-size:0.68rem;color:var(--text-hint);white-space:nowrap;flex-shrink:0;">' + fmtDate(t.data) + '</span>' +
         '<span style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (t.titulo||t.tarefa||'') + '</span>' +
       '</div>';
-    }, 'sem tarefa');
+    });
   }
 }
 
