@@ -3154,69 +3154,50 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') close
 
 /* Sparkline follower growth data (simulated 12 months) */
 var sparkData = {
-  m: { start: 200, end: 3524, color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#D4902A' : '#C4780A'; } },
-  s: { start: 21, end: 1519, color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#18926E' : '#0A7864'; } },
-  r: { start: 1, end: 7000, color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#CC4A28' : '#C43A1A'; }, realData: true }
+  m: { start: 200,  startDate: '2014-01-01', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#D4902A' : '#C4780A'; } },
+  s: { start: 1,    startDate: '2025-08-01', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#18926E' : '#0A7864'; } },
+  r: { start: 1,    startDate: '2026-03-24', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#CC4A28' : '#C43A1A'; } }
 };
 
-// re.leio real data: dia 1 = 24/03/2026 com 1 seguidor, hoje = 7000
-function buildReleioSparkData() {
-  var startDate = new Date('2026-03-24');
-  var today = new Date();
-  today.setHours(0,0,0,0);
-  var msPerDay = 86400000;
-  var daysDiff = Math.max(1, Math.round((today - startDate) / msPerDay) + 1);
-  var endFollowers = parseInt(localStorage.getItem('dash_r-seguidores')) || 7000;
+var _sparkEndIds = { m: 'm-seguidores', s: 's-seguidores', r: 'r-seguidores' };
+var _sparkStoreKeys = { m: 'dash_m-seguidores', s: 'dash_s-seguidores', r: 'dash_r-seguidores' };
+var _sparkDefaults  = { m: 3524, s: 22, r: 7000 };
 
-  // Build daily points from day 1 to today
-  var pts = [];
-  var labels = [];
-  for (var i = 0; i < daysDiff; i++) {
+function buildSparkDataForKey(key) {
+  var d = sparkData[key];
+  var startDate = new Date(d.startDate + 'T00:00:00');
+  var today = new Date(); today.setHours(0,0,0,0);
+  var msPerDay = 86400000;
+  var daysDiff = Math.max(2, Math.round((today - startDate) / msPerDay) + 1);
+  var endVal = parseInt(localStorage.getItem(_sparkStoreKeys[key])) || _sparkDefaults[key];
+
+  // Cap to max 730 points (2 years) for performance — sample if longer
+  var stride = daysDiff > 730 ? Math.ceil(daysDiff / 730) : 1;
+  var pts = [], labels = [];
+  for (var i = 0; i < daysDiff; i += stride) {
     var t = daysDiff > 1 ? i / (daysDiff - 1) : 1;
     var curve = t * t * (3 - 2 * t);
-    var noise = 1 + Math.sin(i * 2.3) * 0.02;
-    pts.push(Math.max(1, Math.round((1 + (endFollowers - 1) * curve) * noise)));
-    var d = new Date(startDate.getTime() + i * msPerDay);
-    labels.push(d.getDate() + '/' + (d.getMonth()+1));
+    var noise = 1 + Math.sin(i * 2.3) * 0.015 + Math.cos(i * 1.7) * 0.01;
+    pts.push(Math.max(d.start, Math.round((d.start + (endVal - d.start) * curve) * noise)));
+    var day = new Date(startDate.getTime() + i * msPerDay);
+    labels.push(day.getDate() + '/' + (day.getMonth()+1) + '/' + day.getFullYear());
   }
-  pts[0] = 1;
-  pts[pts.length - 1] = endFollowers;
+  pts[0] = d.start;
+  pts[pts.length - 1] = endVal;
   return { pts: pts, labels: labels };
 }
 
-function genGrowthCurve(start, end, steps) {
-  var pts = [];
-  for (var i = 0; i < steps; i++) {
-    var t = i / (steps - 1);
-    // ease-in curve (exponential growth feel)
-    var curve = t * t * (3 - 2 * t);
-    // add a little organic noise
-    var noise = 1 + Math.sin(i * 2.3) * 0.04 + Math.cos(i * 3.7) * 0.03;
-    pts.push(Math.round((start + (end - start) * curve) * noise));
-  }
-  // ensure start and end are exact
-  pts[0] = start;
-  pts[pts.length - 1] = end;
-  return pts;
-}
+// keep re.leio helper for backward compat
+function buildReleioSparkData() { return buildSparkDataForKey('r'); }
 
 var sparkInstances = {};
 function buildSparklines() {
   ['m', 's', 'r'].forEach(function(key) {
     var canvas = document.getElementById('spark-' + key);
     if (!canvas) return;
-    var d = sparkData[key];
-    var col = d.color();
-
-    var data, labels;
-    if (key === 'r') {
-      var rd = buildReleioSparkData();
-      data = rd.pts;
-      labels = rd.labels;
-    } else {
-      data = genGrowthCurve(d.start, d.end, 12);
-      labels = MON_S;
-    }
+    var col = sparkData[key].color();
+    var rd = buildSparkDataForKey(key);
+    var data = rd.pts, labels = rd.labels;
 
     if (sparkInstances[key]) { sparkInstances[key].destroy(); }
     sparkInstances[key] = new Chart(canvas, {
