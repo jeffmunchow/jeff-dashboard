@@ -429,7 +429,7 @@
   .tarefas-today-btn:hover { background:var(--surface2); color:var(--text); }
   .tarefas-body { display:flex; gap:0; height:calc(100vh - 104px); overflow:hidden; }
   .tarefas-list-panel { width:50%; border-right:0.5px solid var(--border); overflow-y:auto; padding:1.25rem; flex-shrink:0; }
-  .tarefas-list-header { display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0 0.5rem; }
+  .tarefas-list-header { display:flex; align-items:center; justify-content:flex-end; padding:0.6rem 0 0.5rem; }
   .tarefas-list-title { display:none; }
   .tarefas-list-date  { font-size:0.68rem; color:var(--text-hint); }
   /* ── Proj Tarefas (re.leio / soup) ── */
@@ -507,11 +507,8 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.2</div>
   </div>
 </div>
-
-<div class="header">
   <div class="header-left">
     <h1>Bom dia, Jeff.</h1>
     <p id="header-date"></p>
@@ -1191,10 +1188,7 @@
           <div class="section-header"><div class="section-title">Próximas viagens</div></div>
           <div id="soup-resumo-viagens"></div>
         </div>
-        <div>
-          <div class="section-header"><div class="section-title">To-do aberto</div></div>
-          <div id="soup-resumo-todo"></div>
-        </div>
+
       </div>
     </div>
 
@@ -1528,8 +1522,7 @@
         <!-- Lista -->
         <div class="proj-tarefas-list-header">
           <div class="tarefas-list-title" id="rl-tarefas-day-title">Tarefas do dia</div>
-          <div style="display:flex;gap:6px;align-items:center;">
-            <span style="font-size:0.68rem;color:var(--text-hint);">Todas</span>
+          <div style="display:flex;gap:4px;align-items:center;">
             <button onclick="setProjTarefasFilter('releio','all')" id="rl-tf-all" class="btn" style="font-size:0.65rem;padding:2px 8px;opacity:0.5;">Todas</button>
             <button onclick="setProjTarefasFilter('releio','open')" id="rl-tf-open" class="btn primary" style="font-size:0.65rem;padding:2px 8px;">A fazer</button>
           </div>
