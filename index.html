@@ -429,8 +429,8 @@
   .tarefas-today-btn:hover { background:var(--surface2); color:var(--text); }
   .tarefas-body { display:flex; gap:0; height:calc(100vh - 104px); overflow:hidden; }
   .tarefas-list-panel { width:50%; border-right:0.5px solid var(--border); overflow-y:auto; padding:1.25rem; flex-shrink:0; }
-  .tarefas-list-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
-  .tarefas-list-title { font-family:'Playfair Display',serif; font-size:0.9rem; font-weight:600; color:var(--text); }
+  .tarefas-list-header { display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0 0.5rem; }
+  .tarefas-list-title { display:none; }
   .tarefas-list-date  { font-size:0.68rem; color:var(--text-hint); }
   /* ── Proj Tarefas (re.leio / soup) ── */
   .proj-tarefas-wrap { display:flex; flex-direction:column; height:calc(100vh - 120px); }
@@ -443,10 +443,11 @@
   .proj-tarefas-day-btn .day-num  { display:block; font-size:0.85rem; font-weight:500; margin-top:1px; }
   .proj-tarefas-day-btn.active-coral { background:var(--coral); color:#fff; border-radius:8px; }
   .proj-tarefas-day-btn.active-teal  { background:var(--teal);  color:#fff; border-radius:8px; }
-  .proj-tarefas-list-header { display:flex; align-items:center; justify-content:space-between; padding:10px 1.5rem 6px; flex-shrink:0; }
+  .proj-tarefas-list-header { display:flex; align-items:center; justify-content:flex-end; padding:8px 1.5rem 6px; flex-shrink:0; }
   .tarefas-item { display:flex; align-items:flex-start; gap:9px; padding:9px 0; border-bottom:0.5px solid var(--border); cursor:pointer; }
   .tarefas-item:last-child { border-bottom:none; }
   .tarefas-item:hover { opacity:0.75; }
+  .tarefas-item[style*="opacity"]:hover { opacity:0.75 !important; }
   .tarefas-item.done .tarefas-item-title { text-decoration:line-through; color:var(--text-hint); }
   .tarefas-item-check { width:15px; height:15px; border-radius:50%; border:1.2px solid var(--border-strong); flex-shrink:0; margin-top:2px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s,border-color 0.15s; }
   .tarefas-item-check.checked { background:var(--teal); border-color:var(--teal); }
