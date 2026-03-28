@@ -3194,12 +3194,13 @@ function recordFollowerPoint(proj, value) {
 
 // Seed real re.leio follower history (fixed known data points)
 (function() {
-  var seed = [{"d": "2026-03-23", "v": 1}, {"d": "2026-03-24", "v": 1}, {"d": "2026-03-25", "v": 2}, {"d": "2026-03-26", "v": 2}, {"d": "2026-03-27", "v": 5}];
+  var seed = [{"d": "2026-03-23", "v": 1}, {"d": "2026-03-24", "v": 1}, {"d": "2026-03-25", "v": 2}, {"d": "2026-03-26", "v": 2}, {"d": "2026-03-27", "v": 8}];
   var existing = getFollowerHistory('r');
-  // Merge seed with existing — seed wins for its dates
+  var todaySeed = _todayKey();
+  // Merge seed with existing — seed wins for its dates, filter future dates
   var merged = {};
-  existing.forEach(function(p){ merged[p.d] = p.v; });
-  seed.forEach(function(p){ merged[p.d] = p.v; }); // seed overwrites
+  existing.forEach(function(p){ if (p.d <= todaySeed) merged[p.d] = p.v; });
+  seed.forEach(function(p){ if (p.d <= todaySeed) merged[p.d] = p.v; }); // seed overwrites
   var arr = Object.keys(merged).sort().map(function(d){ return {d:d, v:merged[d]}; });
   localStorage.setItem(SPARK_HISTORY_KEY['r'], JSON.stringify(arr));
   dbMetricSave(SPARK_HISTORY_KEY['r'], JSON.stringify(arr));
@@ -3212,15 +3213,19 @@ function recordFollowerPoint(proj, value) {
     try {
       var remote = JSON.parse(val);
       var local = getFollowerHistory(proj);
+      var today = _todayKey();
       // Merge: keep all unique dates, prefer higher value on conflict
+      // Filter out any future dates (caused by timezone bugs)
       var merged = {};
-      local.concat(remote).forEach(function(p){ 
-        if (!merged[p.d] || p.v > merged[p.d]) merged[p.d] = p.v;
+      local.concat(remote).forEach(function(p){
+        if (p.d <= today) { // never accept future dates
+          if (!merged[p.d] || p.v > merged[p.d]) merged[p.d] = p.v;
+        }
       });
       // Re-apply seed to protect known real data
       if (proj === 'r') {
-        var seed = [{"d": "2026-03-23", "v": 1}, {"d": "2026-03-24", "v": 1}, {"d": "2026-03-25", "v": 2}, {"d": "2026-03-26", "v": 2}, {"d": "2026-03-27", "v": 5}];
-        seed.forEach(function(p){ merged[p.d] = p.v; });
+        var seed = [{"d": "2026-03-23", "v": 1}, {"d": "2026-03-24", "v": 1}, {"d": "2026-03-25", "v": 2}, {"d": "2026-03-26", "v": 2}, {"d": "2026-03-27", "v": 8}];
+        seed.forEach(function(p){ if (p.d <= today) merged[p.d] = p.v; });
       }
       var arr = Object.keys(merged).sort().map(function(d){ return {d:d, v:merged[d]}; });
       localStorage.setItem(SPARK_HISTORY_KEY[proj], JSON.stringify(arr));
