@@ -3160,7 +3160,10 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') close
 var SPARK_FOLLOWER_IDS = { m: 'm-seguidores', s: 's-seguidores', r: 'r-seguidores' };
 var SPARK_HISTORY_KEY  = { m: 'followers_history_m', s: 'followers_history_s', r: 'followers_history_r' };
 
-function _todayKey() { return new Date().toISOString().split('T')[0]; }
+function _todayKey() {
+  var d = new Date();
+  return d.getFullYear() + '-' + _pad(d.getMonth()+1) + '-' + _pad(d.getDate());
+}
 
 function getFollowerHistory(proj) {
   try { return JSON.parse(localStorage.getItem(SPARK_HISTORY_KEY[proj]) || '[]'); } catch(e) { return []; }
