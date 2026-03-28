@@ -5602,6 +5602,11 @@ function toggleTarefaDone(e, id) {
   saveTarefasData(list);
   renderTarefasList();
   renderTarefasGrid();
+  // Refresh proj lists so done tasks show/hide correctly
+  renderProjTarefasList('releio');
+  renderProjTarefasList('soup');
+  renderProjTarefasList('munchow');
+  renderDashboardNextEvents();
 }
 
 function _durLabel(min) {
