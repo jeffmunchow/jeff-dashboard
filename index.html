@@ -2403,7 +2403,7 @@ function fmtDateWidget(str) {
   var parts = dateStr.split('-');
   if (parts.length < 3) return str;
   var d = new Date(dateStr + 'T00:00:00');
-  var todayStr = new Date().toISOString().split('T')[0];
+  var todayStr = (function(){ var _d=new Date(); return _d.getFullYear()+'-'+(_d.getMonth()+1<10?'0':'')+(_d.getMonth()+1)+'-'+(_d.getDate()<10?'0':'')+_d.getDate(); })();
   var dayAbbr = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   var formatted = parts[2] + '/' + parts[1] + '/' + parts[0];
   if (dateStr === todayStr) return 'Hoje. ' + formatted;
@@ -2962,7 +2962,7 @@ function openFinModal(tipo, id) {
   } else {
     document.getElementById('fin-modal-title').textContent = tipo==='entrada' ? 'Nova Entrada' : 'Nova Saída';
     ['ff-desc','ff-valor'].forEach(function(id){ document.getElementById(id).value=''; });
-    setDateValue('ff-data', new Date().toISOString().split('T')[0]);
+    setDateValue('ff-data', (function(){ var _d=new Date(); return _d.getFullYear()+'-'+(_d.getMonth()+1<10?'0':'')+(_d.getMonth()+1)+'-'+(_d.getDate()<10?'0':'')+_d.getDate(); })());
     document.getElementById('ff-cat').value     = tipo==='entrada' ? 'Contrato' : 'Equipamento';
     document.getElementById('ff-cliente').value = '';
     document.getElementById('ff-tipo').value    = tipo||'entrada';
@@ -3302,7 +3302,7 @@ function buildSparkDataForKey(key) {
 
   for (var i = 0; i < totalDays; i += stride) {
     var day = new Date(firstDate.getTime() + i * msPerDay);
-    var ds = day.toISOString().split('T')[0];
+    var ds = day.getFullYear()+'-'+_pad(day.getMonth()+1)+'-'+_pad(day.getDate());
     pts.push(interpolate(ds));
     labels.push(day.getDate() + '/' + (day.getMonth()+1) + '/' + day.getFullYear());
   }
@@ -3377,7 +3377,7 @@ function renderDashboardNextEvents() {
   if (el) el.textContent = lidos || '—';
 
   var now = new Date();
-  var today = now.toISOString().split('T')[0];
+  var today = now.getFullYear()+'-'+_pad(now.getMonth()+1)+'-'+_pad(now.getDate());
 
   // ── Helper: render 4 slots, blank when empty, hover effect + click to edit
   function _renderSlots(items, renderFn) {
@@ -3910,7 +3910,7 @@ function openSoupMilhasModal(id){
   } else {
     document.getElementById('soup-milhas-modal-title').textContent='Lançamento de milhas';
     ['smlf-programa','smlf-milhas','smlf-obs'].forEach(function(id){document.getElementById(id).value='';});
-    document.getElementById('smlf-tipo').value='Acúmulo';setDateValue('smlf-data', new Date().toISOString().split('T')[0]);
+    document.getElementById('smlf-tipo').value='Acúmulo';setDateValue('smlf-data', (function(){ var _d=new Date(); return _d.getFullYear()+'-'+(_d.getMonth()+1<10?'0':'')+(_d.getMonth()+1)+'-'+(_d.getDate()<10?'0':'')+_d.getDate(); })());
     document.getElementById('soup-milhas-delete-btn').style.display='none';
   }
   document.getElementById('soup-milhas-overlay').classList.add('open');
@@ -4985,7 +4985,7 @@ function openRlFinModal(id) {
     del.style.display = 'inline-flex';
   } else {
     document.getElementById('rl-fin-modal-title').textContent = 'Nova entrada';
-    setDateValue('rlfinf-data', new Date().toISOString().split('T')[0]);
+    setDateValue('rlfinf-data', (function(){ var _d=new Date(); return _d.getFullYear()+'-'+(_d.getMonth()+1<10?'0':'')+(_d.getMonth()+1)+'-'+(_d.getDate()<10?'0':'')+_d.getDate(); })());
     document.getElementById('rlfinf-fonte').value  = 'Amazon Afiliados';
     document.getElementById('rlfinf-desc').value   = '';
     document.getElementById('rlfinf-valor').value  = '';
