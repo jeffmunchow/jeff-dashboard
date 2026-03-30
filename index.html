@@ -110,6 +110,7 @@
   .curadoria-book-subtitle { font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--text-hint); margin-top:4px; outline:none; }
   .curadoria-book-subtitle:empty::before { content:'Subtítulo'; color:var(--text-hint); }
   .curadoria-analise { min-height:calc(100vh - 340px); }
+  .curadoria-analise *, .curadoria-day-text *, .curadoria-day-legenda * { color:inherit !important; background:transparent !important; font-family:inherit; }
   .curadoria-analise:empty::before { content:attr(data-placeholder); color:var(--text-hint); font-style:italic; pointer-events:none; font-weight:400; }
   .curadoria-day-block { margin-bottom:0; }
   .curadoria-day-label { font-family:'Playfair Display',serif; font-size:0.85rem; font-weight:600; color:var(--text); margin-bottom:6px; margin-top:1.25rem; letter-spacing:-0.01em; }
@@ -2310,6 +2311,20 @@ function toggleTheme() {
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('dash_theme', next);
   buildChart();
+  // Rebuild sparklines with new theme colors
+  buildSparklines();
+  if (_rlSegChartInstance) buildReleioSegChart();
+  // Strip any inline color/background styles from curadoria editables
+  var curSelectors = ['curadoria-analise','curadoria-week'];
+  curSelectors.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.querySelectorAll('*').forEach(function(child) {
+      child.style.removeProperty('color');
+      child.style.removeProperty('background-color');
+      child.style.removeProperty('background');
+    });
+  });
 }
 
 function navigateToProject(e, proj) {
