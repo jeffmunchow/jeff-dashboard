@@ -97,8 +97,13 @@
   .curadoria-wrap { display:flex; flex-direction:column; height:calc(100vh - 120px); }
   .curadoria-book-bar { display:flex; align-items:center; gap:12px; padding:10px 1.5rem 8px; border-bottom:0.5px solid var(--border); flex-shrink:0; }
   .curadoria-body { display:flex; flex:1; overflow:hidden; }
-  .curadoria-left { width:50%; border-right:0.5px solid var(--border); overflow-y:auto; padding:1.5rem; }
-  .curadoria-right { width:50%; overflow-y:auto; padding:2rem 2.5rem; }
+  .curadoria-left { width:50%; border-right:0.5px solid var(--border); overflow-y:auto; padding:1.5rem; scrollbar-width:thin; scrollbar-color:transparent transparent; }
+  .curadoria-left:hover { scrollbar-color:rgba(0,0,0,0.15) transparent; }
+  .curadoria-right { width:50%; overflow-y:auto; padding:2rem 2.5rem; scrollbar-width:thin; scrollbar-color:transparent transparent; }
+  .curadoria-right:hover { scrollbar-color:rgba(0,0,0,0.15) transparent; }
+  .curadoria-left::-webkit-scrollbar, .curadoria-right::-webkit-scrollbar { width:4px; }
+  .curadoria-left::-webkit-scrollbar-thumb, .curadoria-right::-webkit-scrollbar-thumb { background:transparent; border-radius:2px; }
+  .curadoria-left:hover::-webkit-scrollbar-thumb, .curadoria-right:hover::-webkit-scrollbar-thumb { background:rgba(0,0,0,0.18); }
   .curadoria-book-header { margin-bottom:1.5rem; }
   .curadoria-book-title { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:600; color:var(--text); outline:none; line-height:1.3; }
   .curadoria-book-title:empty::before { content:'Título do livro'; color:var(--text-hint); font-style:italic; }
@@ -111,7 +116,7 @@
   .curadoria-day-block:first-child .curadoria-day-label { margin-top:0; }
   .curadoria-day-text { font-family:'Lora',serif; font-size:0.88rem; line-height:1.7; color:var(--text); outline:none; min-height:1.7em; }
   .curadoria-day-text p, .curadoria-day-text div { margin:0 0 0.6em 0; line-height:1.7; min-height:1.7em; }
-  .curadoria-day-legenda p, .curadoria-day-legenda div { margin:0 0 0.4em 0; line-height:1.5; }
+  .curadoria-day-legenda p, .curadoria-day-legenda div { margin:0 0 0.6em 0; line-height:1.7; }
   .curadoria-analise p, .curadoria-analise div { margin:0 0 0.6em 0; padding:0; line-height:1.875; min-height:1.875em; }
   .curadoria-day-text:empty::before { content:'Texto do carrossel...'; color:var(--text-hint); font-style:italic; pointer-events:none; }
   .curadoria-day-legenda-row { display:flex; gap:6px; align-items:baseline; margin-top:4px; }
@@ -5246,6 +5251,42 @@ function buildReleioSegChart() {
   });
 }
 
+/* ── CURADORIA — TECLADO: Enter, formatação ── */
+function _curadoriaHandleKey(e) {
+  if (e.key === 'Enter') {
+    // Wrap bare text nodes in div so CSS margin applies
+    var el = e.target;
+    Array.from(el.childNodes).forEach(function(node) {
+      if (node.nodeType === 3 && node.textContent.trim()) {
+        var div = document.createElement('div');
+        div.textContent = node.textContent;
+        el.insertBefore(div, node);
+        el.removeChild(node);
+      }
+    });
+    setTimeout(function(){ _curadoriaScheduleSave('semana'); _curadoriaScheduleSave('analise'); }, 10);
+  }
+  // Cmd/Ctrl + B I U T — formatting
+  if ((e.metaKey || e.ctrlKey) && !e.altKey) {
+    if (e.key === 'b') { e.preventDefault(); document.execCommand('bold'); }
+    if (e.key === 'i') { e.preventDefault(); document.execCommand('italic'); }
+    if (e.key === 'u') { e.preventDefault(); document.execCommand('underline'); }
+    if (e.key === 't') { e.preventDefault(); document.execCommand('strikeThrough'); }
+  }
+}
+
+// Attach key handler to curadoria editables after render
+function _attachCuradoriaKeyHandlers() {
+  var analise = document.getElementById('curadoria-analise');
+  if (analise) analise.onkeydown = _curadoriaHandleKey;
+  var wEl = document.getElementById('curadoria-week');
+  if (wEl) {
+    wEl.querySelectorAll('[contenteditable="true"]').forEach(function(el) {
+      el.onkeydown = _curadoriaHandleKey;
+    });
+  }
+}
+
 /* ── CURADORIA ── */
 function _curadoriaPastePlain(e) {
   e.preventDefault();
@@ -5337,10 +5378,12 @@ function loadCuradoria() {
     aEl.contentEditable = 'true';
     aEl.oninput = function() { _curadoriaScheduleSave('analise'); };
     aEl.onpaste = _curadoriaPastePlain;
+    aEl.onkeydown = _curadoriaHandleKey;
   }
 
   // Left side — week posts
   _renderCuradoriaWeek(data);
+  setTimeout(_attachCuradoriaKeyHandlers, 50);
 }
 
 var CURADORIA_DAYS = ['Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado','Domingo'];
@@ -5372,6 +5415,7 @@ function _renderCuradoriaWeek(data) {
       _curadoriaScheduleSave('semana');
     });
     el.addEventListener('paste', _curadoriaPastePlain);
+    el.addEventListener('keydown', _curadoriaHandleKey);
   });
 }
 
