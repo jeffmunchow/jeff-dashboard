@@ -1435,7 +1435,7 @@
     <!-- RESUMO -->
     <div class="tab-panel active" id="rlpanel-resumo">
       <div class="summary-grid">
-        <div class="sum-card accent-coral"><div class="sum-label">Seguidores Instagram</div><div class="sum-value" id="rl-ss-seg">—</div><div class="sum-sub">Instagram</div></div>
+        <div class="sum-card accent-coral"><div class="sum-label">Instagram</div><div class="sum-value" id="rl-ss-seg">—</div><div class="sum-sub">Seguidores</div></div>
         <div class="sum-card accent-teal"><div class="sum-label">Livros lidos</div><div class="sum-value" id="rl-ss-lidos">—</div></div>
         <div class="sum-card"><div class="sum-label">Livros curados</div><div class="sum-value" id="rl-ss-livros">—</div></div>
         <div class="sum-card accent-amber"><div class="sum-label">Assinantes</div><div class="sum-value" id="rl-ss-assin">—</div><div class="sum-sub">Substack</div></div>
@@ -1445,8 +1445,8 @@
         <div style="flex:1;max-width:50%;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
             <div>
-              <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">Seguidores Instagram</div>
-              <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;" id="rl-spark-subtitle">por dia · contagem real</div>
+              <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">Instagram</div>
+              <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;" id="rl-spark-subtitle">Seguidores</div>
             </div>
           </div>
           <div style="height:140px;position:relative;"><canvas id="rl-seg-chart"></canvas></div>
@@ -5247,6 +5247,31 @@ function buildReleioSegChart() {
 }
 
 /* ── CURADORIA ── */
+function _curadoriaPastePlain(e) {
+  e.preventDefault();
+  var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  if (!text) return;
+  // Insert as plain text at cursor position
+  var sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  sel.deleteFromDocument();
+  var range = sel.getRangeAt(0);
+  var lines = text.split('\n');
+  var frag = document.createDocumentFragment();
+  lines.forEach(function(line, i) {
+    if (i > 0) frag.appendChild(document.createElement('br'));
+    frag.appendChild(document.createTextNode(line));
+  });
+  range.insertNode(frag);
+  // Move cursor to end
+  range.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(range);
+  // Trigger save
+  var ev = new Event('input', { bubbles: true });
+  e.target.dispatchEvent(ev);
+}
+
 var _curadoriaLivroId = null;
 var _curadoriaAutoSaveTimer = {};
 
@@ -5311,6 +5336,7 @@ function loadCuradoria() {
     aEl.innerHTML = data.analise || '';
     aEl.contentEditable = 'true';
     aEl.oninput = function() { _curadoriaScheduleSave('analise'); };
+    aEl.onpaste = _curadoriaPastePlain;
   }
 
   // Left side — week posts
@@ -5340,11 +5366,12 @@ function _renderCuradoriaWeek(data) {
   });
   wEl.innerHTML = html;
 
-  // Attach input listeners
+  // Attach input + paste listeners
   wEl.querySelectorAll('[contenteditable="true"]').forEach(function(el) {
     el.addEventListener('input', function() {
       _curadoriaScheduleSave('semana');
     });
+    el.addEventListener('paste', _curadoriaPastePlain);
   });
 }
 
