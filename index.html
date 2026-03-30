@@ -107,9 +107,12 @@
   .curadoria-analise { min-height:calc(100vh - 340px); }
   .curadoria-analise:empty::before { content:attr(data-placeholder); color:var(--text-hint); font-style:italic; pointer-events:none; font-weight:400; }
   .curadoria-day-block { margin-bottom:0; }
-  .curadoria-day-label { font-family:'DM Sans',sans-serif; font-size:0.72rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px; margin-top:1.25rem; }
+  .curadoria-day-label { font-family:'Playfair Display',serif; font-size:0.85rem; font-weight:600; color:var(--coral); margin-bottom:6px; margin-top:1.25rem; letter-spacing:-0.01em; }
   .curadoria-day-block:first-child .curadoria-day-label { margin-top:0; }
   .curadoria-day-text { font-family:'Lora',serif; font-size:0.88rem; line-height:1.7; color:var(--text); outline:none; min-height:1.7em; }
+  .curadoria-day-text p, .curadoria-day-text div { margin:0 0 0.6em 0; line-height:1.7; min-height:1.7em; }
+  .curadoria-day-legenda p, .curadoria-day-legenda div { margin:0 0 0.4em 0; line-height:1.5; }
+  .curadoria-analise p, .curadoria-analise div { margin:0 0 0.6em 0; padding:0; line-height:1.875; min-height:1.875em; }
   .curadoria-day-text:empty::before { content:'Texto do carrossel...'; color:var(--text-hint); font-style:italic; pointer-events:none; }
   .curadoria-day-legenda-row { display:flex; gap:6px; align-items:baseline; margin-top:4px; }
   .curadoria-day-legenda-label { font-family:'DM Sans',sans-serif; font-size:0.72rem; color:var(--text-hint); flex-shrink:0; }
@@ -633,7 +636,7 @@
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="r-seguidores">7.000</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-r"></canvas></div></div>
       <div class="metric-cell"><div class="metric-label">Livros lidos</div><div class="metric-value" id="r-lidos">—</div></div>
       <div class="metric-cell"><div class="metric-label">Assinantes</div><div class="metric-value" id="r-assinantes">—</div><div class="metric-sub">newsletter</div></div>
-      <div class="metric-cell accent-coral"><div class="metric-label">Livros curados</div><div class="metric-value" id="r-livros">—</div></div>
+      <div class="metric-cell"><div class="metric-label">Livros curados</div><div class="metric-value" id="r-livros">—</div></div>
     </div>
     <div class="divider"></div>
     <div class="next-event-widget" id="r-next-event-widget" onclick="event.stopPropagation()">
@@ -1434,7 +1437,7 @@
       <div class="summary-grid">
         <div class="sum-card accent-coral"><div class="sum-label">Seguidores Instagram</div><div class="sum-value" id="rl-ss-seg">—</div><div class="sum-sub">Instagram</div></div>
         <div class="sum-card accent-teal"><div class="sum-label">Livros lidos</div><div class="sum-value" id="rl-ss-lidos">—</div><div class="sum-sub">status "Lido"</div></div>
-        <div class="sum-card"><div class="sum-label">Livros curados</div><div class="sum-value" id="rl-ss-livros">—</div><div class="sum-sub">status "Curado"</div></div>
+        <div class="sum-card"><div class="sum-label">Livros curados</div><div class="sum-value" id="rl-ss-livros">—</div></div>
         <div class="sum-card accent-amber"><div class="sum-label">Assinantes</div><div class="sum-value" id="rl-ss-assin">—</div><div class="sum-sub">Substack</div></div>
       </div>
       <!-- Gráfico de seguidores -->
@@ -4094,7 +4097,8 @@ function renderReleioResumo(){
   var sub=getReleioSubstack();
   var publicados=livros.filter(function(l){return l.status==='Publicado';}).length;
   var lidos=livros.filter(function(l){return l.status==='Lido'||l.status==='Curado'||l.status==='Publicado';}).length;
-  document.getElementById('rl-ss-livros').textContent=publicados||'—';
+  var curados=livros.filter(function(l){return l.status==='Curado';}).length;
+  document.getElementById('rl-ss-livros').textContent=curados||'—';
   document.getElementById('rl-ss-lidos').textContent=lidos||'0';
   // assinantes from Substack records — take latest
   var assinSnap=rlLoad('assinantes')||0;
