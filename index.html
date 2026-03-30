@@ -583,11 +583,11 @@
 
 <div class="main">
   <div class="project-card">
-    <div class="project-header">
-      <div><div class="project-name">Münchow</div><div class="project-meta">Studio</div></div>
-      <button class="project-plus-btn" onclick="openEdit('munchow')" title="Editar métricas">+</button>
-    </div>
     <div class="project-body-clickable" onclick="navigateToProject(event, 'munchow-studio')" title="Abrir Studio">
+    <div class="project-header" style="border-bottom:0.5px solid var(--border);">
+      <div><div class="project-name">Münchow</div><div class="project-meta">Studio</div></div>
+      <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('munchow')" title="Editar métricas">+</button>
+    </div>
     <div class="metrics-grid">
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="m-seguidores">3.524</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-m"></canvas></div></div>
       <div class="metric-cell"><div class="metric-label">Casamentos / ano</div><div class="metric-value" id="m-casamentos">—</div><div class="metric-sub">confirmados</div></div>
@@ -603,11 +603,11 @@
   </div>
 
   <div class="project-card">
-    <div class="project-header">
-      <div><div class="project-name">Soup</div><div class="project-meta">Travel Club</div></div>
-      <button class="project-plus-btn" onclick="openEdit('soup')" title="Editar métricas">+</button>
-    </div>
     <div class="project-body-clickable" onclick="navigateToProject(event, 'soup-view')" title="Abrir Soup">
+    <div class="project-header" style="border-bottom:0.5px solid var(--border);">
+      <div><div class="project-name">Soup</div><div class="project-meta">Travel Club</div></div>
+      <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('soup')" title="Editar métricas">+</button>
+    </div>
     <div class="metrics-grid">
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="s-seguidores">22</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-s"></canvas></div></div>
       <div class="metric-cell"><div class="metric-label">Clientes ativos</div><div class="metric-value" id="s-clientes">2</div></div>
@@ -624,11 +624,11 @@
   </div>
 
   <div class="project-card">
-    <div class="project-header">
-      <div><div class="project-name">re.leio</div><div class="project-meta">Curadoria literária</div></div>
-      <button class="project-plus-btn" onclick="openEdit('releio')" title="Editar métricas">+</button>
-    </div>
     <div class="project-body-clickable" onclick="navigateToProject(event, 'releio-view')" title="Abrir re.leio">
+    <div class="project-header" style="border-bottom:0.5px solid var(--border);">
+      <div><div class="project-name">re.leio</div><div class="project-meta">Curadoria literária</div></div>
+      <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('releio')" title="Editar métricas">+</button>
+    </div>
     <div class="metrics-grid">
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="r-seguidores">7.000</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-r"></canvas></div></div>
       <div class="metric-cell"><div class="metric-label">Livros lidos</div><div class="metric-value" id="r-lidos">—</div></div>
@@ -766,7 +766,7 @@
   </div>
 
   <div style="padding:2rem 2.5rem;max-width:900px;margin:0 auto;">
-    <div class="section-header">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:1.5rem;">
       <div class="section-actions">
         <input type="text" id="cit-search" placeholder="Buscar por autor, palavra, livro..." oninput="renderCitacoes()"
           style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:5px 10px;color:var(--text);outline:none;width:240px;">
@@ -1434,7 +1434,7 @@
       <div class="summary-grid">
         <div class="sum-card accent-coral"><div class="sum-label">Seguidores Instagram</div><div class="sum-value" id="rl-ss-seg">—</div><div class="sum-sub">Instagram</div></div>
         <div class="sum-card accent-teal"><div class="sum-label">Livros lidos</div><div class="sum-value" id="rl-ss-lidos">—</div><div class="sum-sub">status "Lido"</div></div>
-        <div class="sum-card"><div class="sum-label">Livros curados</div><div class="sum-value" id="rl-ss-livros">—</div><div class="sum-sub">publicados</div></div>
+        <div class="sum-card"><div class="sum-label">Livros curados</div><div class="sum-value" id="rl-ss-livros">—</div><div class="sum-sub">status "Curado"</div></div>
         <div class="sum-card accent-amber"><div class="sum-label">Assinantes</div><div class="sum-value" id="rl-ss-assin">—</div><div class="sum-sub">Substack</div></div>
       </div>
       <!-- Gráfico de seguidores -->
@@ -3398,11 +3398,14 @@ function buildSparklines() {
 
 /* ─── DASHBOARD NEXT EVENTS ──────────────────────────────── */
 function renderDashboardNextEvents() {
-  // Populate r-lidos from real livros data
+  // Populate r-lidos and r-livros from real livros data
   var livros = getReleioLivros ? getReleioLivros() : [];
   var lidos = livros.filter(function(l){ return l.status === 'Lido' || l.status === 'Curado' || l.status === 'Publicado'; }).length;
+  var curados = livros.filter(function(l){ return l.status === 'Curado'; }).length;
   var el = document.getElementById('r-lidos');
   if (el) el.textContent = lidos || '—';
+  var elCur = document.getElementById('r-livros');
+  if (elCur) elCur.textContent = curados || '—';
 
   var now = new Date();
   var today = now.getFullYear()+'-'+_pad(now.getMonth()+1)+'-'+_pad(now.getDate());
