@@ -93,7 +93,30 @@
   .diary-editor em, .diary-editor i { font-style: italic; }
   .diary-editor s, .diary-editor strike { text-decoration: line-through; color: var(--text-muted); }
   .diary-editor u { text-decoration: underline; }
-  /* Notes modal (sidebar bottom icon) */
+  /* ── Curadoria ── */
+  .curadoria-wrap { display:flex; flex-direction:column; height:calc(100vh - 120px); }
+  .curadoria-book-bar { display:flex; align-items:center; gap:12px; padding:10px 1.5rem 8px; border-bottom:0.5px solid var(--border); flex-shrink:0; }
+  .curadoria-body { display:flex; flex:1; overflow:hidden; }
+  .curadoria-left { width:50%; border-right:0.5px solid var(--border); overflow-y:auto; padding:1.5rem; }
+  .curadoria-right { width:50%; overflow-y:auto; padding:2rem 2.5rem; }
+  .curadoria-book-header { margin-bottom:1.5rem; }
+  .curadoria-book-title { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:600; color:var(--text); outline:none; line-height:1.3; }
+  .curadoria-book-title:empty::before { content:'Título do livro'; color:var(--text-hint); font-style:italic; }
+  .curadoria-book-subtitle { font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--text-hint); margin-top:4px; outline:none; }
+  .curadoria-book-subtitle:empty::before { content:'Subtítulo'; color:var(--text-hint); }
+  .curadoria-analise { min-height:calc(100vh - 340px); }
+  .curadoria-analise:empty::before { content:attr(data-placeholder); color:var(--text-hint); font-style:italic; pointer-events:none; font-weight:400; }
+  .curadoria-day-block { margin-bottom:0; }
+  .curadoria-day-label { font-family:'DM Sans',sans-serif; font-size:0.72rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px; margin-top:1.25rem; }
+  .curadoria-day-block:first-child .curadoria-day-label { margin-top:0; }
+  .curadoria-day-text { font-family:'Lora',serif; font-size:0.88rem; line-height:1.7; color:var(--text); outline:none; min-height:1.7em; }
+  .curadoria-day-text:empty::before { content:'Texto do carrossel...'; color:var(--text-hint); font-style:italic; pointer-events:none; }
+  .curadoria-day-legenda-row { display:flex; gap:6px; align-items:baseline; margin-top:4px; }
+  .curadoria-day-legenda-label { font-family:'DM Sans',sans-serif; font-size:0.72rem; color:var(--text-hint); flex-shrink:0; }
+  .curadoria-day-legenda { font-family:'Lora',serif; font-size:0.82rem; color:var(--text-muted); outline:none; flex:1; min-height:1.2em; }
+  .curadoria-day-legenda:empty::before { content:'Legenda...'; color:var(--text-hint); font-style:italic; pointer-events:none; }
+  .curadoria-day-divider { height:0.5px; background:var(--border); margin:1rem 0 0; opacity:0.5; }
+
   .notes-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; display: none; align-items: center; justify-content: center; }
   .notes-modal-overlay.open { display: flex; }
   .notes-modal { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); width: 480px; max-width: 90vw; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
@@ -504,6 +527,9 @@
     <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       </button>
+    <button class="sidebar-btn" title="Pessoal (em breve)" style="opacity:0.3;cursor:default;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </button>
   </div>
   <div class="sidebar-bottom">
     <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
@@ -643,6 +669,9 @@
       <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       </button>
+    <button class="sidebar-btn" title="Pessoal (em breve)" style="opacity:0.3;cursor:default;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </button>
     </div>
     <div class="sidebar-bottom">
       <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
@@ -710,6 +739,9 @@
       </button>
       <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </button>
+    <button class="sidebar-btn" title="Pessoal (em breve)" style="opacity:0.3;cursor:default;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       </button>
     </div>
     <div class="sidebar-bottom">
@@ -901,6 +933,9 @@
     </button>
     <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </button>
+    <button class="sidebar-btn" title="Pessoal (em breve)" style="opacity:0.3;cursor:default;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       </button>
   </div>
   <div class="sidebar-bottom">
@@ -1142,6 +1177,9 @@
     <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       </button>
+    <button class="sidebar-btn" title="Pessoal (em breve)" style="opacity:0.3;cursor:default;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </button>
   </div>
   <div class="sidebar-bottom">
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
@@ -1356,6 +1394,9 @@
     <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       </button>
+    <button class="sidebar-btn" title="Pessoal (em breve)" style="opacity:0.3;cursor:default;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </button>
   </div>
   <div class="sidebar-bottom">
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
@@ -1381,8 +1422,7 @@
   <div class="studio-tabs">
     <button class="studio-tab active" id="rltab-resumo"     onclick="switchReleioTab('resumo')"     style="border-bottom-color:var(--coral);">Resumo</button>
     <button class="studio-tab"        id="rltab-livros"     onclick="switchReleioTab('livros')">Livros</button>
-    <button class="studio-tab"        id="rltab-publicacoes" onclick="switchReleioTab('publicacoes')">Publicações</button>
-    <button class="studio-tab"        id="rltab-substack"   onclick="switchReleioTab('substack')">Substack</button>
+    <button class="studio-tab"        id="rltab-curadoria"  onclick="switchReleioTab('curadoria')">Curadoria</button>
     <button class="studio-tab"        id="rltab-financeiro" onclick="switchReleioTab('financeiro')">Financeiro</button>
     <button class="studio-tab"        id="rltab-tarefas"    onclick="switchReleioTab('tarefas')">Tarefas</button>
 
@@ -1397,11 +1437,18 @@
         <div class="sum-card accent-teal"><div class="sum-label">Livros lidos</div><div class="sum-value" id="rl-ss-lidos">—</div><div class="sum-sub">status "Lido"</div></div>
         <div class="sum-card"><div class="sum-label">Livros curados</div><div class="sum-value" id="rl-ss-livros">—</div><div class="sum-sub">publicados</div></div>
         <div class="sum-card accent-amber"><div class="sum-label">Assinantes</div><div class="sum-value" id="rl-ss-assin">—</div><div class="sum-sub">Substack</div></div>
-        <div class="sum-card"><div class="sum-label">Posts agendados</div><div class="sum-value" id="rl-ss-agendados">—</div><div class="sum-sub">próximos 30 dias</div></div>
       </div>
-      <div style="max-width:560px;">
-        <div class="section-header"><div class="section-title">Próxima publicação</div></div>
-        <div id="rl-resumo-proxpub"></div>
+      <!-- Gráfico de seguidores -->
+      <div style="display:flex;gap:1.5rem;margin-top:1.5rem;">
+        <div style="flex:1;max-width:50%;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+            <div>
+              <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">Seguidores Instagram</div>
+              <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;" id="rl-spark-subtitle">por dia · contagem real</div>
+            </div>
+          </div>
+          <div style="height:140px;position:relative;"><canvas id="rl-seg-chart"></canvas></div>
+        </div>
       </div>
     </div>
 
@@ -1435,49 +1482,31 @@
       </div></div>
     </div>
 
-    <!-- PUBLICAÇÕES -->
-    <div class="tab-panel" id="rlpanel-publicacoes">
-      <div class="section-header">
-        <div class="section-title">Publicações</div>
-        <div class="section-actions">
-          <select id="rl-pub-platform-filter" onchange="renderReleioPublicacoes()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
-            <option value="">Todas as plataformas</option>
-            <option>Instagram</option><option>Substack</option><option>Ambos</option>
+    <!-- CURADORIA -->
+    <div class="tab-panel" id="rlpanel-curadoria">
+      <div class="curadoria-wrap">
+        <!-- Seletor de livro -->
+        <div class="curadoria-book-bar">
+          <label style="font-size:0.7rem;color:var(--text-hint);font-weight:500;letter-spacing:0.04em;text-transform:uppercase;">Livro</label>
+          <select id="curadoria-livro-sel" onchange="loadCuradoria()" style="font-family:'DM Sans',sans-serif;font-size:0.82rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:5px 12px;color:var(--text);outline:none;min-width:220px;">
+            <option value="">— Selecione um livro —</option>
           </select>
-          <select id="rl-pub-status-filter" onchange="renderReleioPublicacoes()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
-            <option value="">Todos os status</option>
-            <option>Rascunho</option><option>Agendado</option><option>Publicado</option>
-          </select>
-          <button class="btn primary" onclick="openReleioPublicacaoModal()">+ Publicação</button>
+        </div>
+        <div class="curadoria-body">
+          <!-- ESQUERDA: posts da semana -->
+          <div class="curadoria-left">
+            <div id="curadoria-week"></div>
+          </div>
+          <!-- DIREITA: análise do livro (estilo diário) -->
+          <div class="curadoria-right">
+            <div class="curadoria-book-header">
+              <div class="curadoria-book-title" id="curadoria-titulo" contenteditable="false">Selecione um livro</div>
+              <div class="curadoria-book-subtitle" id="curadoria-subtitulo" contenteditable="false"></div>
+            </div>
+            <div class="curadoria-analise diary-editor" id="curadoria-analise" contenteditable="false" data-placeholder="Escreva sua análise aqui..."></div>
+          </div>
         </div>
       </div>
-      <div class="table-wrap"><div class="table-scroll">
-        <table class="data-table">
-          <thead><tr><th>Livro</th><th>Plataforma</th><th>Tipo de conteúdo</th><th>Status</th><th>Data</th><th></th></tr></thead>
-          <tbody id="rl-publicacoes-tbody"></tbody>
-        </table>
-      </div></div>
-    </div>
-
-    <!-- SUBSTACK -->
-    <div class="tab-panel" id="rlpanel-substack">
-      <div class="section-header">
-        <div class="section-title">Substack</div>
-        <div class="section-actions">
-          <button class="btn primary" onclick="openReleioSubstackModal()">+ Newsletter</button>
-        </div>
-      </div>
-      <div class="summary-grid" style="margin-bottom:1.5rem;">
-        <div class="sum-card accent-coral"><div class="sum-label">Assinantes</div><div class="sum-value" id="rl-sub-assin">—</div></div>
-        <div class="sum-card"><div class="sum-label">Edições publicadas</div><div class="sum-value" id="rl-sub-edicoes">—</div></div>
-        <div class="sum-card accent-amber"><div class="sum-label">Taxa de abertura</div><div class="sum-value" id="rl-sub-taxa">—</div></div>
-      </div>
-      <div class="table-wrap"><div class="table-scroll">
-        <table class="data-table">
-          <thead><tr><th>Título</th><th>Livro</th><th>Status</th><th>Data</th><th>Aberturas</th><th></th></tr></thead>
-          <tbody id="rl-substack-tbody"></tbody>
-        </table>
-      </div></div>
     </div>
 
     <!-- FINANCEIRO re.leio -->
@@ -3435,11 +3464,12 @@ function renderDashboardNextEvents() {
   var sEl = document.getElementById('s-nev-content');
   if (sEl) {
     sEl.innerHTML = _renderSlots(soupItems, function(item) {
-      return '<div style="display:flex;flex-direction:column;gap:1px;">' +
-        '<div style="display:flex;gap:8px;align-items:baseline;">' +
-          '<span style="font-size:0.68rem;color:var(--text-hint);flex-shrink:0;">' + fmtDateWidget(item.data) + '</span>' +
-          '<span class="nev-title">' + item.titulo + '</span>' +
-        '</div>' +
+      var tid = item._tarefaId || '';
+      var checkBtn = tid ? '<button onclick="checkSoupTarefaWidget(\'' + tid + '\',event)" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;"></button>' : '';
+      return '<div style="display:flex;align-items:center;gap:8px;">' +
+        checkBtn +
+        '<span style="font-size:0.68rem;color:var(--text-hint);white-space:nowrap;flex-shrink:0;">' + fmtDateWidget(item.data) + '</span>' +
+        '<span style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + item.titulo + '</span>' +
       '</div>';
     });
   }
@@ -4045,14 +4075,13 @@ function releioLivroTitle(id){var l=getReleioLivros().find(function(x){return x.
 var currentReleioTab='resumo';
 function switchReleioTab(tab){
   currentReleioTab=tab;
-  ['resumo','livros','publicacoes','substack','financeiro','tarefas'].forEach(function(t){
+  ['resumo','livros','curadoria','financeiro','tarefas'].forEach(function(t){
     var btn=document.getElementById('rltab-'+t);var pan=document.getElementById('rlpanel-'+t);
     if(btn)btn.classList.toggle('active',t===tab);if(pan)pan.classList.toggle('active',t===tab);
   });
   if(tab==='resumo')      renderReleioResumo();
   if(tab==='livros')      renderReleioLivros();
-  if(tab==='publicacoes') renderReleioPublicacoes();
-  if(tab==='substack')    renderReleioSubstackTab();
+  if(tab==='curadoria')   renderCuradoria();
   if(tab==='financeiro')  renderRlFin();
   if(tab==='tarefas')     renderReleioTarefas();
 }
@@ -4060,33 +4089,16 @@ function switchReleioTab(tab){
 /* RELEIO RESUMO */
 function renderReleioResumo(){
   var livros=getReleioLivros();
-  var pubs=getReleioPublicacoes();
   var sub=getReleioSubstack();
   var publicados=livros.filter(function(l){return l.status==='Publicado';}).length;
   var lidos=livros.filter(function(l){return l.status==='Lido'||l.status==='Curado'||l.status==='Publicado';}).length;
-  var now=new Date();
-  var agendados=pubs.filter(function(p){return p.data&&new Date(p.data)>=now&&p.status!=='Publicado';}).length;
   document.getElementById('rl-ss-livros').textContent=publicados||'—';
   document.getElementById('rl-ss-lidos').textContent=lidos||'0';
-  document.getElementById('rl-ss-agendados').textContent=agendados||'0';
   // assinantes from Substack records — take latest
   var assinSnap=rlLoad('assinantes')||0;
   document.getElementById('rl-ss-assin').textContent=assinSnap||'—';
   document.getElementById('rl-ss-seg').textContent=localStorage.getItem('dash_r-seguidores')||'—';
-
-  var proxPubs=pubs.filter(function(p){return p.data&&new Date(p.data)>=now&&p.status!=='Publicado';})
-    .sort(function(a,b){return new Date(a.data)-new Date(b.data);}).slice(0,3);
-  var ppEl=document.getElementById('rl-resumo-proxpub');
-  if(ppEl){
-    if(!proxPubs.length) ppEl.innerHTML='<div class="agenda-empty">Nenhuma publicação agendada</div>';
-    else ppEl.innerHTML='<div class="agenda-list">'+proxPubs.map(function(p){
-      return '<div class="agenda-item">'+
-        '<div class="agenda-date">'+fmtDate(p.data)+'</div>'+
-        '<div class="agenda-dot" style="background:var(--coral)"></div>'+
-        '<div class="agenda-info"><div class="agenda-titulo">'+releioLivroTitle(p.livroId)+'</div>'+
-        '<div class="agenda-sub">'+p.plataforma+' · '+p.tipo+'</div></div></div>';
-    }).join('')+'</div>';
-  }
+  buildReleioSegChart();
 }
 
 /* RELEIO LIVROS */
@@ -5151,6 +5163,222 @@ function checkReleioTarefaWidget(id, e) {
   saveTarefasData(list);
   renderDashboardNextEvents();
 }
+
+function checkSoupTarefaWidget(id, e) {
+  e.stopPropagation();
+  var list = getTarefas();
+  var item = list.find(function(t){ return t.id === id; });
+  if (!item) return;
+  item.done = true;
+  saveTarefasData(list);
+  renderDashboardNextEvents();
+}
+
+/* ── GRÁFICO SEGUIDORES re.leio (Resumo) ── */
+var _rlSegChartInstance = null;
+function buildReleioSegChart() {
+  var canvas = document.getElementById('rl-seg-chart');
+  if (!canvas) return;
+  var rd = buildSparkDataForKey('r');
+  var col = document.documentElement.getAttribute('data-theme') === 'dark' ? '#CC4A28' : '#C43A1A';
+  if (_rlSegChartInstance) { _rlSegChartInstance.destroy(); _rlSegChartInstance = null; }
+  _rlSegChartInstance = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: rd.labels,
+      datasets: [{
+        data: rd.pts,
+        borderColor: col,
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHitRadius: 8,
+        tension: 0.35,
+        fill: { target: 'origin', above: col + '18' }
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1A1814' : '#FFFFFF',
+          borderColor: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)',
+          borderWidth: 1,
+          titleColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#EDE9E3' : '#1A1814',
+          bodyColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9E9892' : '#6B6660',
+          titleFont: { family: 'DM Sans, sans-serif', size: 10 },
+          bodyFont: { family: 'DM Sans, sans-serif', size: 10 },
+          padding: 8, displayColors: false,
+          callbacks: {
+            title: function(items) { return rd.labels[items[0].dataIndex]; },
+            label: function(ctx) { return ctx.parsed.y.toLocaleString('pt-BR') + ' seguidores'; }
+          }
+        }
+      },
+      scales: {
+        x: { display: false },
+        y: { display: true, position: 'left', grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'DM Sans', size: 9 }, color: 'var(--text-hint)', maxTicksLimit: 4 }, border: { display: false } }
+      },
+      layout: { padding: { top: 4 } }
+    }
+  });
+}
+
+/* ── CURADORIA ── */
+var _curadoriaLivroId = null;
+var _curadoriaAutoSaveTimer = {};
+
+function getCuradoriaData(livroId) {
+  try { return JSON.parse(localStorage.getItem('curadoria_' + livroId) || 'null') || { analise: '', semana: {} }; }
+  catch(e) { return { analise: '', semana: {} }; }
+}
+
+function saveCuradoriaData(livroId, data) {
+  localStorage.setItem('curadoria_' + livroId, JSON.stringify(data));
+  dbMetricSave('curadoria_' + livroId, JSON.stringify(data));
+}
+
+function renderCuradoria() {
+  // Populate book selector with Curado/Publicado books
+  var sel = document.getElementById('curadoria-livro-sel');
+  if (!sel) return;
+  var livros = getReleioLivros().filter(function(l) {
+    return l.status === 'Curado' || l.status === 'Publicado';
+  });
+  livros.sort(function(a,b){ return (a.titulo||'').localeCompare(b.titulo||'', 'pt-BR'); });
+  var html = '<option value="">— Selecione um livro —</option>';
+  livros.forEach(function(l) {
+    var sel2 = _curadoriaLivroId === l.id ? ' selected' : '';
+    html += '<option value="' + l.id + '"' + sel2 + '>' + (l.titulo||'') + (l.autor ? ' — ' + l.autor : '') + '</option>';
+  });
+  sel.innerHTML = html;
+  if (_curadoriaLivroId) loadCuradoria();
+  else _clearCuradoria();
+}
+
+function _clearCuradoria() {
+  var tEl = document.getElementById('curadoria-titulo');
+  var sEl = document.getElementById('curadoria-subtitulo');
+  var aEl = document.getElementById('curadoria-analise');
+  var wEl = document.getElementById('curadoria-week');
+  if (tEl) { tEl.textContent = 'Selecione um livro'; tEl.contentEditable = 'false'; }
+  if (sEl) { sEl.textContent = ''; sEl.contentEditable = 'false'; }
+  if (aEl) { aEl.innerHTML = ''; aEl.contentEditable = 'false'; }
+  if (wEl) wEl.innerHTML = '<div style="color:var(--text-hint);font-size:0.82rem;padding:1rem 0;">Selecione um livro para ver os posts da semana.</div>';
+}
+
+function loadCuradoria() {
+  var sel = document.getElementById('curadoria-livro-sel');
+  if (!sel) return;
+  _curadoriaLivroId = sel.value || null;
+  if (!_curadoriaLivroId) { _clearCuradoria(); return; }
+
+  var livros = getReleioLivros();
+  var livro = livros.find(function(l){ return l.id === _curadoriaLivroId; });
+  if (!livro) return;
+
+  var data = getCuradoriaData(_curadoriaLivroId);
+
+  // Right side — book header + análise
+  var tEl = document.getElementById('curadoria-titulo');
+  var sEl = document.getElementById('curadoria-subtitulo');
+  var aEl = document.getElementById('curadoria-analise');
+  if (tEl) { tEl.textContent = livro.titulo || ''; tEl.contentEditable = 'false'; }
+  if (sEl) { sEl.textContent = livro.autor || ''; sEl.contentEditable = 'false'; }
+  if (aEl) {
+    aEl.innerHTML = data.analise || '';
+    aEl.contentEditable = 'true';
+    aEl.oninput = function() { _curadoriaScheduleSave('analise'); };
+  }
+
+  // Left side — week posts
+  _renderCuradoriaWeek(data);
+}
+
+var CURADORIA_DAYS = ['Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado','Domingo'];
+var CURADORIA_KEYS = ['seg','ter','qua','qui','sex','sab','dom'];
+
+function _renderCuradoriaWeek(data) {
+  var wEl = document.getElementById('curadoria-week');
+  if (!wEl) return;
+  var semana = data.semana || {};
+  var html = '';
+  CURADORIA_DAYS.forEach(function(dia, i) {
+    var key = CURADORIA_KEYS[i];
+    var d = semana[key] || { texto: '', legenda: '' };
+    html += '<div class="curadoria-day-block">' +
+      (i > 0 ? '<div class="curadoria-day-divider"></div>' : '') +
+      '<div class="curadoria-day-label">' + dia + '</div>' +
+      '<div class="curadoria-day-text" contenteditable="true" data-day="' + key + '" data-field="texto">' + (d.texto || '') + '</div>' +
+      '<div class="curadoria-day-legenda-row">' +
+        '<span class="curadoria-day-legenda-label">Legenda:</span>' +
+        '<div class="curadoria-day-legenda" contenteditable="true" data-day="' + key + '" data-field="legenda">' + (d.legenda || '') + '</div>' +
+      '</div>' +
+    '</div>';
+  });
+  wEl.innerHTML = html;
+
+  // Attach input listeners
+  wEl.querySelectorAll('[contenteditable="true"]').forEach(function(el) {
+    el.addEventListener('input', function() {
+      _curadoriaScheduleSave('semana');
+    });
+  });
+}
+
+function _curadoriaScheduleSave(field) {
+  if (!_curadoriaLivroId) return;
+  clearTimeout(_curadoriaAutoSaveTimer[field]);
+  _curadoriaAutoSaveTimer[field] = setTimeout(function() {
+    _curadoriaDoSave();
+  }, 800);
+}
+
+function _curadoriaDoSave() {
+  if (!_curadoriaLivroId) return;
+  var data = getCuradoriaData(_curadoriaLivroId);
+
+  // Save análise
+  var aEl = document.getElementById('curadoria-analise');
+  if (aEl) data.analise = aEl.innerHTML;
+
+  // Save week
+  var semana = {};
+  var wEl = document.getElementById('curadoria-week');
+  if (wEl) {
+    wEl.querySelectorAll('[data-day]').forEach(function(el) {
+      var day = el.getAttribute('data-day');
+      var field = el.getAttribute('data-field');
+      if (!semana[day]) semana[day] = {};
+      semana[day][field] = el.innerHTML;
+    });
+  }
+  data.semana = semana;
+  saveCuradoriaData(_curadoriaLivroId, data);
+}
+
+// Load curadoria data from Supabase on init
+(function() {
+  var livros = getReleioLivros ? getReleioLivros() : [];
+  livros.filter(function(l){ return l.status === 'Curado' || l.status === 'Publicado'; })
+    .forEach(function(l) {
+      dbMetricLoad('curadoria_' + l.id).then(function(val) {
+        if (!val) return;
+        try {
+          var remote = JSON.parse(val);
+          var local = getCuradoriaData(l.id);
+          // Keep remote if local is empty
+          if (!local.analise && !Object.keys(local.semana || {}).length) {
+            localStorage.setItem('curadoria_' + l.id, val);
+          }
+        } catch(e){}
+      }).catch(function(){});
+    });
+})();
+
+
 
 function renderReleioTarefas() {
   var filter = (document.getElementById('rl-tarefa-filter') || {value: 'pendente'}).value;
