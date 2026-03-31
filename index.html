@@ -917,9 +917,9 @@
       </button>
     </div>
   </div>
-  <div style="padding:2rem 0;">
+  <div style="padding:1.5rem 0 2rem 1.5rem;">
     <!-- Jiu-Jitsu Progress -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;max-width:50%;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;max-width:50%;padding:0 1rem;">
       <div>
         <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">The JJ Progress</div>
       </div>
@@ -2731,7 +2731,7 @@ function buildJJLineChart() {
   lblData.forEach(function(ld) {
     var ly = hToY(ld.h);
     // Label in left margin, vertically centered on the horizontal line
-    svg += '<text x="' + (PAD_L + 2) + '" y="' + ly + '" dy="0.35em" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" text-anchor="start" opacity="0.8">' + ld.label + '</text>';
+    svg += '<text x="' + (PAD_L + 2) + '" y="' + ly + '" dominant-baseline="middle" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" text-anchor="start" opacity="0.8">' + ld.label + '</text>';
   });
 
   svg += '</svg>';
