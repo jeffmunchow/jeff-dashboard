@@ -2643,12 +2643,9 @@ function buildJJLineChart() {
   var horas = getJJHoras();
   var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
-  // Only up to faixa preta (4 graus = 360h within preta, not full 1500)
-  // Total journey: Branca(230) + Azul(300) + Roxa(325) + Marrom(375) + Preta(360) = 1590
-  // Preta ends at 4th grau = 4*90 = 360h within preta
-  var PRETA_MAX = 4 * 90; // 360h within preta = full 4 graus
-  var faixasFull = JJ_FAIXAS.slice(0, 4); // Branca, Azul, Roxa, Marrom
-  var totalH = faixasFull.reduce(function(s,f){ return s+f.totalFaixa; },0) + PRETA_MAX; // 230+300+325+375+360=1590
+  // Chart ends at START of faixa preta = sum of first 4 belts
+  var totalH = JJ_FAIXAS.slice(0,4).reduce(function(s,f){ return s+f.totalFaixa; },0);
+  // = 230+300+325+375 = 1230h
 
   var W = 500, H = 180;
   var PAD_L = 28, PAD_R = 12, PAD_T = 14, PAD_B = 20;
@@ -2658,109 +2655,85 @@ function buildJJLineChart() {
   function hToX(h) { return PAD_L + (Math.min(h, totalH) / totalH) * CW; }
   function hToY(h) { return PAD_T + CH - (Math.min(h, totalH) / totalH) * CH; }
 
-  // Years: Branca=1.5, Azul=2, Roxa=2, Marrom=2 (preta not specified)
-  var faixaYears = [1.5, 2, 2, 2, null];
-  var maxYears = 1.5 + 2 + 2 + 2; // 7.5 years total for the 4 faixas
-
-  // Colors
-  var gridCol   = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'; // same as faturamento
-  var faixaCol  = isDark ? 'rgba(255,255,255,0.40)' : 'rgba(0,0,0,0.30)'; // stronger for faixa
-  var grauCol   = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'; // same as grid
-  var lineCol   = isDark ? 'rgba(255,255,255,0.50)' : 'rgba(0,0,0,0.35)';
+  // Opacities — boosted
+  var gridCol   = isDark ? 'rgba(255,255,255,0.13)' : 'rgba(0,0,0,0.10)';
+  var faixaCol  = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.50)';
+  var grauCol   = isDark ? 'rgba(255,255,255,0.13)' : 'rgba(0,0,0,0.10)';
+  var yearCol   = isDark ? 'rgba(255,255,255,0.13)' : 'rgba(0,0,0,0.10)';
+  var lineCol   = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.40)';
   var dotCol    = isDark ? '#CC4A28' : '#C43A1A';
   var txtCol    = isDark ? '#6B6660' : '#9E9892';
-  var yearCol   = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
 
   var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%;">';
 
-  // ── Horizontal lines = years ──
-  // Map years to Y coordinate proportionally to totalH
-  // Year markers: 1.5, 3.5, 5.5, 7.5 years (cumulative per faixa)
-  var yearCum = 0;
-  var hoursCumForYear = 0;
-  var AULAS_PER_YEAR = [230/1.5, 300/2, 325/2, 375/2]; // aulas/year per faixa
-  // Draw horizontal lines at each year boundary within each faixa
-  var hoursCumFaixa = 0;
-  faixaYears.forEach(function(years, fi) {
-    if (!years) return;
-    var horasFaixa = fi < 4 ? faixasFull[fi].totalFaixa : PRETA_MAX;
-    var horasPerYear = horasFaixa / years;
+  // ── Horizontal lines = year markers within each faixa ──
+  // Branca 1.5y, Azul 2y, Roxa 2y, Marrom 2y
+  var faixaYears = [1.5, 2, 2, 2];
+  var hCum = 0;
+  JJ_FAIXAS.slice(0,4).forEach(function(f, fi) {
+    var years = faixaYears[fi];
+    var hPerYear = f.totalFaixa / years;
+    // Draw year lines inside this faixa (not at boundaries — those are faixa lines)
     for (var y = 1; y < years; y++) {
-      var hAtYear = hoursCumFaixa + y * horasPerYear;
-      var hy = hToY(hAtYear);
-      svg += '<line x1="' + PAD_L + '" y1="' + hy + '" x2="' + (W - PAD_R) + '" y2="' + hy + '" stroke="' + yearCol + '" stroke-width="0.7"/>';
+      var hAtY = hCum + y * hPerYear;
+      var hy = hToY(hAtY);
+      svg += '<line x1="' + PAD_L + '" y1="' + hy + '" x2="' + (W-PAD_R) + '" y2="' + hy + '" stroke="' + yearCol + '" stroke-width="0.8"/>';
     }
-    // Faixa boundary horizontal
-    var hy0 = hToY(hoursCumFaixa);
-    if (fi === 0) {
-      svg += '<line x1="' + PAD_L + '" y1="' + hToY(0) + '" x2="' + (W - PAD_R) + '" y2="' + hToY(0) + '" stroke="' + gridCol + '" stroke-width="0.7"/>';
-    }
-    hoursCumFaixa += horasFaixa;
+    hCum += f.totalFaixa;
   });
-  // Top and bottom borders
-  svg += '<line x1="' + PAD_L + '" y1="' + PAD_T + '" x2="' + (W - PAD_R) + '" y2="' + PAD_T + '" stroke="' + gridCol + '" stroke-width="0.7"/>';
-  svg += '<line x1="' + PAD_L + '" y1="' + (PAD_T+CH) + '" x2="' + (W - PAD_R) + '" y2="' + (PAD_T+CH) + '" stroke="' + gridCol + '" stroke-width="0.7"/>';
+  // Top and bottom border lines
+  svg += '<line x1="' + PAD_L + '" y1="' + PAD_T + '" x2="' + (W-PAD_R) + '" y2="' + PAD_T + '" stroke="' + gridCol + '" stroke-width="0.8"/>';
+  svg += '<line x1="' + PAD_L + '" y1="' + (PAD_T+CH) + '" x2="' + (W-PAD_R) + '" y2="' + (PAD_T+CH) + '" stroke="' + gridCol + '" stroke-width="0.8"/>';
 
-  // ── Vertical lines: grau (subtle) and faixa (stronger) ──
+  // ── Vertical lines: graus (solid, same opacity as grid) and faixas (solid, stronger) ──
   var cumH = 0;
-  var allFaixasForLines = JJ_FAIXAS.slice(0,4).concat([{
-    graus:[{horas:90},{horas:90},{horas:90},{horas:90}], totalFaixa: PRETA_MAX, cor: JJ_FAIXAS[4].cor
-  }]);
-  allFaixasForLines.forEach(function(f, fi) {
+  JJ_FAIXAS.slice(0,4).forEach(function(f, fi) {
     var grauCumH = 0;
     f.graus.forEach(function(g, gi) {
       grauCumH += g.horas;
       var absH = cumH + grauCumH;
-      if (absH > totalH) return;
       var isLast = gi === f.graus.length - 1;
       var lx = hToX(absH);
-      if (isLast && fi < allFaixasForLines.length - 1) {
-        // Faixa boundary — solid, more opaque
+      if (isLast) {
+        // Faixa boundary — solid, strong
         svg += '<line x1="' + lx + '" y1="' + PAD_T + '" x2="' + lx + '" y2="' + (PAD_T+CH) + '" stroke="' + faixaCol + '" stroke-width="1.2"/>';
-        // Belt color indicator top
-        svg += '<rect x="' + (lx-4) + '" y="' + (PAD_T-6) + '" width="8" height="4" rx="1" fill="' + JJ_FAIXAS[fi+1].cor + '" opacity="0.85"/>';
-      } else if (!isLast) {
-        // Grau boundary — solid, same opacity as grid
-        svg += '<line x1="' + lx + '" y1="' + PAD_T + '" x2="' + lx + '" y2="' + (PAD_T+CH) + '" stroke="' + grauCol + '" stroke-width="0.7"/>';
+        // Belt color indicator at top
+        if (fi < 3) {
+          svg += '<rect x="' + (lx-4) + '" y="' + (PAD_T-7) + '" width="8" height="5" rx="1" fill="' + JJ_FAIXAS[fi+1].cor + '" opacity="0.9"/>';
+        }
+      } else {
+        // Grau boundary — solid, same weight as grid
+        svg += '<line x1="' + lx + '" y1="' + PAD_T + '" x2="' + lx + '" y2="' + (PAD_T+CH) + '" stroke="' + grauCol + '" stroke-width="0.8"/>';
       }
     });
-    cumH += f.totalFaixa || PRETA_MAX;
+    cumH += f.totalFaixa;
   });
 
-  // ── Diagonal progress line ──
+  // ── Diagonal progress line (0→totalH) ──
   svg += '<line x1="' + hToX(0) + '" y1="' + hToY(0) + '" x2="' + hToX(totalH) + '" y2="' + hToY(totalH) + '" stroke="' + lineCol + '" stroke-width="1.5"/>';
 
-  // ── Current progress dot ──
+  // ── Current progress marker ──
+  var horasCapped = Math.min(horas, totalH);
   if (horas > 0) {
-    var px = hToX(Math.min(horas, totalH));
-    var py = hToY(Math.min(horas, totalH));
-    svg += '<line x1="' + px + '" y1="' + PAD_T + '" x2="' + px + '" y2="' + (PAD_T+CH) + '" stroke="' + dotCol + '" stroke-width="1" opacity="0.5"/>';
-    svg += '<circle cx="' + px + '" cy="' + py + '" r="7" fill="' + dotCol + '" opacity="0.15"/>';
+    var px = hToX(horasCapped);
+    var py = hToY(horasCapped);
+    svg += '<line x1="' + px + '" y1="' + PAD_T + '" x2="' + px + '" y2="' + (PAD_T+CH) + '" stroke="' + dotCol + '" stroke-width="1" opacity="0.55"/>';
+    svg += '<circle cx="' + px + '" cy="' + py + '" r="7" fill="' + dotCol + '" opacity="0.18"/>';
     svg += '<circle cx="' + px + '" cy="' + py + '" r="3.5" fill="' + dotCol + '"/>';
   }
 
-  // ── Y-axis year labels ──
-  var yearLabels = [];
-  var hCum2 = 0;
-  faixaYears.forEach(function(years, fi) {
-    if (!years) return;
-    var horasFaixa = fi < 4 ? faixasFull[fi].totalFaixa : PRETA_MAX;
-    for (var y = 1; y <= years; y++) {
-      var hAtYear = hCum2 + y * (horasFaixa / years);
-      if (hAtYear <= totalH) {
-        yearLabels.push({ h: hAtYear, label: Math.round(hCum2/horasFaixa*years + y) + 'a' });
-      }
-    }
-    hCum2 += horasFaixa;
-  });
-  // Only show faixa-boundary year labels to avoid clutter
+  // ── Y-axis labels: cumulative years at faixa boundaries ──
+  var cumYears = 0;
   var cumHLabel = 0;
-  [1.5,3.5,5.5,7.5].forEach(function(yr, i) {
-    var horasAtYear = [230, 530, 855, 1230][i];
-    if (horasAtYear > totalH) return;
-    var hy = hToY(horasAtYear);
-    svg += '<text x="' + (PAD_L - 4) + '" y="' + (hy + 3) + '" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" text-anchor="end">' + yr + 'a</text>';
+  JJ_FAIXAS.slice(0,4).forEach(function(f, fi) {
+    cumYears += faixaYears[fi];
+    cumHLabel += f.totalFaixa;
+    var hy = hToY(cumHLabel);
+    var label = cumYears % 1 === 0 ? cumYears + 'a' : cumYears + 'a';
+    svg += '<text x="' + (PAD_L-4) + '" y="' + (hy+3) + '" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" text-anchor="end">' + label + '</text>';
   });
+  // 0 label at bottom
+  svg += '<text x="' + (PAD_L-4) + '" y="' + (PAD_T+CH+3) + '" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" text-anchor="end">0</text>';
 
   svg += '</svg>';
   container.innerHTML = svg;
@@ -5775,6 +5748,10 @@ function saveCuradoriaData(livroId, data) {
 }
 
 function renderCuradoria() {
+  // Restore last selected book from localStorage
+  if (!_curadoriaLivroId) {
+    _curadoriaLivroId = localStorage.getItem('curadoria_livro_sel') || null;
+  }
   // Populate book selector with Curado/Publicado books
   var sel = document.getElementById('curadoria-livro-sel');
   if (!sel) return;
@@ -5807,6 +5784,8 @@ function loadCuradoria() {
   var sel = document.getElementById('curadoria-livro-sel');
   if (!sel) return;
   _curadoriaLivroId = sel.value || null;
+  if (_curadoriaLivroId) localStorage.setItem('curadoria_livro_sel', _curadoriaLivroId);
+  else localStorage.removeItem('curadoria_livro_sel');
   if (!_curadoriaLivroId) { _clearCuradoria(); return; }
 
   var livros = getReleioLivros();
