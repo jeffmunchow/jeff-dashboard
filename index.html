@@ -2658,8 +2658,8 @@ function buildJJLineChart() {
 
   // v3: proper margins — PAD_L for Y-axis, PAD_T/B for breathing room
   var W = 500, H = 280;
-  var PAD_L = 22;  // space for year labels on left
-  var PAD_R = 4;   // small right margin
+  var PAD_L = 2;   // minimal — labels overlap chart edge
+  var PAD_R = 2;   // minimal right
   var PAD_T = 12;  // top breathing room
   var PAD_B = 12;  // bottom breathing room
   var CW = W - PAD_L - PAD_R;
@@ -2731,7 +2731,7 @@ function buildJJLineChart() {
   lblData.forEach(function(ld) {
     var ly = hToY(ld.h);
     // Label in left margin, vertically centered on the horizontal line
-    svg += '<text x="' + (PAD_L - 3) + '" y="' + ly + '" dy="0.35em" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" text-anchor="end" opacity="0.8">' + ld.label + '</text>';
+    svg += '<text x="' + (PAD_L + 2) + '" y="' + ly + '" dy="0.35em" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" text-anchor="start" opacity="0.8">' + ld.label + '</text>';
   });
 
   svg += '</svg>';
