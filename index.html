@@ -934,7 +934,7 @@
     </div>
     <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 0 1.25rem;width:50%;box-sizing:border-box;overflow:hidden;">
       <!-- View 1: Belts -->
-      <div id="jj-belt-display" style="display:flex;flex-direction:column;gap:12px;padding:0 1.25rem;"></div>
+      <div id="jj-belt-display" style="display:flex;flex-direction:column;gap:42px;padding:0 1.25rem;"></div>
       <!-- View 2: Line chart -->
       <div id="jj-line-display" style="display:none;height:340px;">
         <canvas id="jj-line-chart"></canvas>
@@ -2616,12 +2616,20 @@ function buildJJChart() {
       }
     }
 
-    // Grade stripes — full height, precisely centered
-    for (var g = 0; g < 4; g++) {
-      var sx = STRIPE_START + g * (STRIPE_W + STRIPE_GAP);
-      var done = g < grausFeitos && horasNaFaixa > 0;
-      var stripeOp = done ? '1' : (horasNaFaixa > 0 ? '0.15' : '0.07');
-      svg += '<rect x="' + sx + '" y="0" width="' + STRIPE_W + '" height="' + BH + '" fill="white" opacity="' + stripeOp + '"/>';
+    if (fi === 4) {
+      // Preta: single coral bar spanning all 4 grade widths
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      var coralColor = isDark ? '#CC4A28' : '#C43A1A';
+      var barOp = horasNaFaixa > 0 ? '1' : '0.12';
+      svg += '<rect x="' + STRIPE_START + '" y="0" width="' + STRIPES_TOTAL + '" height="' + BH + '" fill="' + coralColor + '" opacity="' + barOp + '"/>';
+    } else {
+      // All other belts: 4 white grade stripes
+      for (var g = 0; g < 4; g++) {
+        var sx = STRIPE_START + g * (STRIPE_W + STRIPE_GAP);
+        var done = g < grausFeitos && horasNaFaixa > 0;
+        var stripeOp = done ? '1' : (horasNaFaixa > 0 ? '0.15' : '0.07');
+        svg += '<rect x="' + sx + '" y="0" width="' + STRIPE_W + '" height="' + BH + '" fill="white" opacity="' + stripeOp + '"/>';
+      }
     }
 
     // Hours label
