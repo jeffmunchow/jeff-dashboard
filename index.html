@@ -2648,7 +2648,7 @@ function buildJJLineChart() {
   // = 230+300+325+375 = 1230h
 
   var W = 500, H = 180;
-  var PAD_L = 28, PAD_R = 12, PAD_T = 14, PAD_B = 20;
+  var PAD_L = 22, PAD_R = 4, PAD_T = 14, PAD_B = 20;
   var CW = W - PAD_L - PAD_R;
   var CH = H - PAD_T - PAD_B;
 
@@ -2665,24 +2665,24 @@ function buildJJLineChart() {
 
   var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%;">';
 
-  // ── Horizontal lines = year markers within each faixa ──
-  // Branca 1.5y, Azul 2y, Roxa 2y, Marrom 2y
+  // ── Horizontal lines at faixa boundaries (= year labels 1.5a, 3.5a, 5.5a, 7.5a) ──
+  // Each line sits exactly at the Y of the corresponding label
+  // Boundaries: 230h(1.5a), 530h(3.5a), 855h(5.5a), 1230h(7.5a=end)
+  // Plus top (0h) and bottom already covered by baseline
   var faixaYears = [1.5, 2, 2, 2];
-  var hCum = 0;
-  JJ_FAIXAS.slice(0,4).forEach(function(f, fi) {
-    var years = faixaYears[fi];
-    var hPerYear = f.totalFaixa / years;
-    // Draw year lines inside this faixa (not at boundaries — those are faixa lines)
-    for (var y = 1; y < years; y++) {
-      var hAtY = hCum + y * hPerYear;
-      var hy = hToY(hAtY);
-      svg += '<line x1="' + PAD_L + '" y1="' + hy + '" x2="' + (W-PAD_R) + '" y2="' + hy + '" stroke="' + yearCol + '" stroke-width="0.8"/>';
-    }
-    hCum += f.totalFaixa;
+  var hBoundaries = [];
+  var hCumB = 0;
+  JJ_FAIXAS.slice(0,4).forEach(function(f) {
+    hCumB += f.totalFaixa;
+    hBoundaries.push(hCumB);
   });
-  // Top and bottom border lines
-  svg += '<line x1="' + PAD_L + '" y1="' + PAD_T + '" x2="' + (W-PAD_R) + '" y2="' + PAD_T + '" stroke="' + gridCol + '" stroke-width="0.8"/>';
-  svg += '<line x1="' + PAD_L + '" y1="' + (PAD_T+CH) + '" x2="' + (W-PAD_R) + '" y2="' + (PAD_T+CH) + '" stroke="' + gridCol + '" stroke-width="0.8"/>';
+  // Top border (0h = baseline, bottom of chart)
+  svg += '<line x1="' + PAD_L + '" y1="' + (PAD_T+CH) + '" x2="' + (W-PAD_R) + '" y2="' + (PAD_T+CH) + '" stroke="' + gridCol + '" stroke-width="0.7"/>';
+  // Faixa boundary lines (each corresponds to a year label)
+  hBoundaries.forEach(function(h) {
+    var hy = hToY(h);
+    svg += '<line x1="' + PAD_L + '" y1="' + hy + '" x2="' + (W-PAD_R) + '" y2="' + hy + '" stroke="' + yearCol + '" stroke-width="0.7"/>';
+  });
 
   // ── Vertical lines: 4 grau lines per faixa + faixa boundary lines ──
   // Logic: for each of the 4 belts, draw 4 grau lines at cumH + grau_n_hours,
@@ -2724,17 +2724,16 @@ function buildJJLineChart() {
     svg += '<circle cx="' + px + '" cy="' + py + '" r="3.5" fill="' + dotCol + '"/>';
   }
 
-  // ── Y-axis labels: cumulative years at faixa boundaries ──
-  var cumYears = 0;
+  // ── Y-axis labels aligned exactly with horizontal lines ──
+  var cumYears2 = 0;
   var cumHLabel = 0;
   JJ_FAIXAS.slice(0,4).forEach(function(f, fi) {
-    cumYears += faixaYears[fi];
+    cumYears2 += faixaYears[fi];
     cumHLabel += f.totalFaixa;
-    var hy = hToY(cumHLabel);
-    var label = cumYears % 1 === 0 ? cumYears + 'a' : cumYears + 'a';
-    svg += '<text x="' + (PAD_L-4) + '" y="' + (hy+3) + '" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" text-anchor="end">' + label + '</text>';
+    var hy = hToY(cumHLabel); // same Y as the horizontal line
+    svg += '<text x="' + (PAD_L-4) + '" y="' + (hy+3) + '" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" text-anchor="end">' + cumYears2 + '</text>';
   });
-  // 0 label at bottom
+  // 0 at baseline
   svg += '<text x="' + (PAD_L-4) + '" y="' + (PAD_T+CH+3) + '" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" text-anchor="end">0</text>';
 
   svg += '</svg>';
@@ -2749,7 +2748,9 @@ function _jjGrauAtual(faixa, horasNaFaixa) {
     if (horasNaFaixa < cum) {
       var prevCum = cum - graus[i].horas;
       var progGrau = horasNaFaixa - prevCum;
-      return (i+1) + '° grau (' + progGrau + '/' + graus[i].horas + 'h)';
+      // i = index of current grade being worked on (0-based)
+      // display as the grade number already on the belt (i = graus completed)
+      return i + '° grau (' + progGrau + '/' + graus[i].horas + 'h)';
     }
   }
   return '4° grau';
