@@ -932,11 +932,11 @@
         <button class="project-plus-btn" onclick="openJJModal()" title="Atualizar horas">+</button>
       </div>
     </div>
-    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.5rem 1.75rem;width:50%;box-sizing:border-box;">
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1rem 0.5rem 1rem 0.25rem;width:50%;box-sizing:border-box;">
       <!-- View 1: Belts -->
       <div id="jj-belt-display" style="display:flex;flex-direction:column;gap:12px;"></div>
       <!-- View 2: Line chart -->
-      <div id="jj-line-display" style="display:none;height:200px;position:relative;">
+      <div id="jj-line-display" style="display:none;height:260px;position:relative;">
         <canvas id="jj-line-chart"></canvas>
       </div>
       <div id="jj-status" style="margin-top:1.25rem;font-size:0.75rem;color:var(--text-hint);"></div>
@@ -2461,9 +2461,8 @@ function showReleioView() {
 function showPessoalView() {
   hideAllViews();
   document.getElementById('pessoal-view').style.display = 'block';
-  var d = new Date();
   window.scrollTo(0,0);
-  buildJJChart();
+  setJJView('line');
 }
 
 /* ── JIU-JITSU PROGRESS ── */
@@ -2647,8 +2646,8 @@ function buildJJLineChart() {
   var totalH = JJ_FAIXAS.slice(0,4).reduce(function(s,f){ return s+f.totalFaixa; },0);
   // = 230+300+325+375 = 1230h
 
-  var W = 500, H = 180;
-  var PAD_L = 22, PAD_R = 4, PAD_T = 14, PAD_B = 20;
+  var W = 500, H = 230;
+  var PAD_L = 18, PAD_R = 2, PAD_T = 14, PAD_B = 20;
   var CW = W - PAD_L - PAD_R;
   var CH = H - PAD_T - PAD_B;
 
