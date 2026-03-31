@@ -917,7 +917,7 @@
       </button>
     </div>
   </div>
-  <div style="padding:1.5rem 0 2rem 0;">
+  <div style="padding:1.5rem 0 2rem 2.5rem;">
     <!-- Jiu-Jitsu Progress -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;max-width:50%;padding:0 1rem;">
       <div>
@@ -2656,7 +2656,7 @@ function buildJJLineChart() {
 
   var W = 500, H = 280;
   var PAD_L = 20, PAD_R = 4, PAD_T = 12, PAD_B = 12;
-  var CW = W - PAD_L - PAD_R;
+  var CW = W - PAD_L;
   var CH = H - PAD_T - PAD_B;
 
   function hToX(h) { return PAD_L + (Math.min(h,totalH)/totalH)*CW; }
