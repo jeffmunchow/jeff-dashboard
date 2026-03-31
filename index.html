@@ -932,7 +932,7 @@
         <button class="project-plus-btn" onclick="openJJModal()" title="Atualizar horas">+</button>
       </div>
     </div>
-    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 0 1.25rem;width:50%;box-sizing:border-box;">
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 0 1.25rem;width:50%;box-sizing:border-box;overflow:hidden;">
       <!-- View 1: Belts -->
       <div id="jj-belt-display" style="display:flex;flex-direction:column;gap:12px;"></div>
       <!-- View 2: Line chart -->
@@ -2719,7 +2719,7 @@ function buildJJLineChart() {
   var lblData = [{h:0,label:'0'},{h:230,label:'1.5'},{h:530,label:'3.5'},{h:855,label:'5.5'},{h:1230,label:'7.5'}];
   lblData.forEach(function(ld) {
     var ly = hToY(ld.h);
-    svg += '<text x="4" y="' + (ly - 2) + '" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" opacity="0.8">' + ld.label + '</text>';
+    svg += '<text x="4" y="' + (ly + 9) + '" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" opacity="0.8">' + ld.label + '</text>';
   });
 
   svg += '</svg>';
