@@ -536,7 +536,7 @@
     <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       </button>
-    <button class="sidebar-btn" title="Pessoal (em breve)" style="opacity:0.3;cursor:default;">
+    <button class="sidebar-btn" onclick="showPessoalView()" title="Pessoal">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       </button>
   </div>
@@ -544,7 +544,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.3</div>
+    <div class="sidebar-version">v.1.4</div>
   </div>
 </div>
 
@@ -678,7 +678,7 @@
       <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       </button>
-    <button class="sidebar-btn" title="Pessoal (em breve)" style="opacity:0.3;cursor:default;">
+    <button class="sidebar-btn" onclick="showPessoalView()" title="Pessoal">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       </button>
     </div>
@@ -686,7 +686,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.3</div>
+      <div class="sidebar-version">v.1.4</div>
   </div>
 </div>
 
@@ -749,7 +749,7 @@
       <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       </button>
-    <button class="sidebar-btn" title="Pessoal (em breve)" style="opacity:0.3;cursor:default;">
+    <button class="sidebar-btn" onclick="showPessoalView()" title="Pessoal">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       </button>
     </div>
@@ -757,7 +757,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.3</div>
+      <div class="sidebar-version">v.1.4</div>
   </div>
 </div>
 
@@ -832,7 +832,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.3</div>
+      <div class="sidebar-version">v.1.4</div>
     </div>
   </div>
 
@@ -876,6 +876,80 @@
     <!-- Grid -->
     <div class="tarefas-grid-panel" id="tarefas-grid-panel">
       <div id="tarefas-grid-inner" style="padding:1.5rem 1rem 2rem;position:relative;"></div>
+    </div>
+  </div>
+</div>
+
+<div id="pessoal-view" style="display:none;min-height:100vh;">
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
+      </button>
+      <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
+        <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/></svg>
+      </button>
+      <button class="sidebar-btn" onclick="showCitacoesView()" title="Citações">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 6.5C2.5 5.1 3.6 4 5 4h.5V2.5H5C2.8 2.5 1 4.3 1 6.5v3.5h3.5V6.5H2.5z" fill="currentColor" opacity="0.9"/><path d="M8.5 6.5C8.5 5.1 9.6 4 11 4h.5V2.5H11C8.8 2.5 7 4.3 7 6.5v3.5h3.5V6.5H8.5z" fill="currentColor" opacity="0.9"/></svg>
+      </button>
+      <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </button>
+      <button class="sidebar-btn active" onclick="showPessoalView()" title="Pessoal" style="color:var(--text);">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+      </button>
+      <div class="sidebar-version">v.1.4</div>
+    </div>
+  </div>
+  <div class="header">
+    <div class="header-left">
+      <h1>Pessoal</h1>
+      <p id="pessoal-header-date"></p>
+    </div>
+    <div class="header-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
+        <svg class="icon-sun" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="2" fill="#C4780A"/><line x1="5" y1="0" x2="5" y2="1.5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="8.5" x2="5" y2="10" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="5" x2="1.5" y2="5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="8.5" y1="5" x2="10" y2="5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="1.46" y1="1.46" x2="2.52" y2="2.52" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="7.48" y1="7.48" x2="8.54" y2="8.54" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="8.54" y1="1.46" x2="7.48" y2="2.52" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="2.52" y1="7.48" x2="1.46" y2="8.54" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/></svg>
+        <svg class="icon-moon" viewBox="0 0 10 10" fill="none"><path d="M8.5 6.5A4 4 0 0 1 3.5 1.5a4 4 0 1 0 5 5z" fill="#D4902A"/></svg>
+      </button>
+    </div>
+  </div>
+  <div style="padding:2rem 2.5rem;max-width:900px;">
+    <!-- Jiu-Jitsu Progress -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">Jiu-Jitsu</div>
+        <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;" id="jj-subtitle">Progresso por faixa e graus</div>
+      </div>
+      <button class="project-plus-btn" onclick="openJJModal()" title="Atualizar horas">+</button>
+    </div>
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;max-width:560px;">
+      <div id="jj-chart-container" style="height:140px;position:relative;">
+        <canvas id="jj-chart"></canvas>
+      </div>
+      <div id="jj-status" style="margin-top:1rem;font-size:0.75rem;color:var(--text-hint);"></div>
+    </div>
+  </div>
+</div>
+
+<!-- JJ modal -->
+<div class="overlay" id="jj-overlay">
+  <div class="modal" style="max-width:360px;">
+    <h2>Atualizar horas</h2>
+    <div class="modal-2col">
+      <div class="field-row" style="grid-column:1/-1;">
+        <label>Total de horas até hoje</label>
+        <input type="number" id="jj-horas-input" placeholder="ex: 45" min="0" style="width:100%;">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <div style="flex:1"></div>
+      <button class="btn" onclick="document.getElementById('jj-overlay').classList.remove('open')">Cancelar</button>
+      <button class="btn primary" onclick="saveJJHoras()">Salvar</button>
     </div>
   </div>
 </div>
@@ -942,7 +1016,7 @@
     <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       </button>
-    <button class="sidebar-btn" title="Pessoal (em breve)" style="opacity:0.3;cursor:default;">
+    <button class="sidebar-btn" onclick="showPessoalView()" title="Pessoal">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       </button>
   </div>
@@ -950,7 +1024,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.3</div>
+    <div class="sidebar-version">v.1.4</div>
   </div>
 </div>
 
@@ -1185,7 +1259,7 @@
     <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       </button>
-    <button class="sidebar-btn" title="Pessoal (em breve)" style="opacity:0.3;cursor:default;">
+    <button class="sidebar-btn" onclick="showPessoalView()" title="Pessoal">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       </button>
   </div>
@@ -1193,7 +1267,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.3</div>
+    <div class="sidebar-version">v.1.4</div>
   </div>
 </div>
   <div class="header">
@@ -1402,7 +1476,7 @@
     <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       </button>
-    <button class="sidebar-btn" title="Pessoal (em breve)" style="opacity:0.3;cursor:default;">
+    <button class="sidebar-btn" onclick="showPessoalView()" title="Pessoal">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       </button>
   </div>
@@ -1410,7 +1484,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.3</div>
+    <div class="sidebar-version">v.1.4</div>
   </div>
 </div>
   <div class="header">
@@ -2114,7 +2188,6 @@ var PROJECTS = {
   ]},
   releio: { title: 're.leio', suffix: 'r', fields: [
     { id: 'r-seguidores',  label: 'Seguidores Instagram', placeholder: 'ex: 340' },
-    { id: 'r-livros',      label: 'Livros curados publicados', placeholder: 'ex: 1' },
     { id: 'r-assinantes',  label: 'Assinantes newsletter', placeholder: 'ex: 0' }
   ]}
 };
@@ -2336,7 +2409,7 @@ function navigateToProject(e, proj) {
   else if (proj === 'releio-view') showReleioView();
 }
 
-var ALL_VIEWS = ['main-view','studio-view','soup-view','releio-view','diario-view','citacoes-view','tarefas-view'];
+var ALL_VIEWS = ['main-view','studio-view','soup-view','releio-view','diario-view','citacoes-view','tarefas-view','pessoal-view'];
 function hideAllViews() {
   ALL_VIEWS.forEach(function(id){
     var el = document.getElementById(id);
@@ -2372,11 +2445,252 @@ function showReleioView() {
   hideAllViews();
   document.getElementById('releio-view').style.display = 'block';
   var d = new Date();
-
   document.getElementById('releio-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
   window.scrollTo(0,0);
   switchReleioTab('resumo');
 }
+
+function showPessoalView() {
+  hideAllViews();
+  document.getElementById('pessoal-view').style.display = 'block';
+  var d = new Date();
+  document.getElementById('pessoal-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
+  window.scrollTo(0,0);
+  buildJJChart();
+}
+
+/* ── JIU-JITSU PROGRESS ── */
+// Regras baseadas em https://dojojj.com.br/a-jornada-do-aluno
+// Faixa Branca: 1°/2° grau = 40 aulas cada, 3°/4° grau = 50 aulas cada. Total: 230 aulas → ~230h
+// Faixa Azul: 4 graus × 60 = 240 + base. Total: 300h
+// Faixa Roxa: 4 graus × 65 = 260 + base. Total: 325h
+// Faixa Marrom: 4 graus × 75 = 300 + base. Total: 375h
+// Faixa Preta: IBJJF — 4 graus, ~1500h estimated total
+// Usando "horas" como equivalente a "aulas" (1 aula ≈ 1h)
+var JJ_FAIXAS = [
+  {
+    nome: 'Branca', cor: '#F5F0E8', corBorda: '#C8B89A', corTexto: '#5A4A3A',
+    graus: [
+      { horas: 40 },
+      { horas: 40 },
+      { horas: 50 },
+      { horas: 50 }
+    ],
+    totalFaixa: 230
+  },
+  {
+    nome: 'Azul', cor: '#1A4A8A', corBorda: '#0D3066', corTexto: '#FFFFFF',
+    graus: [
+      { horas: 60 }, { horas: 60 }, { horas: 60 }, { horas: 60 }
+    ],
+    totalFaixa: 300
+  },
+  {
+    nome: 'Roxa', cor: '#5B2D8E', corBorda: '#3D1A6B', corTexto: '#FFFFFF',
+    graus: [
+      { horas: 65 }, { horas: 65 }, { horas: 65 }, { horas: 65 }
+    ],
+    totalFaixa: 325
+  },
+  {
+    nome: 'Marrom', cor: '#6B3A1F', corBorda: '#4A2510', corTexto: '#FFFFFF',
+    graus: [
+      { horas: 75 }, { horas: 75 }, { horas: 75 }, { horas: 75 }
+    ],
+    totalFaixa: 375
+  },
+  {
+    nome: 'Preta', cor: '#1A1814', corBorda: '#000000', corTexto: '#FFFFFF',
+    graus: [
+      { horas: 90 }, { horas: 90 }, { horas: 90 }, { horas: 90 }
+    ],
+    totalFaixa: 1500
+  }
+];
+
+// Compute cumulative hora thresholds
+(function() {
+  var cum = 0;
+  JJ_FAIXAS.forEach(function(f) {
+    f.inicioTotal = cum;
+    var grauCum = 0;
+    f.graus.forEach(function(g) {
+      g.inicioGrau = grauCum;
+      grauCum += g.horas;
+      g.fimGrau = grauCum;
+    });
+    cum += f.totalFaixa;
+    f.fimTotal = cum;
+  });
+})();
+
+var JJ_TOTAL_HORAS = JJ_FAIXAS.reduce(function(s, f){ return s + f.totalFaixa; }, 0);
+
+function getJJHoras() {
+  return parseFloat(localStorage.getItem('jj_horas') || '0') || 0;
+}
+function saveJJHoras() {
+  var val = parseFloat(document.getElementById('jj-horas-input').value) || 0;
+  localStorage.setItem('jj_horas', val);
+  dbMetricSave('jj_horas', val);
+  document.getElementById('jj-overlay').classList.remove('open');
+  buildJJChart();
+}
+function openJJModal() {
+  document.getElementById('jj-horas-input').value = getJJHoras() || '';
+  document.getElementById('jj-overlay').classList.add('open');
+}
+
+var _jjChartInstance = null;
+function buildJJChart() {
+  var canvas = document.getElementById('jj-chart');
+  if (!canvas) return;
+  var horas = getJJHoras();
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var gridCol = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+  var textHint = isDark ? '#6B6660' : '#9E9892';
+
+  // Build dataset: one bar per faixa showing fill %
+  var labels = JJ_FAIXAS.map(function(f){ return f.nome; });
+  var horasBase = 0;
+  var filled = [], cap = [];
+  JJ_FAIXAS.forEach(function(f) {
+    var horasNaFaixa = Math.max(0, Math.min(horas - horasBase, f.totalFaixa));
+    filled.push(horasNaFaixa);
+    cap.push(f.totalFaixa);
+    horasBase += f.totalFaixa;
+  });
+
+  // Colors
+  var bgFull = JJ_FAIXAS.map(function(f){ return f.cor + 'AA'; }); // dimmed
+  var bgFilled = JJ_FAIXAS.map(function(f){ return f.cor; });
+
+  if (_jjChartInstance) { _jjChartInstance.destroy(); _jjChartInstance = null; }
+
+  _jjChartInstance = new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Horas concluídas',
+          data: filled,
+          backgroundColor: bgFilled,
+          borderColor: JJ_FAIXAS.map(function(f){ return f.corBorda; }),
+          borderWidth: 1,
+          borderRadius: 4,
+          borderSkipped: false,
+          order: 1
+        },
+        {
+          label: 'Horas restantes',
+          data: cap.map(function(c, i){ return c - filled[i]; }),
+          backgroundColor: JJ_FAIXAS.map(function(f){ return f.cor + '33'; }),
+          borderColor: JJ_FAIXAS.map(function(f){ return f.corBorda + '66'; }),
+          borderWidth: 1,
+          borderRadius: 4,
+          borderSkipped: false,
+          stack: 'stack',
+          order: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 400 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          backgroundColor: isDark ? '#1A1814' : '#FFFFFF',
+          borderColor: isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)',
+          borderWidth: 1,
+          titleColor: isDark ? '#EDE9E3' : '#1A1814',
+          bodyColor: isDark ? '#9E9892' : '#6B6660',
+          titleFont: { family: 'DM Sans, sans-serif', size: 10 },
+          bodyFont: { family: 'DM Sans, sans-serif', size: 10 },
+          padding: 8, displayColors: false,
+          callbacks: {
+            title: function(items) { return JJ_FAIXAS[items[0].dataIndex].nome; },
+            label: function(ctx) {
+              var i = ctx.dataIndex;
+              var f = JJ_FAIXAS[i];
+              var horasBase = JJ_FAIXAS.slice(0,i).reduce(function(s,x){ return s+x.totalFaixa; }, 0);
+              var horasNaFaixa = Math.max(0, Math.min(horas - horasBase, f.totalFaixa));
+              var grauAtual = _jjGrauAtual(f, horasNaFaixa);
+              return horasNaFaixa + '/' + f.totalFaixa + 'h · ' + grauAtual;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          grid: { display: false },
+          ticks: { font: { family: 'DM Sans', size: 9 }, color: textHint },
+          border: { display: false }
+        },
+        y: {
+          stacked: true,
+          display: true,
+          grid: { color: gridCol, drawTicks: false },
+          ticks: { font: { family: 'DM Sans', size: 9 }, color: textHint, maxTicksLimit: 4, padding: 4 },
+          border: { display: false }
+        }
+      },
+      layout: { padding: { top: 4, right: 4 } }
+    }
+  });
+
+  // Update status text
+  _updateJJStatus(horas);
+}
+
+function _jjGrauAtual(faixa, horasNaFaixa) {
+  if (horasNaFaixa >= faixa.totalFaixa) return '4° grau ✓';
+  var graus = faixa.graus;
+  var cum = 0;
+  for (var i = 0; i < graus.length; i++) {
+    cum += graus[i].horas;
+    if (horasNaFaixa < cum) {
+      var prevCum = cum - graus[i].horas;
+      var progGrau = horasNaFaixa - prevCum;
+      return (i+1) + '° grau (' + progGrau + '/' + graus[i].horas + 'h)';
+    }
+  }
+  return '4° grau';
+}
+
+function _updateJJStatus(horas) {
+  var el = document.getElementById('jj-status');
+  if (!el) return;
+  // Find current faixa and grau
+  var horasBase = 0;
+  var statusText = horas + ' horas registradas';
+  for (var fi = 0; fi < JJ_FAIXAS.length; fi++) {
+    var f = JJ_FAIXAS[fi];
+    var horasNaFaixa = Math.max(0, Math.min(horas - horasBase, f.totalFaixa));
+    if (horas < horasBase + f.totalFaixa || fi === JJ_FAIXAS.length - 1) {
+      statusText = horas + 'h · Faixa ' + f.nome + ' · ' + _jjGrauAtual(f, horasNaFaixa);
+      var resto = f.totalFaixa - horasNaFaixa;
+      if (resto > 0 && fi < JJ_FAIXAS.length - 1) {
+        statusText += ' · ' + resto + 'h para Faixa ' + JJ_FAIXAS[fi+1].nome;
+      }
+      break;
+    }
+    horasBase += f.totalFaixa;
+  }
+  el.textContent = statusText;
+}
+
+// Load JJ horas from Supabase on init
+dbMetricLoad('jj_horas').then(function(val) {
+  if (val && !localStorage.getItem('jj_horas')) {
+    localStorage.setItem('jj_horas', val);
+  }
+}).catch(function(){});
+
+
 
 function showMainDashboard() {
   hideAllViews();
