@@ -909,7 +909,6 @@
   <div class="header">
     <div class="header-left">
       <h1>Pessoal</h1>
-      <p id="pessoal-header-date"></p>
     </div>
     <div class="header-right">
       <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
@@ -922,8 +921,7 @@
     <!-- Jiu-Jitsu Progress -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;max-width:50%;">
       <div>
-        <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">Jiu-Jitsu</div>
-        <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;" id="jj-subtitle">Progresso por faixa e graus</div>
+        <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">The JJ Progress</div>
       </div>
       <button class="project-plus-btn" onclick="openJJModal()" title="Atualizar horas">+</button>
     </div>
@@ -2452,7 +2450,6 @@ function showPessoalView() {
   hideAllViews();
   document.getElementById('pessoal-view').style.display = 'block';
   var d = new Date();
-  document.getElementById('pessoal-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
   window.scrollTo(0,0);
   buildJJChart();
 }
@@ -2545,16 +2542,14 @@ function buildJJChart() {
   if (!container) return;
   var horas = getJJHoras();
 
-  // Belt visual constants
-  var W = 500;          // SVG viewBox width
-  var BH = 52;          // belt height
-  var BODY_W = 420;     // belt body (colored part)
-  var TIP_W = 80;       // black tip width
-  var R = 6;            // corner radius
-  var STRIPE_W = 10;    // grade stripe width
-  var STRIPE_H = BH - 10; // grade stripe height
-  var STRIPE_GAP = 5;   // gap between stripes
-  var STRIPE_START = BODY_W + 12; // first stripe x
+  // Belt SVG constants
+  var W = 500;        // viewBox width
+  var BH = 26;        // belt height (thin)
+  var TIP_W = 88;     // black section width
+  var TIP_X = W - TIP_W - 40; // tip starts here, leaving colored end at right
+  var STRIPE_W = 9;   // grade stripe width (full height)
+  var STRIPE_GAP = 6; // gap between stripes
+  var STRIPE_START = TIP_X + 12; // first stripe x
 
   var html = '';
   var horasAcumuladas = 0;
@@ -2563,7 +2558,7 @@ function buildJJChart() {
     var horasNaFaixa = Math.max(0, Math.min(horas - horasAcumuladas, f.totalFaixa));
     var pct = horasNaFaixa / f.totalFaixa; // 0..1
 
-    // How many complete graus
+    // Graus completed
     var grausFeitos = 0;
     var cumG = 0;
     for (var gi = 0; gi < f.graus.length; gi++) {
@@ -2571,64 +2566,42 @@ function buildJJChart() {
       if (horasNaFaixa >= cumG) grausFeitos++;
     }
 
-    // Fill width for body portion
-    var fillW = Math.round(BODY_W * pct);
-
-    // Text color — branca has dark text, others white
-    var txtColor = (fi === 0) ? '#3A2C1E' : '#FFFFFF';
-    var dimOpacity = 0.22; // ghost opacity for unfilled
+    // Fill width across full belt
+    var fillW = Math.round(W * pct);
+    var DIM = 0.2;
 
     var svg = '<svg viewBox="0 0 ' + W + ' ' + BH + '" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto;">';
 
-    // ── 1. Full ghost belt (dim background showing full belt shape) ──
-    // Body ghost
-    svg += '<path d="M' + R + ' 0 L' + BODY_W + ' 0 L' + BODY_W + ' ' + BH + ' L' + R + ' ' + BH + ' Q0 ' + BH + ' 0 ' + (BH - R) + ' L0 ' + R + ' Q0 0 ' + R + ' 0 Z" fill="' + f.cor + '" opacity="' + dimOpacity + '"/>';
-    // Tip ghost
-    svg += '<rect x="' + BODY_W + '" y="0" width="' + TIP_W + '" height="' + BH + '" rx="0" fill="#111" opacity="' + dimOpacity + '"/>';
-    // Round right end of tip
-    svg += '<path d="M' + (W - R) + ' 0 Q' + W + ' 0 ' + W + ' ' + R + ' L' + W + ' ' + (BH - R) + ' Q' + W + ' ' + BH + ' ' + (W - R) + ' ' + BH + ' L' + BODY_W + ' ' + BH + ' L' + BODY_W + ' 0 Z" fill="#111" opacity="' + dimOpacity + '"/>';
+    // ── Ghost: full colored belt ──
+    svg += '<rect x="0" y="0" width="' + W + '" height="' + BH + '" fill="' + f.cor + '" opacity="' + DIM + '"/>';
 
-    // ── 2. Seam line between body and tip (ghost) ──
-    svg += '<line x1="' + BODY_W + '" y1="2" x2="' + BODY_W + '" y2="' + (BH-2) + '" stroke="rgba(0,0,0,0.12)" stroke-width="1"/>';
+    // ── Ghost: black tip over ghost ──
+    svg += '<rect x="' + TIP_X + '" y="0" width="' + TIP_W + '" height="' + BH + '" fill="#111" opacity="' + DIM + '"/>';
 
-    // ── 3. Filled portion of body ──
+    // ── Filled portion ──
     if (fillW > 0) {
-      var fw = Math.min(fillW, BODY_W);
-      if (fw >= BODY_W) {
-        // Full body filled
-        svg += '<path d="M' + R + ' 0 L' + BODY_W + ' 0 L' + BODY_W + ' ' + BH + ' L' + R + ' ' + BH + ' Q0 ' + BH + ' 0 ' + (BH-R) + ' L0 ' + R + ' Q0 0 ' + R + ' 0 Z" fill="' + f.cor + '"/>';
-      } else {
-        // Partial fill — straight right edge
-        svg += '<path d="M' + R + ' 0 L' + fw + ' 0 L' + fw + ' ' + BH + ' L' + R + ' ' + BH + ' Q0 ' + BH + ' 0 ' + (BH-R) + ' L0 ' + R + ' Q0 0 ' + R + ' 0 Z" fill="' + f.cor + '"/>';
+      svg += '<rect x="0" y="0" width="' + Math.min(fillW, W) + '" height="' + BH + '" fill="' + f.cor + '" opacity="1"/>';
+      // Paint black tip over fill if reached
+      if (fillW > TIP_X) {
+        var tipFillW = Math.min(fillW - TIP_X, TIP_W);
+        svg += '<rect x="' + TIP_X + '" y="0" width="' + tipFillW + '" height="' + BH + '" fill="#111" opacity="1"/>';
       }
     }
 
-    // ── 4. Filled tip (only when belt body is complete) ──
-    if (pct >= 1 || horasNaFaixa >= BODY_W) {
-      // Tip filled when any hours in this belt
-    }
-    // Tip always shows as filled-black when we have progress
-    if (horasNaFaixa > 0) {
-      svg += '<rect x="' + BODY_W + '" y="0" width="' + (TIP_W - R) + '" height="' + BH + '" fill="#111" opacity="1"/>';
-      svg += '<path d="M' + (W - R) + ' 0 Q' + W + ' 0 ' + W + ' ' + R + ' L' + W + ' ' + (BH-R) + ' Q' + W + ' ' + BH + ' ' + (W-R) + ' ' + BH + ' L' + BODY_W + ' ' + BH + ' L' + BODY_W + ' 0 Z" fill="#111"/>';
-      svg += '<line x1="' + BODY_W + '" y1="1" x2="' + BODY_W + '" y2="' + (BH-1) + '" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"/>';
-    }
-
-    // ── 5. Grade stripes on tip ──
+    // ── Grade stripes: full height, white ──
     for (var g = 0; g < 4; g++) {
       var sx = STRIPE_START + g * (STRIPE_W + STRIPE_GAP);
-      var sy = (BH - STRIPE_H) / 2;
-      var done = g < grausFeitos;
-      var stripeOpacity = done ? '1' : (horasNaFaixa > 0 ? '0.2' : '0.08');
-      svg += '<rect x="' + sx + '" y="' + sy + '" width="' + STRIPE_W + '" height="' + STRIPE_H + '" rx="2" fill="white" opacity="' + stripeOpacity + '"/>';
+      if (sx + STRIPE_W > TIP_X + TIP_W - 4) break;
+      var done = g < grausFeitos && horasNaFaixa > 0;
+      var stripeOp = done ? '1' : (horasNaFaixa > 0 ? '0.15' : '0.07');
+      svg += '<rect x="' + sx + '" y="0" width="' + STRIPE_W + '" height="' + BH + '" fill="white" opacity="' + stripeOp + '"/>';
     }
 
-    // ── 6. Belt name ──
-    svg += '<text x="16" y="' + (BH/2 + 5) + '" font-family="DM Sans,sans-serif" font-size="13" font-weight="600" fill="' + txtColor + '" opacity="' + (horasNaFaixa > 0 ? '1' : '0.4') + '">' + f.nome + '</text>';
-
-    // ── 7. Hours label ──
-    var pLabel = Math.round(horasNaFaixa) + '/' + f.totalFaixa + 'h';
-    svg += '<text x="' + (BODY_W - 12) + '" y="' + (BH/2 + 5) + '" font-family="DM Sans,sans-serif" font-size="10" fill="' + txtColor + '" text-anchor="end" opacity="' + (horasNaFaixa > 0 ? '0.8' : '0.25') + '">' + pLabel + '</text>';
+    // ── Hours label (tiny, left side) ──
+    var txtColor = (fi === 0) ? '#3A2C1E' : '#FFFFFF';
+    var pLabel = Math.round(horasNaFaixa) + '/' + f.totalFaixa;
+    var labelOp = horasNaFaixa > 0 ? '0.7' : '0.18';
+    svg += '<text x="10" y="' + (BH/2 + 3.5) + '" font-family="DM Sans,sans-serif" font-size="7.5" fill="' + txtColor + '" opacity="' + labelOp + '">' + pLabel + '</text>';
 
     svg += '</svg>';
     html += '<div>' + svg + '</div>';
