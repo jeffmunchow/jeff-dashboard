@@ -2655,11 +2655,10 @@ function buildJJLineChart() {
   function hToX(h) { return PAD_L + (Math.min(h, totalH) / totalH) * CW; }
   function hToY(h) { return PAD_T + CH - (Math.min(h, totalH) / totalH) * CH; }
 
-  // Opacities — boosted
-  var gridCol   = isDark ? 'rgba(255,255,255,0.13)' : 'rgba(0,0,0,0.10)';
-  var faixaCol  = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.50)';
-  var grauCol   = isDark ? 'rgba(255,255,255,0.13)' : 'rgba(0,0,0,0.10)';
-  var yearCol   = isDark ? 'rgba(255,255,255,0.13)' : 'rgba(0,0,0,0.10)';
+  var gridCol   = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  var faixaCol  = isDark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.18)';
+  var grauCol   = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  var yearCol   = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
   var lineCol   = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.40)';
   var dotCol    = isDark ? '#CC4A28' : '#C43A1A';
   var txtCol    = isDark ? '#6B6660' : '#9E9892';
@@ -2685,27 +2684,30 @@ function buildJJLineChart() {
   svg += '<line x1="' + PAD_L + '" y1="' + PAD_T + '" x2="' + (W-PAD_R) + '" y2="' + PAD_T + '" stroke="' + gridCol + '" stroke-width="0.8"/>';
   svg += '<line x1="' + PAD_L + '" y1="' + (PAD_T+CH) + '" x2="' + (W-PAD_R) + '" y2="' + (PAD_T+CH) + '" stroke="' + gridCol + '" stroke-width="0.8"/>';
 
-  // ── Vertical lines: graus (solid, same opacity as grid) and faixas (solid, stronger) ──
+  // ── Vertical lines: 4 grau lines per faixa + faixa boundary lines ──
+  // Logic: for each of the 4 belts, draw 4 grau lines at cumH + grau_n_hours,
+  // then draw faixa boundary at cumH + totalFaixa (= start of next belt).
+  // The faixa boundary of Marrom (last) is NOT drawn (chart ends there).
   var cumH = 0;
   JJ_FAIXAS.slice(0,4).forEach(function(f, fi) {
+    // Draw 4 grau lines (all 4, including last grau of faixa)
     var grauCumH = 0;
     f.graus.forEach(function(g, gi) {
       grauCumH += g.horas;
       var absH = cumH + grauCumH;
-      var isLast = gi === f.graus.length - 1;
+      // Skip if this is exactly the faixa boundary (we'll draw faixa line separately)
+      // and skip if beyond chart
+      if (absH >= totalH) return;
       var lx = hToX(absH);
-      if (isLast) {
-        // Faixa boundary — solid, strong
-        svg += '<line x1="' + lx + '" y1="' + PAD_T + '" x2="' + lx + '" y2="' + (PAD_T+CH) + '" stroke="' + faixaCol + '" stroke-width="1.2"/>';
-        // Belt color indicator at top
-        if (fi < 3) {
-          svg += '<rect x="' + (lx-4) + '" y="' + (PAD_T-7) + '" width="8" height="5" rx="1" fill="' + JJ_FAIXAS[fi+1].cor + '" opacity="0.9"/>';
-        }
-      } else {
-        // Grau boundary — solid, same weight as grid
-        svg += '<line x1="' + lx + '" y1="' + PAD_T + '" x2="' + lx + '" y2="' + (PAD_T+CH) + '" stroke="' + grauCol + '" stroke-width="0.8"/>';
-      }
+      svg += '<line x1="' + lx + '" y1="' + PAD_T + '" x2="' + lx + '" y2="' + (PAD_T+CH) + '" stroke="' + grauCol + '" stroke-width="0.7"/>';
     });
+    // Draw faixa boundary line — but NOT for Marrom (fi=3, last belt shown)
+    if (fi < 3) {
+      var faixaX = hToX(cumH + f.totalFaixa);
+      svg += '<line x1="' + faixaX + '" y1="' + PAD_T + '" x2="' + faixaX + '" y2="' + (PAD_T+CH) + '" stroke="' + faixaCol + '" stroke-width="1.0"/>';
+      // Belt color indicator at top
+      svg += '<rect x="' + (faixaX-4) + '" y="' + (PAD_T-7) + '" width="8" height="5" rx="1" fill="' + JJ_FAIXAS[fi+1].cor + '" opacity="0.85"/>';
+    }
     cumH += f.totalFaixa;
   });
 
