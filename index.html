@@ -919,7 +919,7 @@
   </div>
   <div style="padding:2rem 2.5rem;">
     <!-- Jiu-Jitsu Progress -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;max-width:50%;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
       <div>
         <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">The JJ Progress</div>
       </div>
@@ -932,11 +932,11 @@
         <button class="project-plus-btn" onclick="openJJModal()" title="Atualizar horas">+</button>
       </div>
     </div>
-    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 0 1.25rem;width:50%;box-sizing:border-box;">
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 0 1.25rem;width:100%;box-sizing:border-box;">
       <!-- View 1: Belts -->
-      <div id="jj-belt-display" style="display:flex;flex-direction:column;gap:12px;"></div>
+      <div id="jj-belt-display" style="display:flex;flex-direction:column;gap:12px;padding:0 1.25rem;"></div>
       <!-- View 2: Line chart -->
-      <div id="jj-line-display" style="display:none;height:320px;">
+      <div id="jj-line-display" style="display:none;height:340px;">
         <canvas id="jj-line-chart"></canvas>
       </div>
       <div id="jj-status" style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-hint);padding:0 1.25rem;"></div>
@@ -2681,23 +2681,24 @@ function buildJJLineChart() {
     svg += '<line x1="0" y1="' + hy + '" x2="' + W + '" y2="' + hy + '" stroke="' + yearCol + '" stroke-width="0.7"/>';
   });
 
-  // Vertical grau lines (4 per faixa) and faixa boundaries
+  // Vertical lines: 4 grau lines per faixa + separate faixa boundary lines
   var cumH = 0;
   JJ_FAIXAS.slice(0,4).forEach(function(f, fi) {
+    // 4 grau lines — all of them, equally spaced
     var grauCumH = 0;
     f.graus.forEach(function(g, gi) {
       grauCumH += g.horas;
       var absH = cumH + grauCumH;
-      if (absH >= totalH) return;
+      if (absH >= totalH) return; // skip last boundary of Marrom
       var lx = hToX(absH);
-      var isLast = gi === f.graus.length - 1;
-      if (isLast && fi < 3) {
-        svg += '<line x1="' + lx + '" y1="' + PAD_T + '" x2="' + lx + '" y2="' + (PAD_T+CH) + '" stroke="' + faixaCol + '" stroke-width="1.0"/>';
-        svg += '<rect x="' + (lx-4) + '" y="0" width="8" height="5" rx="1" fill="' + JJ_FAIXAS[fi+1].cor + '" opacity="0.85"/>';
-      } else if (!isLast) {
-        svg += '<line x1="' + lx + '" y1="' + PAD_T + '" x2="' + lx + '" y2="' + (PAD_T+CH) + '" stroke="' + grauCol + '" stroke-width="0.7"/>';
-      }
+      svg += '<line x1="' + lx + '" y1="' + PAD_T + '" x2="' + lx + '" y2="' + (PAD_T+CH) + '" stroke="' + grauCol + '" stroke-width="0.7"/>';
     });
+    // Faixa boundary — drawn separately, only between faixas (not after Marrom)
+    if (fi < 3) {
+      var fx = hToX(cumH + f.totalFaixa);
+      svg += '<line x1="' + fx + '" y1="' + PAD_T + '" x2="' + fx + '" y2="' + (PAD_T+CH) + '" stroke="' + faixaCol + '" stroke-width="1.0"/>';
+      svg += '<rect x="' + (fx-4) + '" y="0" width="8" height="5" rx="1" fill="' + JJ_FAIXAS[fi+1].cor + '" opacity="0.85"/>';
+    }
     cumH += f.totalFaixa;
   });
 
