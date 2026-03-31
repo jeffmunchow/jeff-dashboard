@@ -919,7 +919,7 @@
   </div>
   <div style="padding:2rem 2.5rem;">
     <!-- Jiu-Jitsu Progress -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;max-width:50%;">
       <div>
         <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">The JJ Progress</div>
       </div>
@@ -932,11 +932,11 @@
         <button class="project-plus-btn" onclick="openJJModal()" title="Atualizar horas">+</button>
       </div>
     </div>
-    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 0 1.25rem;width:100%;box-sizing:border-box;">
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 0 1.25rem;width:50%;box-sizing:border-box;">
       <!-- View 1: Belts -->
-      <div id="jj-belt-display" style="display:flex;flex-direction:column;gap:12px;padding:0 1.25rem;"></div>
+      <div id="jj-belt-display" style="display:flex;flex-direction:column;gap:12px;padding:0 0.75rem;"></div>
       <!-- View 2: Line chart -->
-      <div id="jj-line-display" style="display:none;height:340px;">
+      <div id="jj-line-display" style="display:none;height:340px;padding:0 0.75rem;">
         <canvas id="jj-line-chart"></canvas>
       </div>
       <div id="jj-status" style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-hint);padding:0 1.25rem;"></div>
