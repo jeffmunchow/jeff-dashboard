@@ -932,11 +932,11 @@
         <button class="project-plus-btn" onclick="openJJModal()" title="Atualizar horas">+</button>
       </div>
     </div>
-    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 0 1rem;width:50%;box-sizing:border-box;overflow:hidden;">
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 0 1.25rem;width:50%;box-sizing:border-box;">
       <!-- View 1: Belts -->
       <div id="jj-belt-display" style="display:flex;flex-direction:column;gap:12px;"></div>
       <!-- View 2: Line chart -->
-      <div id="jj-line-display" style="display:none;height:220px;">
+      <div id="jj-line-display" style="display:none;height:320px;">
         <canvas id="jj-line-chart"></canvas>
       </div>
       <div id="jj-status" style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-hint);padding:0 1.25rem;"></div>
@@ -2649,7 +2649,7 @@ function buildJJLineChart() {
   var totalH = JJ_FAIXAS.slice(0,4).reduce(function(s,f){ return s+f.totalFaixa; },0);
 
   // SVG fills 100% width, no internal padding — container padding handles margins
-  var W = 500, H = 200;
+  var W = 500, H = 280;
   var PAD_T = 8, PAD_B = 8; // minimal top/bottom only
 
   function hToX(h) { return (Math.min(h, totalH) / totalH) * W; }
