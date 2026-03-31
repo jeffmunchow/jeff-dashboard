@@ -2652,90 +2652,76 @@ function buildJJLineChart() {
   if (!container) return;
   var horas = getJJHoras();
   var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-
-  // Chart ends at start of faixa preta = 230+300+325+375 = 1230h
   var totalH = JJ_FAIXAS.slice(0,4).reduce(function(s,f){ return s+f.totalFaixa; },0);
 
-  // v3: proper margins — PAD_L for Y-axis, PAD_T/B for breathing room
   var W = 500, H = 280;
-  var PAD_L = 0;   // lines touch widget edges
-  var PAD_R = 0;   // lines touch widget edges
-  var PAD_T = 12;  // top breathing room
-  var PAD_B = 12;  // bottom breathing room
+  var PAD_L = 20, PAD_R = 4, PAD_T = 12, PAD_B = 12;
   var CW = W - PAD_L - PAD_R;
   var CH = H - PAD_T - PAD_B;
 
-  function hToX(h) { return PAD_L + (Math.min(h, totalH) / totalH) * CW; }
-  function hToY(h) { return PAD_T + CH - (Math.min(h, totalH) / totalH) * CH; }
+  function hToX(h) { return PAD_L + (Math.min(h,totalH)/totalH)*CW; }
+  function hToY(h) { return PAD_T + CH - (Math.min(h,totalH)/totalH)*CH; }
 
-  var faixaCol  = isDark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.18)';
-  var grauCol   = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-  var yearCol   = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-  var gridCol   = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-  var lineCol   = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.40)';
-  var dotCol    = isDark ? '#CC4A28' : '#C43A1A';
-  var txtCol    = isDark ? '#6B6660' : '#9E9892';
+  var faixaCol = isDark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.18)';
+  var grauCol  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  var yearCol  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  var gridCol  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  var lineCol  = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.40)';
+  var dotCol   = isDark ? '#CC4A28' : '#C43A1A';
+  var txtCol   = isDark ? '#6B6660' : '#9E9892';
 
-  var faixaYears = [1.5, 2, 2, 2];
+  var svg = '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%;">';
 
-  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%;">';
+  // Border top/bottom
+  svg += '<line x1="'+PAD_L+'" y1="'+PAD_T+'" x2="'+(W-PAD_R)+'" y2="'+PAD_T+'" stroke="'+gridCol+'" stroke-width="0.7"/>';
+  svg += '<line x1="'+PAD_L+'" y1="'+(PAD_T+CH)+'" x2="'+(W-PAD_R)+'" y2="'+(PAD_T+CH)+'" stroke="'+gridCol+'" stroke-width="0.7"/>';
 
-  // Border lines — use chart area bounds
-  svg += '<line x1="' + PAD_L + '" y1="' + PAD_T + '" x2="' + (W-PAD_R) + '" y2="' + PAD_T + '" stroke="' + gridCol + '" stroke-width="0.7"/>';
-  svg += '<line x1="' + PAD_L + '" y1="' + (PAD_T+CH) + '" x2="' + (W-PAD_R) + '" y2="' + (PAD_T+CH) + '" stroke="' + gridCol + '" stroke-width="0.7"/>';
-
-  // Horizontal year lines at faixa boundaries
-  var hCum = 0;
-  JJ_FAIXAS.slice(0,4).forEach(function(f, fi) {
+  // Horizontal year lines
+  var hCum=0;
+  JJ_FAIXAS.slice(0,4).forEach(function(f){
     hCum += f.totalFaixa;
     var hy = hToY(hCum);
-    svg += '<line x1="' + PAD_L + '" y1="' + hy + '" x2="' + (W-PAD_R) + '" y2="' + hy + '" stroke="' + yearCol + '" stroke-width="0.7"/>';
+    svg += '<line x1="'+PAD_L+'" y1="'+hy+'" x2="'+(W-PAD_R)+'" y2="'+hy+'" stroke="'+yearCol+'" stroke-width="0.7"/>';
   });
 
-  // Vertical lines: 4 grau lines per faixa + separate faixa boundary lines
-  var cumH = 0;
-  JJ_FAIXAS.slice(0,4).forEach(function(f, fi) {
-    // 4 grau lines — all of them, equally spaced
-    var grauCumH = 0;
-    f.graus.forEach(function(g, gi) {
+  // Vertical lines
+  var cumH=0;
+  JJ_FAIXAS.slice(0,4).forEach(function(f,fi){
+    var grauCumH=0;
+    f.graus.forEach(function(g,gi){
       grauCumH += g.horas;
-      var absH = cumH + grauCumH;
-      if (absH >= totalH) return; // skip last boundary of Marrom
+      var absH = cumH+grauCumH;
+      if (absH>=totalH) return;
       var lx = hToX(absH);
-      svg += '<line x1="' + lx + '" y1="' + PAD_T + '" x2="' + lx + '" y2="' + (PAD_T+CH) + '" stroke="' + grauCol + '" stroke-width="0.7"/>';
+      var isLast = gi===f.graus.length-1;
+      if (isLast && fi<3) {
+        svg += '<line x1="'+lx+'" y1="'+PAD_T+'" x2="'+lx+'" y2="'+(PAD_T+CH)+'" stroke="'+faixaCol+'" stroke-width="1.0"/>';
+        svg += '<rect x="'+(lx-4)+'" y="0" width="8" height="5" rx="1" fill="'+JJ_FAIXAS[fi+1].cor+'" opacity="0.85"/>';
+      } else if (!isLast) {
+        svg += '<line x1="'+lx+'" y1="'+PAD_T+'" x2="'+lx+'" y2="'+(PAD_T+CH)+'" stroke="'+grauCol+'" stroke-width="0.7"/>';
+      }
     });
-    // Faixa boundary — drawn separately, only between faixas (not after Marrom)
-    if (fi < 3) {
-      var fx = hToX(cumH + f.totalFaixa);
-      svg += '<line x1="' + fx + '" y1="' + PAD_T + '" x2="' + fx + '" y2="' + (PAD_T+CH) + '" stroke="' + faixaCol + '" stroke-width="1.0"/>';
-      svg += '<rect x="' + (fx-4) + '" y="0" width="8" height="5" rx="1" fill="' + JJ_FAIXAS[fi+1].cor + '" opacity="0.85"/>';
-    }
     cumH += f.totalFaixa;
   });
 
-  // Diagonal line
-  svg += '<line x1="' + hToX(0) + '" y1="' + hToY(0) + '" x2="' + hToX(totalH) + '" y2="' + hToY(totalH) + '" stroke="' + lineCol + '" stroke-width="1.5"/>';
+  // Diagonal
+  svg += '<line x1="'+hToX(0)+'" y1="'+hToY(0)+'" x2="'+hToX(totalH)+'" y2="'+hToY(totalH)+'" stroke="'+lineCol+'" stroke-width="1.5"/>';
 
   // Progress dot
-  if (horas > 0) {
-    var px = hToX(Math.min(horas, totalH));
-    var py = hToY(Math.min(horas, totalH));
-    svg += '<line x1="' + px + '" y1="' + PAD_T + '" x2="' + px + '" y2="' + (PAD_T+CH) + '" stroke="' + dotCol + '" stroke-width="1" opacity="0.5"/>';
-    svg += '<circle cx="' + px + '" cy="' + py + '" r="7" fill="' + dotCol + '" opacity="0.15"/>';
-    svg += '<circle cx="' + px + '" cy="' + py + '" r="3.5" fill="' + dotCol + '"/>';
+  if (horas>0) {
+    var px=hToX(Math.min(horas,totalH)), py=hToY(Math.min(horas,totalH));
+    svg += '<line x1="'+px+'" y1="'+PAD_T+'" x2="'+px+'" y2="'+(PAD_T+CH)+'" stroke="'+dotCol+'" stroke-width="1" opacity="0.5"/>';
+    svg += '<circle cx="'+px+'" cy="'+py+'" r="7" fill="'+dotCol+'" opacity="0.15"/>';
+    svg += '<circle cx="'+px+'" cy="'+py+'" r="3.5" fill="'+dotCol+'"/>';
   }
 
-  // Year labels inside SVG, above baseline on left side
-  // 0, 1.5, 3.5, 5.5, 7.5 — Y positions match horizontal lines
-  var lblData = [{h:0,label:'0'},{h:230,label:'1.5'},{h:530,label:'3.5'},{h:855,label:'5.5'},{h:1230,label:'7.5'}];
-  lblData.forEach(function(ld) {
+  // Numbers to the LEFT of PAD_L, aligned with horizontal lines
+  [{h:0,l:'0'},{h:230,l:'1.5'},{h:530,l:'3.5'},{h:855,l:'5.5'},{h:1230,l:'7.5'}].forEach(function(ld){
     var ly = hToY(ld.h);
-    // Label in left margin, vertically centered on the horizontal line
-    svg += '<text x="5" y="' + ly + '" dominant-baseline="middle" font-family="DM Sans,sans-serif" font-size="7" fill="' + txtCol + '" text-anchor="start" opacity="0.7">' + ld.label + '</text>';
+    svg += '<text x="'+(PAD_L-2)+'" y="'+ly+'" dominant-baseline="middle" text-anchor="end" font-family="DM Sans,sans-serif" font-size="8" fill="'+txtCol+'" opacity="0.8">'+ld.l+'</text>';
   });
 
   svg += '</svg>';
-
   container.innerHTML = svg;
   _updateJJStatus(horas);
 }
