@@ -918,20 +918,18 @@
       </button>
     </div>
   </div>
-  <div style="padding:2rem 2.5rem;max-width:900px;">
+  <div style="padding:2rem 2.5rem;">
     <!-- Jiu-Jitsu Progress -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;max-width:50%;">
       <div>
         <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">Jiu-Jitsu</div>
         <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;" id="jj-subtitle">Progresso por faixa e graus</div>
       </div>
       <button class="project-plus-btn" onclick="openJJModal()" title="Atualizar horas">+</button>
     </div>
-    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;max-width:560px;">
-      <div id="jj-chart-container" style="height:140px;position:relative;">
-        <canvas id="jj-chart"></canvas>
-      </div>
-      <div id="jj-status" style="margin-top:1rem;font-size:0.75rem;color:var(--text-hint);"></div>
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.5rem 1.75rem;width:50%;box-sizing:border-box;">
+      <div id="jj-belt-display" style="display:flex;flex-direction:column;gap:12px;"></div>
+      <div id="jj-status" style="margin-top:1.25rem;font-size:0.75rem;color:var(--text-hint);"></div>
     </div>
   </div>
 </div>
@@ -2541,108 +2539,103 @@ function openJJModal() {
   document.getElementById('jj-overlay').classList.add('open');
 }
 
-var _jjChartInstance = null;
+var _jjChartInstance = null; // kept for compat
 function buildJJChart() {
-  var canvas = document.getElementById('jj-chart');
-  if (!canvas) return;
+  var container = document.getElementById('jj-belt-display');
+  if (!container) return;
   var horas = getJJHoras();
-  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  var gridCol = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
-  var textHint = isDark ? '#6B6660' : '#9E9892';
 
-  // Build dataset: one bar per faixa showing fill %
-  var labels = JJ_FAIXAS.map(function(f){ return f.nome; });
-  var horasBase = 0;
-  var filled = [], cap = [];
-  JJ_FAIXAS.forEach(function(f) {
-    var horasNaFaixa = Math.max(0, Math.min(horas - horasBase, f.totalFaixa));
-    filled.push(horasNaFaixa);
-    cap.push(f.totalFaixa);
-    horasBase += f.totalFaixa;
-  });
+  // Belt visual constants
+  var W = 500;          // SVG viewBox width
+  var BH = 52;          // belt height
+  var BODY_W = 420;     // belt body (colored part)
+  var TIP_W = 80;       // black tip width
+  var R = 6;            // corner radius
+  var STRIPE_W = 10;    // grade stripe width
+  var STRIPE_H = BH - 10; // grade stripe height
+  var STRIPE_GAP = 5;   // gap between stripes
+  var STRIPE_START = BODY_W + 12; // first stripe x
 
-  // Colors
-  var bgFull = JJ_FAIXAS.map(function(f){ return f.cor + 'AA'; }); // dimmed
-  var bgFilled = JJ_FAIXAS.map(function(f){ return f.cor; });
+  var html = '';
+  var horasAcumuladas = 0;
 
-  if (_jjChartInstance) { _jjChartInstance.destroy(); _jjChartInstance = null; }
+  JJ_FAIXAS.forEach(function(f, fi) {
+    var horasNaFaixa = Math.max(0, Math.min(horas - horasAcumuladas, f.totalFaixa));
+    var pct = horasNaFaixa / f.totalFaixa; // 0..1
 
-  _jjChartInstance = new Chart(canvas.getContext('2d'), {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: 'Horas concluídas',
-          data: filled,
-          backgroundColor: bgFilled,
-          borderColor: JJ_FAIXAS.map(function(f){ return f.corBorda; }),
-          borderWidth: 1,
-          borderRadius: 4,
-          borderSkipped: false,
-          order: 1
-        },
-        {
-          label: 'Horas restantes',
-          data: cap.map(function(c, i){ return c - filled[i]; }),
-          backgroundColor: JJ_FAIXAS.map(function(f){ return f.cor + '33'; }),
-          borderColor: JJ_FAIXAS.map(function(f){ return f.corBorda + '66'; }),
-          borderWidth: 1,
-          borderRadius: 4,
-          borderSkipped: false,
-          stack: 'stack',
-          order: 2
-        }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      animation: { duration: 400 },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          enabled: true,
-          backgroundColor: isDark ? '#1A1814' : '#FFFFFF',
-          borderColor: isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)',
-          borderWidth: 1,
-          titleColor: isDark ? '#EDE9E3' : '#1A1814',
-          bodyColor: isDark ? '#9E9892' : '#6B6660',
-          titleFont: { family: 'DM Sans, sans-serif', size: 10 },
-          bodyFont: { family: 'DM Sans, sans-serif', size: 10 },
-          padding: 8, displayColors: false,
-          callbacks: {
-            title: function(items) { return JJ_FAIXAS[items[0].dataIndex].nome; },
-            label: function(ctx) {
-              var i = ctx.dataIndex;
-              var f = JJ_FAIXAS[i];
-              var horasBase = JJ_FAIXAS.slice(0,i).reduce(function(s,x){ return s+x.totalFaixa; }, 0);
-              var horasNaFaixa = Math.max(0, Math.min(horas - horasBase, f.totalFaixa));
-              var grauAtual = _jjGrauAtual(f, horasNaFaixa);
-              return horasNaFaixa + '/' + f.totalFaixa + 'h · ' + grauAtual;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          stacked: true,
-          grid: { display: false },
-          ticks: { font: { family: 'DM Sans', size: 9 }, color: textHint },
-          border: { display: false }
-        },
-        y: {
-          stacked: true,
-          display: true,
-          grid: { color: gridCol, drawTicks: false },
-          ticks: { font: { family: 'DM Sans', size: 9 }, color: textHint, maxTicksLimit: 4, padding: 4 },
-          border: { display: false }
-        }
-      },
-      layout: { padding: { top: 4, right: 4 } }
+    // How many complete graus
+    var grausFeitos = 0;
+    var cumG = 0;
+    for (var gi = 0; gi < f.graus.length; gi++) {
+      cumG += f.graus[gi].horas;
+      if (horasNaFaixa >= cumG) grausFeitos++;
     }
+
+    // Fill width for body portion
+    var fillW = Math.round(BODY_W * pct);
+
+    // Text color — branca has dark text, others white
+    var txtColor = (fi === 0) ? '#3A2C1E' : '#FFFFFF';
+    var dimOpacity = 0.22; // ghost opacity for unfilled
+
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + BH + '" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto;">';
+
+    // ── 1. Full ghost belt (dim background showing full belt shape) ──
+    // Body ghost
+    svg += '<path d="M' + R + ' 0 L' + BODY_W + ' 0 L' + BODY_W + ' ' + BH + ' L' + R + ' ' + BH + ' Q0 ' + BH + ' 0 ' + (BH - R) + ' L0 ' + R + ' Q0 0 ' + R + ' 0 Z" fill="' + f.cor + '" opacity="' + dimOpacity + '"/>';
+    // Tip ghost
+    svg += '<rect x="' + BODY_W + '" y="0" width="' + TIP_W + '" height="' + BH + '" rx="0" fill="#111" opacity="' + dimOpacity + '"/>';
+    // Round right end of tip
+    svg += '<path d="M' + (W - R) + ' 0 Q' + W + ' 0 ' + W + ' ' + R + ' L' + W + ' ' + (BH - R) + ' Q' + W + ' ' + BH + ' ' + (W - R) + ' ' + BH + ' L' + BODY_W + ' ' + BH + ' L' + BODY_W + ' 0 Z" fill="#111" opacity="' + dimOpacity + '"/>';
+
+    // ── 2. Seam line between body and tip (ghost) ──
+    svg += '<line x1="' + BODY_W + '" y1="2" x2="' + BODY_W + '" y2="' + (BH-2) + '" stroke="rgba(0,0,0,0.12)" stroke-width="1"/>';
+
+    // ── 3. Filled portion of body ──
+    if (fillW > 0) {
+      var fw = Math.min(fillW, BODY_W);
+      if (fw >= BODY_W) {
+        // Full body filled
+        svg += '<path d="M' + R + ' 0 L' + BODY_W + ' 0 L' + BODY_W + ' ' + BH + ' L' + R + ' ' + BH + ' Q0 ' + BH + ' 0 ' + (BH-R) + ' L0 ' + R + ' Q0 0 ' + R + ' 0 Z" fill="' + f.cor + '"/>';
+      } else {
+        // Partial fill — straight right edge
+        svg += '<path d="M' + R + ' 0 L' + fw + ' 0 L' + fw + ' ' + BH + ' L' + R + ' ' + BH + ' Q0 ' + BH + ' 0 ' + (BH-R) + ' L0 ' + R + ' Q0 0 ' + R + ' 0 Z" fill="' + f.cor + '"/>';
+      }
+    }
+
+    // ── 4. Filled tip (only when belt body is complete) ──
+    if (pct >= 1 || horasNaFaixa >= BODY_W) {
+      // Tip filled when any hours in this belt
+    }
+    // Tip always shows as filled-black when we have progress
+    if (horasNaFaixa > 0) {
+      svg += '<rect x="' + BODY_W + '" y="0" width="' + (TIP_W - R) + '" height="' + BH + '" fill="#111" opacity="1"/>';
+      svg += '<path d="M' + (W - R) + ' 0 Q' + W + ' 0 ' + W + ' ' + R + ' L' + W + ' ' + (BH-R) + ' Q' + W + ' ' + BH + ' ' + (W-R) + ' ' + BH + ' L' + BODY_W + ' ' + BH + ' L' + BODY_W + ' 0 Z" fill="#111"/>';
+      svg += '<line x1="' + BODY_W + '" y1="1" x2="' + BODY_W + '" y2="' + (BH-1) + '" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"/>';
+    }
+
+    // ── 5. Grade stripes on tip ──
+    for (var g = 0; g < 4; g++) {
+      var sx = STRIPE_START + g * (STRIPE_W + STRIPE_GAP);
+      var sy = (BH - STRIPE_H) / 2;
+      var done = g < grausFeitos;
+      var stripeOpacity = done ? '1' : (horasNaFaixa > 0 ? '0.2' : '0.08');
+      svg += '<rect x="' + sx + '" y="' + sy + '" width="' + STRIPE_W + '" height="' + STRIPE_H + '" rx="2" fill="white" opacity="' + stripeOpacity + '"/>';
+    }
+
+    // ── 6. Belt name ──
+    svg += '<text x="16" y="' + (BH/2 + 5) + '" font-family="DM Sans,sans-serif" font-size="13" font-weight="600" fill="' + txtColor + '" opacity="' + (horasNaFaixa > 0 ? '1' : '0.4') + '">' + f.nome + '</text>';
+
+    // ── 7. Hours label ──
+    var pLabel = Math.round(horasNaFaixa) + '/' + f.totalFaixa + 'h';
+    svg += '<text x="' + (BODY_W - 12) + '" y="' + (BH/2 + 5) + '" font-family="DM Sans,sans-serif" font-size="10" fill="' + txtColor + '" text-anchor="end" opacity="' + (horasNaFaixa > 0 ? '0.8' : '0.25') + '">' + pLabel + '</text>';
+
+    svg += '</svg>';
+    html += '<div>' + svg + '</div>';
+    horasAcumuladas += f.totalFaixa;
   });
 
-  // Update status text
+  container.innerHTML = html;
   _updateJJStatus(horas);
 }
 
