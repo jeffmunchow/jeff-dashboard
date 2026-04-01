@@ -2655,15 +2655,43 @@ function buildJJLineChart() {
   if (!container) return;
   var horas = getJJHoras();
   var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  var totalH = JJ_FAIXAS.slice(0,4).reduce(function(s,f){ return s+f.totalFaixa; },0);
+
+  // X axis: hours (0 → 1230h)
+  // Y axis: years (0 → 7.5 years) — proportional spacing
+  var totalH = 1230;
+  var totalY = 7.5; // total years
+
+  // Faixa boundaries: hours and cumulative years
+  var faixas = [
+    { nome:'Branca', hFim:230,  yFim:1.5,  cor: JJ_FAIXAS[1].cor },
+    { nome:'Azul',   hFim:530,  yFim:3.5,  cor: JJ_FAIXAS[2].cor },
+    { nome:'Roxa',   hFim:855,  yFim:5.5,  cor: JJ_FAIXAS[3].cor },
+    { nome:'Marrom', hFim:1230, yFim:7.5,  cor: null }
+  ];
 
   var W = 500, H = 280;
-  var PAD_L = 20, PAD_R = 4, PAD_T = 12, PAD_B = 12;
+  var PAD_L = 20, PAD_R = 0, PAD_T = 12, PAD_B = 12;
   var CW = W - PAD_L;
   var CH = H - PAD_T - PAD_B;
 
+  // X maps hours linearly
   function hToX(h) { return PAD_L + (Math.min(h,totalH)/totalH)*CW; }
-  function hToY(h) { return PAD_T + CH - (Math.min(h,totalH)/totalH)*CH; }
+  // Y maps YEARS linearly (proportional to time)
+  function yToY(yr) { return PAD_T + CH - (Math.min(yr,totalY)/totalY)*CH; }
+  // Convert hours to years for the diagonal line
+  function hToYr(h) {
+    // Interpolate within each faixa
+    var hBands = [0,230,530,855,1230];
+    var yBands = [0,1.5,3.5,5.5,7.5];
+    h = Math.min(h, totalH);
+    for (var i=1; i<hBands.length; i++) {
+      if (h <= hBands[i]) {
+        var t = (h - hBands[i-1]) / (hBands[i] - hBands[i-1]);
+        return yBands[i-1] + t*(yBands[i]-yBands[i-1]);
+      }
+    }
+    return totalY;
+  }
 
   var faixaCol = isDark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.18)';
   var grauCol  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
@@ -2679,15 +2707,13 @@ function buildJJLineChart() {
   svg += '<line x1="'+PAD_L+'" y1="'+PAD_T+'" x2="'+W+'" y2="'+PAD_T+'" stroke="'+gridCol+'" stroke-width="0.7"/>';
   svg += '<line x1="'+PAD_L+'" y1="'+(PAD_T+CH)+'" x2="'+W+'" y2="'+(PAD_T+CH)+'" stroke="'+gridCol+'" stroke-width="0.7"/>';
 
-  // Horizontal year lines
-  var hCum=0;
-  JJ_FAIXAS.slice(0,4).forEach(function(f){
-    hCum += f.totalFaixa;
-    var hy = hToY(hCum);
+  // Horizontal lines at faixa year boundaries — proportional Y spacing
+  faixas.forEach(function(f,fi){
+    var hy = yToY(f.yFim);
     svg += '<line x1="'+PAD_L+'" y1="'+hy+'" x2="'+W+'" y2="'+hy+'" stroke="'+yearCol+'" stroke-width="0.7"/>';
   });
 
-  // Vertical lines
+  // Vertical grau lines — X position based on hours
   var cumH=0;
   JJ_FAIXAS.slice(0,4).forEach(function(f,fi){
     var grauCumH=0;
@@ -2706,20 +2732,27 @@ function buildJJLineChart() {
     cumH += f.totalFaixa;
   });
 
-  // Diagonal
-  svg += '<line x1="'+hToX(0)+'" y1="'+hToY(0)+'" x2="'+hToX(totalH)+'" y2="'+hToY(totalH)+'" stroke="'+lineCol+'" stroke-width="1.5"/>';
+  // Diagonal: x=hours, y=years (proportional)
+  // Plot as polyline through faixa boundaries
+  var pts = [[0,0],[230,1.5],[530,3.5],[855,5.5],[1230,7.5]];
+  var dPath = pts.map(function(p,i){
+    return (i===0?'M':'L')+hToX(p[0])+','+yToY(p[1]);
+  }).join(' ');
+  svg += '<path d="'+dPath+'" stroke="'+lineCol+'" stroke-width="1.5" fill="none"/>';
 
   // Progress dot
   if (horas>0) {
-    var px=hToX(Math.min(horas,totalH)), py=hToY(Math.min(horas,totalH));
+    var hCap = Math.min(horas,totalH);
+    var px = hToX(hCap);
+    var py = yToY(hToYr(hCap));
     svg += '<line x1="'+px+'" y1="'+PAD_T+'" x2="'+px+'" y2="'+(PAD_T+CH)+'" stroke="'+dotCol+'" stroke-width="1" opacity="0.5"/>';
     svg += '<circle cx="'+px+'" cy="'+py+'" r="7" fill="'+dotCol+'" opacity="0.15"/>';
     svg += '<circle cx="'+px+'" cy="'+py+'" r="3.5" fill="'+dotCol+'"/>';
   }
 
-  // Numbers to the LEFT of PAD_L, aligned with horizontal lines
-  [{h:0,l:'0'},{h:230,l:'1.5'},{h:530,l:'3.5'},{h:855,l:'5.5'},{h:1230,l:'7.5'}].forEach(function(ld){
-    var ly = hToY(ld.h);
+  // Year labels — left margin, aligned with horizontal lines
+  [{yr:0,l:'0'},{yr:1.5,l:'1.5'},{yr:3.5,l:'3.5'},{yr:5.5,l:'5.5'},{yr:7.5,l:'7.5'}].forEach(function(ld){
+    var ly = yToY(ld.yr);
     svg += '<text x="'+(PAD_L-2)+'" y="'+ly+'" dominant-baseline="middle" text-anchor="end" font-family="DM Sans,sans-serif" font-size="8" fill="'+txtCol+'" opacity="0.8">'+ld.l+'</text>';
   });
 
