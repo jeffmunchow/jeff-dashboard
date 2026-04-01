@@ -1304,6 +1304,7 @@
     <button class="studio-tab"        id="soupstab-marketing" onclick="switchSoupTab('marketing')">Marketing</button>
     <button class="studio-tab"        id="soupstab-prospectos" onclick="switchSoupTab('prospectos')">Prospectos</button>
     <button class="studio-tab"        id="soupstab-tarefas" onclick="switchSoupTab('tarefas')">Tarefas</button>
+    <button class="studio-tab"        id="soupstab-promos"   onclick="switchSoupTab('promos')">Promoções</button>
   </div>
 
   <div class="studio-body">
@@ -1513,7 +1514,41 @@
   </div>
 
   <div class="studio-tabs">
-    <button class="studio-tab active" id="rltab-resumo"     onclick="switchReleioTab('resumo')"     style="border-bottom-color:var(--coral);">Resumo</button>
+    <!-- PROMOÇÕES DO DIA -->
+    <div class="tab-panel" id="souppanel-promos">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Promoções do Dia</div>
+          <div style="font-size:0.68rem;color:var(--text-hint);margin-top:2px;" id="promos-subtitle">Radar — Livelo, Esfera, Smiles e mais</div>
+        </div>
+        <div class="section-actions">
+          <span style="font-size:0.68rem;color:var(--text-hint);" id="promos-last-update"></span>
+          <button class="btn primary" id="promos-btn" onclick="buscarPromosDodia()">↻ Atualizar</button>
+        </div>
+      </div>
+      <!-- Filtros -->
+      <div style="display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap;" id="promos-filters">
+        <button class="btn" id="pfbtn-todos"  onclick="filtrarPromos(this,'todos')"   style="font-size:0.65rem;padding:3px 10px;background:var(--teal);color:white;border-color:var(--teal);">Todos</button>
+        <button class="btn" id="pfbtn-livelo" onclick="filtrarPromos(this,'livelo')"  style="font-size:0.65rem;padding:3px 10px;">Livelo</button>
+        <button class="btn" id="pfbtn-esfera" onclick="filtrarPromos(this,'esfera')"  style="font-size:0.65rem;padding:3px 10px;">Esfera</button>
+        <button class="btn" id="pfbtn-smiles" onclick="filtrarPromos(this,'smiles')"  style="font-size:0.65rem;padding:3px 10px;">Smiles</button>
+        <button class="btn" id="pfbtn-azul"   onclick="filtrarPromos(this,'azul')"    style="font-size:0.65rem;padding:3px 10px;">TudoAzul</button>
+        <button class="btn" id="pfbtn-latam"  onclick="filtrarPromos(this,'latam')"   style="font-size:0.65rem;padding:3px 10px;">Latam Pass</button>
+      </div>
+      <!-- Lista de promos -->
+      <div id="promos-list">
+        <div style="text-align:center;padding:3rem 1rem;color:var(--text-hint);">
+          <div style="font-size:1.5rem;margin-bottom:0.75rem;opacity:0.4;">🔍</div>
+          <div style="font-size:0.82rem;line-height:1.6;">Clique em <strong>Atualizar</strong> para buscar<br>as promoções do dia.</div>
+        </div>
+      </div>
+      <!-- Disclaimer -->
+      <div id="promos-disclaimer" style="display:none;margin-top:1rem;padding:0.75rem 1rem;background:rgba(196,120,10,0.08);border-radius:8px;border:0.5px solid rgba(196,120,10,0.2);font-size:0.7rem;color:var(--amber);line-height:1.5;">
+        ⚠️ Verifique a vigência antes de usar ou compartilhar. Promoções podem expirar sem aviso prévio.
+      </div>
+    </div>
+
+        <button class="studio-tab active" id="rltab-resumo"     onclick="switchReleioTab('resumo')"     style="border-bottom-color:var(--coral);">Resumo</button>
     <button class="studio-tab"        id="rltab-livros"     onclick="switchReleioTab('livros')">Livros</button>
     <button class="studio-tab"        id="rltab-curadoria"  onclick="switchReleioTab('curadoria')">Curadoria</button>
     <button class="studio-tab"        id="rltab-financeiro" onclick="switchReleioTab('financeiro')">Financeiro</button>
@@ -4179,7 +4214,7 @@ function soupMemberName(id) { var m=getSoupMembros().find(function(x){return x.i
 var currentSoupTab = 'resumo';
 function switchSoupTab(tab) {
   currentSoupTab = tab;
-  ['resumo','membros','viagens','milhas','financeiro','marketing','prospectos','tarefas'].forEach(function(t){
+  ['resumo','membros','viagens','milhas','financeiro','marketing','prospectos','tarefas','promos'].forEach(function(t){
     var btn=document.getElementById('soupstab-'+t); var pan=document.getElementById('souppanel-'+t);
     if(btn) btn.classList.toggle('active',t===tab);
     if(pan) pan.classList.toggle('active',t===tab);
@@ -4192,6 +4227,128 @@ function switchSoupTab(tab) {
   if(tab==='marketing')   renderSoupMarketing();
   if(tab==='prospectos')  renderSoupProspectos();
   if(tab==='tarefas')     { renderProjTarefasWeekBar('soup'); renderProjTarefasList('soup'); }
+  if(tab==='promos')      initPromos();
+}
+
+/* SOUP PROMOÇÕES DO DIA */
+var _todosPromos = [];
+var _filtroPromos = 'todos';
+
+var _promosPrograms = {
+  livelo: { label: 'Livelo',    color: '#C43A1A', bg: 'rgba(196,58,26,0.1)' },
+  esfera: { label: 'Esfera',   color: '#C4780A', bg: 'rgba(196,120,10,0.1)' },
+  smiles: { label: 'Smiles',   color: '#0A7864', bg: 'rgba(10,120,100,0.1)' },
+  azul:   { label: 'TudoAzul', color: '#1864AB', bg: 'rgba(24,100,171,0.1)' },
+  latam:  { label: 'Latam Pass',color: '#C2255C', bg: 'rgba(194,37,92,0.1)' },
+  outros: { label: 'Outros',   color: '#7048E8', bg: 'rgba(112,72,232,0.1)' }
+};
+
+function initPromos() {
+  // Just render current state (empty or cached)
+  renderPromosList();
+}
+
+function filtrarPromos(btn, programa) {
+  _filtroPromos = programa;
+  ['todos','livelo','esfera','smiles','azul','latam'].forEach(function(p) {
+    var b = document.getElementById('pfbtn-' + p);
+    if (b) {
+      b.style.background = (p === programa) ? 'var(--teal)' : '';
+      b.style.color = (p === programa) ? 'white' : '';
+      b.style.borderColor = (p === programa) ? 'var(--teal)' : '';
+    }
+  });
+  renderPromosList();
+}
+
+function renderPromosList() {
+  var lista = _filtroPromos === 'todos'
+    ? _todosPromos
+    : _todosPromos.filter(function(p) { return p.programa === _filtroPromos; });
+  var el = document.getElementById('promos-list');
+  if (!el) return;
+
+  if (!lista.length && !_todosPromos.length) {
+    el.innerHTML = '<div style="text-align:center;padding:3rem 1rem;color:var(--text-hint);"><div style="font-size:1.5rem;margin-bottom:0.75rem;opacity:0.4;">🔍</div><div style="font-size:0.82rem;line-height:1.6;">Clique em <strong>Atualizar</strong> para buscar<br>as promoções do dia.</div></div>';
+    return;
+  }
+  if (!lista.length) {
+    el.innerHTML = '<div style="text-align:center;padding:2rem 1rem;color:var(--text-hint);font-size:0.82rem;">Nenhuma promoção encontrada para este programa hoje.</div>';
+    return;
+  }
+
+  el.innerHTML = lista.map(function(p) {
+    var prog = _promosPrograms[p.programa] || _promosPrograms.outros;
+    return '<a href="' + (p.link || '#') + '" target="_blank" rel="noopener" style="display:flex;align-items:flex-start;gap:12px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:1rem 1.25rem;margin-bottom:8px;text-decoration:none;color:inherit;transition:border-color 0.15s;" onmouseover="this.style.borderColor=\'var(--teal)\'" onmouseout="this.style.borderColor=\'var(--border)\'">' +
+      '<span style="flex-shrink:0;padding:2px 8px;border-radius:5px;font-size:0.6rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;background:' + prog.bg + ';color:' + prog.color + ';margin-top:2px;">' + prog.label + '</span>' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div style="font-size:0.84rem;font-weight:500;color:var(--text);line-height:1.4;margin-bottom:4px;">' + p.titulo + '</div>' +
+        '<div style="font-size:0.7rem;color:var(--text-hint);display:flex;gap:10px;flex-wrap:wrap;">' +
+          (p.parceiro ? '<span>🤝 ' + p.parceiro + '</span>' : '') +
+          (p.validade ? '<span>📅 até ' + p.validade + '</span>' : '') +
+          (p.fonte    ? '<span>📰 ' + p.fonte + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      (p.bonus ? '<div style="flex-shrink:0;text-align:right;"><div style="font-size:1.05rem;font-weight:700;color:var(--teal);line-height:1;">' + p.bonus + '</div><div style="font-size:0.6rem;color:var(--text-hint);margin-top:2px;">de bônus</div></div>' : '') +
+    '</a>';
+  }).join('');
+}
+
+async function buscarPromosDodia() {
+  var btn = document.getElementById('promos-btn');
+  var subtitle = document.getElementById('promos-subtitle');
+  var lastUpdate = document.getElementById('promos-last-update');
+  var listEl = document.getElementById('promos-list');
+  var disclaimer = document.getElementById('promos-disclaimer');
+
+  if (btn) { btn.disabled = true; btn.textContent = '↻ Buscando...'; }
+
+  // Skeleton
+  listEl.innerHTML = [1,2,3,4].map(function() {
+    return '<div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:1rem 1.25rem;margin-bottom:8px;">' +
+      '<div style="height:10px;width:35%;border-radius:4px;background:var(--bg);margin-bottom:8px;"></div>' +
+      '<div style="height:10px;width:70%;border-radius:4px;background:var(--bg);margin-bottom:6px;"></div>' +
+      '<div style="height:8px;width:45%;border-radius:4px;background:var(--bg);"></div>' +
+    '</div>';
+  }).join('');
+
+  var hoje = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
+  if (subtitle) subtitle.textContent = 'Buscando promos — ' + hoje + '...';
+
+  try {
+    var prompt = 'Você é um especialista em programas de milhas e pontos do Brasil.\n\nHoje é ' + hoje + '. Busque na web as promoções ATIVAS hoje nos programas: Livelo, Esfera Bradesco, Smiles, TudoAzul e Latam Pass.\n\nFoque em transferências bônus, promoções de acúmulo com parceiros e promoções de resgate.\n\nRetorne APENAS um JSON válido no formato:\n[\n  {\n    "programa": "livelo|esfera|smiles|azul|latam|outros",\n    "titulo": "Descrição clara da promoção",\n    "parceiro": "Nome do parceiro se houver",\n    "bonus": "+50% ou 3x se houver",\n    "validade": "Data final se disponível",\n    "link": "URL da página ou post",\n    "fonte": "Nome do site fonte"\n  }\n]\n\nBusque em Melhores Destinos, Passagens Imperdíveis, Mala e Cuia, e sites oficiais.\nInclua APENAS promoções com indicação de vigência hoje ou data futura.\nRetorne apenas o JSON, sem texto adicional.';
+
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    var data = await response.json();
+    var textBlock = (data.content || []).filter(function(b) { return b.type === 'text'; }).pop();
+    var raw = textBlock ? textBlock.text : '';
+    var jsonMatch = raw.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('Nenhuma promoção retornada');
+
+    _todosPromos = JSON.parse(jsonMatch[0]);
+
+    var agora = new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+    if (lastUpdate) lastUpdate.textContent = 'Atualizado às ' + agora;
+    if (subtitle) subtitle.textContent = _todosPromos.length + ' promo' + (_todosPromos.length !== 1 ? 's' : '') + ' encontrada' + (_todosPromos.length !== 1 ? 's' : '') + ' hoje';
+    if (disclaimer) disclaimer.style.display = 'block';
+
+    renderPromosList();
+  } catch(err) {
+    listEl.innerHTML = '<div style="text-align:center;padding:2rem 1rem;"><div style="font-size:1.5rem;margin-bottom:0.5rem;">⚠️</div><div style="font-size:0.8rem;color:var(--text-hint);">Não foi possível buscar as promoções agora.<br><small style="opacity:0.6">' + err.message + '</small></div></div>';
+    if (subtitle) subtitle.textContent = 'Radar — erro na busca';
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = '↻ Atualizar'; }
 }
 
 /* SOUP RESUMO */
