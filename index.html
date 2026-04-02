@@ -4282,13 +4282,17 @@ function openSoupMemberModal(id) {
     document.getElementById('soup-member-modal-title').textContent='Editar membro';
     document.getElementById('smf-nome').value=m.nome||'';document.getElementById('smf-email').value=m.email||'';
     document.getElementById('smf-tel').value=m.tel||'';document.getElementById('smf-plano').value=m.plano||'Essencial';
-    document.getElementById('smf-mensalidade').value=m.mensalidade||'';document.getElementById('smf-milhas').value=m.milhas||'';
-    document.getElementById('smf-status').value=m.status||'Ativo';setDateValue('smf-inicio', m.inicio||'');
+    document.getElementById('smf-mensalidade').value=m.mensalidade||'';
+    document.getElementById('smf-cpf').value=m.cpf||'';setDateValue('smf-nascimento',m.nascimento||'');
+    document.getElementById('smf-passaporte-num').value=m.passaporteNum||'';setDateValue('smf-passaporte-val',m.passaporteVal||'');
+    document.getElementById('smf-passaporte-pais').value=m.passaportePais||'';
+    document.getElementById('smf-status').value=m.status||'Ativo';setDateValue('smf-inicio',m.inicio||'');setDateValue('smf-fim',m.fim||'');
     document.getElementById('smf-notas').value=m.notas||'';
     document.getElementById('soup-member-delete-btn').style.display='inline-flex';
   } else {
     document.getElementById('soup-member-modal-title').textContent='Novo membro';
-    ['smf-nome','smf-email','smf-tel','smf-mensalidade','smf-milhas','smf-inicio','smf-notas'].forEach(function(id){document.getElementById(id).value='';});
+    ['smf-nome','smf-email','smf-tel','smf-mensalidade','smf-cpf','smf-passaporte-num','smf-passaporte-pais','smf-notas'].forEach(function(id){document.getElementById(id).value='';});
+    ['smf-nascimento','smf-passaporte-val','smf-inicio','smf-fim'].forEach(function(id){setDateValue(id,'');});
     document.getElementById('smf-plano').value='Essencial';document.getElementById('smf-status').value='Ativo';
     document.getElementById('soup-member-delete-btn').style.display='none';
   }
@@ -4298,9 +4302,12 @@ function closeSoupMemberModal(){document.getElementById('soup-member-overlay').c
 function saveSoupMember(){
   var obj={id:editingSoupMemberId||uid(),nome:document.getElementById('smf-nome').value.trim(),
     email:document.getElementById('smf-email').value.trim(),tel:document.getElementById('smf-tel').value.trim(),
+    cpf:document.getElementById('smf-cpf').value.trim(),nascimento:getDateValue('smf-nascimento'),
+    passaporteNum:document.getElementById('smf-passaporte-num').value.trim(),passaporteVal:getDateValue('smf-passaporte-val'),
+    passaportePais:document.getElementById('smf-passaporte-pais').value.trim(),
     plano:document.getElementById('smf-plano').value,mensalidade:parseFloat(document.getElementById('smf-mensalidade').value)||0,
-    milhas:parseFloat(document.getElementById('smf-milhas').value)||0,status:document.getElementById('smf-status').value,
-    inicio:getDateValue('smf-inicio'),notas:document.getElementById('smf-notas').value.trim()};
+    status:document.getElementById('smf-status').value,inicio:getDateValue('smf-inicio'),fim:getDateValue('smf-fim'),
+    notas:document.getElementById('smf-notas').value.trim()};
   if(!obj.nome){alert('Informe o nome.');return;}
   var list=getSoupMembros();
   if(editingSoupMemberId){var idx=list.findIndex(function(m){return m.id===editingSoupMemberId;});if(idx>-1)list[idx]=obj;else list.push(obj);}
@@ -5706,7 +5713,7 @@ function buildReleioSegChart() {
           display: true,
           position: 'left',
           grid: { color: gridCol, drawTicks: false },
-          ticks: { font: { family: 'DM Sans', size: 9 }, color: textHint, maxTicksLimit: 4, padding: 4 },
+          ticks: { font: { family: 'DM Sans', size: 9 }, color: textHint, maxTicksLimit: 4, padding: 4, stepSize: 50 },
           border: { display: false }
         }
       },
