@@ -2255,7 +2255,28 @@ function cumulate(arr) {
 }
 
 var mRaw = genWeekly([18000,14000,22000,25000,20000,28000,30000,24000,26000,19000,23000,21000], 0.62);
-var sRaw = genWeekly([2500,2500,3500,4000,4500,5500,6000,6500,7500,8000,9000,10000], 0.50);
+
+// Soup: started 01/02/2026 = week 4 of 2026. Reads from real finance entries.
+function buildSoupChartData() {
+  var fat = [], luc = [];
+  var entries = getSoupFin ? getSoupFin() : [];
+  var startDate = new Date('2026-01-05'); // week 1 start
+  var weeklyFat = {};
+  entries.filter(function(e){ return e.tipo === 'entrada'; }).forEach(function(e) {
+    if (!e.data || !e.valor) return;
+    var d = new Date(e.data);
+    var diffDays = Math.floor((d - startDate) / 86400000);
+    var week = Math.max(0, Math.min(51, Math.floor(diffDays / 7)));
+    weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
+  });
+  for (var i = 0; i < 52; i++) {
+    var f = i < 4 ? 0 : (weeklyFat[i] || 0); // zero before Feb 01 2026 (week 4)
+    fat.push(f);
+    luc.push(Math.round(f * 0.80)); // ~80% margem
+  }
+  return { fat: fat, luc: luc };
+}
+var sRaw = buildSoupChartData();
 // re.leio: started 23/03/2026 = week 12 of 2026. Zero until now, updates from real finance data.
 function buildReleioChartData() {
   var fat = [], luc = [];
@@ -2317,6 +2338,7 @@ function getChartColors() {
 
 function buildChart() {
   rRaw = buildReleioChartData(); // always use latest finance data
+  sRaw = buildSoupChartData();   // always use latest finance data
   var c = getChartColors();
   var isWeekly = chartMode === 'weekly';
 
@@ -4363,10 +4385,29 @@ function saveSoupMember(){
     notas:document.getElementById('smf-notas').value.trim()};
   if(!obj.nome){alert('Informe o nome.');return;}
   var list=getSoupMembros();
+  var isNew = !editingSoupMemberId;
   if(editingSoupMemberId){var idx=list.findIndex(function(m){return m.id===editingSoupMemberId;});if(idx>-1)list[idx]=obj;else list.push(obj);}
   else list.push(obj);
-  saveSoupMembros(list);closeSoupMemberModal();renderSoupMembros();renderSoupResumo();
+  saveSoupMembros(list);
+
+  // Auto-create financeiro entry for new active members
+  if(isNew && obj.status === 'Ativo') {
+    var finList = getSoupFin();
+    var dataEntrada = obj.inicio || _todayKey();
+    if(obj.pagamento === 'avista' && obj.avista) {
+      finList.push({id:uid(),desc:'Pagamento à vista — '+obj.nome,valor:obj.avista,
+        data:dataEntrada,cat:'Setup',membroId:obj.id,tipo:'entrada'});
+    } else if(obj.mensalidade) {
+      finList.push({id:uid(),desc:'Mensalidade — '+obj.nome,valor:obj.mensalidade,
+        data:dataEntrada,cat:'Mensalidade',membroId:obj.id,tipo:'entrada'});
+    }
+    saveSoupFinData(finList);
+    renderSoupFinanceiro();
+  }
+
+  closeSoupMemberModal();renderSoupMembros();renderSoupResumo();
   populateSoupMemberSelects();
+  buildChart();
 }
 function deleteSoupMember(){
   if(!confirm('Excluir membro?'))return;
