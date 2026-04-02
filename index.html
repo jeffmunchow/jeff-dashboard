@@ -3706,6 +3706,26 @@ function recordFollowerPoint(proj, value) {
   dbMetricSave(SPARK_HISTORY_KEY['r'], JSON.stringify(arr));
 })();
 
+// Seed real Soup follower history (fixed known data points)
+(function() {
+  var seed = [
+    {"d": "2026-02-01", "v": 1},
+    {"d": "2026-02-05", "v": 6},
+    {"d": "2026-02-17", "v": 13},
+    {"d": "2026-02-19", "v": 16},
+    {"d": "2026-02-28", "v": 20},
+    {"d": "2026-03-02", "v": 22}
+  ];
+  var existing = getFollowerHistory('s');
+  var todaySeed = _todayKey();
+  var merged = {};
+  existing.forEach(function(p){ if (p.d <= todaySeed) merged[p.d] = p.v; });
+  seed.forEach(function(p){ if (p.d <= todaySeed) merged[p.d] = p.v; });
+  var arr = Object.keys(merged).sort().map(function(d){ return {d:d, v:merged[d]}; });
+  localStorage.setItem(SPARK_HISTORY_KEY['s'], JSON.stringify(arr));
+  dbMetricSave(SPARK_HISTORY_KEY['s'], JSON.stringify(arr));
+})();
+
 // Load follower history from Supabase on init
 ['m','s','r'].forEach(function(proj) {
   dbMetricLoad(SPARK_HISTORY_KEY[proj]).then(function(val) {
@@ -3727,6 +3747,10 @@ function recordFollowerPoint(proj, value) {
         var seed = [{"d": "2026-03-23", "v": 1}, {"d": "2026-03-24", "v": 1}, {"d": "2026-03-25", "v": 2}, {"d": "2026-03-26", "v": 2}, {"d": "2026-03-27", "v": 8}];
         seed.forEach(function(p){ if (p.d <= today) merged[p.d] = p.v; });
       }
+      if (proj === 's') {
+        var seedS = [{"d":"2026-02-01","v":1},{"d":"2026-02-05","v":6},{"d":"2026-02-17","v":13},{"d":"2026-02-19","v":16},{"d":"2026-02-28","v":20},{"d":"2026-03-02","v":22}];
+        seedS.forEach(function(p){ if (p.d <= today) merged[p.d] = p.v; });
+      }
       var arr = Object.keys(merged).sort().map(function(d){ return {d:d, v:merged[d]}; });
       localStorage.setItem(SPARK_HISTORY_KEY[proj], JSON.stringify(arr));
     } catch(e){}
@@ -3735,7 +3759,7 @@ function recordFollowerPoint(proj, value) {
 
 var sparkData = {
   m: { start: 200,  startDate: '2014-01-01', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#D4902A' : '#C4780A'; } },
-  s: { start: 1,    startDate: '2026-01-01', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#18926E' : '#0A7864'; } },
+  s: { start: 1,    startDate: '2026-02-01', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#18926E' : '#0A7864'; } },
   r: { start: 1,    startDate: '2026-03-24', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#CC4A28' : '#C43A1A'; } }
 };
 
