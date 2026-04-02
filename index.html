@@ -2277,38 +2277,82 @@ function buildSoupChartData() {
   return { fat: fat, luc: luc };
 }
 
-// Soup cumulative daily — from 01/02/2026 to today, null after today
-function buildSoupCumulDaily() {
-  var entries = getSoupFin ? getSoupFin() : [];
-  var start = new Date('2026-02-01T00:00:00');
-  var today = new Date(); today.setHours(0,0,0,0);
-  var msDay = 86400000;
-  var totalDays = Math.round((today - start) / msDay) + 1;
+// ── CUMULATIVE DAILY 2026 — unified axis for all projects ────────
+// Returns { labels, mFat, mLuc, sFat, sLuc, rFat, rLuc }
+// Each array has 365 points (01/01/2026–31/12/2026).
+// Values are cumulative from each project's start date.
+// Days after today → null (line stops there).
+function buildCumulDaily2026() {
+  var yearStart = new Date('2026-01-01T00:00:00');
+  var yearEnd   = new Date('2026-12-31T00:00:00');
+  var today     = new Date(); today.setHours(0,0,0,0);
+  var msDay     = 86400000;
+  var totalDays = Math.round((yearEnd - yearStart) / msDay) + 1; // 365
 
-  // Build a map of date -> value
-  var dayMap = {};
-  entries.filter(function(e){ return e.tipo === 'entrada'; }).forEach(function(e) {
-    if (!e.data || !e.valor) return;
-    var d = new Date(e.data + 'T00:00:00');
-    var key = e.data; // YYYY-MM-DD
-    dayMap[key] = (dayMap[key] || 0) + (parseFloat(e.valor) || 0);
-  });
+  // Project start dates
+  var mStart = new Date('2014-01-01T00:00:00'); // Münchow — always from start of year
+  var sStart = new Date('2026-02-01T00:00:00'); // Soup
+  var rStart = new Date('2026-03-23T00:00:00'); // re.leio
 
-  var labels = [], fatPts = [], lucPts = [];
-  var sumF = 0, sumL = 0;
-  for (var i = 0; i < totalDays; i++) {
-    var d = new Date(start.getTime() + i * msDay);
-    var key = d.getFullYear() + '-' + _pad(d.getMonth()+1) + '-' + _pad(d.getDate());
-    var label = _pad(d.getDate()) + '/' + _pad(d.getMonth()+1);
-    // Show month label only on 1st of month
-    if (d.getDate() === 1) label = MON_S[d.getMonth()];
-    labels.push(label);
-    sumF += (dayMap[key] || 0);
-    sumL += Math.round((dayMap[key] || 0) * 0.80);
-    fatPts.push(sumF);
-    lucPts.push(sumL);
+  // Build daily value maps from finance entries
+  function dayMap(entries, tipoFilter) {
+    var map = {};
+    entries.forEach(function(e) {
+      if (tipoFilter && e.tipo !== tipoFilter) return;
+      if (!e.data || !e.valor) return;
+      map[e.data] = (map[e.data] || 0) + (parseFloat(e.valor) || 0);
+    });
+    return map;
   }
-  return { labels: labels, fat: fatPts, luc: lucPts };
+
+  var mMap = dayMap(getFinEntries ? getFinEntries() : [], 'entrada');
+  var sMap = dayMap(getSoupFin   ? getSoupFin()    : [], 'entrada');
+  var rMap = dayMap(getReleioFin ? getReleioFin()  : []);
+
+  var labels = [];
+  var mFat = [], mLuc = [], sFat = [], sLuc = [], rFat = [], rLuc = [];
+  var mSumF=0, mSumL=0, sSumF=0, sSumL=0, rSumF=0, rSumL=0;
+
+  for (var i = 0; i < totalDays; i++) {
+    var d = new Date(yearStart.getTime() + i * msDay);
+    var key = d.getFullYear() + '-' + _pad(d.getMonth()+1) + '-' + _pad(d.getDate());
+
+    // Label: show month name on 1st of month, empty otherwise
+    labels.push(d.getDate() === 1 ? MON_S[d.getMonth()] : '');
+
+    var isFuture = d > today;
+
+    // Münchow
+    if (d < mStart || isFuture) {
+      mFat.push(d < mStart ? null : null);
+      mLuc.push(d < mStart ? null : null);
+    } else {
+      mSumF += (mMap[key] || 0);
+      mSumL += Math.round((mMap[key] || 0) * 0.62);
+      mFat.push(mSumF);
+      mLuc.push(mSumL);
+    }
+
+    // Soup
+    if (d < sStart || isFuture) {
+      sFat.push(null); sLuc.push(null);
+    } else {
+      sSumF += (sMap[key] || 0);
+      sSumL += Math.round((sMap[key] || 0) * 0.80);
+      sFat.push(sSumF); sLuc.push(sSumL);
+    }
+
+    // re.leio
+    if (d < rStart || isFuture) {
+      rFat.push(null); rLuc.push(null);
+    } else {
+      rSumF += (rMap[key] || 0);
+      rSumL += Math.round((rMap[key] || 0) * 0.85);
+      rFat.push(rSumF); rLuc.push(rSumL);
+    }
+  }
+
+  return { labels: labels, mFat: mFat, mLuc: mLuc, sFat: sFat, sLuc: sLuc, rFat: rFat, rLuc: rLuc };
 }
 var sRaw = buildSoupChartData();
 // re.leio: started 23/03/2026 = week 12 of 2026. Zero until now, updates from real finance data.
@@ -2397,24 +2441,20 @@ function buildChart() {
       options: _chartOptions(c, true, weeklyLabels)
     });
   } else {
-    // ── CUMULATIVE MODE — Soup daily (01/02→today), others monthly ──
-    var mFat = getCumulMonthly(mRaw.fat), mLuc = getCumulMonthly(mRaw.luc);
-    var rFat = getCumulMonthly(rRaw.fat), rLuc = getCumulMonthly(rRaw.luc);
-    var sDaily = buildSoupCumulDaily();
+    // ── CUMULATIVE MODE — unified daily 2026 axis ──────────────
+    var cd = buildCumulDaily2026();
 
-    // Pad monthly arrays to same length as daily for shared x via separate axes
     chartInstance = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: sDaily.labels, // daily labels as primary x (Soup)
+        labels: cd.labels,
         datasets: [
-          // Münchow & re.leio use secondary x (monthly, 12 pts)
-          { label: 'Münchow fat.',  data: mFat, borderColor: c.amber, borderWidth: 1, borderDash: [4,4], pointRadius: 2.5, pointBackgroundColor: c.amber, tension: 0.35, fill: false, xAxisID: 'xMonthly' },
-          { label: 'Münchow lucro', data: mLuc, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 2.5, pointBackgroundColor: c.amber, tension: 0.35, fill: false, xAxisID: 'xMonthly' },
-          { label: 'Soup fat.',     data: sDaily.fat, borderColor: c.teal, borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, tension: 0.1, fill: false, xAxisID: 'xDaily' },
-          { label: 'Soup lucro',    data: sDaily.luc, borderColor: c.teal, borderWidth: 1.5, borderDash: [],    pointRadius: 0, tension: 0.1, fill: false, xAxisID: 'xDaily' },
-          { label: 'Re.leio fat.',  data: rFat, borderColor: c.coral, borderWidth: 1, borderDash: [4,4], pointRadius: 2.5, pointBackgroundColor: c.coral, tension: 0.35, fill: false, xAxisID: 'xMonthly' },
-          { label: 'Re.leio lucro', data: rLuc, borderColor: c.coral, borderWidth: 1, borderDash: [],    pointRadius: 2.5, pointBackgroundColor: c.coral, tension: 0.35, fill: false, xAxisID: 'xMonthly' }
+          { label: 'Münchow fat.',  data: cd.mFat, borderColor: c.amber, borderWidth: 1, borderDash: [4,4], pointRadius: 0, tension: 0.15, fill: false, spanGaps: false },
+          { label: 'Münchow lucro', data: cd.mLuc, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.15, fill: false, spanGaps: false },
+          { label: 'Soup fat.',     data: cd.sFat, borderColor: c.teal,  borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, tension: 0.1, fill: false, spanGaps: false },
+          { label: 'Soup lucro',    data: cd.sLuc, borderColor: c.teal,  borderWidth: 1.5, borderDash: [],    pointRadius: 0, tension: 0.1, fill: false, spanGaps: false },
+          { label: 'Re.leio fat.',  data: cd.rFat, borderColor: c.coral, borderWidth: 1, borderDash: [4,4], pointRadius: 0, tension: 0.15, fill: false, spanGaps: false },
+          { label: 'Re.leio lucro', data: cd.rLuc, borderColor: c.coral, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.15, fill: false, spanGaps: false }
         ]
       },
       options: {
@@ -2428,9 +2468,16 @@ function buildChart() {
             titleColor: c.tooltipTitle, bodyColor: c.tooltipBody, padding: 12,
             titleFont: { family: 'DM Sans, sans-serif', size: 11, weight: '400' },
             bodyFont:  { family: 'DM Sans, sans-serif', size: 11 },
+            filter: function(item) { return item.parsed.y !== null; },
             callbacks: {
-              title: function(items) { return items[0] ? sDaily.labels[items[0].dataIndex] : ''; },
+              title: function(items) {
+                // Find the actual date from index
+                var idx = items[0] ? items[0].dataIndex : 0;
+                var d = new Date(new Date('2026-01-01T00:00:00').getTime() + idx * 86400000);
+                return _pad(d.getDate()) + '/' + _pad(d.getMonth()+1) + '/' + d.getFullYear();
+              },
               label: function(ctx) {
+                if (ctx.parsed.y === null) return null;
                 var v = ctx.parsed.y;
                 return ' ' + ctx.dataset.label + ':  acum. ' + (v < 0 ? '-R$ ' : 'R$ ') + Math.abs(Math.round(v)).toLocaleString('pt-BR');
               }
@@ -2438,27 +2485,16 @@ function buildChart() {
           }
         },
         scales: {
-          xDaily: {
-            type: 'category',
-            position: 'bottom',
-            labels: sDaily.labels,
+          x: {
             grid: { color: c.grid, lineWidth: 0.5, drawTicks: false },
             border: { display: false },
             ticks: {
               color: c.tick, font: { size: 11, family: 'DM Sans, sans-serif', weight: '300' },
-              maxRotation: 0, autoSkip: true, maxTicksLimit: 12, padding: 8,
+              maxRotation: 0, autoSkip: false, padding: 8,
               callback: function(val, idx) {
-                // Only show labels that are month names (1st of month)
-                var lbl = sDaily.labels[idx];
-                return MON_S.includes(lbl) ? lbl : '';
+                return cd.labels[idx] || '';
               }
             }
-          },
-          xMonthly: {
-            type: 'category',
-            position: 'bottom',
-            labels: cumulLabels,
-            display: false // hidden — just used for positioning Münchow/re.leio
           },
           y: {
             grid: { color: c.grid, lineWidth: 0.5, drawTicks: false },
