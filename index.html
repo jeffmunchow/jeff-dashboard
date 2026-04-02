@@ -565,8 +565,8 @@
   <div class="chart-card">
     <div class="chart-header">
       <div class="chart-header-left">
-        <div class="chart-title" id="chartTitle">Faturamento &amp; Lucro — 52 semanas</div>
-        <div class="chart-subtitle" id="chartSubtitle">Dados simulados</div>
+        <div class="chart-title" id="chartTitle">Faturamento &amp; Lucro — acumulado anual</div>
+        <div class="chart-subtitle" id="chartSubtitle">Soma acumulada mês a mês</div>
       </div>
       <div class="chart-header-right">
         <div class="legend">
@@ -578,8 +578,8 @@
           <span class="legend-item" style="color:var(--text-hint);"><span class="legend-line" style="border-top:1px solid currentColor;"></span>lucro</span>
         </div>
         <div class="chart-mode-toggle">
-          <button class="chart-mode-btn active" id="btnWeekly"  onclick="setChartMode('weekly')">Semanal</button>
-          <button class="chart-mode-btn"        id="btnCumul"   onclick="setChartMode('cumulative')">Acumulado</button>
+          <button class="chart-mode-btn"        id="btnWeekly"  onclick="setChartMode('weekly')">Semanal</button>
+          <button class="chart-mode-btn active"  id="btnCumul"   onclick="setChartMode('cumulative')">Acumulado</button>
         </div>
       </div>
     </div>
@@ -2231,7 +2231,7 @@ var MONTHS = ['janeiro','fevereiro','março','abril','maio','junho','julho','ago
 var MON_S  = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 var current = null;
 var chartInstance = null;
-var chartMode = 'weekly';
+var chartMode = 'cumulative';
 
 function genWeekly(monthlyBase, margem) {
   var fat = [], luc = [];
@@ -2275,6 +2275,27 @@ function buildSoupChartData() {
     luc.push(Math.round(f * 0.80)); // ~80% margem
   }
   return { fat: fat, luc: luc };
+}
+
+// Soup cumulative monthly — reads directly from fin entries for precision
+function buildSoupCumulMonthly() {
+  var entries = getSoupFin ? getSoupFin() : [];
+  var monthlyFat = new Array(12).fill(0);
+  entries.filter(function(e){ return e.tipo === 'entrada'; }).forEach(function(e) {
+    if (!e.data || !e.valor) return;
+    var d = new Date(e.data + 'T00:00:00');
+    var m = d.getMonth(); // 0-11
+    monthlyFat[m] += parseFloat(e.valor) || 0;
+  });
+  // Cumulate
+  var fatCumul = [], lucCumul = [], sum = 0, sumL = 0;
+  for (var i = 0; i < 12; i++) {
+    sum  += monthlyFat[i];
+    sumL += Math.round(monthlyFat[i] * 0.80);
+    fatCumul.push(sum);
+    lucCumul.push(sumL);
+  }
+  return { fat: fatCumul, luc: lucCumul };
 }
 var sRaw = buildSoupChartData();
 // re.leio: started 23/03/2026 = week 12 of 2026. Zero until now, updates from real finance data.
@@ -2352,7 +2373,8 @@ function buildChart() {
   } else {
     labels = cumulLabels;
     mFat = getCumulMonthly(mRaw.fat); mLuc = getCumulMonthly(mRaw.luc);
-    sFat = getCumulMonthly(sRaw.fat); sLuc = getCumulMonthly(sRaw.luc);
+    var sCumul = buildSoupCumulMonthly();
+    sFat = sCumul.fat; sLuc = sCumul.luc;
     rFat = getCumulMonthly(rRaw.fat); rLuc = getCumulMonthly(rRaw.luc);
   }
 
