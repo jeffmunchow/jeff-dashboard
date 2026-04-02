@@ -2277,25 +2277,38 @@ function buildSoupChartData() {
   return { fat: fat, luc: luc };
 }
 
-// Soup cumulative monthly — reads directly from fin entries for precision
-function buildSoupCumulMonthly() {
+// Soup cumulative daily — from 01/02/2026 to today, null after today
+function buildSoupCumulDaily() {
   var entries = getSoupFin ? getSoupFin() : [];
-  var monthlyFat = new Array(12).fill(0);
+  var start = new Date('2026-02-01T00:00:00');
+  var today = new Date(); today.setHours(0,0,0,0);
+  var msDay = 86400000;
+  var totalDays = Math.round((today - start) / msDay) + 1;
+
+  // Build a map of date -> value
+  var dayMap = {};
   entries.filter(function(e){ return e.tipo === 'entrada'; }).forEach(function(e) {
     if (!e.data || !e.valor) return;
     var d = new Date(e.data + 'T00:00:00');
-    var m = d.getMonth(); // 0-11
-    monthlyFat[m] += parseFloat(e.valor) || 0;
+    var key = e.data; // YYYY-MM-DD
+    dayMap[key] = (dayMap[key] || 0) + (parseFloat(e.valor) || 0);
   });
-  // Cumulate
-  var fatCumul = [], lucCumul = [], sum = 0, sumL = 0;
-  for (var i = 0; i < 12; i++) {
-    sum  += monthlyFat[i];
-    sumL += Math.round(monthlyFat[i] * 0.80);
-    fatCumul.push(sum);
-    lucCumul.push(sumL);
+
+  var labels = [], fatPts = [], lucPts = [];
+  var sumF = 0, sumL = 0;
+  for (var i = 0; i < totalDays; i++) {
+    var d = new Date(start.getTime() + i * msDay);
+    var key = d.getFullYear() + '-' + _pad(d.getMonth()+1) + '-' + _pad(d.getDate());
+    var label = _pad(d.getDate()) + '/' + _pad(d.getMonth()+1);
+    // Show month label only on 1st of month
+    if (d.getDate() === 1) label = MON_S[d.getMonth()];
+    labels.push(label);
+    sumF += (dayMap[key] || 0);
+    sumL += Math.round((dayMap[key] || 0) * 0.80);
+    fatPts.push(sumF);
+    lucPts.push(sumL);
   }
-  return { fat: fatCumul, luc: lucCumul };
+  return { labels: labels, fat: fatPts, luc: lucPts };
 }
 var sRaw = buildSoupChartData();
 // re.leio: started 23/03/2026 = week 12 of 2026. Zero until now, updates from real finance data.
@@ -2363,84 +2376,149 @@ function buildChart() {
   var c = getChartColors();
   var isWeekly = chartMode === 'weekly';
 
-  var labels, mFat, mLuc, sFat, sLuc, rFat, rLuc;
-
-  if (isWeekly) {
-    labels = weeklyLabels;
-    mFat = mRaw.fat; mLuc = mRaw.luc;
-    sFat = sRaw.fat; sLuc = sRaw.luc;
-    rFat = rRaw.fat; rLuc = rRaw.luc;
-  } else {
-    labels = cumulLabels;
-    mFat = getCumulMonthly(mRaw.fat); mLuc = getCumulMonthly(mRaw.luc);
-    var sCumul = buildSoupCumulMonthly();
-    sFat = sCumul.fat; sLuc = sCumul.luc;
-    rFat = getCumulMonthly(rRaw.fat); rLuc = getCumulMonthly(rRaw.luc);
-  }
-
   var ctx = document.getElementById('mainChart').getContext('2d');
   if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
 
-  chartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        { label: 'Münchow fat.',  data: mFat, borderColor: c.amber, borderWidth: 1, borderDash: [4,4], pointRadius: isWeekly ? 0 : 2.5, pointBackgroundColor: c.amber, tension: isWeekly ? 0.45 : 0.35, fill: false },
-        { label: 'Münchow lucro', data: mLuc, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: isWeekly ? 0 : 2.5, pointBackgroundColor: c.amber, tension: isWeekly ? 0.45 : 0.35, fill: false },
-        { label: 'Soup fat.',     data: sFat, borderColor: c.teal,  borderWidth: 1, borderDash: [4,4], pointRadius: isWeekly ? 0 : 2.5, pointBackgroundColor: c.teal,  tension: isWeekly ? 0.45 : 0.35, fill: false },
-        { label: 'Soup lucro',    data: sLuc, borderColor: c.teal,  borderWidth: 1, borderDash: [],    pointRadius: isWeekly ? 0 : 2.5, pointBackgroundColor: c.teal,  tension: isWeekly ? 0.45 : 0.35, fill: false },
-        { label: 'Re.leio fat.',  data: rFat, borderColor: c.coral, borderWidth: 1, borderDash: [4,4], pointRadius: isWeekly ? 0 : 2.5, pointBackgroundColor: c.coral, tension: isWeekly ? 0.45 : 0.35, fill: false },
-        { label: 'Re.leio lucro', data: rLuc, borderColor: c.coral, borderWidth: 1, borderDash: [],    pointRadius: isWeekly ? 0 : 2.5, pointBackgroundColor: c.coral, tension: isWeekly ? 0.45 : 0.35, fill: false }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      animation: { duration: 350, easing: 'easeInOutQuart' },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: c.tooltipBg, borderColor: c.tooltipBorder, borderWidth: 1,
-          titleColor: c.tooltipTitle, bodyColor: c.tooltipBody, padding: 12,
-          titleFont: { family: 'DM Sans, sans-serif', size: 11, weight: '400' },
-          bodyFont:  { family: 'DM Sans, sans-serif', size: 11 },
-          callbacks: {
-            title: function(items) {
-              return isWeekly ? 'Semana ' + (items[0].dataIndex + 1) : MON_S[items[0].dataIndex];
-            },
-            label: function(ctx) {
-              var v = ctx.parsed.y;
-              var prefix = isWeekly ? '' : 'acum. ';
-              return ' ' + ctx.dataset.label + ':  ' + prefix + (v < 0 ? '-R$ ' : 'R$ ') + Math.abs(Math.round(v)).toLocaleString('pt-BR');
-            }
-          }
-        }
+  if (isWeekly) {
+    // ── WEEKLY MODE — all projects on 52-week axis ──────────────
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: weeklyLabels,
+        datasets: [
+          { label: 'Münchow fat.',  data: mRaw.fat, borderColor: c.amber, borderWidth: 1, borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Münchow lucro', data: mRaw.luc, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Soup fat.',     data: sRaw.fat, borderColor: c.teal,  borderWidth: 1, borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Soup lucro',    data: sRaw.luc, borderColor: c.teal,  borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Re.leio fat.',  data: rRaw.fat, borderColor: c.coral, borderWidth: 1, borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Re.leio lucro', data: rRaw.luc, borderColor: c.coral, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.45, fill: false }
+        ]
       },
-      scales: {
-        x: {
-          grid: { color: c.grid, lineWidth: 0.5, drawTicks: false },
-          border: { display: false },
-          ticks: {
-            color: c.tick, font: { size: 11, family: 'DM Sans, sans-serif', weight: '300' },
-            maxRotation: 0, autoSkip: false, padding: 8
+      options: _chartOptions(c, true, weeklyLabels)
+    });
+  } else {
+    // ── CUMULATIVE MODE — Soup daily (01/02→today), others monthly ──
+    var mFat = getCumulMonthly(mRaw.fat), mLuc = getCumulMonthly(mRaw.luc);
+    var rFat = getCumulMonthly(rRaw.fat), rLuc = getCumulMonthly(rRaw.luc);
+    var sDaily = buildSoupCumulDaily();
+
+    // Pad monthly arrays to same length as daily for shared x via separate axes
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: sDaily.labels, // daily labels as primary x (Soup)
+        datasets: [
+          // Münchow & re.leio use secondary x (monthly, 12 pts)
+          { label: 'Münchow fat.',  data: mFat, borderColor: c.amber, borderWidth: 1, borderDash: [4,4], pointRadius: 2.5, pointBackgroundColor: c.amber, tension: 0.35, fill: false, xAxisID: 'xMonthly' },
+          { label: 'Münchow lucro', data: mLuc, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 2.5, pointBackgroundColor: c.amber, tension: 0.35, fill: false, xAxisID: 'xMonthly' },
+          { label: 'Soup fat.',     data: sDaily.fat, borderColor: c.teal, borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, tension: 0.1, fill: false, xAxisID: 'xDaily' },
+          { label: 'Soup lucro',    data: sDaily.luc, borderColor: c.teal, borderWidth: 1.5, borderDash: [],    pointRadius: 0, tension: 0.1, fill: false, xAxisID: 'xDaily' },
+          { label: 'Re.leio fat.',  data: rFat, borderColor: c.coral, borderWidth: 1, borderDash: [4,4], pointRadius: 2.5, pointBackgroundColor: c.coral, tension: 0.35, fill: false, xAxisID: 'xMonthly' },
+          { label: 'Re.leio lucro', data: rLuc, borderColor: c.coral, borderWidth: 1, borderDash: [],    pointRadius: 2.5, pointBackgroundColor: c.coral, tension: 0.35, fill: false, xAxisID: 'xMonthly' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        animation: { duration: 350, easing: 'easeInOutQuart' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: c.tooltipBg, borderColor: c.tooltipBorder, borderWidth: 1,
+            titleColor: c.tooltipTitle, bodyColor: c.tooltipBody, padding: 12,
+            titleFont: { family: 'DM Sans, sans-serif', size: 11, weight: '400' },
+            bodyFont:  { family: 'DM Sans, sans-serif', size: 11 },
+            callbacks: {
+              title: function(items) { return items[0] ? sDaily.labels[items[0].dataIndex] : ''; },
+              label: function(ctx) {
+                var v = ctx.parsed.y;
+                return ' ' + ctx.dataset.label + ':  acum. ' + (v < 0 ? '-R$ ' : 'R$ ') + Math.abs(Math.round(v)).toLocaleString('pt-BR');
+              }
+            }
           }
         },
-        y: {
-          grid: { color: c.grid, lineWidth: 0.5, drawTicks: false },
-          border: { display: false },
-          ticks: {
-            color: c.tick, font: { size: 11, family: 'DM Sans, sans-serif', weight: '300' }, padding: 8,
-            callback: function(v) {
-              if (Math.abs(v) >= 1000) return (v < 0 ? '-' : '') + 'R$' + Math.round(Math.abs(v)/1000) + 'k';
-              return v === 0 ? 'R$0' : '';
+        scales: {
+          xDaily: {
+            type: 'category',
+            position: 'bottom',
+            labels: sDaily.labels,
+            grid: { color: c.grid, lineWidth: 0.5, drawTicks: false },
+            border: { display: false },
+            ticks: {
+              color: c.tick, font: { size: 11, family: 'DM Sans, sans-serif', weight: '300' },
+              maxRotation: 0, autoSkip: true, maxTicksLimit: 12, padding: 8,
+              callback: function(val, idx) {
+                // Only show labels that are month names (1st of month)
+                var lbl = sDaily.labels[idx];
+                return MON_S.includes(lbl) ? lbl : '';
+              }
+            }
+          },
+          xMonthly: {
+            type: 'category',
+            position: 'bottom',
+            labels: cumulLabels,
+            display: false // hidden — just used for positioning Münchow/re.leio
+          },
+          y: {
+            grid: { color: c.grid, lineWidth: 0.5, drawTicks: false },
+            border: { display: false },
+            ticks: {
+              color: c.tick, font: { size: 11, family: 'DM Sans, sans-serif', weight: '300' }, padding: 8,
+              callback: function(v) {
+                if (Math.abs(v) >= 1000) return (v < 0 ? '-' : '') + 'R$' + Math.round(Math.abs(v)/1000) + 'k';
+                return v === 0 ? 'R$0' : '';
+              }
             }
           }
+        },
+        layout: { padding: { top: 4, right: 4, bottom: 0, left: 0 } }
+      }
+    });
+  }
+}
+
+function _chartOptions(c, isWeekly, labels) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    animation: { duration: 350, easing: 'easeInOutQuart' },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: c.tooltipBg, borderColor: c.tooltipBorder, borderWidth: 1,
+        titleColor: c.tooltipTitle, bodyColor: c.tooltipBody, padding: 12,
+        titleFont: { family: 'DM Sans, sans-serif', size: 11, weight: '400' },
+        bodyFont:  { family: 'DM Sans, sans-serif', size: 11 },
+        callbacks: {
+          title: function(items) { return 'Semana ' + (items[0].dataIndex + 1); },
+          label: function(ctx) {
+            var v = ctx.parsed.y;
+            return ' ' + ctx.dataset.label + ':  ' + (v < 0 ? '-R$ ' : 'R$ ') + Math.abs(Math.round(v)).toLocaleString('pt-BR');
+          }
         }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: c.grid, lineWidth: 0.5, drawTicks: false },
+        border: { display: false },
+        ticks: { color: c.tick, font: { size: 11, family: 'DM Sans, sans-serif', weight: '300' }, maxRotation: 0, autoSkip: false, padding: 8 }
       },
-      layout: { padding: { top: 4, right: 4, bottom: 0, left: 0 } }
-    }
-  });
+      y: {
+        grid: { color: c.grid, lineWidth: 0.5, drawTicks: false },
+        border: { display: false },
+        ticks: {
+          color: c.tick, font: { size: 11, family: 'DM Sans, sans-serif', weight: '300' }, padding: 8,
+          callback: function(v) {
+            if (Math.abs(v) >= 1000) return (v < 0 ? '-' : '') + 'R$' + Math.round(Math.abs(v)/1000) + 'k';
+            return v === 0 ? 'R$0' : '';
+          }
+        }
+      }
+    },
+    layout: { padding: { top: 4, right: 4, bottom: 0, left: 0 } }
+  };
 }
 
 function setChartMode(mode) {
