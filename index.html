@@ -1304,6 +1304,7 @@
     <button class="studio-tab"        id="soupstab-marketing" onclick="switchSoupTab('marketing')">Marketing</button>
     <button class="studio-tab"        id="soupstab-prospectos" onclick="switchSoupTab('prospectos')">Prospectos</button>
     <button class="studio-tab"        id="soupstab-tarefas" onclick="switchSoupTab('tarefas')">Tarefas</button>
+    <button class="studio-tab"        id="soupstab-oportunidades" onclick="switchSoupTab('oportunidades')">Oportunidades</button>
   </div>
 
   <div class="studio-body">
@@ -1445,6 +1446,19 @@
           <tbody id="soup-prosp-tbody"></tbody>
         </table>
       </div></div>
+    </div>
+
+    <!-- OPORTUNIDADES SOUP -->
+    <div class="tab-panel" id="souppanel-oportunidades">
+      <div class="section-header">
+        <div class="section-title">Oportunidades</div>
+        <div class="section-actions">
+          <button class="btn primary" onclick="openSoupOportunidadeModal()">+ Oportunidade</button>
+        </div>
+      </div>
+      <div id="soup-oportunidades-container">
+        <div class="agenda-empty">Nenhuma oportunidade cadastrada.</div>
+      </div>
     </div>
 
     <!-- TAREFAS SOUP -->
