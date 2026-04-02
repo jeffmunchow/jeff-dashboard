@@ -1825,12 +1825,14 @@
       <div class="field-row"><label>Número do passaporte</label><input type="text" id="smf-passaporte-num" placeholder="ex: BR123456"></div>
       <div class="field-row"><label>Validade do passaporte</label><input type="text" class="smart-date-input" id="smf-passaporte-val" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10"></div>
       <div class="field-row"><label>País de emissão</label><input type="text" id="smf-passaporte-pais" placeholder="ex: Brasil"></div>
-      <div class="field-row"><label>Mensalidade (R$)</label><input type="number" id="smf-mensalidade" placeholder="ex: 297"></div>
       <div class="field-row"><label>Forma de pagamento</label>
         <select id="smf-pagamento" onchange="toggleSoupAvistaField()"><option value="mensal">Mensal</option><option value="avista">À vista</option></select>
       </div>
-      <div class="field-row" id="smf-avista-row" style="display:none;"><label>Valor total à vista (R$)</label><input type="number" id="smf-avista" placeholder="ex: 2970"></div>
       <div class="field-row"><label>Plano</label>
+        <select id="smf-plano"><option>Essencial</option><option>Plus</option><option>Premium</option></select>
+      </div>
+      <div class="field-row"><label>Mensalidade (R$)</label><input type="number" id="smf-mensalidade" placeholder="ex: 297"></div>
+      <div class="field-row"><label>Valor total à vista (R$)</label><input type="number" id="smf-avista" placeholder="ex: 2970"></div>
         <select id="smf-plano"><option>Essencial</option><option>Plus</option><option>Premium</option></select>
       </div>
       <div class="field-row"><label>Status</label>
@@ -4285,8 +4287,17 @@ function renderSoupResumo() {
 /* SOUP MEMBROS */
 function toggleSoupAvistaField() {
   var pag = document.getElementById('smf-pagamento').value;
-  document.getElementById('smf-avista-row').style.display = pag === 'avista' ? '' : 'none';
-  if (pag === 'mensal') document.getElementById('smf-avista').value = '';
+  var el = document.getElementById('smf-avista');
+  if (pag === 'avista') {
+    el.disabled = false;
+    el.style.opacity = '1';
+    el.style.pointerEvents = '';
+  } else {
+    el.disabled = true;
+    el.style.opacity = '0.35';
+    el.style.pointerEvents = 'none';
+    el.value = '';
+  }
 }
 function renderSoupMembros() {
   var q = (document.getElementById('soup-member-search')||{value:''}).value.toLowerCase();
