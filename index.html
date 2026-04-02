@@ -1826,6 +1826,10 @@
       <div class="field-row"><label>Validade do passaporte</label><input type="text" class="smart-date-input" id="smf-passaporte-val" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10"></div>
       <div class="field-row"><label>País de emissão</label><input type="text" id="smf-passaporte-pais" placeholder="ex: Brasil"></div>
       <div class="field-row"><label>Mensalidade (R$)</label><input type="number" id="smf-mensalidade" placeholder="ex: 297"></div>
+      <div class="field-row"><label>Forma de pagamento</label>
+        <select id="smf-pagamento" onchange="toggleSoupAvistaField()"><option value="mensal">Mensal</option><option value="avista">À vista</option></select>
+      </div>
+      <div class="field-row" id="smf-avista-row" style="display:none;"><label>Valor total à vista (R$)</label><input type="number" id="smf-avista" placeholder="ex: 2970"></div>
       <div class="field-row"><label>Plano</label>
         <select id="smf-plano"><option>Essencial</option><option>Plus</option><option>Premium</option></select>
       </div>
@@ -4279,6 +4283,11 @@ function renderSoupResumo() {
 }
 
 /* SOUP MEMBROS */
+function toggleSoupAvistaField() {
+  var pag = document.getElementById('smf-pagamento').value;
+  document.getElementById('smf-avista-row').style.display = pag === 'avista' ? '' : 'none';
+  if (pag === 'mensal') document.getElementById('smf-avista').value = '';
+}
 function renderSoupMembros() {
   var q = (document.getElementById('soup-member-search')||{value:''}).value.toLowerCase();
   var pf = (document.getElementById('soup-member-plan-filter')||{value:''}).value;
@@ -4290,10 +4299,16 @@ function renderSoupMembros() {
   if(!list.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-hint);padding:2rem;">Nenhum membro encontrado</td></tr>';return;}
   tbody.innerHTML=list.map(function(m){
     var sBadge={'Ativo':'badge-entregue','Pausado':'badge-preprod','Cancelado':'badge-posprod','Prospect':'badge-prospect'}[m.status]||'badge-prospect';
+    var pagBadge = m.pagamento === 'avista'
+      ? '<span class="badge badge-contratado" style="margin-left:4px;">À vista</span>'
+      : '<span class="badge badge-prospect" style="margin-left:4px;">Mensal</span>';
+    var valorCol = m.pagamento === 'avista' && m.avista
+      ? fmtMoney(m.avista) + ' <span style="font-size:0.62rem;color:var(--text-hint);">total</span>'
+      : fmtMoney(m.mensalidade) + ' <span style="font-size:0.62rem;color:var(--text-hint);">/mês</span>';
     return '<tr><td class="td-name">'+m.nome+'</td><td>'+m.email+'</td><td>'+m.plano+'</td>'+
       '<td>'+(m.milhas?Number(m.milhas).toLocaleString('pt-BR'):'—')+'</td>'+
-      '<td>'+fmtMoney(m.mensalidade)+'</td>'+
-      '<td><span class="badge '+sBadge+'">'+m.status+'</span></td>'+
+      '<td>'+valorCol+'</td>'+
+      '<td><span class="badge '+sBadge+'">'+m.status+'</span>'+pagBadge+'</td>'+
       '<td><button class="row-action" onclick="openSoupMemberModal(\''+m.id+'\')">Editar</button></td></tr>';
   }).join('');
 }
@@ -4311,13 +4326,17 @@ function openSoupMemberModal(id) {
     document.getElementById('smf-passaporte-num').value=m.passaporteNum||'';setDateValue('smf-passaporte-val',m.passaporteVal||'');
     document.getElementById('smf-passaporte-pais').value=m.passaportePais||'';
     document.getElementById('smf-status').value=m.status||'Ativo';setDateValue('smf-inicio',m.inicio||'');setDateValue('smf-fim',m.fim||'');
+    document.getElementById('smf-pagamento').value=m.pagamento||'mensal';
+    document.getElementById('smf-avista').value=m.avista||'';
+    toggleSoupAvistaField();
     document.getElementById('smf-notas').value=m.notas||'';
     document.getElementById('soup-member-delete-btn').style.display='inline-flex';
   } else {
     document.getElementById('soup-member-modal-title').textContent='Novo membro';
-    ['smf-nome','smf-email','smf-tel','smf-mensalidade','smf-cpf','smf-passaporte-num','smf-passaporte-pais','smf-notas'].forEach(function(id){document.getElementById(id).value='';});
+    ['smf-nome','smf-email','smf-tel','smf-mensalidade','smf-cpf','smf-passaporte-num','smf-passaporte-pais','smf-notas','smf-avista'].forEach(function(id){document.getElementById(id).value='';});
     ['smf-nascimento','smf-passaporte-val','smf-inicio','smf-fim'].forEach(function(id){setDateValue(id,'');});
     document.getElementById('smf-plano').value='Essencial';document.getElementById('smf-status').value='Ativo';
+    document.getElementById('smf-pagamento').value='mensal';toggleSoupAvistaField();
     document.getElementById('soup-member-delete-btn').style.display='none';
   }
   document.getElementById('soup-member-overlay').classList.add('open');
@@ -4330,6 +4349,7 @@ function saveSoupMember(){
     passaporteNum:document.getElementById('smf-passaporte-num').value.trim(),passaporteVal:getDateValue('smf-passaporte-val'),
     passaportePais:document.getElementById('smf-passaporte-pais').value.trim(),
     plano:document.getElementById('smf-plano').value,mensalidade:parseFloat(document.getElementById('smf-mensalidade').value)||0,
+    pagamento:document.getElementById('smf-pagamento').value,avista:parseFloat(document.getElementById('smf-avista').value)||0,
     status:document.getElementById('smf-status').value,inicio:getDateValue('smf-inicio'),fim:getDateValue('smf-fim'),
     notas:document.getElementById('smf-notas').value.trim()};
   if(!obj.nome){alert('Informe o nome.');return;}
