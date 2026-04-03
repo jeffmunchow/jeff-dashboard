@@ -514,6 +514,24 @@
   .block-releio  { background:var(--coral); }
   .tarefas-now-line { position:absolute; left:68px; right:0; height:1.5px; background:var(--coral); z-index:4; pointer-events:none; }
   .tarefas-now-dot  { position:absolute; left:60px; width:8px; height:8px; border-radius:50%; background:var(--coral); z-index:4; margin-top:-3px; pointer-events:none; }
+  @keyframes opor-dot {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+  .opor-card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: var(--radius); padding: 1rem 1.25rem;
+    display: flex; align-items: flex-start; gap: 1rem;
+    transition: background 0.2s;
+  }
+  .opor-card:hover { background: var(--surface2); }
+  .opor-programa { display: inline-flex; align-items: center; justify-content: center; min-width: 80px; padding: 3px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 500; letter-spacing: 0.02em; white-space: nowrap; flex-shrink: 0; }
+  .opor-body { flex: 1; min-width: 0; }
+  .opor-desc { font-size: 0.82rem; color: var(--text); font-weight: 400; margin-bottom: 4px; line-height: 1.4; }
+  .opor-meta { font-size: 0.7rem; color: var(--text-hint); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .opor-validade { color: var(--amber); font-weight: 500; }
+  .opor-link { font-size: 0.7rem; color: var(--teal); text-decoration: none; }
+  .opor-link:hover { text-decoration: underline; }
   .conflict-banner { background:rgba(196,58,26,0.12); border:0.5px solid var(--coral); border-radius:6px; padding:6px 10px; font-size:0.72rem; color:var(--coral); margin-bottom:0.75rem; display:none; }
 </style>
 </head>
@@ -1451,13 +1469,36 @@
     <!-- OPORTUNIDADES SOUP -->
     <div class="tab-panel" id="souppanel-oportunidades">
       <div class="section-header">
-        <div class="section-title">Oportunidades</div>
+        <div class="section-title">Oportunidades do dia</div>
         <div class="section-actions">
-          <button class="btn primary" onclick="openSoupOportunidadeModal()">+ Oportunidade</button>
+          <span id="soup-opor-last-update" style="font-size:0.7rem;color:var(--text-hint);"></span>
+          <button class="btn primary" id="soup-opor-btn" onclick="buscarOportunidades()">↻ Atualizar</button>
         </div>
       </div>
-      <div id="soup-oportunidades-container">
-        <div class="agenda-empty">Nenhuma oportunidade cadastrada.</div>
+
+      <!-- Estado vazio -->
+      <div id="soup-opor-empty" style="text-align:center;padding:3rem 0;">
+        <div style="font-size:2rem;margin-bottom:0.75rem;">🎯</div>
+        <div style="font-size:0.82rem;color:var(--text-hint);margin-bottom:0.5rem;">Clique em <strong>Atualizar</strong> para buscar as promos de hoje</div>
+        <div style="font-size:0.72rem;color:var(--text-hint);">Livelo · Esfera · Smiles · LATAM Pass · Azul Fidelidade</div>
+      </div>
+
+      <!-- Loading -->
+      <div id="soup-opor-loading" style="display:none;text-align:center;padding:3rem 0;">
+        <div style="font-size:0.82rem;color:var(--text-muted);">Buscando promoções ativas hoje...</div>
+        <div style="margin-top:0.75rem;display:flex;justify-content:center;gap:5px;">
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);animation:opor-dot 1.2s ease-in-out infinite;"></span>
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);animation:opor-dot 1.2s ease-in-out 0.2s infinite;"></span>
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);animation:opor-dot 1.2s ease-in-out 0.4s infinite;"></span>
+        </div>
+      </div>
+
+      <!-- Resultados -->
+      <div id="soup-opor-results" style="display:none;"></div>
+
+      <!-- Erro -->
+      <div id="soup-opor-error" style="display:none;text-align:center;padding:2rem;background:var(--coral-light);border-radius:var(--radius);border:0.5px solid var(--coral);">
+        <div style="font-size:0.82rem;color:var(--coral);" id="soup-opor-error-msg">Erro ao buscar promoções.</div>
       </div>
     </div>
 
@@ -7264,6 +7305,128 @@ function _onDragUp(e) {
   _drag = null;
   renderTarefasList();
   renderTarefasGrid();
+}
+
+/* ── OPORTUNIDADES — busca via Claude API ─────────────────── */
+var _oporProgramas = {
+  'Livelo':          { bg: '#1B2D8F', color: '#fff' },
+  'Esfera':          { bg: '#6B2D8B', color: '#fff' },
+  'Smiles':          { bg: '#F97316', color: '#fff' },
+  'LATAM Pass':      { bg: '#CC0F2A', color: '#fff' },
+  'Azul Fidelidade': { bg: '#003DA5', color: '#fff' }
+};
+
+function _oporSetState(state) {
+  ['empty','loading','results','error'].forEach(function(s) {
+    document.getElementById('soup-opor-' + s).style.display = s === state ? (s === 'results' ? 'block' : '') : 'none';
+  });
+  var btn = document.getElementById('soup-opor-btn');
+  if (btn) btn.disabled = state === 'loading';
+}
+
+async function buscarOportunidades() {
+  _oporSetState('loading');
+  var today = new Date();
+  var todayStr = _pad(today.getDate()) + '/' + _pad(today.getMonth()+1) + '/' + today.getFullYear();
+
+  var prompt = 'Hoje é ' + todayStr + '. Busque na internet as promoções ativas HOJE nos seguintes programas de fidelidade brasileiros: Livelo, Esfera, Smiles, LATAM Pass e Azul Fidelidade. ' +
+    'Foque em: bônus de transferência de pontos/milhas, promoções de acúmulo, ofertas de compra de milhas com desconto, e parcerias promocionais. ' +
+    'Responda SOMENTE com um array JSON válido, sem texto antes ou depois, sem markdown, sem explicações. ' +
+    'Formato exato: [{"programa":"Smiles","descricao":"Descrição clara da promo","validade":"DD/MM/AAAA ou Hoje ou Indefinido","link":"URL ou null"}]. ' +
+    'Se não encontrar promoções ativas hoje para algum programa, não inclua no array. ' +
+    'Se não encontrar nenhuma promoção, retorne [].';
+
+  try {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    var data = await response.json();
+
+    // Extract text from response content blocks
+    var text = '';
+    if (data.content && Array.isArray(data.content)) {
+      data.content.forEach(function(block) {
+        if (block.type === 'text') text += block.text;
+      });
+    }
+
+    // Parse JSON from response
+    var clean = text.replace(/```json|```/g, '').trim();
+    // Find JSON array in text
+    var match = clean.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error('Formato inválido');
+    var promos = JSON.parse(match[0]);
+
+    _renderOportunidades(promos, todayStr);
+
+    var lastUpdate = document.getElementById('soup-opor-last-update');
+    if (lastUpdate) lastUpdate.textContent = 'Atualizado às ' + _pad(today.getHours()) + ':' + _pad(today.getMinutes());
+
+  } catch(err) {
+    _oporSetState('error');
+    var errEl = document.getElementById('soup-opor-error-msg');
+    if (errEl) errEl.textContent = 'Erro ao buscar promoções: ' + (err.message || 'tente novamente.');
+    var btn = document.getElementById('soup-opor-btn');
+    if (btn) btn.disabled = false;
+  }
+}
+
+function _renderOportunidades(promos, todayStr) {
+  var container = document.getElementById('soup-opor-results');
+  if (!container) return;
+
+  if (!promos || promos.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:3rem 0;"><div style="font-size:1.5rem;margin-bottom:0.75rem;">😴</div><div style="font-size:0.82rem;color:var(--text-hint);">Nenhuma promoção ativa encontrada hoje.</div><div style="font-size:0.72rem;color:var(--text-hint);margin-top:4px;">Tente novamente mais tarde ou amanhã.</div></div>';
+    _oporSetState('results');
+    return;
+  }
+
+  // Group by programa
+  var byPrograma = {};
+  promos.forEach(function(p) {
+    if (!byPrograma[p.programa]) byPrograma[p.programa] = [];
+    byPrograma[p.programa].push(p);
+  });
+
+  var html = '<div class="opor-grid">';
+
+  // Summary bar
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0.25rem;">';
+  Object.keys(byPrograma).forEach(function(prog) {
+    var style = _oporProgramas[prog] || { bg: 'var(--surface2)', color: 'var(--text)' };
+    html += '<span class="opor-programa" style="background:' + style.bg + ';color:' + style.color + ';">' + prog + ' (' + byPrograma[prog].length + ')</span>';
+  });
+  html += '</div>';
+
+  promos.forEach(function(p) {
+    var style = _oporProgramas[p.programa] || { bg: 'var(--surface2)', color: 'var(--text)' };
+    var validadeClass = (p.validade === 'Hoje' || p.validade === todayStr) ? 'opor-validade' : '';
+    var validadeIcon = (p.validade === 'Hoje' || p.validade === todayStr) ? '⚡ ' : '📅 ';
+    var linkHtml = p.link ? '<a class="opor-link" href="' + p.link + '" target="_blank" rel="noopener">→ Ver promoção</a>' : '';
+
+    html += '<div class="opor-card">' +
+      '<span class="opor-programa" style="background:' + style.bg + ';color:' + style.color + ';">' + p.programa + '</span>' +
+      '<div class="opor-body">' +
+        '<div class="opor-desc">' + p.descricao + '</div>' +
+        '<div class="opor-meta">' +
+          '<span class="' + validadeClass + '">' + validadeIcon + 'Válido até: ' + (p.validade || 'Indefinido') + '</span>' +
+          linkHtml +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+  _oporSetState('results');
 }
 
 // Registra service worker — atualiza automaticamente e funciona offline
