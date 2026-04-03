@@ -2277,27 +2277,32 @@ function buildSoupChartData() {
   return { fat: fat, luc: luc };
 }
 
-// ── CUMULATIVE DAILY 2026 — unified axis for all projects ────────
-// Returns { labels, mFat, mLuc, sFat, sLuc, rFat, rLuc }
-// Each array has 365 points (01/01/2026–31/12/2026).
-// Values are cumulative from each project's start date.
-// Days after today → null (line stops there).
-function buildCumulDaily2026() {
+// ── CUMULATIVE WEEKLY 2026 — unified axis, weeks ending Saturday ─
+function buildCumulWeekly2026() {
+  // Find first Saturday on or after 2026-01-01
   var yearStart = new Date('2026-01-01T00:00:00');
-  var yearEnd   = new Date('2026-12-31T00:00:00');
   var today     = new Date(); today.setHours(0,0,0,0);
   var msDay     = 86400000;
-  var totalDays = Math.round((yearEnd - yearStart) / msDay) + 1; // 365
+
+  // Collect all Saturdays in 2026 (week-end markers)
+  var saturdays = [];
+  var d = new Date(yearStart);
+  // Advance to first Saturday (day 6)
+  while (d.getDay() !== 6) d = new Date(d.getTime() + msDay);
+  while (d.getFullYear() === 2026) {
+    saturdays.push(new Date(d));
+    d = new Date(d.getTime() + 7 * msDay);
+  }
 
   // Project start dates
-  var mStart = new Date('2014-01-01T00:00:00'); // Münchow — always from start of year
-  var sStart = new Date('2026-02-01T00:00:00'); // Soup
-  var rStart = new Date('2026-03-23T00:00:00'); // re.leio
+  var mStart = new Date('2026-01-01T00:00:00');
+  var sStart = new Date('2026-02-01T00:00:00');
+  var rStart = new Date('2026-03-23T00:00:00');
 
-  // Build daily value maps from finance entries
+  // Build daily value maps
   function dayMap(entries, tipoFilter) {
     var map = {};
-    entries.forEach(function(e) {
+    (entries || []).forEach(function(e) {
       if (tipoFilter && e.tipo !== tipoFilter) return;
       if (!e.data || !e.valor) return;
       map[e.data] = (map[e.data] || 0) + (parseFloat(e.valor) || 0);
@@ -2310,47 +2315,53 @@ function buildCumulDaily2026() {
   var rMap = dayMap(getReleioFin ? getReleioFin()  : []);
 
   var labels = [];
-  var mFat = [], mLuc = [], sFat = [], sLuc = [], rFat = [], rLuc = [];
+  var mFat=[], mLuc=[], sFat=[], sLuc=[], rFat=[], rLuc=[];
   var mSumF=0, mSumL=0, sSumF=0, sSumL=0, rSumF=0, rSumL=0;
 
-  for (var i = 0; i < totalDays; i++) {
-    var d = new Date(yearStart.getTime() + i * msDay);
-    var key = d.getFullYear() + '-' + _pad(d.getMonth()+1) + '-' + _pad(d.getDate());
+  // Track week start (Monday before each Saturday, or Jan 1 for first week)
+  var prevSat = new Date(yearStart.getTime() - msDay); // day before Jan 1
 
-    // Label: show month name on 1st of month, empty otherwise
-    labels.push(d.getDate() === 1 ? MON_S[d.getMonth()] : '');
+  saturdays.forEach(function(sat) {
+    // Sum all days from day-after-prevSat through sat
+    var weekStart = new Date(prevSat.getTime() + msDay);
+    var weekEnd   = sat;
+    var isFuture  = weekEnd > today;
 
-    var isFuture = d > today;
+    // Label: show month name when month changes at this Saturday
+    var label = '';
+    if (sat.getDate() <= 7) label = MON_S[sat.getMonth()]; // first Saturday of month
+    labels.push(label);
 
-    // Münchow
-    if (d < mStart || isFuture) {
-      mFat.push(d < mStart ? null : null);
-      mLuc.push(d < mStart ? null : null);
-    } else {
-      mSumF += (mMap[key] || 0);
-      mSumL += Math.round((mMap[key] || 0) * 0.62);
-      mFat.push(mSumF);
-      mLuc.push(mSumL);
-    }
-
-    // Soup
-    if (d < sStart || isFuture) {
+    if (isFuture) {
+      mFat.push(null); mLuc.push(null);
       sFat.push(null); sLuc.push(null);
-    } else {
-      sSumF += (sMap[key] || 0);
-      sSumL += Math.round((sMap[key] || 0) * 0.80);
-      sFat.push(sSumF); sLuc.push(sSumL);
+      rFat.push(null); rLuc.push(null);
+      prevSat = sat;
+      return;
     }
 
-    // re.leio
-    if (d < rStart || isFuture) {
-      rFat.push(null); rLuc.push(null);
-    } else {
-      rSumF += (rMap[key] || 0);
-      rSumL += Math.round((rMap[key] || 0) * 0.85);
-      rFat.push(rSumF); rLuc.push(rSumL);
+    // Accumulate each day in this week
+    var cur = new Date(weekStart);
+    while (cur <= weekEnd) {
+      var key = cur.getFullYear()+'-'+_pad(cur.getMonth()+1)+'-'+_pad(cur.getDate());
+      var mV = (cur >= mStart) ? (mMap[key]||0) : 0;
+      var sV = (cur >= sStart) ? (sMap[key]||0) : 0;
+      var rV = (cur >= rStart) ? (rMap[key]||0) : 0;
+      mSumF += mV; mSumL += Math.round(mV * 0.62);
+      sSumF += sV; sSumL += Math.round(sV * 0.80);
+      rSumF += rV; rSumL += Math.round(rV * 0.85);
+      cur = new Date(cur.getTime() + msDay);
     }
-  }
+
+    mFat.push(weekEnd >= mStart ? mSumF : null);
+    mLuc.push(weekEnd >= mStart ? mSumL : null);
+    sFat.push(weekEnd >= sStart ? sSumF : null);
+    sLuc.push(weekEnd >= sStart ? sSumL : null);
+    rFat.push(weekEnd >= rStart ? rSumF : null);
+    rLuc.push(weekEnd >= rStart ? rSumL : null);
+
+    prevSat = sat;
+  });
 
   return { labels: labels, mFat: mFat, mLuc: mLuc, sFat: sFat, sLuc: sLuc, rFat: rFat, rLuc: rLuc };
 }
@@ -2442,7 +2453,7 @@ function buildChart() {
     });
   } else {
     // ── CUMULATIVE MODE — unified daily 2026 axis ──────────────
-    var cd = buildCumulDaily2026();
+    var cd = buildCumulWeekly2026();
 
     chartInstance = new Chart(ctx, {
       type: 'line',
@@ -2471,10 +2482,12 @@ function buildChart() {
             filter: function(item) { return item.parsed.y !== null; },
             callbacks: {
               title: function(items) {
-                // Find the actual date from index
+                // Reconstruct Saturday date from index
                 var idx = items[0] ? items[0].dataIndex : 0;
-                var d = new Date(new Date('2026-01-01T00:00:00').getTime() + idx * 86400000);
-                return _pad(d.getDate()) + '/' + _pad(d.getMonth()+1) + '/' + d.getFullYear();
+                var d = new Date('2026-01-01T00:00:00');
+                while (d.getDay() !== 6) d = new Date(d.getTime() + 86400000);
+                d = new Date(d.getTime() + idx * 7 * 86400000);
+                return 'Semana de ' + _pad(d.getDate()) + '/' + _pad(d.getMonth()+1);
               },
               label: function(ctx) {
                 if (ctx.parsed.y === null) return null;
