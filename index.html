@@ -1322,7 +1322,6 @@
     <button class="studio-tab"        id="soupstab-marketing" onclick="switchSoupTab('marketing')">Marketing</button>
     <button class="studio-tab"        id="soupstab-prospectos" onclick="switchSoupTab('prospectos')">Prospectos</button>
     <button class="studio-tab"        id="soupstab-tarefas" onclick="switchSoupTab('tarefas')">Tarefas</button>
-    <button class="studio-tab"        id="soupstab-oportunidades" onclick="switchSoupTab('oportunidades')">Oportunidades</button>
   </div>
 
   <div class="studio-body">
@@ -1464,42 +1463,6 @@
           <tbody id="soup-prosp-tbody"></tbody>
         </table>
       </div></div>
-    </div>
-
-    <!-- OPORTUNIDADES SOUP -->
-    <div class="tab-panel" id="souppanel-oportunidades">
-      <div class="section-header">
-        <div class="section-title">Oportunidades do dia</div>
-        <div class="section-actions">
-          <span id="soup-opor-last-update" style="font-size:0.7rem;color:var(--text-hint);"></span>
-          <button class="btn primary" id="soup-opor-btn" onclick="buscarOportunidades()">↻ Atualizar</button>
-        </div>
-      </div>
-
-      <!-- Estado vazio -->
-      <div id="soup-opor-empty" style="text-align:center;padding:3rem 0;">
-        <div style="font-size:2rem;margin-bottom:0.75rem;">🎯</div>
-        <div style="font-size:0.82rem;color:var(--text-hint);margin-bottom:0.5rem;">Clique em <strong>Atualizar</strong> para buscar as promos de hoje</div>
-        <div style="font-size:0.72rem;color:var(--text-hint);">Livelo · Esfera · Smiles · LATAM Pass · Azul Fidelidade</div>
-      </div>
-
-      <!-- Loading -->
-      <div id="soup-opor-loading" style="display:none;text-align:center;padding:3rem 0;">
-        <div style="font-size:0.82rem;color:var(--text-muted);">Buscando promoções ativas hoje...</div>
-        <div style="margin-top:0.75rem;display:flex;justify-content:center;gap:5px;">
-          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);animation:opor-dot 1.2s ease-in-out infinite;"></span>
-          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);animation:opor-dot 1.2s ease-in-out 0.2s infinite;"></span>
-          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);animation:opor-dot 1.2s ease-in-out 0.4s infinite;"></span>
-        </div>
-      </div>
-
-      <!-- Resultados -->
-      <div id="soup-opor-results" style="display:none;"></div>
-
-      <!-- Erro -->
-      <div id="soup-opor-error" style="display:none;text-align:center;padding:2rem;background:var(--coral-light);border-radius:var(--radius);border:0.5px solid var(--coral);">
-        <div style="font-size:0.82rem;color:var(--coral);" id="soup-opor-error-msg">Erro ao buscar promoções.</div>
-      </div>
     </div>
 
     <!-- TAREFAS SOUP -->
@@ -4438,7 +4401,7 @@ function soupMemberName(id) { var m=getSoupMembros().find(function(x){return x.i
 var currentSoupTab = 'resumo';
 function switchSoupTab(tab) {
   currentSoupTab = tab;
-  ['resumo','membros','viagens','milhas','financeiro','marketing','prospectos','tarefas','oportunidades'].forEach(function(t){
+  ['resumo','membros','viagens','milhas','financeiro','marketing','prospectos','tarefas'].forEach(function(t){
     var btn=document.getElementById('soupstab-'+t); var pan=document.getElementById('souppanel-'+t);
     if(btn) btn.classList.toggle('active',t===tab);
     if(pan) pan.classList.toggle('active',t===tab);
