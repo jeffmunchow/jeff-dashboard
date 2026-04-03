@@ -4438,7 +4438,7 @@ function soupMemberName(id) { var m=getSoupMembros().find(function(x){return x.i
 var currentSoupTab = 'resumo';
 function switchSoupTab(tab) {
   currentSoupTab = tab;
-  ['resumo','membros','viagens','milhas','financeiro','marketing','prospectos','tarefas'].forEach(function(t){
+  ['resumo','membros','viagens','milhas','financeiro','marketing','prospectos','tarefas','oportunidades'].forEach(function(t){
     var btn=document.getElementById('soupstab-'+t); var pan=document.getElementById('souppanel-'+t);
     if(btn) btn.classList.toggle('active',t===tab);
     if(pan) pan.classList.toggle('active',t===tab);
