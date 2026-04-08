@@ -5342,6 +5342,36 @@ toggleTheme = function() {
 init();
 buildSparklines();
 
+// Sincroniza parcelas de todos os clientes com o financeiro
+(function _syncAllParcelasOnInit() {
+  var clients = getClients();
+  clients.forEach(function(c) {
+    var parcelas = getParcelasCliente(c.id);
+    if (!parcelas.length) return;
+    var entries = getFinEntries();
+    // Remove existing parcela entries for this client
+    var cleaned = entries.filter(function(e){ return !(e.clienteId===c.id && e._parcelaId); });
+    var added = false;
+    parcelas.forEach(function(p) {
+      if (!p.valor) return;
+      cleaned.push({
+        id:         uid(),
+        _parcelaId: p.id,
+        desc:       (p.desc||'Parcela') + ' — ' + c.nome,
+        valor:      parseFloat(p.valor)||0,
+        data:       p.data || _todayKey(),
+        cat:        'Contrato',
+        clienteId:  c.id,
+        tipo:       'entrada',
+        recorr:     'unico',
+        previsto:   !p.pago
+      });
+      added = true;
+    });
+    if (added) saveFinEntries(cleaned);
+  });
+})();
+
 // Sincroniza com Supabase em background depois que o app já está visível
 setTimeout(function() {
   loadFromSupabase().then(function() {
