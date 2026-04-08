@@ -3713,8 +3713,8 @@ function renderFinanceiro() {
   if (catFlt === 'entrada') entries = entries.filter(function(e){ return e.tipo==='entrada'; });
   else if (catFlt === 'saida') entries = entries.filter(function(e){ return e.tipo==='saida'; });
   else if (catFlt) entries = entries.filter(function(e){ return e.cat===catFlt; });
-  var totalIn  = entries.filter(function(e){ return e.tipo==='entrada'; }).reduce(function(s,e){ return s+(parseFloat(e.valor)||0); },0);
-  var totalOut = entries.filter(function(e){ return e.tipo==='saida'; }).reduce(function(s,e){ return s+(parseFloat(e.valor)||0); },0);
+  var totalIn  = entries.filter(function(e){ return e.tipo==='entrada' && !e.previsto; }).reduce(function(s,e){ return s+(parseFloat(e.valor)||0); },0);
+  var totalOut = entries.filter(function(e){ return e.tipo==='saida'   && !e.previsto; }).reduce(function(s,e){ return s+(parseFloat(e.valor)||0); },0);
   var balance  = totalIn - totalOut;
 
   document.getElementById('fin-summary').innerHTML =
