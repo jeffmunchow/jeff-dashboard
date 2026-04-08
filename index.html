@@ -2069,9 +2069,22 @@
       <div class="field-row"><label>CPF</label><input type="text" id="cf-cpf" placeholder="000.000.000-00"></div>
       <div class="field-row"><label>RG</label><input type="text" id="cf-rg" placeholder="Número do documento"></div>
 
-      <div class="field-row"><label>Valor total (R$)</label><input type="number" id="cf-valor" placeholder="Valor do contrato"></div>
-      <div class="field-row"><label>Valor pago (R$)</label><input type="number" id="cf-pago" placeholder="Valor já recebido"></div>
+      <div class="field-row"><label>Valor total (R$)</label><input type="number" id="cf-valor" placeholder="Valor do contrato" oninput="recalcParcelasSummary()"></div>
+      <div class="field-row"><label>Valor pago (R$)</label><input type="number" id="cf-pago" placeholder="Valor já recebido" style="display:none;"></div>
 
+    </div>
+
+    <!-- Parcelas do contrato -->
+    <div style="margin-top:1.25rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+        <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;font-weight:500;">Parcelas do contrato</div>
+        <button class="btn" style="font-size:0.65rem;padding:2px 10px;" onclick="addParcela()">+ Parcela</button>
+      </div>
+      <div id="cf-parcelas-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:0.75rem;"></div>
+      <div id="cf-parcelas-summary" style="font-size:0.72rem;color:var(--text-hint);"></div>
+    </div>
+
+    <div class="modal-2col" style="margin-top:1rem;">
       <div class="field-row" style="grid-column:1/-1;"><label>Data do contrato</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="cf-contrato"></div>
       <div class="field-row" style="grid-column:1/-1;"><label>Notas</label><textarea id="cf-notas" rows="3" placeholder="Preferências, estilo, observações..."></textarea></div>
     </div>
@@ -3268,6 +3281,7 @@ function openClientModal(id) {
     document.getElementById('cf-notas').value    = c.notas||'';
     document.getElementById('client-delete-btn').style.display = 'inline-flex';
     _loadAnexoForClient(c);
+    _parcelasTemp = JSON.parse(JSON.stringify(getParcelasCliente(id)));
   } else {
     document.getElementById('client-modal-title').textContent = 'Novo Cliente';
     ['cf-nome','cf-email','cf-tel','cf-cpf','cf-rg','cf-data','cf-local','cf-valor','cf-pago','cf-contrato','cf-notas'].forEach(function(id){
@@ -3276,7 +3290,9 @@ function openClientModal(id) {
     document.getElementById('cf-status').value = 'Prospect';
     document.getElementById('client-delete-btn').style.display = 'none';
     _loadAnexoForClient({});
+    _parcelasTemp = [];
   }
+  renderParcelasModal();
   document.getElementById('client-overlay').classList.add('open');
 }
 function closeClientModal() { document.getElementById('client-overlay').classList.remove('open'); }
@@ -3435,6 +3451,15 @@ function gerarContrato() {
 function saveClient() {
   var clients = getClients();
   var existing = editingClientId ? clients.find(function(c){ return c.id===editingClientId; }) : null;
+  // Sync parcelas dates from DOM before saving
+  var parcelasList = document.getElementById('cf-parcelas-list');
+  if (parcelasList) {
+    _parcelasTemp.forEach(function(p, i) {
+      var inp = parcelasList.querySelector('.parcela-date-' + i);
+      if (inp) p.data = inp.getAttribute('data-value') || inp.getAttribute('data-raw') || '';
+    });
+  }
+  var pagoParcelas = _parcelasTemp.filter(function(p){ return p.pago; }).reduce(function(s,p){ return s+(parseFloat(p.valor)||0); },0);
   var obj = {
     id: editingClientId || uid(),
     nome:          document.getElementById('cf-nome').value.trim(),
@@ -3446,10 +3471,9 @@ function saveClient() {
     local:         document.getElementById('cf-local').value.trim(),
     status:        document.getElementById('cf-status').value,
     valor:         parseFloat(document.getElementById('cf-valor').value)||0,
-    pago:          parseFloat(document.getElementById('cf-pago').value)||0,
+    pago:          pagoParcelas,
     contrato:      getDateValue('cf-contrato'),
     notas:         document.getElementById('cf-notas').value.trim(),
-    // Preserve existing anexo if no new one was attached; use new one if available
     anexo:         _anexoData || (existing ? existing.anexo : null)
   };
   if (!obj.nome) { alert('Informe o nome do cliente.'); return; }
@@ -3458,9 +3482,13 @@ function saveClient() {
     if (idx>-1) clients[idx]=obj;
   } else { clients.push(obj); }
   saveClients(clients);
+  // Save parcelas and sync confirmed ones to financeiro
+  saveParcelasCliente(obj.id, _parcelasTemp);
+  _syncParcelasToFin(obj.id, obj.nome);
   closeClientModal();
   renderClientes();
   renderResumo();
+  renderFinanceiro();
 }
 function deleteClient() {
   if (!confirm('Excluir este cliente?')) return;
@@ -7773,6 +7801,128 @@ function _calcProximaRenovacao(dataStr, recorr) {
 function confirmarRenovacaoFin(id)   { _confirmarRenovacao(getFinEntries(), id, saveFinEntries, renderFinanceiro); }
 function confirmarRenovacaoSoup(id)  { _confirmarRenovacao(getSoupFin(),    id, saveSoupFinData, renderSoupFinanceiro); }
 function confirmarRenovacaoRl(id)    { _confirmarRenovacao(getReleioFin(),  id, saveReleioFin,  renderRlFin); }
+
+/* ── PARCELAS DO CONTRATO ─────────────────────────────────── */
+var _parcelasTemp = []; // working copy while modal is open
+
+function _parcelasStorageKey(clienteId) { return 'parcelas_' + clienteId; }
+
+function getParcelasCliente(clienteId) {
+  try { return JSON.parse(localStorage.getItem(_parcelasStorageKey(clienteId)) || '[]'); } catch(e){ return []; }
+}
+
+function saveParcelasCliente(clienteId, parcelas) {
+  localStorage.setItem(_parcelasStorageKey(clienteId), JSON.stringify(parcelas));
+  dbMetricSave(_parcelasStorageKey(clienteId), JSON.stringify(parcelas));
+}
+
+function addParcela() {
+  _parcelasTemp.push({ id: uid(), desc: '', valor: '', data: '', pago: false, dataPagamento: '' });
+  renderParcelasModal();
+}
+
+function removeParcela(idx) {
+  _parcelasTemp.splice(idx, 1);
+  renderParcelasModal();
+}
+
+function renderParcelasModal() {
+  var list = document.getElementById('cf-parcelas-list');
+  if (!list) return;
+  if (!_parcelasTemp.length) {
+    list.innerHTML = '<div style="font-size:0.75rem;color:var(--text-hint);font-style:italic;">Nenhuma parcela adicionada.</div>';
+    recalcParcelasSummary();
+    return;
+  }
+  list.innerHTML = _parcelasTemp.map(function(p, i) {
+    return '<div style="display:grid;grid-template-columns:1fr 90px 110px auto auto;gap:6px;align-items:center;">' +
+      '<input type="text" value="'+_esc(p.desc)+'" placeholder="Descrição (ex: Sinal)" oninput="_parcelasTemp['+i+'].desc=this.value" ' +
+        'style="font-family:\'DM Sans\',sans-serif;font-size:0.78rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:6px 9px;color:var(--text);outline:none;">' +
+      '<input type="number" value="'+(_esc(p.valor||''))+'" placeholder="R$" oninput="_parcelasTemp['+i+'].valor=this.value;recalcParcelasSummary()" ' +
+        'style="font-family:\'DM Sans\',sans-serif;font-size:0.78rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:6px 9px;color:var(--text);outline:none;">' +
+      '<input type="text" value="'+_esc(p.data)+'" placeholder="Previsão" maxlength="10" ' +
+        'class="smart-date-input parcela-date-'+i+'" autocomplete="off" ' +
+        'style="font-family:\'DM Sans\',sans-serif;font-size:0.78rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:6px 9px;color:var(--text);outline:none;">' +
+      '<button onclick="toggleParcelaPago('+i+')" style="font-size:0.65rem;padding:3px 10px;border-radius:20px;border:0.5px solid var(--border-strong);background:' +
+        (p.pago ? 'var(--teal)' : 'transparent') + ';color:' + (p.pago ? '#fff' : 'var(--text-muted)') + ';cursor:pointer;white-space:nowrap;">' +
+        (p.pago ? '✓ Pago' : 'Pendente') + '</button>' +
+      '<button onclick="removeParcela('+i+')" style="width:22px;height:22px;border-radius:50%;border:none;background:transparent;color:var(--text-hint);cursor:pointer;font-size:0.8rem;display:flex;align-items:center;justify-content:center;">✕</button>' +
+    '</div>';
+  }).join('');
+
+  // Re-bind date fields after render
+  setTimeout(function() {
+    _parcelasTemp.forEach(function(p, i) {
+      var inp = list.querySelector('.parcela-date-' + i);
+      if (inp) {
+        inp.setAttribute('data-raw', p.data ? p.data.replace(/-/g,'').slice(2) + p.data.slice(0,4).replace(/-/g,'') : '');
+        if (p.data) setDateValue_inline(inp, p.data);
+        inp.addEventListener('change', function() { _parcelasTemp[i].data = inp.getAttribute('data-value') || ''; });
+      }
+    });
+  }, 0);
+
+  recalcParcelasSummary();
+}
+
+function setDateValue_inline(el, isoDate) {
+  if (!isoDate) { el.value=''; return; }
+  var parts = isoDate.split('-');
+  if (parts.length===3) el.value = parts[2]+'/'+parts[1]+'/'+parts[0];
+}
+
+function _esc(s) { return (s||'').toString().replace(/"/g,'&quot;'); }
+
+function toggleParcelaPago(idx) {
+  var p = _parcelasTemp[idx];
+  p.pago = !p.pago;
+  if (p.pago && !p.dataPagamento) p.dataPagamento = _todayKey();
+  if (!p.pago) p.dataPagamento = '';
+  renderParcelasModal();
+}
+
+function recalcParcelasSummary() {
+  var el = document.getElementById('cf-parcelas-summary');
+  if (!el) return;
+  var total = parseFloat(document.getElementById('cf-valor').value) || 0;
+  var pago = _parcelasTemp.filter(function(p){ return p.pago; }).reduce(function(s,p){ return s+(parseFloat(p.valor)||0); },0);
+  var pendente = _parcelasTemp.filter(function(p){ return !p.pago; }).reduce(function(s,p){ return s+(parseFloat(p.valor)||0); },0);
+  var parts = [];
+  if (pago > 0)     parts.push('<span style="color:var(--teal);">Pago: '+fmtMoney(pago)+'</span>');
+  if (pendente > 0) parts.push('<span style="color:var(--amber);">Pendente: '+fmtMoney(pendente)+'</span>');
+  if (total > 0 && (pago+pendente) !== total) {
+    var diff = total - pago - pendente;
+    if (Math.abs(diff) > 0.5) parts.push('<span style="color:var(--coral);">Sem parcela: '+fmtMoney(Math.abs(diff))+'</span>');
+  }
+  el.innerHTML = parts.join(' · ');
+
+  // Update hidden cf-pago for backward compat
+  var pagoEl = document.getElementById('cf-pago');
+  if (pagoEl) pagoEl.value = pago || '';
+}
+
+function _syncParcelasToFin(clienteId, clienteNome) {
+  var parcelas = _parcelasTemp.filter(function(p){ return p.pago && p.valor; });
+  if (!parcelas.length) return;
+  var entries = getFinEntries();
+  // Remove old parcela entries for this client (tagged with _parcelaId)
+  entries = entries.filter(function(e){ return !(e.clienteId===clienteId && e._parcelaId); });
+  // Add confirmed parcelas
+  parcelas.forEach(function(p) {
+    entries.push({
+      id:         uid(),
+      _parcelaId: p.id,
+      desc:       (p.desc||'Parcela') + ' — ' + clienteNome,
+      valor:      parseFloat(p.valor)||0,
+      data:       p.dataPagamento || _todayKey(),
+      cat:        'Contrato',
+      clienteId:  clienteId,
+      tipo:       'entrada',
+      recorr:     'unico'
+    });
+  });
+  saveFinEntries(entries);
+}
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
