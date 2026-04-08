@@ -6675,7 +6675,7 @@ function _setTfRecorrente(val) {
   var knob = document.getElementById('tf-recorrente-knob');
   var toggle = document.getElementById('tf-recorrente-toggle');
   if (val) {
-    toggle.style.background = 'var(--teal)';
+    toggle.style.background = 'var(--amber)';
     knob.style.transform = 'translateX(16px)';
   } else {
     toggle.style.background = 'var(--toggle-bg)';
@@ -6688,6 +6688,7 @@ function toggleTfRecorrente() {
 }
 
 function toggleTarefaDone(e, id) {
+  e.stopPropagation();
   var list = getTarefas();
   var t = list.find(function(x){ return x.id===id; });
   if (!t) return;
@@ -6695,30 +6696,31 @@ function toggleTarefaDone(e, id) {
   t.done = !t.done;
 
   // Se é recorrente e acabou de ser marcada como concluída, cria para o dia seguinte
-  if (t.recorrente && !wasDone && t.done && t.data) {
-    var parts = t.data.split('-');
+  if (t.recorrente && !wasDone && t.done) {
+    // Usa a data da tarefa, ou hoje como fallback
+    var baseDate = t.data || _todayKey();
+    var parts = baseDate.split('-');
     var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
     d.setDate(d.getDate() + 1);
     var nextDate = d.getFullYear() + '-' + _pad(d.getMonth()+1) + '-' + _pad(d.getDate());
-    // Só cria se não existir uma cópia dessa tarefa recorrente para o dia seguinte
+    // Só cria se não existir já uma tarefa com mesmo título e data
     var jaExiste = list.some(function(x){
-      return x.recorrenteOrigId === (t.recorrenteOrigId || t.id) && x.data === nextDate;
+      return x.titulo === t.titulo && x.data === nextDate && !x.done;
     });
     if (!jaExiste) {
-      var nova = {
-        id:              uid(),
-        titulo:          t.titulo,
-        data:            nextDate,
-        hora:            t.hora,
-        horaFim:         t.horaFim,
-        duracao:         t.duracao,
-        projeto:         t.projeto,
-        evento:          t.evento||'',
-        recorrente:      true,
+      list.push({
+        id:               uid(),
+        titulo:           t.titulo,
+        data:             nextDate,
+        hora:             t.hora,
+        horaFim:          t.horaFim,
+        duracao:          t.duracao,
+        projeto:          t.projeto,
+        evento:           t.evento||'',
+        recorrente:       true,
         recorrenteOrigId: t.recorrenteOrigId || t.id,
-        done:            false
-      };
-      list.push(nova);
+        done:             false
+      });
     }
   }
 
