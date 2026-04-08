@@ -3675,8 +3675,7 @@ function deletePend() {
 
 function abrirClienteDaParcela(clienteId) {
   if (!clienteId) return;
-  switchStudioTab('clientes');
-  setTimeout(function(){ openClientModal(clienteId); }, 100);
+  openClientModal(clienteId);
 }
 
 function _setFfPrevisto(val) {
@@ -3750,7 +3749,7 @@ function renderFinanceiro() {
       '<td>'+tipoBadge+'</td>'+
       '<td style="color:'+color+';font-weight:500;'+(isPrev?'opacity:0.6;':'')+'">'+sign+' '+fmtMoney(e.valor)+'</td>'+
       '<td>'+(e._parcelaId
-        ? '<button class="row-action" onclick="abrirClienteDaParcela(\''+e.clienteId+'\')">Ver parcela</button>'
+        ? '<button class="row-action" onclick="abrirClienteDaParcela(\''+e.clienteId+'\')">Editar</button>'
         : '<button class="row-action" onclick="openFinModal(null,\''+e.id+'\')">Editar</button>'
       )+'</td>'+
     '</tr>';
