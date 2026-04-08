@@ -2070,7 +2070,7 @@
       <div class="field-row"><label>RG</label><input type="text" id="cf-rg" placeholder="Número do documento"></div>
 
       <div class="field-row"><label>Valor total (R$)</label><input type="number" id="cf-valor" placeholder="Valor do contrato" oninput="recalcParcelasSummary()"></div>
-      <div class="field-row"><label>Valor pago (R$)</label><input type="number" id="cf-pago" placeholder="Valor já recebido" style="display:none;"></div>
+      <div class="field-row"><label>Data do contrato</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="cf-contrato"></div>
 
     </div>
 
@@ -2085,7 +2085,6 @@
     </div>
 
     <div class="modal-2col" style="margin-top:1rem;">
-      <div class="field-row" style="grid-column:1/-1;"><label>Data do contrato</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="cf-contrato"></div>
       <div class="field-row" style="grid-column:1/-1;"><label>Notas</label><textarea id="cf-notas" rows="3" placeholder="Preferências, estilo, observações..."></textarea></div>
     </div>
 
@@ -3252,7 +3251,7 @@ function renderClientes() {
       '<td>'+fmtDate(c.dataCasamento)+'</td>'+
       '<td>'+(c.local||'—')+'</td>'+
       '<td>'+fmtMoney(c.valor)+'</td>'+
-      '<td>'+fmtMoney(c.pago)+'</td>'+
+      
       '<td>'+statusBadge(c.status)+'</td>'+
       '<td><button class="row-action" onclick="openClientModal(\''+c.id+'\')">Editar</button></td>'+
     '</tr>';
@@ -3276,7 +3275,6 @@ function openClientModal(id) {
     document.getElementById('cf-local').value    = c.local||'';
     document.getElementById('cf-status').value   = c.status||'Prospect';
     document.getElementById('cf-valor').value    = c.valor||'';
-    document.getElementById('cf-pago').value     = c.pago||'';
     setDateValue('cf-contrato', c.contrato||'');
     document.getElementById('cf-notas').value    = c.notas||'';
     document.getElementById('client-delete-btn').style.display = 'inline-flex';
@@ -3284,7 +3282,7 @@ function openClientModal(id) {
     _parcelasTemp = JSON.parse(JSON.stringify(getParcelasCliente(id)));
   } else {
     document.getElementById('client-modal-title').textContent = 'Novo Cliente';
-    ['cf-nome','cf-email','cf-tel','cf-cpf','cf-rg','cf-data','cf-local','cf-valor','cf-pago','cf-contrato','cf-notas'].forEach(function(id){
+    ['cf-nome','cf-email','cf-tel','cf-cpf','cf-rg','cf-data','cf-local','cf-valor','cf-contrato','cf-notas'].forEach(function(id){
       document.getElementById(id).value='';
     });
     document.getElementById('cf-status').value = 'Prospect';
@@ -3427,7 +3425,7 @@ function gerarContrato() {
     '<h2>Valores</h2>'+
     '<div class="row">'+
       '<div class="field"><div class="label">Valor total</div><div class="value">'+fmtR(valor)+'</div></div>'+
-      '<div class="field"><div class="label">Valor pago</div><div class="value">'+fmtR(pago)+'</div></div>'+
+
       '<div class="field"><div class="label">Saldo restante</div><div class="value">'+fmtR(saldo)+'</div></div>'+
     '</div>'+
     '<div class="row">'+
@@ -3451,12 +3449,16 @@ function gerarContrato() {
 function saveClient() {
   var clients = getClients();
   var existing = editingClientId ? clients.find(function(c){ return c.id===editingClientId; }) : null;
-  // Sync parcelas dates from DOM before saving
+  // Sync parcela dates from DOM before saving
   var parcelasList = document.getElementById('cf-parcelas-list');
   if (parcelasList) {
-    _parcelasTemp.forEach(function(p, i) {
-      var inp = parcelasList.querySelector('.parcela-date-' + i);
-      if (inp) p.data = inp.getAttribute('data-value') || inp.getAttribute('data-raw') || '';
+    var dateInputs = parcelasList.querySelectorAll('input.smart-date-input');
+    dateInputs.forEach(function(inp) {
+      var idx = parseInt(inp.getAttribute('data-parcela-idx'));
+      if (!isNaN(idx) && _parcelasTemp[idx]) {
+        var dv = inp.getAttribute('data-value');
+        if (dv) _parcelasTemp[idx].data = dv;
+      }
     });
   }
   var pagoParcelas = _parcelasTemp.filter(function(p){ return p.pago; }).reduce(function(s,p){ return s+(parseFloat(p.valor)||0); },0);
@@ -7835,13 +7837,15 @@ function renderParcelasModal() {
     return;
   }
   list.innerHTML = _parcelasTemp.map(function(p, i) {
-    return '<div style="display:grid;grid-template-columns:1fr 90px 110px auto auto;gap:6px;align-items:center;">' +
-      '<input type="text" value="'+_esc(p.desc)+'" placeholder="Descrição (ex: Sinal)" oninput="_parcelasTemp['+i+'].desc=this.value" ' +
+    return '<div style="display:grid;grid-template-columns:1fr 90px 110px auto auto;gap:6px;align-items:center;" data-parcela-idx="'+i+'">' +
+      '<input type="text" value="'+_esc(p.desc)+'" placeholder="Descrição (ex: Sinal)" ' +
+        'onchange="_parcelasTemp['+i+'].desc=this.value" ' +
         'style="font-family:\'DM Sans\',sans-serif;font-size:0.78rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:6px 9px;color:var(--text);outline:none;">' +
-      '<input type="number" value="'+(_esc(p.valor||''))+'" placeholder="R$" oninput="_parcelasTemp['+i+'].valor=this.value;recalcParcelasSummary()" ' +
+      '<input type="number" value="'+(_esc(p.valor||''))+'" placeholder="R$" ' +
+        'onchange="_parcelasTemp['+i+'].valor=this.value;recalcParcelasSummary()" ' +
         'style="font-family:\'DM Sans\',sans-serif;font-size:0.78rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:6px 9px;color:var(--text);outline:none;">' +
-      '<input type="text" value="'+_esc(p.data)+'" placeholder="Previsão" maxlength="10" ' +
-        'class="smart-date-input parcela-date-'+i+'" autocomplete="off" ' +
+      '<input type="text" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off" ' +
+        'class="smart-date-input" data-parcela-idx="'+i+'" ' +
         'style="font-family:\'DM Sans\',sans-serif;font-size:0.78rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:6px 9px;color:var(--text);outline:none;">' +
       '<button onclick="toggleParcelaPago('+i+')" style="font-size:0.65rem;padding:3px 10px;border-radius:20px;border:0.5px solid var(--border-strong);background:' +
         (p.pago ? 'var(--teal)' : 'transparent') + ';color:' + (p.pago ? '#fff' : 'var(--text-muted)') + ';cursor:pointer;white-space:nowrap;">' +
@@ -7850,17 +7854,27 @@ function renderParcelasModal() {
     '</div>';
   }).join('');
 
-  // Re-bind date fields after render
-  setTimeout(function() {
-    _parcelasTemp.forEach(function(p, i) {
-      var inp = list.querySelector('.parcela-date-' + i);
-      if (inp) {
-        inp.setAttribute('data-raw', p.data ? p.data.replace(/-/g,'').slice(2) + p.data.slice(0,4).replace(/-/g,'') : '');
-        if (p.data) setDateValue_inline(inp, p.data);
-        inp.addEventListener('change', function() { _parcelasTemp[i].data = inp.getAttribute('data-value') || ''; });
+  // Set existing dates using setDateValue logic on the new inputs
+  var rows = list.querySelectorAll('[data-parcela-idx]');
+  rows.forEach(function(row) {
+    var idx = parseInt(row.getAttribute('data-parcela-idx'));
+    var dateInput = row.querySelector('input.smart-date-input');
+    if (!dateInput) return;
+    var p = _parcelasTemp[idx];
+    if (p.data) {
+      var parts = p.data.split('-');
+      if (parts.length === 3) {
+        dateInput.value = parts[2] + '/' + parts[1] + '/' + parts[0];
+        dateInput.setAttribute('data-value', p.data);
+        dateInput.setAttribute('data-raw', parts[2] + parts[1] + parts[0]);
       }
+    }
+    // Sync back to _parcelasTemp on change
+    dateInput.addEventListener('change', function() {
+      var dv = dateInput.getAttribute('data-value');
+      if (dv) _parcelasTemp[idx].data = dv;
     });
-  }, 0);
+  });
 
   recalcParcelasSummary();
 }
@@ -7876,8 +7890,6 @@ function _esc(s) { return (s||'').toString().replace(/"/g,'&quot;'); }
 function toggleParcelaPago(idx) {
   var p = _parcelasTemp[idx];
   p.pago = !p.pago;
-  if (p.pago && !p.dataPagamento) p.dataPagamento = _todayKey();
-  if (!p.pago) p.dataPagamento = '';
   renderParcelasModal();
 }
 
@@ -7896,9 +7908,6 @@ function recalcParcelasSummary() {
   }
   el.innerHTML = parts.join(' · ');
 
-  // Update hidden cf-pago for backward compat
-  var pagoEl = document.getElementById('cf-pago');
-  if (pagoEl) pagoEl.value = pago || '';
 }
 
 function _syncParcelasToFin(clienteId, clienteNome) {
@@ -7914,7 +7923,7 @@ function _syncParcelasToFin(clienteId, clienteNome) {
       _parcelaId: p.id,
       desc:       (p.desc||'Parcela') + ' — ' + clienteNome,
       valor:      parseFloat(p.valor)||0,
-      data:       p.dataPagamento || _todayKey(),
+      data:       p.data || _todayKey(),
       cat:        'Contrato',
       clienteId:  clienteId,
       tipo:       'entrada',
