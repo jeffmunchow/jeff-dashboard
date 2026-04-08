@@ -1125,7 +1125,7 @@
           <div class="filter-row" style="margin:0;">
             <input type="text" id="client-search" placeholder="Buscar cliente..." oninput="renderClientes()">
             <select id="client-status-filter" onchange="renderClientes()">
-              <option value="">Todos os status</option>
+              <option value="">Ativos</option>
               <option value="Prospect">Prospect</option>
               <option value="Contratado">Contratado</option>
               <option value="Sessão Pré-Casamento">Sessão Pré-Casamento</option>
@@ -1134,7 +1134,8 @@
               <option value="Pós-produção">Pós-produção</option>
               <option value="Álbum design">Álbum design</option>
               <option value="Entregue">Entregue</option>
-              <option value="Finalizado">Finalizado</option>
+              <option disabled>──────────</option>
+              <option value="Finalizado">📦 Arquivados</option>
             </select>
           </div>
           <button class="btn primary" onclick="openClientModal()">+ Cliente</button>
@@ -3168,6 +3169,8 @@ function renderClientes() {
   var q      = (document.getElementById('client-search')||{value:''}).value.toLowerCase();
   var stFlt  = (document.getElementById('client-status-filter')||{value:''}).value;
   var clients = getClients().filter(function(c){
+    // Por padrão (sem filtro), esconde finalizados — só aparecem quando filtro = 'Finalizado'
+    if (!stFlt && c.status === 'Finalizado') return false;
     return (!q || c.nome.toLowerCase().includes(q)) &&
            (!stFlt || c.status === stFlt);
   });
