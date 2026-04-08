@@ -1209,6 +1209,7 @@
         </div>
       </div>
       <div class="fin-summary" id="fin-summary"></div>
+      <div id="fin-proximas"></div>
       <div class="table-wrap"><div class="table-scroll">
         <table class="data-table">
           <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Cliente</th><th>Tipo</th><th>Valor</th><th></th></tr></thead>
@@ -1432,6 +1433,7 @@
         </div>
       </div>
       <div class="fin-summary" id="soup-fin-summary"></div>
+      <div id="soup-fin-proximas"></div>
       <div class="table-wrap" style="margin-top:1rem;"><div class="table-scroll">
         <table class="data-table">
           <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Membro</th><th>Tipo</th><th>Valor</th><th></th></tr></thead>
@@ -1656,6 +1658,8 @@
         <div style="font-size:0.72rem;color:var(--text-hint);margin-bottom:1rem;">Receita mensal por fonte</div>
         <div style="position:relative;height:180px;"><canvas id="rlf-chart"></canvas></div>
       </div>
+      <!-- Proximas cobranças -->
+      <div id="rl-fin-proximas"></div>
       <!-- Table -->
       <div class="table-wrap"><div class="table-scroll">
         <table class="data-table">
@@ -1719,6 +1723,14 @@
       </div>
       <div class="field-row" style="grid-column:1/-1"><label>Descrição</label><input type="text" id="rlfinf-desc" placeholder="Ex: Comissão Amazon março"></div>
       <div class="field-row"><label>Valor (R$)</label><input type="number" id="rlfinf-valor" placeholder="0,00" step="0.01"></div>
+      <div class="field-row"><label>Recorrência</label>
+        <select id="rlfinff-recorr" onchange="toggleRecorrFields('rlfinf')">
+          <option value="unico">Único</option>
+          <option value="mensal">Mensal</option>
+          <option value="anual">Anual</option>
+        </select>
+      </div>
+      <div class="field-row" id="rlfinidf-renovacao-row" style="display:none;"><label>Próxima renovação</label><input type="text" class="smart-date-input" id="rlfinf-renovacao" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10"></div>
     </div>
     <div class="modal-actions">
       <button class="btn" id="rl-fin-delete-btn" style="display:none;color:var(--coral);" onclick="deleteRlFin()">Excluir</button>
@@ -1925,6 +1937,14 @@
     </div>
     <div class="field-row"><label>Membro</label><select id="sff-membro"><option value="">— nenhum —</option></select></div>
     <input type="hidden" id="sff-tipo" value="entrada">
+      <div class="field-row"><label>Recorrência</label>
+        <select id="sfff-recorr" onchange="toggleRecorrFields('sff')">
+          <option value="unico">Único</option>
+          <option value="mensal">Mensal</option>
+          <option value="anual">Anual</option>
+        </select>
+      </div>
+      <div class="field-row" id="sfff-renovacao-row" style="display:none;"><label>Próxima renovação</label><input type="text" class="smart-date-input" id="sfff-renovacao" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10"></div>
     <div class="modal-actions">
       <button class="btn" id="soup-fin-delete-btn" style="display:none;color:var(--coral);" onclick="deleteSoupFin()">Excluir</button>
       <div style="flex:1;"></div>
@@ -2136,6 +2156,14 @@
       <select id="ff-cliente"><option value="">— nenhum —</option></select>
     </div>
     <input type="hidden" id="ff-tipo" value="entrada">
+      <div class="field-row"><label>Recorrência</label>
+        <select id="fff-recorr" onchange="toggleRecorrFields('ff')">
+          <option value="unico">Único</option>
+          <option value="mensal">Mensal</option>
+          <option value="anual">Anual</option>
+        </select>
+      </div>
+      <div class="field-row" id="fff-renovacao-row" style="display:none;"><label>Próxima renovação</label><input type="text" class="smart-date-input" id="fff-renovacao" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10"></div>
     <div class="modal-actions">
       <button class="btn" id="fin-delete-btn" style="display:none;color:var(--coral);" onclick="deleteFin()">Excluir</button>
       <div style="flex:1;"></div>
@@ -3622,6 +3650,10 @@ function renderFinanceiro() {
     '<div class="fin-exit"><div class="fin-label">Saídas</div><div class="fin-val">'+fmtMoney(totalOut)+'</div></div>'+
     '<div class="fin-balance"><div class="fin-label">Saldo</div><div class="fin-val">'+fmtMoney(balance)+'</div></div>';
 
+  // Próximas cobranças
+  var proxEl = document.getElementById('fin-proximas');
+  if (proxEl) proxEl.innerHTML = _renderProximasCobrancas(getFinEntries(), 'confirmarRenovacaoFin');
+
   var sorted = entries.slice().sort(function(a,b){ return new Date(b.data)-new Date(a.data); });
   var tbody = document.getElementById('fin-tbody');
   if (!sorted.length) {
@@ -3657,6 +3689,7 @@ function openFinModal(tipo, id) {
     document.getElementById('ff-cat').value    = e.cat||'Contrato';
     document.getElementById('ff-cliente').value= e.clienteId||'';
     document.getElementById('ff-tipo').value   = e.tipo||'entrada';
+    _setRecorrVal('ff', e.recorr||'unico', e.renovacao||'');
     document.getElementById('fin-delete-btn').style.display = 'inline-flex';
   } else {
     document.getElementById('fin-modal-title').textContent = tipo==='entrada' ? 'Nova Entrada' : 'Nova Saída';
@@ -3665,6 +3698,7 @@ function openFinModal(tipo, id) {
     document.getElementById('ff-cat').value     = tipo==='entrada' ? 'Contrato' : 'Equipamento';
     document.getElementById('ff-cliente').value = '';
     document.getElementById('ff-tipo').value    = tipo||'entrada';
+    _resetRecorr('ff');
     document.getElementById('fin-delete-btn').style.display = 'none';
   }
   document.getElementById('fin-overlay').classList.add('open');
@@ -3672,6 +3706,7 @@ function openFinModal(tipo, id) {
 function closeFinModal() { document.getElementById('fin-overlay').classList.remove('open'); }
 function saveFin() {
   var entries = getFinEntries();
+  var rv = _getRecorrVal('ff');
   var obj = {
     id:        editingFinId || uid(),
     desc:      document.getElementById('ff-desc').value.trim(),
@@ -3679,7 +3714,9 @@ function saveFin() {
     data:      getDateValue('ff-data'),
     cat:       document.getElementById('ff-cat').value,
     clienteId: document.getElementById('ff-cliente').value,
-    tipo:      document.getElementById('ff-tipo').value
+    tipo:      document.getElementById('ff-tipo').value,
+    recorr:    rv.recorr,
+    renovacao: rv.renovacao
   };
   if (!obj.desc) { alert('Informe a descrição.'); return; }
   if (editingFinId) {
@@ -4736,6 +4773,8 @@ function renderSoupFinanceiro(){
   if(sumEl) sumEl.innerHTML='<div class="fin-entry"><div class="fin-label">Entradas</div><div class="fin-val">'+fmtMoney(entrada)+'</div></div>'+
     '<div class="fin-exit"><div class="fin-label">Saídas</div><div class="fin-val">'+fmtMoney(saida)+'</div></div>'+
     '<div class="fin-balance"><div class="fin-label">Saldo</div><div class="fin-val">'+fmtMoney(entrada-saida)+'</div></div>';
+  var soupProxEl = document.getElementById('soup-fin-proximas');
+  if(soupProxEl) soupProxEl.innerHTML = _renderProximasCobrancas(getSoupFin(), 'confirmarRenovacaoSoup');
   var tbody=document.getElementById('soup-fin-tbody');if(!tbody)return;
   if(!list.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-hint);padding:2rem;">Nenhum lançamento</td></tr>';return;}
   tbody.innerHTML=list.sort(function(a,b){return new Date(b.data)-new Date(a.data);}).map(function(f){
@@ -4756,21 +4795,24 @@ function openSoupFinModal(tipo,id){
     document.getElementById('sff-desc').value=f.desc||'';document.getElementById('sff-valor').value=f.valor||'';
     setDateValue('sff-data', f.data||'');document.getElementById('sff-cat').value=f.cat||'Mensalidade';
     document.getElementById('sff-membro').value=f.membroId||'';document.getElementById('sff-tipo').value=f.tipo||'entrada';
+    _setRecorrVal('sff', f.recorr||'unico', f.renovacao||'');
     document.getElementById('soup-fin-delete-btn').style.display='inline-flex';
   } else {
     document.getElementById('soup-fin-modal-title').textContent=tipo==='saida'?'Nova saída':'Nova entrada';
     ['sff-desc','sff-valor','sff-data'].forEach(function(id){document.getElementById(id).value='';});
     document.getElementById('sff-cat').value='Mensalidade';document.getElementById('sff-membro').value='';
+    _resetRecorr('sff');
     document.getElementById('soup-fin-delete-btn').style.display='none';
   }
   document.getElementById('soup-fin-overlay').classList.add('open');
 }
 function closeSoupFinModal(){document.getElementById('soup-fin-overlay').classList.remove('open');}
 function saveSoupFin(){
+  var rv=_getRecorrVal('sff');
   var obj={id:editingSoupFinId||uid(),desc:document.getElementById('sff-desc').value.trim(),
     valor:parseFloat(document.getElementById('sff-valor').value)||0,data:getDateValue('sff-data'),
     cat:document.getElementById('sff-cat').value,membroId:document.getElementById('sff-membro').value,
-    tipo:document.getElementById('sff-tipo').value};
+    tipo:document.getElementById('sff-tipo').value,recorr:rv.recorr,renovacao:rv.renovacao};
   if(!obj.desc){alert('Informe a descrição.');return;}
   var list=getSoupFin();
   if(editingSoupFinId){var idx=list.findIndex(function(f){return f.id===editingSoupFinId;});if(idx>-1)list[idx]=obj;else list.push(obj);}
@@ -5752,6 +5794,7 @@ function openRlFinModal(id) {
     document.getElementById('rlfinf-fonte').value  = e.fonte  || 'Amazon Afiliados';
     document.getElementById('rlfinf-desc').value   = e.desc   || '';
     document.getElementById('rlfinf-valor').value  = e.valor  || '';
+    _setRecorrVal('rlfinf', e.recorr||'unico', e.renovacao||'');
     del.style.display = 'inline-flex';
   } else {
     document.getElementById('rl-fin-modal-title').textContent = 'Nova entrada';
@@ -5759,6 +5802,7 @@ function openRlFinModal(id) {
     document.getElementById('rlfinf-fonte').value  = 'Amazon Afiliados';
     document.getElementById('rlfinf-desc').value   = '';
     document.getElementById('rlfinf-valor').value  = '';
+    _resetRecorr('rlfinf');
     del.style.display = 'none';
   }
   document.getElementById('rl-fin-overlay').classList.add('open');
@@ -5766,12 +5810,15 @@ function openRlFinModal(id) {
 function saveRlFin() {
   var valor = parseFloat(document.getElementById('rlfinf-valor').value);
   if (!valor) { alert('Informe o valor.'); return; }
+  var rv = _getRecorrVal('rlfinf');
   var obj = {
-    id:    editingRlFinId || uid(),
-    data:  getDateValue('rlfinf-data'),
-    fonte: document.getElementById('rlfinf-fonte').value,
-    desc:  document.getElementById('rlfinf-desc').value.trim(),
-    valor: valor
+    id:       editingRlFinId || uid(),
+    data:     getDateValue('rlfinf-data'),
+    fonte:    document.getElementById('rlfinf-fonte').value,
+    desc:     document.getElementById('rlfinf-desc').value.trim(),
+    valor:    valor,
+    recorr:   rv.recorr,
+    renovacao:rv.renovacao
   };
   var list = getReleioFin();
   if (editingRlFinId) {
@@ -5806,6 +5853,10 @@ function renderRlFin() {
   document.getElementById('rlf-amazon').textContent = fm(amazon);
   document.getElementById('rlf-ebooks').textContent = fm(ebooks);
   document.getElementById('rlf-outros').textContent = fm(outros);
+
+  // Próximas cobranças
+  var rlProxEl = document.getElementById('rl-fin-proximas');
+  if (rlProxEl) rlProxEl.innerHTML = _renderProximasCobrancas(getReleioFin(), 'confirmarRenovacaoRl');
 
   // Chart — monthly totals by source
   var months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -7573,6 +7624,114 @@ function _renderOportunidades(promos, todayStr) {
   container.innerHTML = html;
   _oporSetState('results');
 }
+
+/* ── RECORRÊNCIA FINANCEIRA ───────────────────────────────── */
+
+// Mapeamento de prefixos para storage keys e getters
+var _recorrMap = {
+  ff:    { get: function(){ return getFinEntries(); },  save: function(d){ saveFinEntries(d); },  prefix: 'ff' },
+  sff:   { get: function(){ return getSoupFin(); },     save: function(d){ saveSoupFinData(d); }, prefix: 'sff' },
+  rlfinf:{ get: function(){ return getReleioFin(); },   save: function(d){ saveReleioFin(d); },   prefix: 'rlfinf' }
+};
+
+function toggleRecorrFields(prefix) {
+  // Handles both prefixed IDs (ffF-recorr, sff-recorr) and re.leio special case
+  var selectId = prefix === 'rlfinf' ? 'rlfinff-recorr' : prefix + 'f-recorr';
+  var rowId    = prefix === 'rlfinf' ? 'rlfinidf-renovacao-row' : prefix + 'f-renovacao-row';
+  var sel = document.getElementById(selectId);
+  var row = document.getElementById(rowId);
+  if (!sel || !row) return;
+  row.style.display = (sel.value === 'mensal' || sel.value === 'anual') ? '' : 'none';
+}
+
+function _getRecorrVal(prefix) {
+  var selectId = prefix === 'rlfinf' ? 'rlfinff-recorr' : prefix + 'f-recorr';
+  var renovId  = prefix === 'rlfinf' ? 'rlfinf-renovacao' : prefix + 'f-renovacao';
+  var sel = document.getElementById(selectId);
+  var recorr = sel ? sel.value : 'unico';
+  var renov  = (recorr !== 'unico') ? getDateValue(renovId) : '';
+  return { recorr: recorr, renovacao: renov };
+}
+
+function _setRecorrVal(prefix, recorr, renovacao) {
+  var selectId = prefix === 'rlfinf' ? 'rlfinff-recorr' : prefix + 'f-recorr';
+  var renovId  = prefix === 'rlfinf' ? 'rlfinf-renovacao' : prefix + 'f-renovacao';
+  var sel = document.getElementById(selectId);
+  if (sel) sel.value = recorr || 'unico';
+  if (renovacao) setDateValue(renovId, renovacao);
+  else {
+    var el = document.getElementById(renovId);
+    if (el) { el.value = ''; el.setAttribute('data-raw',''); el.setAttribute('data-value',''); }
+  }
+  toggleRecorrFields(prefix);
+}
+
+function _resetRecorr(prefix) { _setRecorrVal(prefix, 'unico', ''); }
+
+// ── Próximas cobranças ────────────────────────────────────────────
+function _getProximasCobrancas(entries, diasAdiante) {
+  diasAdiante = diasAdiante || 30;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var limite = new Date(today.getTime() + diasAdiante * 86400000);
+  var todayKey = _todayKey();
+  return (entries || []).filter(function(e) {
+    if (!e.renovacao || e.recorr === 'unico' || !e.recorr) return false;
+    var d = new Date(e.renovacao + 'T00:00:00');
+    return d >= today && d <= limite;
+  }).sort(function(a,b){ return a.renovacao.localeCompare(b.renovacao); });
+}
+
+function _renderProximasCobrancas(entries, confirmFn) {
+  var proximas = _getProximasCobrancas(entries, 30);
+  if (!proximas.length) return '';
+  var today = _todayKey();
+  var html = '<div style="background:var(--amber-light);border:0.5px solid var(--amber);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem;">' +
+    '<div style="font-size:0.72rem;font-weight:500;color:var(--amber);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.04em;">Próximas cobranças</div>' +
+    proximas.map(function(e) {
+      var isHoje = e.renovacao === today;
+      var label = isHoje ? '⚡ Vence hoje' : '📅 ' + fmtDate(e.renovacao);
+      return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">' +
+        '<span style="font-size:0.75rem;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + e.desc + '</span>' +
+        '<span style="font-size:0.72rem;color:var(--text-muted);white-space:nowrap;">' + fmtMoney(e.valor) + ' · ' + (e.recorr==='mensal'?'Mensal':'Anual') + '</span>' +
+        '<span style="font-size:0.68rem;color:var(--amber);white-space:nowrap;">' + label + '</span>' +
+        '<button class="btn" style="font-size:0.65rem;padding:2px 10px;" onclick="' + confirmFn + '(\'' + e.id + '\')">Confirmar</button>' +
+      '</div>';
+    }).join('') +
+  '</div>';
+  return html;
+}
+
+// ── Confirmar renovação ───────────────────────────────────────────
+function _confirmarRenovacao(entries, id, saveFn, renderFn) {
+  var list = entries;
+  var e = list.find(function(x){ return x.id === id; });
+  if (!e) return;
+  // Cria novo lançamento com data de hoje
+  var novo = Object.assign({}, e, {
+    id: uid(),
+    data: _todayKey(),
+    renovacao: _calcProximaRenovacao(e.renovacao, e.recorr),
+    confirmado: true
+  });
+  // Atualiza a próxima renovação no original
+  e.renovacao = novo.renovacao;
+  list.push(novo);
+  saveFn(list);
+  renderFn();
+}
+
+function _calcProximaRenovacao(dataStr, recorr) {
+  if (!dataStr) return '';
+  var d = new Date(dataStr + 'T00:00:00');
+  if (recorr === 'mensal') d.setMonth(d.getMonth() + 1);
+  else if (recorr === 'anual') d.setFullYear(d.getFullYear() + 1);
+  return d.getFullYear() + '-' + _pad(d.getMonth()+1) + '-' + _pad(d.getDate());
+}
+
+// Wrappers por projeto
+function confirmarRenovacaoFin(id)   { _confirmarRenovacao(getFinEntries(), id, saveFinEntries, renderFinanceiro); }
+function confirmarRenovacaoSoup(id)  { _confirmarRenovacao(getSoupFin(),    id, saveSoupFinData, renderSoupFinanceiro); }
+function confirmarRenovacaoRl(id)    { _confirmarRenovacao(getReleioFin(),  id, saveReleioFin,  renderRlFin); }
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
