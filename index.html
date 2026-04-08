@@ -1204,6 +1204,17 @@
             <option value="month">Este mês</option>
             <option value="year">Este ano</option>
           </select>
+          <select id="fin-cat-filter" onchange="renderFinanceiro()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
+            <option value="">Todas as categorias</option>
+            <option value="entrada">Só entradas</option>
+            <option value="saida">Só saídas</option>
+            <option disabled>──────────</option>
+            <option>Contrato</option><option>Sinal</option><option>Parcela</option><option>Saldo final</option>
+            <option disabled>──────────</option>
+            <option>Freela</option><option>Álbum</option><option>Deslocamento</option>
+            <option>Equipamento</option><option>Software</option><option>Marketing</option>
+            <option>Impostos</option><option>Alimentação</option><option>Auxiliar</option><option>Outro</option>
+          </select>
           <button class="btn primary" onclick="openFinModal('entrada')">+ Entrada</button>
           <button class="btn" onclick="openFinModal('saida')">+ Saída</button>
         </div>
@@ -1243,18 +1254,26 @@
     <!-- ── CUSTOS ────────────────────────────────────────── -->
     <div class="tab-panel" id="spanel-custos">
       <div class="section-header">
-        <div class="section-title">Custos por casamento</div>
+        <div class="section-title">Custos por evento</div>
         <div class="section-actions">
-          <button class="btn" onclick="openCustoPackageModal()">Gerenciar pacotes</button>
-          <button class="btn primary" onclick="openCustoModal()">+ Custo avulso</button>
+          <select id="custo-client-filter" onchange="renderCustos()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
+            <option value="">Todos os clientes</option>
+          </select>
+          <select id="custo-cat-filter" onchange="renderCustos()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
+            <option value="">Todas as categorias</option>
+            <option>Freela</option><option>Deslocamento</option><option>Álbum</option>
+            <option>Impostos</option><option>Equipamento</option><option>Software</option><option>Outro</option>
+          </select>
+          <button class="btn" onclick="openCustoPackageModal()">Pacotes</button>
+          <button class="btn primary" onclick="openCustoModal()">+ Custo</button>
         </div>
       </div>
 
-      <!-- Summary -->
+      <!-- Summary by category -->
       <div class="fin-summary" id="custos-summary" style="margin-bottom:1.75rem;"></div>
 
       <!-- Packages section -->
-      <div style="margin-bottom:1.75rem;">
+      <div id="custos-packages-wrap" style="margin-bottom:1.75rem;display:none;">
         <div class="section-header" style="margin-bottom:0.75rem;">
           <div style="font-size:0.78rem;color:var(--text-muted);font-weight:500;">Pacotes cadastrados</div>
           <button class="btn" style="font-size:0.68rem;" onclick="openCustoPackageModal()">+ Pacote</button>
@@ -1263,22 +1282,9 @@
       </div>
 
       <!-- Costs table -->
-      <div class="section-header" style="margin-bottom:0.75rem;">
-        <div style="font-size:0.78rem;color:var(--text-muted);font-weight:500;">Todos os custos</div>
-        <div class="filter-row" style="margin:0;">
-          <select id="custo-client-filter" onchange="renderCustos()">
-            <option value="">Todos os clientes</option>
-          </select>
-          <select id="custo-cat-filter" onchange="renderCustos()">
-            <option value="">Todas as categorias</option>
-            <option>Freela</option><option>Deslocamento</option><option>Álbum</option>
-            <option>Impostos</option><option>Equipamento</option><option>Software</option><option>Outro</option>
-          </select>
-        </div>
-      </div>
       <div class="table-wrap"><div class="table-scroll">
         <table class="data-table">
-          <thead><tr><th>Descrição</th><th>Categoria</th><th>Cliente</th><th>Pacote</th><th>Valor</th><th></th></tr></thead>
+          <thead><tr><th>Descrição</th><th>Categoria</th><th>Cliente / Evento</th><th>Data</th><th>Valor</th><th></th></tr></thead>
           <tbody id="custos-tbody"></tbody>
         </table>
       </div></div>
@@ -3633,6 +3639,7 @@ function deletePend() {
 function renderFinanceiro() {
   populateClientSelects();
   var period = (document.getElementById('fin-period')||{value:'all'}).value;
+  var catFlt = (document.getElementById('fin-cat-filter')||{value:''}).value;
   var now = new Date();
   var entries = getFinEntries().filter(function(e){
     if (period==='all') return true;
@@ -3641,6 +3648,10 @@ function renderFinanceiro() {
     if (period==='year')  return d.getFullYear()===now.getFullYear();
     return true;
   });
+  // Apply category/type filter
+  if (catFlt === 'entrada') entries = entries.filter(function(e){ return e.tipo==='entrada'; });
+  else if (catFlt === 'saida') entries = entries.filter(function(e){ return e.tipo==='saida'; });
+  else if (catFlt) entries = entries.filter(function(e){ return e.cat===catFlt; });
   var totalIn  = entries.filter(function(e){ return e.tipo==='entrada'; }).reduce(function(s,e){ return s+(parseFloat(e.valor)||0); },0);
   var totalOut = entries.filter(function(e){ return e.tipo==='saida'; }).reduce(function(s,e){ return s+(parseFloat(e.valor)||0); },0);
   var balance  = totalIn - totalOut;
@@ -4244,23 +4255,53 @@ function saveCustos(d) { studioSave('custos', d);   dbSaveList('studio_custos', 
 function savePkgs(d)   { studioSave('packages', d); dbSaveList('studio_packages', d); }
 
 function renderCustos() {
-  var custos = getCustos();
-  var pkgs   = getPkgs();
-  var clients = getClients();
+  var CUSTO_CATS = ['Freela','Deslocamento','Álbum','Impostos','Equipamento','Software','Marketing','Alimentação','Auxiliar','Outro'];
 
-  // summary
-  var total = custos.reduce(function(s,c){ return s+(parseFloat(c.valor)||0); },0);
+  // Merge: legacy custos store + fin entries that are saídas with custo categories
+  var legacyCustos = getCustos().map(function(c){
+    return { id:c.id, desc:c.desc, cat:c.cat, valor:c.valor, clienteId:c.clienteId, data:c.data, obs:c.obs, _legacy:true };
+  });
+  var finCustos = getFinEntries().filter(function(e){
+    return e.tipo==='saida' && CUSTO_CATS.indexOf(e.cat) !== -1;
+  }).map(function(e){
+    return { id:e.id, desc:e.desc, cat:e.cat, valor:e.valor, clienteId:e.clienteId, data:e.data, obs:'', _legacy:false };
+  });
+  var allCustos = legacyCustos.concat(finCustos);
+
+  // Populate client filter
+  var cfEl = document.getElementById('custo-client-filter');
+  if (cfEl) {
+    cfEl.innerHTML = '<option value="">Todos os clientes</option>' + getClients().map(function(c){
+      return '<option value="'+c.id+'">'+c.nome+'</option>';
+    }).join('');
+  }
+
+  // Filters
+  var cFlt   = (document.getElementById('custo-client-filter')||{value:''}).value;
+  var catFlt = (document.getElementById('custo-cat-filter')||{value:''}).value;
+  var filtered = allCustos.filter(function(c){
+    return (!cFlt || c.clienteId===cFlt) && (!catFlt || c.cat===catFlt);
+  });
+  filtered.sort(function(a,b){ return (b.data||'').localeCompare(a.data||''); });
+
+  // Summary by category
+  var total = filtered.reduce(function(s,c){ return s+(parseFloat(c.valor)||0); },0);
   var porCat = {};
-  custos.forEach(function(c){ porCat[c.cat]=(porCat[c.cat]||0)+(parseFloat(c.valor)||0); });
+  filtered.forEach(function(c){ porCat[c.cat]=(porCat[c.cat]||0)+(parseFloat(c.valor)||0); });
   var topCat = Object.keys(porCat).sort(function(a,b){ return porCat[b]-porCat[a]; })[0]||'—';
   var sumEl = document.getElementById('custos-summary');
-  if (sumEl) sumEl.innerHTML =
-    '<div class="fin-exit"><div class="fin-label">Total custos</div><div class="fin-val">'+fmtMoney(total)+'</div></div>'+
-    '<div class="fin-balance"><div class="fin-label">Maior categoria</div><div class="fin-val" style="font-size:0.95rem;">'+topCat+'</div></div>'+
-    '<div class="fin-entry"><div class="fin-label">Itens registrados</div><div class="fin-val">'+custos.length+'</div></div>';
+  if (sumEl) {
+    var catCards = Object.keys(porCat).sort(function(a,b){ return porCat[b]-porCat[a]; }).map(function(cat){
+      return '<div class="fin-exit"><div class="fin-label">'+cat+'</div><div class="fin-val" style="font-size:1rem;">'+fmtMoney(porCat[cat])+'</div></div>';
+    }).join('');
+    sumEl.innerHTML = '<div class="fin-exit"><div class="fin-label">Total custos</div><div class="fin-val">'+fmtMoney(total)+'</div></div>' + catCards;
+  }
 
-  // packages
+  // Packages — show only when no client filter
+  var pkgWrap = document.getElementById('custos-packages-wrap');
+  if (pkgWrap) pkgWrap.style.display = cFlt ? 'none' : 'block';
   var pkgEl = document.getElementById('custos-packages-list');
+  var pkgs = getPkgs();
   if (pkgEl) {
     if (!pkgs.length) {
       pkgEl.innerHTML = '<div style="font-size:0.78rem;color:var(--text-hint);">Nenhum pacote cadastrado ainda.</div>';
@@ -4277,20 +4318,7 @@ function renderCustos() {
     }
   }
 
-  // populate filters
-  var cfEl = document.getElementById('custo-client-filter');
-  if (cfEl) {
-    cfEl.innerHTML = '<option value="">Todos os clientes</option>' + clients.map(function(c){
-      return '<option value="'+c.id+'">'+c.nome+'</option>';
-    }).join('');
-  }
-
-  // table
-  var cFlt = (document.getElementById('custo-client-filter')||{value:''}).value;
-  var catFlt = (document.getElementById('custo-cat-filter')||{value:''}).value;
-  var filtered = custos.filter(function(c){
-    return (!cFlt || c.clienteId===cFlt) && (!catFlt || c.cat===catFlt);
-  });
+  // Table
   var tbody = document.getElementById('custos-tbody');
   if (!tbody) return;
   if (!filtered.length) {
@@ -4298,14 +4326,15 @@ function renderCustos() {
     return;
   }
   tbody.innerHTML = filtered.map(function(c){
-    var pkg = pkgs.find(function(p){ return p.id===c.pacoteId; });
+    var editFn = c._legacy ? 'openCustoModal' : 'openFinModal';
+    var editArg = c._legacy ? '\''+c.id+'\'' : 'null,\''+c.id+'\'';
     return '<tr>'+
       '<td class="td-name">'+c.desc+'</td>'+
       '<td>'+c.cat+'</td>'+
       '<td>'+(c.clienteId ? clientName(c.clienteId) : '—')+'</td>'+
-      '<td>'+(pkg?pkg.nome:'—')+'</td>'+
+      '<td>'+(c.data ? fmtDate(c.data) : '—')+'</td>'+
       '<td>'+fmtMoney(c.valor)+'</td>'+
-      '<td><button class="row-action" onclick="openCustoModal(\''+c.id+'\')">Editar</button></td>'+
+      '<td><button class="row-action" onclick="'+editFn+'('+editArg+')">Editar</button></td>'+
     '</tr>';
   }).join('');
 }
@@ -4344,29 +4373,41 @@ function openCustoModal(id) {
 function closeCustoModal() { document.getElementById('custo-overlay').classList.remove('open'); }
 function saveCusto() {
   var obj = {
-    id: editingCustoId||uid(),
+    id:        editingCustoId||uid(),
     desc:      document.getElementById('cuf-desc').value.trim(),
     cat:       document.getElementById('cuf-cat').value,
     valor:     parseFloat(document.getElementById('cuf-valor').value)||0,
     clienteId: document.getElementById('cuf-cliente').value,
-    pacoteId:  document.getElementById('cuf-pacote').value,
     data:      getDateValue('cuf-data'),
-    obs:       document.getElementById('cuf-obs').value.trim()
+    obs:       document.getElementById('cuf-obs').value.trim(),
+    tipo:      'saida',
+    recorr:    'unico'
   };
   if (!obj.desc) { alert('Informe a descrição.'); return; }
-  var custos = getCustos();
+  // Save to fin entries (unified store)
+  var entries = getFinEntries();
   if (editingCustoId) {
-    var idx = custos.findIndex(function(c){ return c.id===editingCustoId; });
-    if (idx>-1) custos[idx]=obj; else custos.push(obj);
-  } else custos.push(obj);
-  saveCustos(custos);
+    // Check if it's a legacy custo first
+    var legacyIdx = getCustos().findIndex(function(c){ return c.id===editingCustoId; });
+    if (legacyIdx > -1) {
+      // Migrate: remove from legacy, add to fin entries
+      saveCustos(getCustos().filter(function(c){ return c.id!==editingCustoId; }));
+    }
+    var idx = entries.findIndex(function(e){ return e.id===editingCustoId; });
+    if (idx>-1) entries[idx]=obj; else entries.push(obj);
+  } else entries.push(obj);
+  saveFinEntries(entries);
   closeCustoModal();
   renderCustos();
+  renderFinanceiro();
 }
 function deleteCusto() {
   if (!confirm('Excluir este custo?')) return;
+  // Remove from legacy store if present
   saveCustos(getCustos().filter(function(c){ return c.id!==editingCustoId; }));
-  closeCustoModal(); renderCustos();
+  // Remove from fin entries if present
+  saveFinEntries(getFinEntries().filter(function(e){ return e.id!==editingCustoId; }));
+  closeCustoModal(); renderCustos(); renderFinanceiro();
 }
 
 var editingPkgId = null;
