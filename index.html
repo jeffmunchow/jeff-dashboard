@@ -1085,7 +1085,7 @@
     <button class="studio-tab active" id="stab-resumo"     onclick="switchStudioTab('resumo')">Resumo</button>
     <button class="studio-tab"        id="stab-clientes"   onclick="switchStudioTab('clientes')">Clientes</button>
     <button class="studio-tab"        id="stab-agenda"     onclick="switchStudioTab('agenda')">Agenda</button>
-    <button class="studio-tab"        id="stab-pendencias" onclick="switchStudioTab('pendencias')">Pendências</button>
+    <button class="studio-tab"        id="stab-pendencias" onclick="switchStudioTab('pendencias')">Pós-produção</button>
     <button class="studio-tab"        id="stab-financeiro" onclick="switchStudioTab('financeiro')">Financeiro</button>
     <button class="studio-tab"        id="stab-custos"     onclick="switchStudioTab('custos')">Custos</button>
     <button class="studio-tab"        id="stab-tarefas"    onclick="switchStudioTab('tarefas')">Tarefas</button>
@@ -1109,9 +1109,9 @@
           <div class="section-header"><div class="section-title">Próximos eventos</div></div>
           <div id="resumo-agenda-list"></div>
         </div>
-        <!-- Pendências recentes -->
+        <!-- Pós-produção -->
         <div>
-          <div class="section-header"><div class="section-title">Pendências abertas</div></div>
+          <div class="section-header"><div class="section-title">Pós-produção</div></div>
           <div id="resumo-pend-list"></div>
         </div>
       </div>
@@ -1170,20 +1170,9 @@
     <!-- ── PENDÊNCIAS ─────────────────────────────────── -->
     <div class="tab-panel" id="spanel-pendencias">
       <div class="section-header">
-        <div class="section-title">Pendências</div>
-        <div class="section-actions">
-          <select id="pend-client-filter" onchange="renderPendencias()">
-            <option value="">Todos os clientes</option>
-          </select>
-          <select id="pend-status-filter" onchange="renderPendencias()">
-            <option value="open">Abertas</option>
-            <option value="all">Todas</option>
-            <option value="done">Concluídas</option>
-          </select>
-          <button class="btn primary" onclick="openPendModal()">+ Pendência</button>
-        </div>
+        <div class="section-title">Pós-produção</div>
       </div>
-      <div id="pendencias-container"></div>
+      <div id="posproducao-container"></div>
     </div>
 
     <!-- ── FINANCEIRO ─────────────────────────────────── -->
@@ -3058,7 +3047,7 @@ function switchStudioTab(tab) {
   if (tab==='resumo')     renderResumo();
   if (tab==='clientes')   renderClientes();
   if (tab==='agenda')     renderAgenda();
-  if (tab==='pendencias') renderPendencias();
+  if (tab==='pendencias') renderPosProducao();
   if (tab==='financeiro') renderFinanceiro();
   if (tab==='custos')     renderCustos();
   if (tab==='tarefas')    { renderProjTarefasWeekBar('munchow'); renderProjTarefasList('munchow'); }
@@ -3151,19 +3140,25 @@ function renderResumo() {
     }).join('') + '</div>';
   }
 
-  // mini pendências
-  var pends = getPends().filter(function(p){ return !p.feito; }).slice(0,5);
+  // pós-produção no resumo
+  var POS_STATUS = ['Pós-produção','Álbum design','Entregue'];
+  var posClients = getClients().filter(function(c){ return POS_STATUS.indexOf(c.status) !== -1; });
   var pEl = document.getElementById('resumo-pend-list');
-  if (!pends.length) { pEl.innerHTML = '<div class="agenda-empty">Nenhuma pendência aberta 🎉</div>'; }
-  else {
-    pEl.innerHTML = '<div class="todo-list">' + pends.map(function(p){
-      return '<div class="todo-item">'+
-        '<div class="todo-check" onclick="togglePend(\''+p.id+'\')">'+
-          '<svg class="todo-check-icon" width="8" height="8" viewBox="0 0 8 8"><path d="M1 4l2 2 4-4" stroke="#fff" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>'+
-        '</div>'+
-        '<div><div class="todo-text">'+p.titulo+'</div>'+
-        '<div class="todo-cat">'+(p.clienteId ? clientName(p.clienteId) : 'Geral')+(p.prazo?' · '+fmtDate(p.prazo):'')+'</div></div></div>';
-    }).join('') + '</div>';
+  if (pEl) {
+    if (!posClients.length) { pEl.innerHTML = '<div class="agenda-empty">Nenhum cliente em pós-produção 🎉</div>'; }
+    else {
+      pEl.innerHTML = '<div class="agenda-list">' + posClients.slice(0,5).map(function(c){
+        var sBadge = {'Pós-produção':'badge-posprod','Álbum design':'badge-preprod','Entregue':'badge-entregue'}[c.status]||'badge-prospect';
+        return '<div class="agenda-item" onclick="switchStudioTab(\'clientes\')" style="cursor:pointer;">'+
+          '<div class="agenda-info">'+
+            '<div class="agenda-titulo">'+c.nome+'</div>'+
+            '<div class="agenda-sub">'+(c.data?fmtDate(c.data)+' · ':'')+
+              '<span class="badge '+sBadge+'">'+c.status+'</span>'+
+            '</div>'+
+          '</div>'+
+        '</div>';
+      }).join('') + '</div>';
+    }
   }
 }
 
@@ -3497,47 +3492,40 @@ function deleteEvent() {
 }
 
 /* ─── PENDÊNCIAS ─────────────────────────────────────────── */
-function renderPendencias() {
-  populateClientSelects();
-  var cFlt = (document.getElementById('pend-client-filter')||{value:''}).value;
-  var sFlt = (document.getElementById('pend-status-filter')||{value:'open'}).value;
-  var pends = getPends().filter(function(p){
-    return (!cFlt || p.clienteId===cFlt) &&
-           (sFlt==='all' || (sFlt==='open' && !p.feito) || (sFlt==='done' && p.feito));
-  });
-  var cont = document.getElementById('pendencias-container');
-  if (!pends.length) { cont.innerHTML = '<div class="agenda-empty">Nenhuma pendência para mostrar</div>'; return; }
-
-  var PRIO_COLOR = { alta:'var(--coral)', normal:'var(--text-hint)', baixa:'var(--text-hint)' };
-  cont.innerHTML = '<div class="todo-list">' + pends.map(function(p){
-    return '<div class="todo-item'+(p.feito?' done':'')+'">'+
-      '<div class="todo-check" onclick="togglePend(\''+p.id+'\')">'+
-        '<svg class="todo-check-icon" width="8" height="8" viewBox="0 0 8 8"><path d="M1 4l2 2 4-4" stroke="#fff" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>'+
-      '</div>'+
-      '<div style="flex:1;">'+
-        '<div class="todo-text">'+p.titulo+'</div>'+
-        '<div class="todo-cat" style="display:flex;gap:8px;align-items:center;">'+
-          (p.clienteId?'<span>'+clientName(p.clienteId)+'</span>':'<span>Geral</span>')+
-          (p.prazo?'<span>· '+fmtDate(p.prazo)+'</span>':'')+
-          (p.prio==='alta'?'<span style="color:var(--coral);font-weight:500;">· Alta</span>':'')+
-        '</div>'+
-      '</div>'+
-      '<button class="row-action" onclick="openPendModal(\''+p.id+'\')">Editar</button>'+
-      '<button class="todo-del" onclick="deletePendById(\''+p.id+'\')">✕</button>'+
-    '</div>';
-  }).join('') + '</div>';
+function renderPosProducao() {
+  var POS_STATUS = ['Pós-produção','Álbum design','Entregue'];
+  var clients = getClients().filter(function(c){ return POS_STATUS.indexOf(c.status) !== -1; });
+  var cont = document.getElementById('posproducao-container');
+  if (!cont) return;
+  if (!clients.length) {
+    cont.innerHTML = '<div class="agenda-empty">Nenhum cliente em pós-produção no momento 🎉</div>';
+    return;
+  }
+  var STATUS_ORDER = {'Pós-produção':0,'Álbum design':1,'Entregue':2};
+  clients.sort(function(a,b){ return (STATUS_ORDER[a.status]||0) - (STATUS_ORDER[b.status]||0); });
+  cont.innerHTML = '<div class="table-wrap"><div class="table-scroll"><table class="data-table">'+
+    '<thead><tr><th>Cliente</th><th>Data do evento</th><th>Status</th><th></th></tr></thead>'+
+    '<tbody>' + clients.map(function(c){
+      var sBadge = {'Pós-produção':'badge-posprod','Álbum design':'badge-preprod','Entregue':'badge-entregue'}[c.status]||'badge-prospect';
+      return '<tr>'+
+        '<td class="td-name">'+c.nome+'</td>'+
+        '<td>'+(c.data?fmtDate(c.data):'—')+'</td>'+
+        '<td><span class="badge '+sBadge+'">'+c.status+'</span></td>'+
+        '<td><button class="row-action" onclick="openClientModal(\''+c.id+'\')">Editar</button></td>'+
+      '</tr>';
+    }).join('') + '</tbody></table></div></div>';
 }
 function togglePend(id) {
   var pends = getPends();
   var p = pends.find(function(x){ return x.id===id; });
   if (p) p.feito = !p.feito;
   savePends(pends);
-  if (currentStudioTab==='pendencias') renderPendencias();
+  if (currentStudioTab==='pendencias') renderPosProducao();
   if (currentStudioTab==='resumo') renderResumo();
 }
 function deletePendById(id) {
   savePends(getPends().filter(function(p){ return p.id!==id; }));
-  renderPendencias();
+  renderPosProducao();
 }
 
 var editingPendId = null;
@@ -3580,13 +3568,13 @@ function savePend() {
   if (!obj.titulo) { alert('Informe a descrição.'); return; }
   savePends(pends);
   closePendModal();
-  renderPendencias();
+  renderPosProducao();
 }
 function deletePend() {
   if (!confirm('Excluir esta pendência?')) return;
   savePends(getPends().filter(function(p){ return p.id!==editingPendId; }));
   closePendModal();
-  renderPendencias();
+  renderPosProducao();
 }
 
 /* ─── FINANCEIRO ─────────────────────────────────────────── */
