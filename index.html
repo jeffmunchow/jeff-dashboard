@@ -1021,6 +1021,14 @@
       </div>
     </div>
     <div id="tf-conflict-msg" style="display:none;background:rgba(196,58,26,0.1);border:0.5px solid var(--coral);border-radius:6px;padding:8px 12px;font-size:0.72rem;color:var(--coral);margin-bottom:0.75rem;"></div>
+    <!-- Recorrente toggle -->
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:1rem;font-size:0.78rem;color:var(--text-muted);user-select:none;">
+      <div id="tf-recorrente-toggle" onclick="toggleTfRecorrente()" style="width:36px;height:20px;border-radius:10px;background:var(--toggle-bg);position:relative;flex-shrink:0;cursor:pointer;transition:background 0.2s;">
+        <div id="tf-recorrente-knob" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--toggle-knob);box-shadow:0 1px 3px var(--toggle-knob-shadow);transition:transform 0.2s;"></div>
+      </div>
+      Repetir diariamente
+    </label>
+    <input type="hidden" id="tf-recorrente" value="false">
     <div class="modal-actions">
       <button class="btn" id="tf-delete-btn" style="display:none;color:var(--coral);" onclick="deleteTarefa()">Excluir</button>
       <div style="flex:1"></div>
@@ -6614,10 +6622,11 @@ function renderTarefasList() {
     var meta = [];
     if (t.hora) meta.push(t.hora + (t.horaFim ? ' – ' + t.horaFim : (t.duracao ? ' · ' + _durLabel(t.duracao) : '')));
     var mutedStyle = muted ? ' style="opacity:0.55;"' : '';
+    var recorrenteIcon = t.recorrente ? '<span title="Tarefa recorrente" style="font-size:0.65rem;color:var(--text-hint);">↻</span>' : '';
     return '<div class="tarefas-item' + (t.done?' done':'') + '"' + mutedStyle + ' onclick="openTarefaModal(\'' + t.id + '\')">' +
       '<div class="tarefas-item-check' + (t.done?' checked':'') + '" onclick="toggleTarefaDone(event,\'' + t.id + '\')"></div>' +
       '<div class="tarefas-item-body">' +
-        '<div class="tarefas-item-title">' + t.titulo + '</div>' +
+        '<div class="tarefas-item-title">' + t.titulo + ' ' + recorrenteIcon + '</div>' +
         '<div class="tarefas-item-meta">' +
           (muted && t.dataLabel ? '<span>' + t.dataLabel + ' · </span>' : '') +
           (meta.length ? '<span>' + meta.join(' ') + '</span>' : '') +
@@ -6661,16 +6670,60 @@ function renderTarefasList() {
   el.innerHTML = html;
 }
 
-function toggleTarefaDone(e, id) {
+function _setTfRecorrente(val) {
+  document.getElementById('tf-recorrente').value = val ? 'true' : 'false';
+  var knob = document.getElementById('tf-recorrente-knob');
+  var toggle = document.getElementById('tf-recorrente-toggle');
+  if (val) {
+    toggle.style.background = 'var(--teal)';
+    knob.style.transform = 'translateX(16px)';
+  } else {
+    toggle.style.background = 'var(--toggle-bg)';
+    knob.style.transform = 'translateX(0)';
+  }
+}
+function toggleTfRecorrente() {
+  var cur = document.getElementById('tf-recorrente').value === 'true';
+  _setTfRecorrente(!cur);
+}
   e.stopPropagation();
   var list = getTarefas();
   var t = list.find(function(x){ return x.id===id; });
   if (!t) return;
+  var wasDone = t.done;
   t.done = !t.done;
+
+  // Se é recorrente e acabou de ser marcada como concluída, cria para o dia seguinte
+  if (t.recorrente && !wasDone && t.done && t.data) {
+    var parts = t.data.split('-');
+    var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    d.setDate(d.getDate() + 1);
+    var nextDate = d.getFullYear() + '-' + _pad(d.getMonth()+1) + '-' + _pad(d.getDate());
+    // Só cria se não existir uma cópia dessa tarefa recorrente para o dia seguinte
+    var jaExiste = list.some(function(x){
+      return x.recorrenteOrigId === (t.recorrenteOrigId || t.id) && x.data === nextDate;
+    });
+    if (!jaExiste) {
+      var nova = {
+        id:              uid(),
+        titulo:          t.titulo,
+        data:            nextDate,
+        hora:            t.hora,
+        horaFim:         t.horaFim,
+        duracao:         t.duracao,
+        projeto:         t.projeto,
+        evento:          t.evento||'',
+        recorrente:      true,
+        recorrenteOrigId: t.recorrenteOrigId || t.id,
+        done:            false
+      };
+      list.push(nova);
+    }
+  }
+
   saveTarefasData(list);
   renderTarefasList();
   renderTarefasGrid();
-  // Refresh proj lists so done tasks show/hide correctly
   renderProjTarefasList('releio');
   renderProjTarefasList('soup');
   renderProjTarefasList('munchow');
@@ -6862,6 +6915,7 @@ function openTarefaModal(id) {
     document.getElementById('tf-projeto').value = t.projeto||'pessoal';
     var evEl = document.getElementById('tf-evento');
     if (evEl) evEl.value = t.evento||'';
+    _setTfRecorrente(t.recorrente||false);
     delBtn.style.display = 'inline-flex';
   } else {
     document.getElementById('tarefa-modal-title').textContent = 'Nova tarefa';
@@ -6873,6 +6927,7 @@ function openTarefaModal(id) {
     document.getElementById('tf-projeto').value = 'pessoal';
     var evEl2 = document.getElementById('tf-evento');
     if (evEl2) evEl2.value = '';
+    _setTfRecorrente(false);
     delBtn.style.display = 'none';
   }
   toggleTarefaEventoField();
@@ -6929,15 +6984,16 @@ function saveTarefa() {
   var duracao = (hora && horaFim) ? _horaToMin(horaFim) - _horaToMin(hora) : 60;
   if (duracao <= 0) duracao = 60;
   var obj = {
-    id:      _editingTarefaId || uid(),
-    titulo:  titulo,
-    data:    data,
-    hora:    hora,
-    horaFim: horaFim,
-    duracao: duracao,
-    projeto: document.getElementById('tf-projeto').value,
-    evento:  (document.getElementById('tf-evento') ? document.getElementById('tf-evento').value : '') || '',
-    done:    false
+    id:         _editingTarefaId || uid(),
+    titulo:     titulo,
+    data:       data,
+    hora:       hora,
+    horaFim:    horaFim,
+    duracao:    duracao,
+    projeto:    document.getElementById('tf-projeto').value,
+    evento:     (document.getElementById('tf-evento') ? document.getElementById('tf-evento').value : '') || '',
+    recorrente: document.getElementById('tf-recorrente').value === 'true',
+    done:       false
   };
   if (_editingTarefaId) {
     var existing = getTarefas().find(function(t){ return t.id===_editingTarefaId; });
