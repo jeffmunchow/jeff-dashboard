@@ -3149,10 +3149,11 @@ function renderResumo() {
     else {
       pEl.innerHTML = '<div class="agenda-list">' + posClients.slice(0,5).map(function(c){
         var sBadge = {'Pós-produção':'badge-posprod','Álbum design':'badge-preprod','Entregue':'badge-entregue'}[c.status]||'badge-prospect';
-        return '<div class="agenda-item" onclick="switchStudioTab(\'clientes\')" style="cursor:pointer;">'+
+        return '<div class="agenda-item" onclick="openClientModal(\''+c.id+'\')" style="cursor:pointer;">'+
           '<div class="agenda-info">'+
             '<div class="agenda-titulo">'+c.nome+'</div>'+
-            '<div class="agenda-sub">'+(c.data?fmtDate(c.data)+' · ':'')+
+            '<div class="agenda-sub">'+
+              (c.dataCasamento ? fmtDate(c.dataCasamento)+' · ' : '')+
               '<span class="badge '+sBadge+'">'+c.status+'</span>'+
             '</div>'+
           '</div>'+
@@ -3509,7 +3510,7 @@ function renderPosProducao() {
       var sBadge = {'Pós-produção':'badge-posprod','Álbum design':'badge-preprod','Entregue':'badge-entregue'}[c.status]||'badge-prospect';
       return '<tr>'+
         '<td class="td-name">'+c.nome+'</td>'+
-        '<td>'+(c.data?fmtDate(c.data):'—')+'</td>'+
+        '<td>'+(c.dataCasamento?fmtDate(c.dataCasamento):'—')+'</td>'+
         '<td><span class="badge '+sBadge+'">'+c.status+'</span></td>'+
         '<td><button class="row-action" onclick="openClientModal(\''+c.id+'\')">Editar</button></td>'+
       '</tr>';
