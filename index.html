@@ -1022,11 +1022,18 @@
     </div>
     <div id="tf-conflict-msg" style="display:none;background:rgba(196,58,26,0.1);border:0.5px solid var(--coral);border-radius:6px;padding:8px 12px;font-size:0.72rem;color:var(--coral);margin-bottom:0.75rem;"></div>
     <!-- Recorrente toggle -->
-    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:1rem;font-size:0.78rem;color:var(--text-muted);user-select:none;">
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:0.75rem;font-size:0.78rem;color:var(--text-muted);user-select:none;">
       <div id="tf-recorrente-toggle" onclick="toggleTfRecorrente()" style="width:36px;height:20px;border-radius:10px;background:var(--toggle-bg);position:relative;flex-shrink:0;cursor:pointer;transition:background 0.2s;">
         <div id="tf-recorrente-knob" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--toggle-knob);box-shadow:0 1px 3px var(--toggle-knob-shadow);transition:transform 0.2s;"></div>
       </div>
       Repetir diariamente
+    </label>
+    <!-- Adiar para amanhã -->
+    <label id="tf-adiar-row" style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:1rem;font-size:0.78rem;color:var(--text-muted);user-select:none;">
+      <div id="tf-adiar-toggle" onclick="adiarTarefaParaAmanha()" style="width:36px;height:20px;border-radius:10px;background:var(--toggle-bg);position:relative;flex-shrink:0;cursor:pointer;transition:background 0.2s;">
+        <div id="tf-adiar-knob" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--toggle-knob);box-shadow:0 1px 3px var(--toggle-knob-shadow);transition:transform 0.2s;"></div>
+      </div>
+      <span id="tf-adiar-label">Adiar para amanhã</span>
     </label>
     <input type="hidden" id="tf-recorrente" value="false">
     <div class="modal-actions">
@@ -6775,6 +6782,32 @@ function toggleTfRecorrente() {
   _setTfRecorrente(!cur);
 }
 
+function _resetAdiar() {
+  var toggle = document.getElementById('tf-adiar-toggle');
+  var knob   = document.getElementById('tf-adiar-knob');
+  var label  = document.getElementById('tf-adiar-label');
+  if (toggle) toggle.style.background = 'var(--toggle-bg)';
+  if (knob)   knob.style.transform = 'translateX(0)';
+  if (label)  label.textContent = 'Adiar para amanhã';
+}
+
+function adiarTarefaParaAmanha() {
+  // Calcula o dia seguinte à data atual do campo
+  var dataAtual = getDateValue('tf-data');
+  var base = dataAtual ? new Date(dataAtual + 'T00:00:00') : new Date();
+  base.setDate(base.getDate() + 1);
+  var novaData = base.getFullYear() + '-' + _pad(base.getMonth()+1) + '-' + _pad(base.getDate());
+  setDateValue('tf-data', novaData);
+
+  // Feedback visual: toggle acende e label mostra a data
+  var toggle = document.getElementById('tf-adiar-toggle');
+  var knob   = document.getElementById('tf-adiar-knob');
+  var label  = document.getElementById('tf-adiar-label');
+  if (toggle) toggle.style.background = 'var(--text)';
+  if (knob)   knob.style.transform = 'translateX(16px)';
+  if (label)  label.textContent = 'Adiado para ' + _pad(base.getDate()) + '/' + _pad(base.getMonth()+1);
+}
+
 function toggleTarefaDone(e, id) {
   e.stopPropagation();
   var list = getTarefas();
@@ -7007,6 +7040,7 @@ function openTarefaModal(id) {
     var evEl = document.getElementById('tf-evento');
     if (evEl) evEl.value = t.evento||'';
     _setTfRecorrente(t.recorrente||false);
+    _resetAdiar();
     delBtn.style.display = 'inline-flex';
   } else {
     document.getElementById('tarefa-modal-title').textContent = 'Nova tarefa';
@@ -7019,6 +7053,7 @@ function openTarefaModal(id) {
     var evEl2 = document.getElementById('tf-evento');
     if (evEl2) evEl2.value = '';
     _setTfRecorrente(false);
+    _resetAdiar();
     delBtn.style.display = 'none';
   }
   toggleTarefaEventoField();
