@@ -562,7 +562,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.4</div>
+    <div class="sidebar-version">v.1.5</div>
   </div>
 </div>
 
@@ -704,7 +704,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.4</div>
+      <div class="sidebar-version">v.1.5</div>
   </div>
 </div>
 
@@ -775,7 +775,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.4</div>
+      <div class="sidebar-version">v.1.5</div>
   </div>
 </div>
 
@@ -853,7 +853,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.4</div>
+      <div class="sidebar-version">v.1.5</div>
     </div>
   </div>
 
@@ -924,7 +924,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.4</div>
+      <div class="sidebar-version">v.1.5</div>
     </div>
   </div>
   <div class="header">
@@ -1061,7 +1061,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.4</div>
+    <div class="sidebar-version">v.1.5</div>
   </div>
 </div>
 
@@ -1103,7 +1103,7 @@
         <div class="sum-card accent-coral"><div class="sum-label">Ticket médio</div><div class="sum-value" id="ss-ticket">R$ —</div><div class="sum-sub">por casamento</div></div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
         <!-- Gráfico seguidores Instagram -->
         <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
@@ -1112,22 +1112,18 @@
               <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Seguidores</div>
             </div>
           </div>
-          <div style="height:140px;position:relative;"><canvas id="m-seg-chart"></canvas></div>
+          <div style="height:220px;position:relative;"><canvas id="m-seg-chart"></canvas></div>
         </div>
-        <!-- placeholder para alinhar grid -->
-        <div></div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;flex-wrap:wrap;">
-        <!-- Próximos eventos -->
-        <div>
-          <div class="section-header"><div class="section-title">Próximos eventos</div></div>
-          <div id="resumo-agenda-list"></div>
-        </div>
-        <!-- Pós-produção -->
-        <div>
-          <div class="section-header"><div class="section-title">Pós-produção</div></div>
-          <div id="resumo-pend-list"></div>
+        <!-- Coluna direita: Próximos eventos + Pós-produção -->
+        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+          <div>
+            <div class="section-header"><div class="section-title">Próximos eventos</div></div>
+            <div id="resumo-agenda-list"></div>
+          </div>
+          <div>
+            <div class="section-header"><div class="section-title">Pós-produção</div></div>
+            <div id="resumo-pend-list"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1309,7 +1305,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.4</div>
+    <div class="sidebar-version">v.1.5</div>
   </div>
 </div>
   <div class="header">
@@ -1526,7 +1522,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.4</div>
+    <div class="sidebar-version">v.1.5</div>
   </div>
 </div>
   <div class="header">
@@ -3922,6 +3918,21 @@ function recordFollowerPoint(proj, value) {
   dbMetricSave(SPARK_HISTORY_KEY['s'], JSON.stringify(arr));
 })();
 
+// Seed Münchow follower history — starts 08/04/2026 with 0
+(function() {
+  var seed = [{"d": "2026-04-08", "v": 0}];
+  var existing = getFollowerHistory('m');
+  var todaySeed = _todayKey();
+  // Only seed if no real history exists yet
+  if (existing.length === 0) {
+    var merged = {};
+    seed.forEach(function(p){ if (p.d <= todaySeed) merged[p.d] = p.v; });
+    var arr = Object.keys(merged).sort().map(function(d){ return {d:d, v:merged[d]}; });
+    localStorage.setItem(SPARK_HISTORY_KEY['m'], JSON.stringify(arr));
+    dbMetricSave(SPARK_HISTORY_KEY['m'], JSON.stringify(arr));
+  }
+})();
+
 // Load follower history from Supabase on init
 ['m','s','r'].forEach(function(proj) {
   dbMetricLoad(SPARK_HISTORY_KEY[proj]).then(function(val) {
@@ -3954,14 +3965,14 @@ function recordFollowerPoint(proj, value) {
 });
 
 var sparkData = {
-  m: { start: 200,  startDate: '2014-01-01', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#D4902A' : '#C4780A'; } },
+  m: { start: 0,  startDate: '2026-04-08', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#D4902A' : '#C4780A'; } },
   s: { start: 1,    startDate: '2026-02-01', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#18926E' : '#0A7864'; } },
   r: { start: 1,    startDate: '2026-03-24', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#CC4A28' : '#C43A1A'; } }
 };
 
 var _sparkEndIds = { m: 'm-seguidores', s: 's-seguidores', r: 'r-seguidores' };
 var _sparkStoreKeys = { m: 'dash_m-seguidores', s: 'dash_s-seguidores', r: 'dash_r-seguidores' };
-var _sparkDefaults  = { m: 3524, s: 22, r: 7000 };
+var _sparkDefaults  = { m: 0, s: 22, r: 7000 };
 
 function buildSparkDataForKey(key) {
   var d = sparkData[key];
