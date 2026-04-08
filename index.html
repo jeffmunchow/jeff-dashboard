@@ -6686,7 +6686,8 @@ function toggleTfRecorrente() {
   var cur = document.getElementById('tf-recorrente').value === 'true';
   _setTfRecorrente(!cur);
 }
-  e.stopPropagation();
+
+function toggleTarefaDone(e, id) {
   var list = getTarefas();
   var t = list.find(function(x){ return x.id===id; });
   if (!t) return;
