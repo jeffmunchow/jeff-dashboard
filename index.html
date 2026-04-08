@@ -622,8 +622,8 @@
     </div>
     <div class="divider"></div>
     <div class="next-event-widget" id="m-next-event-widget" onclick="event.stopPropagation()">
-      <div class="nev-label">Próximo evento</div>
-      <div id="m-nev-content" class="nev-empty">Nenhum evento cadastrado</div>
+      <div class="nev-label">Próxima tarefa</div>
+      <div id="m-nev-content" class="nev-empty">Nenhuma tarefa cadastrada</div>
     </div>
     <div class="last-updated" id="m-updated">Nunca atualizado</div>
     </div>
@@ -4111,27 +4111,19 @@ function renderDashboardNextEvents() {
     return html;
   }
 
-  // ── Münchow: agenda events + tarefas with evento set
-  var evs = getEvents().filter(function(e){ return e.data >= today; })
-    .sort(function(a,b){ return a.data.localeCompare(b.data); });
-  var tarefasEvento = getTarefas().filter(function(t){
-    return t.projeto === 'munchow' && t.evento && t.data && t.data >= today && !t.done;
-  }).map(function(t){
-    return { data: t.data, titulo: t.titulo, tipo: t.evento, local: '', clienteId: '', _fromTarefa: true, _tarefaId: t.id };
-  });
-  var allEvs = evs.concat(tarefasEvento).sort(function(a,b){ return a.data.localeCompare(b.data); });
+  // ── Münchow: próxima tarefa (igual Soup e re.leio)
+  var munchowTarefas = getTarefas().filter(function(t){
+    return t.projeto === 'munchow' && t.data && t.data >= today && !t.done;
+  }).sort(function(a,b){ return a.data.localeCompare(b.data); });
   var mEl = document.getElementById('m-nev-content');
   if (mEl) {
-    mEl.innerHTML = _renderSlots(allEvs, function(ev) {
-      var daysLeft = Math.ceil((new Date(ev.data + 'T00:00:00') - now) / 86400000);
-      return '<div style="display:flex;flex-direction:column;gap:1px;">' +
-        '<div style="display:flex;gap:8px;align-items:baseline;">' +
-          '<span style="font-size:0.68rem;color:var(--text-hint);flex-shrink:0;">' + fmtDateWidget(ev.data) + (daysLeft <= 30 ? ' · ' + daysLeft + 'd' : '') + '</span>' +
-          '<span class="nev-title">' + ev.titulo + '</span>' +
-        '</div>' +
-        (ev.tipo ? '<div class="nev-meta">' + ev.tipo + (ev.local ? ' · ' + ev.local : '') + (ev.clienteId ? ' · ' + clientName(ev.clienteId) : '') + '</div>' : '') +
+    mEl.innerHTML = _renderSlots(munchowTarefas, function(t) {
+      return '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<button onclick="checkMunchowTarefaWidget(\'' + t.id + '\',event)" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'var(--amber)\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
+        '<span style="font-size:0.68rem;color:var(--text-hint);white-space:nowrap;flex-shrink:0;">' + fmtDateWidget(t.data) + '</span>' +
+        '<span style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + t.titulo + '</span>' +
       '</div>';
-    });
+    }, munchowTarefas.map(function(t){ return t.id; }));
   }
 
   // ── Soup: viagens + tarefas Soup
@@ -5902,6 +5894,16 @@ function checkReleioTarefaWidget(id, e) {
 }
 
 function checkSoupTarefaWidget(id, e) {
+  e.stopPropagation();
+  var list = getTarefas();
+  var item = list.find(function(t){ return t.id === id; });
+  if (!item) return;
+  item.done = true;
+  saveTarefasData(list);
+  renderDashboardNextEvents();
+}
+
+function checkMunchowTarefaWidget(id, e) {
   e.stopPropagation();
   var list = getTarefas();
   var item = list.find(function(t){ return t.id === id; });
