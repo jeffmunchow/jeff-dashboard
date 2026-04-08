@@ -1103,6 +1103,21 @@
         <div class="sum-card accent-coral"><div class="sum-label">Ticket médio</div><div class="sum-value" id="ss-ticket">R$ —</div><div class="sum-sub">por casamento</div></div>
       </div>
 
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+        <!-- Gráfico seguidores Instagram -->
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+            <div>
+              <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">Instagram</div>
+              <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Seguidores</div>
+            </div>
+          </div>
+          <div style="height:140px;position:relative;"><canvas id="m-seg-chart"></canvas></div>
+        </div>
+        <!-- placeholder para alinhar grid -->
+        <div></div>
+      </div>
+
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;flex-wrap:wrap;">
         <!-- Próximos eventos -->
         <div>
@@ -2594,6 +2609,7 @@ function toggleTheme() {
   // Rebuild sparklines with new theme colors
   buildSparklines();
   if (_rlSegChartInstance) buildReleioSegChart();
+  if (_mSegChartInstance) buildMunchowSegChart();
   // Rebuild JJ charts if visible
   if (_jjView === 'line') buildJJLineChart();
   if (_jjView === 'belts') buildJJChart();
@@ -3162,6 +3178,7 @@ function renderResumo() {
       }).join('') + '</div>';
     }
   }
+  setTimeout(buildMunchowSegChart, 50);
 }
 
 /* ─── CLIENTES ───────────────────────────────────────────── */
@@ -5905,6 +5922,70 @@ function checkMunchowTarefaWidget(id, e) {
   renderDashboardNextEvents();
 }
 
+var _mSegChartInstance = null;
+function buildMunchowSegChart() {
+  var canvas = document.getElementById('m-seg-chart');
+  if (!canvas) return;
+  var rd = buildSparkDataForKey('m');
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var col = isDark ? '#D4902A' : '#C4780A';
+  var gridCol = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+  var textHint = isDark ? '#6B6660' : '#9E9892';
+  if (_mSegChartInstance) { _mSegChartInstance.destroy(); _mSegChartInstance = null; }
+  _mSegChartInstance = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: rd.labels,
+      datasets: [{
+        data: rd.pts,
+        borderColor: col,
+        borderWidth: 1.5,
+        pointRadius: 0,
+        pointHitRadius: 8,
+        tension: 0.35,
+        fill: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          backgroundColor: isDark ? '#1A1814' : '#FFFFFF',
+          borderColor: isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)',
+          borderWidth: 1,
+          titleColor: isDark ? '#EDE9E3' : '#1A1814',
+          bodyColor: isDark ? '#9E9892' : '#6B6660',
+          titleFont: { family: 'DM Sans, sans-serif', size: 10 },
+          bodyFont: { family: 'DM Sans, sans-serif', size: 10 },
+          padding: 8, displayColors: false,
+          callbacks: {
+            title: function(items) { return rd.labels[items[0].dataIndex]; },
+            label: function(ctx) { return ctx.parsed.y.toLocaleString('pt-BR') + ' seguidores'; }
+          }
+        }
+      },
+      scales: {
+        x: {
+          display: true,
+          grid: { display: true, color: gridCol, drawTicks: false },
+          ticks: { display: false },
+          border: { display: false }
+        },
+        y: {
+          display: true,
+          position: 'left',
+          grid: { color: gridCol, drawTicks: false },
+          ticks: { font: { family: 'DM Sans', size: 9 }, color: textHint, stepSize: 500, padding: 4 },
+          border: { display: false }
+        }
+      },
+      layout: { padding: { top: 4, right: 4 } }
+    }
+  });
+}
 /* ── GRÁFICO SEGUIDORES re.leio (Resumo) ── */
 var _rlSegChartInstance = null;
 function buildReleioSegChart() {
