@@ -2182,6 +2182,14 @@
         </select>
       </div>
       <div class="field-row" id="fff-renovacao-row" style="display:none;"><label>Próxima renovação</label><input type="text" class="smart-date-input" id="fff-renovacao" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10"></div>
+    <!-- Previsto toggle -->
+    <label id="ff-previsto-row" style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0.75rem 0 1rem;font-size:0.78rem;color:var(--text-muted);user-select:none;">
+      <div id="ff-previsto-toggle" onclick="toggleFfPrevisto()" style="width:36px;height:20px;border-radius:10px;background:var(--toggle-bg);position:relative;flex-shrink:0;cursor:pointer;transition:background 0.2s;">
+        <div id="ff-previsto-knob" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--toggle-knob);box-shadow:0 1px 3px var(--toggle-knob-shadow);transition:transform 0.2s;"></div>
+      </div>
+      Lançamento previsto (ainda não realizado)
+    </label>
+    <input type="hidden" id="ff-previsto" value="false">
     <div class="modal-actions">
       <button class="btn" id="fin-delete-btn" style="display:none;color:var(--coral);" onclick="deleteFin()">Excluir</button>
       <div style="flex:1;"></div>
@@ -3665,6 +3673,30 @@ function deletePend() {
   renderPosProducao();
 }
 
+function abrirClienteDaParcela(clienteId) {
+  if (!clienteId) return;
+  switchStudioTab('clientes');
+  setTimeout(function(){ openClientModal(clienteId); }, 100);
+}
+
+function _setFfPrevisto(val) {
+  document.getElementById('ff-previsto').value = val ? 'true' : 'false';
+  var knob = document.getElementById('ff-previsto-knob');
+  var toggle = document.getElementById('ff-previsto-toggle');
+  if (!knob || !toggle) return;
+  if (val) {
+    toggle.style.background = 'var(--text)';
+    knob.style.transform = 'translateX(16px)';
+  } else {
+    toggle.style.background = 'var(--toggle-bg)';
+    knob.style.transform = 'translateX(0)';
+  }
+}
+function toggleFfPrevisto() {
+  var cur = document.getElementById('ff-previsto').value === 'true';
+  _setFfPrevisto(!cur);
+}
+
 /* ─── FINANCEIRO ─────────────────────────────────────────── */
 function renderFinanceiro() {
   populateClientSelects();
@@ -3701,17 +3733,26 @@ function renderFinanceiro() {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-hint);padding:2rem;">Nenhum lançamento</td></tr>';
     return;
   }
+  var today = _todayKey();
   tbody.innerHTML = sorted.map(function(e){
     var color = e.tipo==='entrada' ? 'var(--teal)' : 'var(--coral)';
     var sign  = e.tipo==='entrada' ? '+' : '−';
-    return '<tr>'+
+    var isPrev = e.previsto === true;
+    var rowStyle = isPrev ? ' style="opacity:0.45;"' : '';
+    var tipoBadge = isPrev
+      ? '<span class="badge" style="background:var(--surface2);color:var(--text-hint);border:0.5px solid var(--border-strong);">previsto</span>'
+      : '<span class="badge" style="background:'+(e.tipo==='entrada'?'var(--teal-light)':'var(--coral-light)')+';color:'+color+';">'+e.tipo+'</span>';
+    return '<tr'+rowStyle+'>'+
       '<td>'+fmtDate(e.data)+'</td>'+
       '<td class="td-name">'+e.desc+'</td>'+
       '<td>'+(e.cat||'—')+'</td>'+
       '<td>'+(e.clienteId ? clientName(e.clienteId) : '—')+'</td>'+
-      '<td><span class="badge" style="background:'+(e.tipo==='entrada'?'var(--teal-light)':'var(--coral-light)')+';color:'+color+';">'+e.tipo+'</span></td>'+
-      '<td style="color:'+color+';font-weight:500;">'+sign+' '+fmtMoney(e.valor)+'</td>'+
-      '<td><button class="row-action" onclick="openFinModal(null,\''+e.id+'\')">Editar</button></td>'+
+      '<td>'+tipoBadge+'</td>'+
+      '<td style="color:'+color+';font-weight:500;'+(isPrev?'opacity:0.6;':'')+'">'+sign+' '+fmtMoney(e.valor)+'</td>'+
+      '<td>'+(e._parcelaId
+        ? '<button class="row-action" onclick="abrirClienteDaParcela(\''+e.clienteId+'\')">Ver parcela</button>'
+        : '<button class="row-action" onclick="openFinModal(null,\''+e.id+'\')">Editar</button>'
+      )+'</td>'+
     '</tr>';
   }).join('');
 }
@@ -3731,6 +3772,10 @@ function openFinModal(tipo, id) {
     document.getElementById('ff-cliente').value= e.clienteId||'';
     document.getElementById('ff-tipo').value   = e.tipo||'entrada';
     _setRecorrVal('ff', e.recorr||'unico', e.renovacao||'');
+    _setFfPrevisto(e.previsto||false);
+    // Hide previsto toggle for parcela entries (managed via client modal)
+    var prevRow = document.getElementById('ff-previsto-row');
+    if (prevRow) prevRow.style.display = e._parcelaId ? 'none' : 'flex';
     document.getElementById('fin-delete-btn').style.display = 'inline-flex';
   } else {
     document.getElementById('fin-modal-title').textContent = tipo==='entrada' ? 'Nova Entrada' : 'Nova Saída';
@@ -3740,6 +3785,9 @@ function openFinModal(tipo, id) {
     document.getElementById('ff-cliente').value = '';
     document.getElementById('ff-tipo').value    = tipo||'entrada';
     _resetRecorr('ff');
+    _setFfPrevisto(false);
+    var prevRow2 = document.getElementById('ff-previsto-row');
+    if (prevRow2) prevRow2.style.display = 'flex';
     document.getElementById('fin-delete-btn').style.display = 'none';
   }
   document.getElementById('fin-overlay').classList.add('open');
@@ -3757,7 +3805,8 @@ function saveFin() {
     clienteId: document.getElementById('ff-cliente').value,
     tipo:      document.getElementById('ff-tipo').value,
     recorr:    rv.recorr,
-    renovacao: rv.renovacao
+    renovacao: rv.renovacao,
+    previsto:  document.getElementById('ff-previsto').value === 'true'
   };
   if (!obj.desc) { alert('Informe a descrição.'); return; }
   if (editingFinId) {
@@ -7911,12 +7960,12 @@ function recalcParcelasSummary() {
 }
 
 function _syncParcelasToFin(clienteId, clienteNome) {
-  var parcelas = _parcelasTemp.filter(function(p){ return p.pago && p.valor; });
+  var parcelas = _parcelasTemp.filter(function(p){ return p.valor; });
   if (!parcelas.length) return;
   var entries = getFinEntries();
   // Remove old parcela entries for this client (tagged with _parcelaId)
   entries = entries.filter(function(e){ return !(e.clienteId===clienteId && e._parcelaId); });
-  // Add confirmed parcelas
+  // Add all parcelas — pago=false → previsto:true, pago=true → previsto:false
   parcelas.forEach(function(p) {
     entries.push({
       id:         uid(),
@@ -7927,7 +7976,8 @@ function _syncParcelasToFin(clienteId, clienteNome) {
       cat:        'Contrato',
       clienteId:  clienteId,
       tipo:       'entrada',
-      recorr:     'unico'
+      recorr:     'unico',
+      previsto:   !p.pago
     });
   });
   saveFinEntries(entries);
