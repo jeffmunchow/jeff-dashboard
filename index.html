@@ -4138,8 +4138,10 @@ function renderDashboardNextEvents() {
   var mEl = document.getElementById('m-nev-content');
   if (mEl) {
     mEl.innerHTML = _renderSlots(munchowTarefas, function(t) {
-      return '<div style="display:flex;align-items:center;gap:8px;">' +
-        '<button onclick="checkMunchowTarefaWidget(\'' + t.id + '\',event)" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'var(--amber)\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
+      return '<div style="display:flex;align-items:center;gap:8px;cursor:pointer;transition:opacity 0.15s;" ' +
+        'onclick="event.stopPropagation();openTarefaModal(\'' + t.id + '\')" ' +
+        'onmouseover="this.style.opacity=\'0.5\'" onmouseout="this.style.opacity=\'1\'">' +
+        '<button onclick="checkMunchowTarefaWidget(\'' + t.id + '\',event)" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="event.stopPropagation();this.style.borderColor=\'var(--amber)\'" onmouseout="event.stopPropagation();this.style.borderColor=\'var(--border-strong)\'"></button>' +
         '<span style="font-size:0.68rem;color:var(--text-hint);white-space:nowrap;flex-shrink:0;">' + fmtDateWidget(t.data) + '</span>' +
         '<span style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + t.titulo + '</span>' +
       '</div>';
