@@ -4201,7 +4201,8 @@ async function loadFromSupabase() {
     'studio_clients','studio_events','studio_pends','studio_fin',
     'studio_todos','studio_custos','studio_packages',
     'soup_membros','soup_viagens','soup_milhas','soup_fin','soup_todos',
-    'releio_livros','releio_publicacoes','releio_substack','releio_todos'
+    'releio_livros','releio_publicacoes','releio_substack','releio_todos','releio_fin',
+    'pessoal_fin'
   ];
   var metricIds = ['m-faturamento','m-casamentos','m-seguidores',
                    's-faturamento','s-clientes','s-seguidores','s-milhas',
@@ -5712,6 +5713,10 @@ buildSparklines();
     _syncEventToTarefa(ev);
   });
 })();
+
+// Reconstrói gráfico após todos os syncs — garante dados reais em todos os projetos
+buildChart();
+_updateMFaturamento();
 
 // Sincroniza com Supabase em background depois que o app já está visível
 setTimeout(function() {
