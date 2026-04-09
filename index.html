@@ -2383,7 +2383,7 @@ function buildPessoalChartData() {
   }
   return { fat: fat, luc: cus };
 }
-var pRaw = buildPessoalChartData();
+var pRaw = { fat: new Array(52).fill(0), luc: new Array(52).fill(0) };
 
 function buildMunchowChartData() {
   var fat = [], cus = [];
@@ -2405,7 +2405,7 @@ function buildMunchowChartData() {
   }
   return { fat: fat, luc: cus };
 }
-var mRaw = buildMunchowChartData();
+var mRaw = { fat: new Array(52).fill(0), luc: new Array(52).fill(0) };
 
 // Soup: started 01/02/2026 = week 4 of 2026. Reads from real finance entries.
 function buildSoupChartData() {
@@ -2533,7 +2533,7 @@ function buildCumulWeekly2026() {
 
   return { labels: labels, mFat: mFat, mLuc: mLuc, sFat: sFat, sLuc: sLuc, rFat: rFat, rLuc: rLuc, pFat: pFat, pLuc: pLuc };
 }
-var sRaw = buildSoupChartData();
+var sRaw = { fat: new Array(52).fill(0), luc: new Array(52).fill(0) };
 // re.leio: started 23/03/2026 = week 12 of 2026. Zero until now, updates from real finance data.
 function buildReleioChartData() {
   var fat = [], cus = [];
@@ -2554,7 +2554,7 @@ function buildReleioChartData() {
   }
   return { fat: fat, luc: cus };
 }
-var rRaw = buildReleioChartData();
+var rRaw = { fat: new Array(52).fill(0), luc: new Array(52).fill(0) };
 
 var weeklyLabels = [];
 for (var w = 1; w <= 52; w++) {
