@@ -2970,12 +2970,14 @@ function savePessoalFin() {
   savePessoalFinData(list);
   closePessoalFinModal();
   renderPessoalFin();
+  buildChart();
 }
 function deletePessoalFin() {
   if (!confirm('Excluir este lançamento?')) return;
   savePessoalFinData(getPessoalFin().filter(function(x){ return x.id!==_editingPessoalFinId; }));
   closePessoalFinModal();
   renderPessoalFin();
+  buildChart();
 }
 function confirmarRenovacaoPessoal(id) { _confirmarRenovacao(getPessoalFin(), id, savePessoalFinData, renderPessoalFin); }
 
@@ -4143,12 +4145,14 @@ function saveFin() {
   saveFinEntries(entries);
   closeFinModal();
   renderFinanceiro();
+  buildChart();
 }
 function deleteFin() {
   if (!confirm('Excluir este lançamento?')) return;
   saveFinEntries(getFinEntries().filter(function(e){ return e.id!==editingFinId; }));
   closeFinModal();
   renderFinanceiro();
+  buildChart();
 }
 
 /* ─── TO-DO ──────────────────────────────────────────────── */
@@ -5270,12 +5274,12 @@ function saveSoupFin(){
   var list=getSoupFin();
   if(editingSoupFinId){var idx=list.findIndex(function(f){return f.id===editingSoupFinId;});if(idx>-1)list[idx]=obj;else list.push(obj);}
   else list.push(obj);
-  saveSoupFinData(list);closeSoupFinModal();renderSoupFinanceiro();renderSoupResumo();
+  saveSoupFinData(list);closeSoupFinModal();renderSoupFinanceiro();renderSoupResumo();buildChart();
 }
 function deleteSoupFin(){
   if(!confirm('Excluir lançamento?'))return;
   _saveSoupFinData(getSoupFin().filter(function(f){return f.id!==editingSoupFinId;}));
-  closeSoupFinModal();renderSoupFinanceiro();renderSoupResumo();
+  closeSoupFinModal();renderSoupFinanceiro();renderSoupResumo();buildChart();
 }
 
 /* SOUP TODO */
@@ -6326,12 +6330,14 @@ function saveRlFin() {
   saveReleioFin(list);
   document.getElementById('rl-fin-overlay').classList.remove('open');
   renderRlFin();
+  buildChart();
 }
 function deleteRlFin() {
   if (!confirm('Excluir esta entrada?')) return;
   saveReleioFin(getReleioFin().filter(function(x){ return x.id!==editingRlFinId; }));
   document.getElementById('rl-fin-overlay').classList.remove('open');
   renderRlFin();
+  buildChart();
 }
 function renderRlFin() {
   var list = getReleioFin();
