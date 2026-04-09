@@ -594,6 +594,7 @@
           <span class="legend-item"><span class="legend-dot" style="background:#C4780A;"></span>Münchow</span>
           <span class="legend-item"><span class="legend-dot" style="background:#0A7864;"></span>Soup</span>
           <span class="legend-item"><span class="legend-dot" style="background:#C43A1A;"></span>re.leio</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#C5BFB8;"></span>Pessoal</span>
           <span class="legend-sep"></span>
           <span class="legend-item" style="color:var(--text-hint);"><span class="legend-line" style="border-top:1px solid currentColor;"></span>faturamento</span>
           <span class="legend-item" style="color:var(--text-hint);"><span class="legend-line" style="border-top:1px dashed currentColor;"></span>custos</span>
@@ -2361,6 +2362,28 @@ function cumulate(arr) {
   return out;
 }
 
+function buildPessoalChartData() {
+  var fat = [], cus = [];
+  var startDate = new Date('2026-01-05T00:00:00');
+  var endDate   = new Date('2026-12-31T23:59:59');
+  var entries = getPessoalFin ? getPessoalFin() : [];
+  var weeklyFat = {}, weeklyCus = {};
+  entries.forEach(function(e) {
+    if (!e.data || !e.valor || e.previsto) return;
+    var d = new Date(e.data + 'T00:00:00');
+    if (d < startDate || d > endDate) return;
+    var week = Math.min(51, Math.floor((d - startDate) / 86400000 / 7));
+    if (e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
+    if (e.tipo === 'saida')   weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
+  });
+  for (var i = 0; i < 52; i++) {
+    fat.push(weeklyFat[i] || 0);
+    cus.push(weeklyCus[i] || 0);
+  }
+  return { fat: fat, luc: cus };
+}
+var pRaw = buildPessoalChartData();
+
 function buildMunchowChartData() {
   var fat = [], cus = [];
   var startDate = new Date('2026-01-05T00:00:00');
@@ -2443,10 +2466,12 @@ function buildCumulWeekly2026() {
   var sCMap = dayMap(getSoupFin   ? getSoupFin()    : [], 'saida');
   var rMap  = dayMap(getReleioFin ? getReleioFin()  : []);
   var rCMap = dayMap(getReleioFin ? (getReleioFin()||[]).filter(function(e){ return e.tipo==='saida'; }) : []);
+  var pMap  = dayMap(getPessoalFin ? getPessoalFin() : [], 'entrada');
+  var pCMap = dayMap(getPessoalFin ? getPessoalFin() : [], 'saida');
 
   var labels = [];
-  var mFat=[], mLuc=[], sFat=[], sLuc=[], rFat=[], rLuc=[];
-  var mSumF=0, mSumL=0, sSumF=0, sSumL=0, rSumF=0, rSumL=0;
+  var mFat=[], mLuc=[], sFat=[], sLuc=[], rFat=[], rLuc=[], pFat=[], pLuc=[];
+  var mSumF=0, mSumL=0, sSumF=0, sSumL=0, rSumF=0, rSumL=0, pSumF=0, pSumL=0;
 
   // Track week start (Monday before each Saturday, or Jan 1 for first week)
   var prevSat = new Date(yearStart.getTime() - msDay); // day before Jan 1
@@ -2466,6 +2491,7 @@ function buildCumulWeekly2026() {
       mFat.push(null); mLuc.push(null);
       sFat.push(null); sLuc.push(null);
       rFat.push(null); rLuc.push(null);
+      pFat.push(null); pLuc.push(null);
       prevSat = sat;
       return;
     }
@@ -2483,9 +2509,12 @@ function buildCumulWeekly2026() {
       var sVC = (cur >= sStart) ? (sCMap[key]||0) : 0;
       var rV  = (cur >= rStart) ? (rMap[key]||0)  : 0;
       var rVC = (cur >= rStart) ? (rCMap[key]||0) : 0;
+      var pV  = pMap[key]  || 0;
+      var pVC = pCMap[key] || 0;
       mSumF += mV; mSumL += mVC;
       sSumF += sV; sSumL += sVC;
       rSumF += rV; rSumL += rVC;
+      pSumF += pV; pSumL += pVC;
       cur = new Date(cur.getTime() + msDay);
     }
 
@@ -2495,11 +2524,13 @@ function buildCumulWeekly2026() {
     sLuc.push(weekEnd >= sStart ? sSumL : null);
     rFat.push(weekEnd >= rStart ? rSumF : null);
     rLuc.push(weekEnd >= rStart ? rSumL : null);
+    pFat.push(pSumF);
+    pLuc.push(pSumL);
 
     prevSat = sat;
   });
 
-  return { labels: labels, mFat: mFat, mLuc: mLuc, sFat: sFat, sLuc: sLuc, rFat: rFat, rLuc: rLuc };
+  return { labels: labels, mFat: mFat, mLuc: mLuc, sFat: sFat, sLuc: sLuc, rFat: rFat, rLuc: rLuc, pFat: pFat, pLuc: pLuc };
 }
 var sRaw = buildSoupChartData();
 // re.leio: started 23/03/2026 = week 12 of 2026. Zero until now, updates from real finance data.
@@ -2549,6 +2580,7 @@ function getChartColors() {
     amber: dark ? '#D4902A' : '#C4780A',
     teal:  dark ? '#18926E' : '#0A7864',
     coral: dark ? '#CC4A28' : '#C43A1A',
+    pessoal: dark ? '#4A4642' : '#C5BFB8',
     grid:  dark ? 'rgba(255,255,255,0.032)' : 'rgba(0,0,0,0.032)',
     tick:  dark ? '#4A4642' : '#C5BFB8',
     tooltipBg:     dark ? '#1A1814' : '#FFFFFF',
@@ -2558,10 +2590,33 @@ function getChartColors() {
   };
 }
 
+function buildPessoalChartData() {
+  var fat = [], cus = [];
+  var startDate = new Date('2026-01-05T00:00:00');
+  var endDate   = new Date('2026-12-31T23:59:59');
+  var entries = getPessoalFin ? getPessoalFin() : [];
+  var weeklyFat = {}, weeklyCus = {};
+  entries.forEach(function(e) {
+    if (!e.data || !e.valor || e.previsto) return;
+    var d = new Date(e.data + 'T00:00:00');
+    if (d < startDate || d > endDate) return;
+    var week = Math.min(51, Math.floor((d - startDate) / 86400000 / 7));
+    if (e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
+    if (e.tipo === 'saida')   weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
+  });
+  for (var i = 0; i < 52; i++) {
+    fat.push(weeklyFat[i] || 0);
+    cus.push(weeklyCus[i] || 0);
+  }
+  return { fat: fat, luc: cus };
+}
+var pRaw = buildPessoalChartData();
+
 function buildChart() {
-  mRaw = buildMunchowChartData(); // always use latest finance data
-  rRaw = buildReleioChartData(); // always use latest finance data
-  sRaw = buildSoupChartData();   // always use latest finance data
+  mRaw = buildMunchowChartData();
+  rRaw = buildReleioChartData();
+  sRaw = buildSoupChartData();
+  pRaw = buildPessoalChartData();
   var c = getChartColors();
   var isWeekly = chartMode === 'weekly';
 
@@ -2575,12 +2630,14 @@ function buildChart() {
       data: {
         labels: weeklyLabels,
         datasets: [
-          { label: 'Münchow fat.',  data: mRaw.fat, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber, borderWidth: 1, borderDash: [4,4],    pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Soup fat.',     data: sRaw.fat, borderColor: c.teal,  borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,  borderWidth: 1, borderDash: [4,4],    pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Re.leio fat.',  data: rRaw.fat, borderColor: c.coral, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral, borderWidth: 1, borderDash: [4,4],    pointRadius: 0, tension: 0.45, fill: false }
+          { label: 'Münchow fat.',   data: mRaw.fat, borderColor: c.amber,   borderWidth: 1,   borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Soup fat.',      data: sRaw.fat, borderColor: c.teal,    borderWidth: 1,   borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,    borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Re.leio fat.',   data: rRaw.fat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Pessoal fat.',   data: pRaw.fat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Pessoal custos', data: pRaw.luc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false }
         ]
       },
       options: _chartOptions(c, true, weeklyLabels)
@@ -2595,11 +2652,13 @@ function buildChart() {
         labels: cd.labels,
         datasets: [
           { label: 'Münchow fat.',  data: cd.mFat, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Münchow custos', data: cd.mLuc, borderColor: c.amber, borderWidth: 1, borderDash: [4,4],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Soup fat.',     data: cd.sFat, borderColor: c.teal,  borderWidth: 1.5, borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Soup custos',    data: cd.sLuc, borderColor: c.teal,  borderWidth: 1.5, borderDash: [4,4],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Re.leio fat.',  data: cd.rFat, borderColor: c.coral, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Re.leio custos', data: cd.rLuc, borderColor: c.coral, borderWidth: 1, borderDash: [4,4],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false }
+          { label: 'Münchow custos', data: cd.mLuc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Soup fat.',      data: cd.sFat, borderColor: c.teal,    borderWidth: 1.5, borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Soup custos',    data: cd.sLuc, borderColor: c.teal,    borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Re.leio fat.',   data: cd.rFat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Re.leio custos', data: cd.rLuc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Pessoal fat.',   data: cd.pFat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Pessoal custos', data: cd.pLuc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false }
         ]
       },
       options: {
