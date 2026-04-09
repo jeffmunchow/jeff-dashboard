@@ -592,8 +592,8 @@
           <span class="legend-item"><span class="legend-dot" style="background:#0A7864;"></span>Soup</span>
           <span class="legend-item"><span class="legend-dot" style="background:#C43A1A;"></span>re.leio</span>
           <span class="legend-sep"></span>
-          <span class="legend-item" style="color:var(--text-hint);"><span class="legend-line" style="border-top:1px dashed currentColor;"></span>faturamento</span>
-          <span class="legend-item" style="color:var(--text-hint);"><span class="legend-line" style="border-top:1px solid currentColor;"></span>custos</span>
+          <span class="legend-item" style="color:var(--text-hint);"><span class="legend-line" style="border-top:1px solid currentColor;"></span>faturamento</span>
+          <span class="legend-item" style="color:var(--text-hint);"><span class="legend-line" style="border-top:1px dashed currentColor;"></span>custos</span>
         </div>
         <div class="chart-mode-toggle">
           <button class="chart-mode-btn"        id="btnWeekly"  onclick="setChartMode('weekly')">Semanal</button>
@@ -2503,12 +2503,12 @@ function buildChart() {
       data: {
         labels: weeklyLabels,
         datasets: [
-          { label: 'Münchow fat.',  data: mRaw.fat, borderColor: c.amber, borderWidth: 1, borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Soup fat.',     data: sRaw.fat, borderColor: c.teal,  borderWidth: 1, borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,  borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Re.leio fat.',  data: rRaw.fat, borderColor: c.coral, borderWidth: 1, borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.45, fill: false }
+          { label: 'Münchow fat.',  data: mRaw.fat, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber, borderWidth: 1, borderDash: [4,4],    pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Soup fat.',     data: sRaw.fat, borderColor: c.teal,  borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,  borderWidth: 1, borderDash: [4,4],    pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Re.leio fat.',  data: rRaw.fat, borderColor: c.coral, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
+          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral, borderWidth: 1, borderDash: [4,4],    pointRadius: 0, tension: 0.45, fill: false }
         ]
       },
       options: _chartOptions(c, true, weeklyLabels)
@@ -2522,12 +2522,12 @@ function buildChart() {
       data: {
         labels: cd.labels,
         datasets: [
-          { label: 'Münchow fat.',  data: cd.mFat, borderColor: c.amber, borderWidth: 1, borderDash: [4,4], pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Münchow custos', data: cd.mLuc, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Soup fat.',     data: cd.sFat, borderColor: c.teal,  borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Soup custos',    data: cd.sLuc, borderColor: c.teal,  borderWidth: 1.5, borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Re.leio fat.',  data: cd.rFat, borderColor: c.coral, borderWidth: 1, borderDash: [4,4], pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Re.leio custos', data: cd.rLuc, borderColor: c.coral, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false }
+          { label: 'Münchow fat.',  data: cd.mFat, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Münchow custos', data: cd.mLuc, borderColor: c.amber, borderWidth: 1, borderDash: [4,4],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Soup fat.',     data: cd.sFat, borderColor: c.teal,  borderWidth: 1.5, borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Soup custos',    data: cd.sLuc, borderColor: c.teal,  borderWidth: 1.5, borderDash: [4,4],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Re.leio fat.',  data: cd.rFat, borderColor: c.coral, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Re.leio custos', data: cd.rLuc, borderColor: c.coral, borderWidth: 1, borderDash: [4,4],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false }
         ]
       },
       options: {
