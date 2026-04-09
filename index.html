@@ -415,9 +415,9 @@
   .add-todo-row input:focus, .add-todo-row select:focus { border-color: var(--amber); }
   /* Financeiro */
   .fin-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 1rem; margin-bottom: 1.75rem; }
-  .fin-entry { background: var(--teal-light); border-radius: var(--radius-sm); padding: 0.9rem 1rem; }
-  .fin-exit  { background: var(--coral-light); border-radius: var(--radius-sm); padding: 0.9rem 1rem; }
-  .fin-balance { background: var(--amber-light); border-radius: var(--radius-sm); padding: 0.9rem 1rem; }
+  .fin-entry { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 0.9rem 1rem; }
+  .fin-exit  { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 0.9rem 1rem; }
+  .fin-balance { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 0.9rem 1rem; }
   .fin-label { font-size: 0.62rem; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
   .fin-val { font-size: 1.2rem; font-weight: 500; letter-spacing: -0.02em; }
   .fin-entry .fin-val { color: var(--teal); }
@@ -1103,8 +1103,8 @@
     <!-- ── RESUMO ─────────────────────────────────────── -->
     <div class="tab-panel active" id="spanel-resumo">
       <div class="summary-grid" id="studio-summary-grid">
-        <div class="sum-card accent-amber"><div class="sum-label">Faturamento total</div><div class="sum-value" id="ss-fat">R$ —</div><div class="sum-sub">contratos ativos</div></div>
-        <div class="sum-card accent-teal"><div class="sum-label">A receber</div><div class="sum-value" id="ss-recv">R$ —</div><div class="sum-sub">saldo pendente</div></div>
+        <div class="sum-card accent-amber"><div class="sum-label">Faturamento total</div><div class="sum-value" id="ss-fat">R$ —</div><div class="sum-sub">&nbsp;</div></div>
+        <div class="sum-card accent-teal"><div class="sum-label">A receber</div><div class="sum-value" id="ss-recv">R$ —</div><div class="sum-sub">&nbsp;</div></div>
         <div class="sum-card"><div class="sum-label">Casamentos / ano</div><div class="sum-value" id="ss-wed">—</div><div class="sum-sub">confirmados</div></div>
         <div class="sum-card accent-coral"><div class="sum-label">Ticket médio</div><div class="sum-value" id="ss-ticket">R$ —</div><div class="sum-sub">por casamento</div></div>
       </div>
@@ -1174,11 +1174,12 @@
       <div class="section-header">
         <div class="section-title">Agenda</div>
         <div class="section-actions">
-          <select id="agenda-filter" onchange="renderAgenda()">
-            <option value="upcoming">Próximos</option>
-            <option value="all">Todos</option>
-            <option value="past">Passados</option>
-          </select>
+          <div style="display:flex;gap:4px;">
+            <button id="agenda-btn-upcoming" class="btn primary" style="font-size:0.72rem;padding:4px 10px;" onclick="setAgendaFilter('upcoming')">Próximos</button>
+            <button id="agenda-btn-all"      class="btn"         style="font-size:0.72rem;padding:4px 10px;" onclick="setAgendaFilter('all')">Todos</button>
+            <button id="agenda-btn-past"     class="btn"         style="font-size:0.72rem;padding:4px 10px;" onclick="setAgendaFilter('past')">Passados</button>
+          </div>
+          <input type="hidden" id="agenda-filter" value="upcoming">
           <button class="btn primary" onclick="openEventModal()">+ Evento</button>
         </div>
       </div>
@@ -3498,6 +3499,19 @@ function deleteClient() {
 }
 
 /* ─── AGENDA ─────────────────────────────────────────────── */
+function setAgendaFilter(val) {
+  document.getElementById('agenda-filter').value = val;
+  var btns = { upcoming: 'agenda-btn-upcoming', all: 'agenda-btn-all', past: 'agenda-btn-past' };
+  Object.keys(btns).forEach(function(k) {
+    var el = document.getElementById(btns[k]);
+    if (!el) return;
+    el.className = k === val ? 'btn primary' : 'btn';
+    el.style.fontSize = '0.72rem';
+    el.style.padding  = '4px 10px';
+  });
+  renderAgenda();
+}
+
 function renderAgenda() {
   populateClientSelects();
   var flt = (document.getElementById('agenda-filter')||{value:'upcoming'}).value;
