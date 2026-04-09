@@ -2289,7 +2289,28 @@ function cumulate(arr) {
   return out;
 }
 
-var mRaw = genWeekly([18000,14000,22000,25000,20000,28000,30000,24000,26000,19000,23000,21000], 0.62);
+function buildMunchowChartData() {
+  var fat = [], luc = [];
+  var entries = (getFinEntries ? getFinEntries() : []).filter(function(e){
+    return e.tipo === 'entrada' && !e.previsto;
+  });
+  var startDate = new Date('2026-01-05'); // week 1 start
+  var weeklyFat = {};
+  entries.forEach(function(e) {
+    if (!e.data || !e.valor) return;
+    var d = new Date(e.data + 'T00:00:00');
+    var diffDays = Math.floor((d - startDate) / 86400000);
+    var week = Math.max(0, Math.min(51, Math.floor(diffDays / 7)));
+    weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
+  });
+  for (var i = 0; i < 52; i++) {
+    var f = weeklyFat[i] || 0;
+    fat.push(f);
+    luc.push(Math.round(f * 0.62)); // ~62% margem líquida
+  }
+  return { fat: fat, luc: luc };
+}
+var mRaw = buildMunchowChartData();
 
 // Soup: started 01/02/2026 = week 4 of 2026. Reads from real finance entries.
 function buildSoupChartData() {
@@ -2462,6 +2483,7 @@ function getChartColors() {
 }
 
 function buildChart() {
+  mRaw = buildMunchowChartData(); // always use latest finance data
   rRaw = buildReleioChartData(); // always use latest finance data
   sRaw = buildSoupChartData();   // always use latest finance data
   var c = getChartColors();
@@ -2615,7 +2637,7 @@ function setChartMode(mode) {
     ? 'Faturamento &amp; Lucro — 52 semanas'
     : 'Faturamento &amp; Lucro — acumulado anual';
   document.getElementById('chartSubtitle').textContent = isWeekly
-    ? 'Dados simulados'
+    ? 'Valores semanais por projeto'
     : 'Soma acumulada mês a mês';
   buildChart();
 }
