@@ -930,6 +930,7 @@
   <div class="header">
     <div class="header-left">
       <h1>Pessoal</h1>
+      <p>Área pessoal</p>
     </div>
     <div class="header-right">
       <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
@@ -941,14 +942,14 @@
 
   <!-- Pessoal Tabs -->
   <div class="studio-tabs">
-    <button class="studio-tab active" id="ptab-geral"      onclick="switchPessoalTab('geral')">Geral</button>
+    <button class="studio-tab active" id="ptab-resumo"     onclick="switchPessoalTab('resumo')">Resumo</button>
     <button class="studio-tab"        id="ptab-financeiro" onclick="switchPessoalTab('financeiro')">Financeiro</button>
   </div>
 
   <div class="studio-body">
 
-    <!-- ── GERAL ──────────────────────────────────────── -->
-    <div class="tab-panel active" id="ppanel-geral">
+    <!-- ── RESUMO ──────────────────────────────────────── -->
+    <div class="tab-panel active" id="ppanel-resumo">
       <div style="padding:0 0 2rem 0;">
         <!-- Jiu-Jitsu Progress -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;max-width:50%;padding:0 1rem;">
@@ -2800,7 +2801,7 @@ function showPessoalView() {
 var _currentPessoalTab = 'geral';
 function switchPessoalTab(tab) {
   _currentPessoalTab = tab;
-  ['geral','financeiro'].forEach(function(t) {
+  ['resumo','financeiro'].forEach(function(t) {
     var panel = document.getElementById('ppanel-' + t);
     var btn   = document.getElementById('ptab-' + t);
     if (panel) panel.classList.toggle('active', t === tab);
