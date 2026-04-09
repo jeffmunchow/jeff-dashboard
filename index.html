@@ -5435,10 +5435,18 @@ toggleTheme = function() {
     if (added) saveFinEntries(cleaned);
   });
 })();
-
-// Carrega imediatamente do cache local — após sync de parcelas para gráfico correto
 init();
 buildSparklines();
+
+// Sincroniza eventos da agenda com tarefas da Münchow (após init)
+(function() {
+  getEvents().forEach(function(ev) {
+    if (!ev.titulo || !ev.data) return;
+    var list = getTarefas();
+    if (list.some(function(t){ return t._eventoId === ev.id; })) return;
+    _syncEventToTarefa(ev);
+  });
+})();
 
 // Sincroniza com Supabase em background depois que o app já está visível
 setTimeout(function() {
