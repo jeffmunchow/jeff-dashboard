@@ -1094,7 +1094,6 @@
     <button class="studio-tab"        id="stab-agenda"     onclick="switchStudioTab('agenda')">Agenda</button>
     <button class="studio-tab"        id="stab-pendencias" onclick="switchStudioTab('pendencias')">Pós-produção</button>
     <button class="studio-tab"        id="stab-financeiro" onclick="switchStudioTab('financeiro')">Financeiro</button>
-    <button class="studio-tab"        id="stab-custos"     onclick="switchStudioTab('custos')">Custos</button>
     <button class="studio-tab"        id="stab-tarefas"    onclick="switchStudioTab('tarefas')">Tarefas</button>
   </div>
 
@@ -1251,44 +1250,6 @@
       </div>
     </div>
 
-    <!-- ── CUSTOS ────────────────────────────────────────── -->
-    <div class="tab-panel" id="spanel-custos">
-      <div class="section-header">
-        <div class="section-title">Custos por evento</div>
-        <div class="section-actions">
-          <select id="custo-client-filter" onchange="renderCustos()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
-            <option value="">Todos os clientes</option>
-          </select>
-          <select id="custo-cat-filter" onchange="renderCustos()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
-            <option value="">Todas as categorias</option>
-            <option>Freela</option><option>Deslocamento</option><option>Álbum</option>
-            <option>Impostos</option><option>Equipamento</option><option>Software</option><option>Outro</option>
-          </select>
-          <button class="btn" onclick="openCustoPackageModal()">Pacotes</button>
-          <button class="btn primary" onclick="openCustoModal()">+ Custo</button>
-        </div>
-      </div>
-
-      <!-- Summary by category -->
-      <div class="fin-summary" id="custos-summary" style="margin-bottom:1.75rem;"></div>
-
-      <!-- Packages section -->
-      <div id="custos-packages-wrap" style="margin-bottom:1.75rem;display:none;">
-        <div class="section-header" style="margin-bottom:0.75rem;">
-          <div style="font-size:0.78rem;color:var(--text-muted);font-weight:500;">Pacotes cadastrados</div>
-          <button class="btn" style="font-size:0.68rem;" onclick="openCustoPackageModal()">+ Pacote</button>
-        </div>
-        <div id="custos-packages-list" style="display:flex;flex-wrap:wrap;gap:0.75rem;"></div>
-      </div>
-
-      <!-- Costs table -->
-      <div class="table-wrap"><div class="table-scroll">
-        <table class="data-table">
-          <thead><tr><th>Descrição</th><th>Categoria</th><th>Cliente / Evento</th><th>Data</th><th>Valor</th><th></th></tr></thead>
-          <tbody id="custos-tbody"></tbody>
-        </table>
-      </div></div>
-    </div>
 
   </div><!-- .studio-body -->
 </div><!-- #studio-view -->
@@ -2378,6 +2339,7 @@ function buildCumulWeekly2026() {
     var map = {};
     (entries || []).forEach(function(e) {
       if (tipoFilter && e.tipo !== tipoFilter) return;
+      if (e.previsto) return; // exclude planned entries
       if (!e.data || !e.valor) return;
       map[e.data] = (map[e.data] || 0) + (parseFloat(e.valor) || 0);
     });
@@ -3112,7 +3074,7 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 var currentStudioTab = 'resumo';
 function switchStudioTab(tab) {
   currentStudioTab = tab;
-  ['resumo','clientes','agenda','pendencias','financeiro','custos','tarefas'].forEach(function(t){
+  ['resumo','clientes','agenda','pendencias','financeiro','tarefas'].forEach(function(t){
     var btn = document.getElementById('stab-'+t);
     var pan = document.getElementById('spanel-'+t);
     if (btn) btn.classList.toggle('active', t===tab);
@@ -3123,7 +3085,7 @@ function switchStudioTab(tab) {
   if (tab==='agenda')     renderAgenda();
   if (tab==='pendencias') renderPosProducao();
   if (tab==='financeiro') renderFinanceiro();
-  if (tab==='custos')     renderCustos();
+
   if (tab==='tarefas')    { renderProjTarefasWeekBar('munchow'); renderProjTarefasList('munchow'); }
 }
 
@@ -3187,12 +3149,12 @@ function renderResumo() {
   var clients = getClients();
   var active = clients.filter(function(c){ return c.status !== 'Finalizado' && c.status !== 'Prospect'; });
   var totalValor = clients.reduce(function(s,c){ return s + (parseFloat(c.valor)||0); }, 0);
-  var totalPago  = clients.reduce(function(s,c){ return s + (parseFloat(c.pago)||0); }, 0);
+  var totalPago  = getFinEntries().filter(function(e){ return e.tipo==='entrada' && !e.previsto; }).reduce(function(s,e){ return s+(parseFloat(e.valor)||0); },0);
   var aReceber   = totalValor - totalPago;
   var weddings   = clients.filter(function(c){ return c.dataCasamento; }).length;
   var ticket     = weddings > 0 ? totalValor / weddings : 0;
 
-  document.getElementById('ss-fat').textContent    = fmtMoney(totalValor);
+  document.getElementById('ss-fat').textContent    = fmtMoney(totalPago);
   document.getElementById('ss-recv').textContent   = fmtMoney(aReceber);
   document.getElementById('ss-wed').textContent    = weddings;
 
@@ -3673,6 +3635,18 @@ function deletePend() {
   renderPosProducao();
 }
 
+function _updateMFaturamento() {
+  var now = new Date();
+  var monthTotal = getFinEntries().filter(function(e){
+    if (e.tipo !== 'entrada' || e.previsto) return false;
+    if (!e.data) return false;
+    var d = new Date(e.data + 'T00:00:00');
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).reduce(function(s,e){ return s+(parseFloat(e.valor)||0); },0);
+  var el = document.getElementById('m-faturamento');
+  if (el) el.textContent = monthTotal > 0 ? fmtMoney(monthTotal) : '—';
+}
+
 function abrirClienteDaParcela(clienteId) {
   if (!clienteId) return;
   openClientModal(clienteId);
@@ -3725,6 +3699,7 @@ function renderFinanceiro() {
   // Próximas cobranças
   var proxEl = document.getElementById('fin-proximas');
   if (proxEl) proxEl.innerHTML = _renderProximasCobrancas(getFinEntries(), 'confirmarRenovacaoFin');
+  _updateMFaturamento();
 
   var sorted = entries.slice().sort(function(a,b){ return new Date(b.data)-new Date(a.data); });
   var tbody = document.getElementById('fin-tbody');
@@ -3922,6 +3897,8 @@ function init() {
 
   buildChart();
   renderDashboardNextEvents();
+  // Override m-faturamento with real value from financeiro (current month, non-previsto)
+  _updateMFaturamento();
 }
 
 function saveNote(id) {
@@ -4051,19 +4028,21 @@ function recordFollowerPoint(proj, value) {
   dbMetricSave(SPARK_HISTORY_KEY['s'], JSON.stringify(arr));
 })();
 
-// Seed Münchow follower history — starts 08/04/2026 with 0
+// Seed Münchow follower history — real data
 (function() {
-  var seed = [{"d": "2026-04-08", "v": 0}];
+  var seed = [
+    {"d": "2026-04-07", "v": 0},
+    {"d": "2026-04-08", "v": 106},
+    {"d": "2026-04-09", "v": 107}
+  ];
   var existing = getFollowerHistory('m');
   var todaySeed = _todayKey();
-  // Only seed if no real history exists yet
-  if (existing.length === 0) {
-    var merged = {};
-    seed.forEach(function(p){ if (p.d <= todaySeed) merged[p.d] = p.v; });
-    var arr = Object.keys(merged).sort().map(function(d){ return {d:d, v:merged[d]}; });
-    localStorage.setItem(SPARK_HISTORY_KEY['m'], JSON.stringify(arr));
-    dbMetricSave(SPARK_HISTORY_KEY['m'], JSON.stringify(arr));
-  }
+  var merged = {};
+  existing.forEach(function(p){ if (p.d <= todaySeed) merged[p.d] = p.v; });
+  seed.forEach(function(p){ if (p.d <= todaySeed) merged[p.d] = p.v; }); // seed always wins
+  var arr = Object.keys(merged).sort().map(function(d){ return {d:d, v:merged[d]}; });
+  localStorage.setItem(SPARK_HISTORY_KEY['m'], JSON.stringify(arr));
+  dbMetricSave(SPARK_HISTORY_KEY['m'], JSON.stringify(arr));
 })();
 
 // Load follower history from Supabase on init
@@ -4098,14 +4077,14 @@ function recordFollowerPoint(proj, value) {
 });
 
 var sparkData = {
-  m: { start: 0,  startDate: '2026-04-08', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#D4902A' : '#C4780A'; } },
+  m: { start: 0,  startDate: '2026-04-07', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#D4902A' : '#C4780A'; } },
   s: { start: 1,    startDate: '2026-02-01', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#18926E' : '#0A7864'; } },
   r: { start: 1,    startDate: '2026-03-24', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#CC4A28' : '#C43A1A'; } }
 };
 
 var _sparkEndIds = { m: 'm-seguidores', s: 's-seguidores', r: 'r-seguidores' };
 var _sparkStoreKeys = { m: 'dash_m-seguidores', s: 'dash_s-seguidores', r: 'dash_r-seguidores' };
-var _sparkDefaults  = { m: 0, s: 22, r: 7000 };
+var _sparkDefaults  = { m: 107, s: 22, r: 7000 };
 
 function buildSparkDataForKey(key) {
   var d = sparkData[key];
