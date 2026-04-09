@@ -3579,14 +3579,63 @@ function saveEvent() {
     if (idx>-1) evs[idx]=obj;
   } else { evs.push(obj); }
   saveEvents(evs);
+
+  // Sync to tarefas — create or update linked tarefa
+  _syncEventToTarefa(obj);
+
   closeEventModal();
   renderAgenda();
+  renderDashboardNextEvents();
 }
+
+function _syncEventToTarefa(ev) {
+  // Parse datetime-local: "2026-04-10T14:00"
+  var dt = ev.data || '';
+  var datePart = dt.split('T')[0] || '';
+  var timePart = dt.split('T')[1] || '';
+  var hora    = timePart ? timePart.slice(0,5) : '';
+  var horaFim = '';
+  if (hora) {
+    // Default 2h duration for events
+    var hm = hora.split(':');
+    var endMin = parseInt(hm[0])*60 + parseInt(hm[1]) + 120;
+    horaFim = _pad(Math.floor(endMin/60) % 24) + ':' + _pad(endMin % 60);
+  }
+
+  var list = getTarefas();
+  // Find existing linked tarefa
+  var existingIdx = list.findIndex(function(t){ return t._eventoId === ev.id; });
+
+  var tarefaObj = {
+    id:        existingIdx > -1 ? list[existingIdx].id : uid(),
+    _eventoId: ev.id,
+    titulo:    ev.titulo + (ev.tipo ? ' (' + ev.tipo + ')' : ''),
+    data:      datePart,
+    hora:      hora,
+    horaFim:   horaFim,
+    duracao:   120,
+    projeto:   'munchow',
+    evento:    ev.tipo || '',
+    recorrente:false,
+    done:      existingIdx > -1 ? list[existingIdx].done : false
+  };
+
+  if (existingIdx > -1) list[existingIdx] = tarefaObj;
+  else list.push(tarefaObj);
+  saveTarefasData(list);
+}
+
 function deleteEvent() {
   if (!confirm('Excluir este evento?')) return;
+  // Remove linked tarefa
+  var ev = getEvents().find(function(e){ return e.id===editingEventId; });
+  if (ev) {
+    saveTarefasData(getTarefas().filter(function(t){ return t._eventoId !== ev.id; }));
+  }
   saveEvents(getEvents().filter(function(e){ return e.id!==editingEventId; }));
   closeEventModal();
   renderAgenda();
+  renderDashboardNextEvents();
 }
 
 /* ─── PENDÊNCIAS ─────────────────────────────────────────── */
