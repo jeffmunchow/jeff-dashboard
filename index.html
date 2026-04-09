@@ -6812,7 +6812,7 @@ function renderCitacoes() {
       return '<span style="font-size:0.62rem;background:var(--surface2);color:var(--text-hint);padding:2px 8px;border-radius:20px;">'+t+'</span>';
     }).join('');
     return '<div style="border-bottom:0.5px solid var(--border);padding:1.75rem 0;cursor:pointer;" onclick="openCitacaoModal(\''+c.id+'\')">' +
-      '<div style="font-family:\'Playfair Display\',serif;font-size:1rem;line-height:1.75;color:var(--text);font-style:italic;margin-bottom:1rem;">\u201c'+c.texto+'\u201d</div>' +
+      '<div style="font-family:\'Playfair Display\',serif;font-size:1rem;line-height:1.75;color:var(--text);font-style:italic;margin-bottom:1rem;white-space:pre-line;">\u201c'+c.texto+'\u201d</div>' +
       '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">' +
         '<div>' +
           (c.autor ? '<span style="font-size:0.8rem;color:var(--text);font-weight:500;">'+c.autor+'</span>' : '') +
