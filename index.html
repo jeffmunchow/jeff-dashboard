@@ -4189,12 +4189,6 @@ function deleteTodo(id) {
 });
 
 async function loadFromSupabase() {
-  // Antes de carregar, empurra dados locais para o Supabase (garante que dados mais recentes prevalecem)
-  var localPessoal = getPessoalFin();
-  if (localPessoal && localPessoal.length > 0) {
-    dbSaveList('pessoal_fin', localPessoal).catch(function(){});
-  }
-
   var tables = [
     'studio_clients','studio_events','studio_pends','studio_fin',
     'studio_todos','studio_custos','studio_packages',
@@ -4211,21 +4205,16 @@ async function loadFromSupabase() {
   await Promise.all([
     ...tables.map(function(tbl) {
       return dbLoad(tbl).then(function(remoteList) {
-        var parts = tbl.split('_');
-        var localKey = parts[0] + '_' + parts.slice(1).join('_');
+        if (!remoteList || remoteList.length === 0) return;
+        var localKey = tbl; // key matches table name exactly
         var localList = [];
         try { localList = JSON.parse(localStorage.getItem(localKey) || '[]'); } catch(e){}
-        // Use whichever has more data; merge by id preferring local values
-        if (remoteList && remoteList.length > 0) {
-          var merged = {};
-          remoteList.forEach(function(r){ merged[r.id] = r; });
-          localList.forEach(function(l){ merged[l.id] = l; }); // local wins on conflict
-          var mergedArr = Object.values(merged);
-          localStorage.setItem(localKey, JSON.stringify(mergedArr));
-          // Push merged back to Supabase
-          if (mergedArr.length > remoteList.length) {
-            dbSaveList(tbl, mergedArr).catch(function(){});
-          }
+        // Local always wins — only use remote if local is empty
+        if (localList.length === 0) {
+          localStorage.setItem(localKey, JSON.stringify(remoteList));
+        } else {
+          // Push local to Supabase to keep it in sync
+          dbSaveList(tbl, localList).catch(function(){});
         }
       }).catch(function(){});
     }),
@@ -5682,6 +5671,15 @@ toggleTheme = function() {
 
 // Sincroniza parcelas de todos os clientes com o financeiro ANTES do init
 (function _syncAllParcelasOnInit() {
+  // First deduplicate fin entries (remove duplicates by id)
+  var finRaw = getFinEntries();
+  var seen = {};
+  var deduped = finRaw.filter(function(e) {
+    if (seen[e.id]) return false;
+    seen[e.id] = true;
+    return true;
+  });
+  if (deduped.length !== finRaw.length) saveFinEntries(deduped);
   var clients = getClients();
   clients.forEach(function(c) {
     var parcelas = getParcelasCliente(c.id);
