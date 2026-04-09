@@ -6120,35 +6120,44 @@ function toggleReleioTarefaDone(id) {
   renderReleioTarefas();
 }
 
-function checkReleioTarefaWidget(id, e) {
+function _checkTarefaWidget(id, e) {
   e.stopPropagation();
   var list = getTarefas();
   var item = list.find(function(t){ return t.id === id; });
   if (!item) return;
   item.done = true;
+  // Se recorrente, cria cópia para o dia seguinte
+  if (item.recorrente && item.data) {
+    var parts = item.data.split('-');
+    var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    d.setDate(d.getDate() + 1);
+    var nextDate = d.getFullYear() + '-' + _pad(d.getMonth()+1) + '-' + _pad(d.getDate());
+    var jaExiste = list.some(function(x){
+      return x.titulo === item.titulo && x.data === nextDate && !x.done;
+    });
+    if (!jaExiste) {
+      list.push({
+        id:               uid(),
+        titulo:           item.titulo,
+        data:             nextDate,
+        hora:             item.hora,
+        horaFim:          item.horaFim,
+        duracao:          item.duracao,
+        projeto:          item.projeto,
+        evento:           item.evento||'',
+        recorrente:       true,
+        recorrenteOrigId: item.recorrenteOrigId || item.id,
+        done:             false
+      });
+    }
+  }
   saveTarefasData(list);
   renderDashboardNextEvents();
 }
 
-function checkSoupTarefaWidget(id, e) {
-  e.stopPropagation();
-  var list = getTarefas();
-  var item = list.find(function(t){ return t.id === id; });
-  if (!item) return;
-  item.done = true;
-  saveTarefasData(list);
-  renderDashboardNextEvents();
-}
-
-function checkMunchowTarefaWidget(id, e) {
-  e.stopPropagation();
-  var list = getTarefas();
-  var item = list.find(function(t){ return t.id === id; });
-  if (!item) return;
-  item.done = true;
-  saveTarefasData(list);
-  renderDashboardNextEvents();
-}
+function checkReleioTarefaWidget(id, e)  { _checkTarefaWidget(id, e); }
+function checkSoupTarefaWidget(id, e)    { _checkTarefaWidget(id, e); }
+function checkMunchowTarefaWidget(id, e) { _checkTarefaWidget(id, e); }
 
 var _mSegChartInstance = null;
 function buildMunchowSegChart() {
