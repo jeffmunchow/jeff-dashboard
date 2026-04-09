@@ -2363,26 +2363,6 @@ function cumulate(arr) {
   return out;
 }
 
-function buildPessoalChartData() {
-  var fat = [], cus = [];
-  var startDate = new Date('2026-01-05T00:00:00');
-  var endDate   = new Date('2026-12-31T23:59:59');
-  var entries = getPessoalFin ? getPessoalFin() : [];
-  var weeklyFat = {}, weeklyCus = {};
-  entries.forEach(function(e) {
-    if (!e.data || !e.valor || e.previsto) return;
-    var d = new Date(e.data + 'T00:00:00');
-    if (d < startDate || d > endDate) return;
-    var week = Math.min(51, Math.floor((d - startDate) / 86400000 / 7));
-    if (e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
-    if (e.tipo === 'saida')   weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
-  });
-  for (var i = 0; i < 52; i++) {
-    fat.push(weeklyFat[i] || 0);
-    cus.push(weeklyCus[i] || 0);
-  }
-  return { fat: fat, luc: cus };
-}
 var pRaw = { fat: new Array(52).fill(0), luc: new Array(52).fill(0) };
 
 function buildMunchowChartData() {
@@ -2611,8 +2591,6 @@ function buildPessoalChartData() {
   }
   return { fat: fat, luc: cus };
 }
-var pRaw = buildPessoalChartData();
-
 function buildChart() {
   mRaw = buildMunchowChartData();
   rRaw = buildReleioChartData();
