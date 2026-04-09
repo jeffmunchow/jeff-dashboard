@@ -938,29 +938,97 @@
       </button>
     </div>
   </div>
-  <div style="padding:1.5rem 0 2rem 2.5rem;">
-    <!-- Jiu-Jitsu Progress -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;max-width:50%;padding:0 1rem;">
-      <div>
-        <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">The JJ Progress</div>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <!-- View toggle: belts / line -->
-        <div style="display:flex;background:var(--bg);border:0.5px solid var(--border);border-radius:20px;padding:2px;">
-          <button id="jj-btn-belts" onclick="setJJView('belts')" title="Faixas" style="font-family:'DM Sans',sans-serif;font-size:0.65rem;padding:3px 10px;border:none;background:var(--text);color:var(--bg);border-radius:16px;cursor:pointer;transition:all 0.15s;">Faixas</button>
-          <button id="jj-btn-line" onclick="setJJView('line')" title="Linha" style="font-family:'DM Sans',sans-serif;font-size:0.65rem;padding:3px 10px;border:none;background:transparent;color:var(--text-hint);border-radius:16px;cursor:pointer;transition:all 0.15s;">Linha</button>
+
+  <!-- Pessoal Tabs -->
+  <div class="studio-tabs">
+    <button class="studio-tab active" id="ptab-geral"      onclick="switchPessoalTab('geral')">Geral</button>
+    <button class="studio-tab"        id="ptab-financeiro" onclick="switchPessoalTab('financeiro')">Financeiro</button>
+  </div>
+
+  <div class="studio-body">
+
+    <!-- ── GERAL ──────────────────────────────────────── -->
+    <div class="tab-panel active" id="ppanel-geral">
+      <div style="padding:0 0 2rem 0;">
+        <!-- Jiu-Jitsu Progress -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;max-width:50%;padding:0 1rem;">
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text);">The JJ Progress</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <div style="display:flex;background:var(--bg);border:0.5px solid var(--border);border-radius:20px;padding:2px;">
+              <button id="jj-btn-belts" onclick="setJJView('belts')" title="Faixas" style="font-family:'DM Sans',sans-serif;font-size:0.65rem;padding:3px 10px;border:none;background:var(--text);color:var(--bg);border-radius:16px;cursor:pointer;transition:all 0.15s;">Faixas</button>
+              <button id="jj-btn-line" onclick="setJJView('line')" title="Linha" style="font-family:'DM Sans',sans-serif;font-size:0.65rem;padding:3px 10px;border:none;background:transparent;color:var(--text-hint);border-radius:16px;cursor:pointer;transition:all 0.15s;">Linha</button>
+            </div>
+            <button class="project-plus-btn" onclick="openJJModal()" title="Atualizar horas">+</button>
+          </div>
         </div>
-        <button class="project-plus-btn" onclick="openJJModal()" title="Atualizar horas">+</button>
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 0 1.25rem;width:50%;box-sizing:border-box;overflow:hidden;">
+          <div id="jj-belt-display" style="display:flex;flex-direction:column;gap:42px;padding:0 1.25rem;"></div>
+          <div id="jj-line-display" style="display:none;height:340px;">
+            <canvas id="jj-line-chart"></canvas>
+          </div>
+          <div id="jj-status" style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-hint);padding:0 1.25rem;"></div>
+        </div>
       </div>
     </div>
-    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 0 1.25rem;width:50%;box-sizing:border-box;overflow:hidden;">
-      <!-- View 1: Belts -->
-      <div id="jj-belt-display" style="display:flex;flex-direction:column;gap:42px;padding:0 1.25rem;"></div>
-      <!-- View 2: Line chart -->
-      <div id="jj-line-display" style="display:none;height:340px;">
-        <canvas id="jj-line-chart"></canvas>
+
+    <!-- ── FINANCEIRO ──────────────────────────────── -->
+    <div class="tab-panel" id="ppanel-financeiro">
+      <div class="section-header">
+        <div class="section-title">Financeiro Pessoal</div>
+        <div class="section-actions">
+          <select id="pfin-period" onchange="renderPessoalFin()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
+            <option value="all">Todo o período</option>
+            <option value="month">Este mês</option>
+            <option value="year">Este ano</option>
+          </select>
+          <button class="btn primary" onclick="openPessoalFinModal('entrada')">+ Entrada</button>
+          <button class="btn" onclick="openPessoalFinModal('saida')">+ Saída</button>
+        </div>
       </div>
-      <div id="jj-status" style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-hint);padding:0 1.25rem;"></div>
+      <div class="fin-summary" id="pfin-summary"></div>
+      <div id="pfin-proximas"></div>
+      <div class="table-wrap"><div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th></th></tr></thead>
+          <tbody id="pfin-tbody"></tbody>
+        </table>
+      </div></div>
+    </div>
+
+  </div><!-- .studio-body -->
+</div><!-- #pessoal-view -->
+
+<!-- Pessoal Financeiro modal -->
+<div class="overlay" id="pfin-overlay">
+  <div class="modal">
+    <h2 id="pfin-modal-title">Nova Entrada</h2>
+    <div class="field-row"><label>Descrição</label><input type="text" id="pff-desc" placeholder="ex: Salário, Aluguel, Supermercado"></div>
+    <div class="field-row"><label>Valor (R$)</label><input type="number" id="pff-valor" placeholder="0,00" step="0.01"></div>
+    <div class="field-row"><label>Data</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="pff-data"></div>
+    <div class="field-row"><label>Categoria</label>
+      <select id="pff-cat">
+        <option>Salário</option><option>Freelance</option><option>Investimento</option><option>Outro</option>
+        <option disabled>──────────</option>
+        <option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Saúde</option>
+        <option>Educação</option><option>Lazer</option><option>Assinatura</option><option>Vestuário</option><option>Despesa</option>
+      </select>
+    </div>
+    <input type="hidden" id="pff-tipo" value="entrada">
+    <div class="field-row"><label>Recorrência</label>
+      <select id="pfff-recorr" onchange="toggleRecorrFields('pff')">
+        <option value="unico">Único</option>
+        <option value="mensal">Mensal</option>
+        <option value="anual">Anual</option>
+      </select>
+    </div>
+    <div class="field-row" id="pfff-renovacao-row" style="display:none;"><label>Próxima renovação</label><input type="text" class="smart-date-input" id="pfff-renovacao" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10"></div>
+    <div class="modal-actions">
+      <button class="btn" id="pfin-delete-btn" style="display:none;color:var(--coral);" onclick="deletePessoalFin()">Excluir</button>
+      <div style="flex:1;"></div>
+      <button class="btn" onclick="closePessoalFinModal()">Cancelar</button>
+      <button class="btn primary" onclick="savePessoalFin()">Salvar</button>
     </div>
   </div>
 </div>
@@ -2727,6 +2795,125 @@ function showPessoalView() {
   window.scrollTo(0,0);
   setJJView('line');
 }
+
+/* ── PESSOAL TABS ───────────────────────────────────── */
+var _currentPessoalTab = 'geral';
+function switchPessoalTab(tab) {
+  _currentPessoalTab = tab;
+  ['geral','financeiro'].forEach(function(t) {
+    var panel = document.getElementById('ppanel-' + t);
+    var btn   = document.getElementById('ptab-' + t);
+    if (panel) panel.classList.toggle('active', t === tab);
+    if (btn)   btn.classList.toggle('active',   t === tab);
+  });
+  if (tab === 'financeiro') renderPessoalFin();
+}
+
+/* ── PESSOAL FINANCEIRO ─────────────────────────────── */
+function getPessoalFin()   { try { return JSON.parse(localStorage.getItem('pessoal_fin') || '[]'); } catch(e){ return []; } }
+function savePessoalFinData(d) { localStorage.setItem('pessoal_fin', JSON.stringify(d)); dbSaveList('pessoal_fin', d); }
+
+function renderPessoalFin() {
+  var period = (document.getElementById('pfin-period')||{value:'all'}).value;
+  var now = new Date();
+  var entries = getPessoalFin().filter(function(e) {
+    if (period === 'all') return true;
+    var d = new Date(e.data + 'T00:00:00');
+    if (period === 'month') return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+    if (period === 'year')  return d.getFullYear()===now.getFullYear();
+    return true;
+  });
+  var totalIn  = entries.filter(function(e){ return e.tipo==='entrada' && !e.previsto; }).reduce(function(s,e){ return s+(parseFloat(e.valor)||0); },0);
+  var totalOut = entries.filter(function(e){ return e.tipo==='saida'   && !e.previsto; }).reduce(function(s,e){ return s+(parseFloat(e.valor)||0); },0);
+  var balance  = totalIn - totalOut;
+
+  var sumEl = document.getElementById('pfin-summary');
+  if (sumEl) sumEl.innerHTML =
+    '<div class="fin-entry"><div class="fin-label">Entradas</div><div class="fin-val">'+fmtMoney(totalIn)+'</div></div>'+
+    '<div class="fin-exit"><div class="fin-label">Saídas</div><div class="fin-val">'+fmtMoney(totalOut)+'</div></div>'+
+    '<div class="fin-balance"><div class="fin-label">Saldo</div><div class="fin-val">'+fmtMoney(balance)+'</div></div>';
+
+  var proxEl = document.getElementById('pfin-proximas');
+  if (proxEl) proxEl.innerHTML = _renderProximasCobrancas(getPessoalFin(), 'confirmarRenovacaoPessoal');
+
+  var sorted = entries.slice().sort(function(a,b){ return new Date(b.data)-new Date(a.data); });
+  var tbody = document.getElementById('pfin-tbody');
+  if (!tbody) return;
+  if (!sorted.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-hint);padding:2rem;">Nenhum lançamento</td></tr>'; return; }
+  tbody.innerHTML = sorted.map(function(e) {
+    var color = e.tipo==='entrada' ? 'var(--teal)' : 'var(--coral)';
+    var sign  = e.tipo==='entrada' ? '+' : '−';
+    var isPrev = e.previsto === true;
+    var rowStyle = isPrev ? ' style="opacity:0.45;"' : '';
+    var tipoBadge = isPrev
+      ? '<span class="badge" style="background:var(--surface2);color:var(--text-hint);border:0.5px solid var(--border-strong);">previsto</span>'
+      : '<span class="badge" style="background:'+(e.tipo==='entrada'?'var(--teal-light)':'var(--coral-light)')+';color:'+color+';">'+e.tipo+'</span>';
+    return '<tr'+rowStyle+'>'+
+      '<td>'+fmtDate(e.data)+'</td>'+
+      '<td class="td-name">'+e.desc+'</td>'+
+      '<td>'+(e.cat||'—')+'</td>'+
+      '<td>'+tipoBadge+'</td>'+
+      '<td style="color:'+color+';font-weight:500;'+(isPrev?'opacity:0.6;':'')+'">'+sign+' '+fmtMoney(e.valor)+'</td>'+
+      '<td><button class="row-action" onclick="openPessoalFinModal(null,\''+e.id+'\')">Editar</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+var _editingPessoalFinId = null;
+function openPessoalFinModal(tipo, id) {
+  _editingPessoalFinId = id || null;
+  if (id) {
+    var e = getPessoalFin().find(function(x){ return x.id===id; });
+    if (!e) return;
+    document.getElementById('pfin-modal-title').textContent = 'Editar Lançamento';
+    document.getElementById('pff-desc').value  = e.desc||'';
+    document.getElementById('pff-valor').value = e.valor||'';
+    setDateValue('pff-data', e.data||'');
+    document.getElementById('pff-cat').value   = e.cat||'Salário';
+    document.getElementById('pff-tipo').value  = e.tipo||'entrada';
+    _setRecorrVal('pff', e.recorr||'unico', e.renovacao||'');
+    document.getElementById('pfin-delete-btn').style.display = 'inline-flex';
+  } else {
+    document.getElementById('pfin-modal-title').textContent = tipo==='entrada' ? 'Nova Entrada' : 'Nova Saída';
+    ['pff-desc','pff-valor'].forEach(function(i){ document.getElementById(i).value=''; });
+    setDateValue('pff-data', _todayKey());
+    document.getElementById('pff-cat').value  = tipo==='entrada' ? 'Salário' : 'Despesa';
+    document.getElementById('pff-tipo').value = tipo||'entrada';
+    _resetRecorr('pff');
+    document.getElementById('pfin-delete-btn').style.display = 'none';
+  }
+  document.getElementById('pfin-overlay').classList.add('open');
+}
+function closePessoalFinModal() { document.getElementById('pfin-overlay').classList.remove('open'); }
+function savePessoalFin() {
+  var rv = _getRecorrVal('pff');
+  var obj = {
+    id:       _editingPessoalFinId || uid(),
+    desc:     document.getElementById('pff-desc').value.trim(),
+    valor:    parseFloat(document.getElementById('pff-valor').value)||0,
+    data:     getDateValue('pff-data'),
+    cat:      document.getElementById('pff-cat').value,
+    tipo:     document.getElementById('pff-tipo').value,
+    recorr:   rv.recorr,
+    renovacao:rv.renovacao
+  };
+  if (!obj.desc) { alert('Informe a descrição.'); return; }
+  var list = getPessoalFin();
+  if (_editingPessoalFinId) {
+    var idx = list.findIndex(function(x){ return x.id===_editingPessoalFinId; });
+    if (idx>-1) list[idx]=obj; else list.push(obj);
+  } else list.push(obj);
+  savePessoalFinData(list);
+  closePessoalFinModal();
+  renderPessoalFin();
+}
+function deletePessoalFin() {
+  if (!confirm('Excluir este lançamento?')) return;
+  savePessoalFinData(getPessoalFin().filter(function(x){ return x.id!==_editingPessoalFinId; }));
+  closePessoalFinModal();
+  renderPessoalFin();
+}
+function confirmarRenovacaoPessoal(id) { _confirmarRenovacao(getPessoalFin(), id, savePessoalFinData, renderPessoalFin); }
 
 /* ── JIU-JITSU PROGRESS ── */
 // Regras baseadas em https://dojojj.com.br/a-jornada-do-aluno
@@ -5397,7 +5584,7 @@ function deleteReleioTodoItem(id){saveReleioTodos(getReleioTodos().filter(functi
 /* ── OVERLAY DISMISS for new modals ─────────────────────── */
 ['custo-overlay','custo-package-overlay',
  'soup-member-overlay','soup-viagem-overlay','soup-milhas-overlay','soup-fin-overlay',
- 'rl-livro-overlay','rl-pub-overlay','rl-sub-overlay'].forEach(function(id){
+ 'rl-livro-overlay','rl-pub-overlay','rl-sub-overlay','pfin-overlay'].forEach(function(id){
   var el=document.getElementById(id);
   if(el) el.addEventListener('click',function(e){if(e.target===el)el.classList.remove('open');});
 });
@@ -7869,7 +8056,8 @@ function _renderOportunidades(promos, todayStr) {
 var _recorrMap = {
   ff:    { get: function(){ return getFinEntries(); },  save: function(d){ saveFinEntries(d); },  prefix: 'ff' },
   sff:   { get: function(){ return getSoupFin(); },     save: function(d){ saveSoupFinData(d); }, prefix: 'sff' },
-  rlfinf:{ get: function(){ return getReleioFin(); },   save: function(d){ saveReleioFin(d); },   prefix: 'rlfinf' }
+  rlfinf:{ get: function(){ return getReleioFin(); },   save: function(d){ saveReleioFin(d); },   prefix: 'rlfinf' },
+  pff:   { get: function(){ return getPessoalFin(); },  save: function(d){ savePessoalFinData(d); }, prefix: 'pff' }
 };
 
 function toggleRecorrFields(prefix) {
