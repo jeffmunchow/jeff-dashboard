@@ -2875,7 +2875,12 @@ function switchPessoalTab(tab) {
 
 /* ── PESSOAL FINANCEIRO ─────────────────────────────── */
 function getPessoalFin()   { try { return JSON.parse(localStorage.getItem('pessoal_fin') || '[]'); } catch(e){ return []; } }
-function savePessoalFinData(d) { localStorage.setItem('pessoal_fin', JSON.stringify(d)); dbSaveList('pessoal_fin', d); }
+function savePessoalFinData(d) {
+  localStorage.setItem('pessoal_fin', JSON.stringify(d));
+  dbSaveList('pessoal_fin', d);
+  // Also rebuild chart immediately since localStorage is updated
+  if (typeof buildChart === 'function') buildChart();
+}
 
 function renderPessoalFin() {
   var period = (document.getElementById('pfin-period')||{value:'all'}).value;
@@ -5727,6 +5732,9 @@ buildSparklines();
 buildChart();
 _updateMFaturamento();
 
+// Força rebuild adicional para garantir dados pessoais do localStorage
+setTimeout(function() { buildChart(); }, 200);
+
 // Sincroniza com Supabase em background depois que o app já está visível
 setTimeout(function() {
   loadFromSupabase().then(function() {
@@ -5745,8 +5753,9 @@ setTimeout(function() {
     buildSparklines();
     buildChart();
     _updateMFaturamento();
-    // Segunda reconstrução — garante que dados lentos do Supabase já chegaram
+    // Garante que dados lentos já chegaram
     setTimeout(function() { buildChart(); _updateMFaturamento(); }, 1500);
+    setTimeout(function() { buildChart(); _updateMFaturamento(); }, 4000);
   });
 }, 100);
 
