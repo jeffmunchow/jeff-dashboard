@@ -159,7 +159,8 @@
   /* Inner views headers mantêm borda */
   #studio-view .header,
   #soup-view .header,
-  #releio-view .header { border-bottom: 0.5px solid var(--border); }
+  #releio-view .header,
+  #pessoal-view .header { border-bottom: 0.5px solid var(--border); }
   .header {
     padding: 1rem 2rem 0.85rem;
     border-bottom: 0.5px solid var(--border);
@@ -171,10 +172,12 @@
   /* Inner views — títulos e subtítulos idênticos aos widgets do dashboard */
   #studio-view .header-left h1,
   #soup-view .header-left h1,
-  #releio-view .header-left h1 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
+  #releio-view .header-left h1,
+  #pessoal-view .header-left h1 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
   #studio-view .header-left p,
   #soup-view .header-left p,
-  #releio-view .header-left p { font-size: 0.7rem; color: var(--text-hint); margin-top: 3px; font-weight: 300; letter-spacing: 0; text-transform: none; }
+  #releio-view .header-left p,
+  #pessoal-view .header-left p { font-size: 0.7rem; color: var(--text-hint); margin-top: 3px; font-weight: 300; letter-spacing: 0; text-transform: none; }
   .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .btn {
     font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 400;
@@ -930,7 +933,7 @@
   <div class="header">
     <div class="header-left">
       <h1>Pessoal</h1>
-      <p>Área pessoal</p>
+      <p></p>
     </div>
     <div class="header-right">
       <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
