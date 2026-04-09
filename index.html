@@ -2294,19 +2294,21 @@ function buildMunchowChartData() {
   var entries = (getFinEntries ? getFinEntries() : []).filter(function(e){
     return e.tipo === 'entrada' && !e.previsto;
   });
-  var startDate = new Date('2026-01-05'); // week 1 start
+  var startDate = new Date('2026-01-05T00:00:00'); // week 1 start
+  var endDate   = new Date('2026-12-31T23:59:59');
   var weeklyFat = {};
   entries.forEach(function(e) {
     if (!e.data || !e.valor) return;
     var d = new Date(e.data + 'T00:00:00');
+    if (d < startDate || d > endDate) return; // only 2026
     var diffDays = Math.floor((d - startDate) / 86400000);
-    var week = Math.max(0, Math.min(51, Math.floor(diffDays / 7)));
+    var week = Math.min(51, Math.floor(diffDays / 7));
     weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
   });
   for (var i = 0; i < 52; i++) {
     var f = weeklyFat[i] || 0;
     fat.push(f);
-    luc.push(Math.round(f * 0.62)); // ~62% margem líquida
+    luc.push(Math.round(f * 0.62));
   }
   return { fat: fat, luc: luc };
 }
@@ -2389,13 +2391,16 @@ function buildCumulWeekly2026() {
     if (sat.getDate() <= 7) label = MON_S[sat.getMonth()]; // first Saturday of month
     labels.push(label);
 
-    if (isFuture) {
+    if (isFuture && weekStart > today) {
       mFat.push(null); mLuc.push(null);
       sFat.push(null); sLuc.push(null);
       rFat.push(null); rLuc.push(null);
       prevSat = sat;
       return;
     }
+
+    // For current partial week, only accumulate up to today
+    if (isFuture) weekEnd = today;
 
     // Accumulate each day in this week
     var cur = new Date(weekStart);
