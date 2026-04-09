@@ -5317,11 +5317,7 @@ toggleTheme = function() {
   buildSparklines();
 };
 
-// Carrega imediatamente do cache local — sem esperar o Supabase
-init();
-buildSparklines();
-
-// Sincroniza parcelas de todos os clientes com o financeiro
+// Sincroniza parcelas de todos os clientes com o financeiro ANTES do init
 (function _syncAllParcelasOnInit() {
   var clients = getClients();
   clients.forEach(function(c) {
@@ -5351,6 +5347,10 @@ buildSparklines();
   });
 })();
 
+// Carrega imediatamente do cache local — após sync de parcelas para gráfico correto
+init();
+buildSparklines();
+
 // Sincroniza com Supabase em background depois que o app já está visível
 setTimeout(function() {
   loadFromSupabase().then(function() {
@@ -5367,6 +5367,8 @@ setTimeout(function() {
       if (el && el.tagName !== 'TEXTAREA') el.textContent = val;
     });
     buildSparklines();
+    buildChart();
+    _updateMFaturamento();
   });
 }, 100);
 
