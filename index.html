@@ -1276,6 +1276,9 @@
             <option value="month">Este mês</option>
             <option value="year">Este ano</option>
           </select>
+          <select id="fin-client-filter" onchange="renderFinanceiro()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
+            <option value="">Todos os clientes</option>
+          </select>
           <select id="fin-cat-filter" onchange="renderFinanceiro()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
             <option value="">Todas as categorias</option>
             <option value="entrada">Só entradas</option>
@@ -4012,8 +4015,18 @@ function toggleFfPrevisto() {
 /* ─── FINANCEIRO ─────────────────────────────────────────── */
 function renderFinanceiro() {
   populateClientSelects();
-  var period = (document.getElementById('fin-period')||{value:'all'}).value;
-  var catFlt = (document.getElementById('fin-cat-filter')||{value:''}).value;
+  // Populate client filter dropdown
+  var clientFltEl = document.getElementById('fin-client-filter');
+  if (clientFltEl) {
+    var prevVal = clientFltEl.value;
+    clientFltEl.innerHTML = '<option value="">Todos os clientes</option>' +
+      getClients().map(function(c){ return '<option value="'+c.id+'">'+(c.nome||'—')+'</option>'; }).join('');
+    clientFltEl.value = prevVal;
+  }
+
+  var period    = (document.getElementById('fin-period')||{value:'all'}).value;
+  var catFlt    = (document.getElementById('fin-cat-filter')||{value:''}).value;
+  var clientFlt = (document.getElementById('fin-client-filter')||{value:''}).value;
   var now = new Date();
   var entries = getFinEntries().filter(function(e){
     if (period==='all') return true;
@@ -4022,6 +4035,8 @@ function renderFinanceiro() {
     if (period==='year')  return d.getFullYear()===now.getFullYear();
     return true;
   });
+  // Apply client filter
+  if (clientFlt) entries = entries.filter(function(e){ return e.clienteId === clientFlt; });
   // Apply category/type filter
   if (catFlt === 'entrada') entries = entries.filter(function(e){ return e.tipo==='entrada'; });
   else if (catFlt === 'saida') entries = entries.filter(function(e){ return e.tipo==='saida'; });
@@ -4033,7 +4048,8 @@ function renderFinanceiro() {
   document.getElementById('fin-summary').innerHTML =
     '<div class="fin-entry"><div class="fin-label">Entradas</div><div class="fin-val">'+fmtMoney(totalIn)+'</div></div>'+
     '<div class="fin-exit"><div class="fin-label">Saídas</div><div class="fin-val">'+fmtMoney(totalOut)+'</div></div>'+
-    '<div class="fin-balance"><div class="fin-label">Saldo</div><div class="fin-val">'+fmtMoney(balance)+'</div></div>';
+    '<div class="fin-balance"><div class="fin-label">Saldo</div><div class="fin-val">'+fmtMoney(balance)+'</div></div>' +
+    (clientFlt && totalIn > 0 ? '<div class="fin-balance"><div class="fin-label">Margem</div><div class="fin-val">'+Math.round((balance/totalIn)*100)+'%</div></div>' : '');
 
   // Próximas cobranças
   var proxEl = document.getElementById('fin-proximas');
