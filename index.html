@@ -4189,6 +4189,12 @@ function deleteTodo(id) {
 });
 
 async function loadFromSupabase() {
+  // Antes de carregar, empurra dados locais para o Supabase (garante que dados mais recentes prevalecem)
+  var localPessoal = getPessoalFin();
+  if (localPessoal && localPessoal.length > 0) {
+    dbSaveList('pessoal_fin', localPessoal).catch(function(){});
+  }
+
   var tables = [
     'studio_clients','studio_events','studio_pends','studio_fin',
     'studio_todos','studio_custos','studio_packages',
@@ -4204,12 +4210,22 @@ async function loadFromSupabase() {
   // Load all tables in parallel
   await Promise.all([
     ...tables.map(function(tbl) {
-      return dbLoad(tbl).then(function(list) {
-        if (list && list.length > 0) {
-          var parts = tbl.split('_');
-          var prefix = parts[0];
-          var suffix = parts.slice(1).join('_');
-          localStorage.setItem(prefix + '_' + suffix, JSON.stringify(list));
+      return dbLoad(tbl).then(function(remoteList) {
+        var parts = tbl.split('_');
+        var localKey = parts[0] + '_' + parts.slice(1).join('_');
+        var localList = [];
+        try { localList = JSON.parse(localStorage.getItem(localKey) || '[]'); } catch(e){}
+        // Use whichever has more data; merge by id preferring local values
+        if (remoteList && remoteList.length > 0) {
+          var merged = {};
+          remoteList.forEach(function(r){ merged[r.id] = r; });
+          localList.forEach(function(l){ merged[l.id] = l; }); // local wins on conflict
+          var mergedArr = Object.values(merged);
+          localStorage.setItem(localKey, JSON.stringify(mergedArr));
+          // Push merged back to Supabase
+          if (mergedArr.length > remoteList.length) {
+            dbSaveList(tbl, mergedArr).catch(function(){});
+          }
         }
       }).catch(function(){});
     }),
