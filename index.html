@@ -3199,7 +3199,7 @@ function renderResumo() {
       return '<div class="agenda-item"><div class="agenda-date">'+fmtDate(e.data)+'</div>'+
         '<div class="agenda-dot" style="background:'+col+'"></div>'+
         '<div class="agenda-info"><div class="agenda-titulo">'+e.titulo+'</div>'+
-        '<div class="agenda-sub">'+e.tipo+(e.clienteId?'  ·  '+clientName(e.clienteId):'')+'</div></div></div>';
+        '<div class="agenda-sub">'+(e.clienteId?clientName(e.clienteId):'')+(e.local?(e.clienteId?' — ':'')+e.local:'')+'</div></div></div>';
     }).join('') + '</div>';
   }
 
@@ -3529,7 +3529,7 @@ function renderAgenda() {
       '<div class="agenda-dot" style="background:'+col+'"></div>'+
       '<div class="agenda-info">'+
         '<div class="agenda-titulo">'+e.titulo+'</div>'+
-        '<div class="agenda-sub">'+e.tipo+(e.clienteId?'  ·  '+clientName(e.clienteId):'')+(e.local?'  ·  '+e.local:'')+'</div>'+
+        '<div class="agenda-sub">'+(e.clienteId?clientName(e.clienteId):'')+(e.local?(e.clienteId?' — ':'')+e.local:'')+'</div>'+
       '</div>'+
       '<button class="row-action" onclick="openEventModal(\''+e.id+'\')">Editar</button>'+
     '</div>';
@@ -3606,10 +3606,11 @@ function _syncEventToTarefa(ev) {
   // Find existing linked tarefa
   var existingIdx = list.findIndex(function(t){ return t._eventoId === ev.id; });
 
+  var clienteNome = ev.clienteId ? clientName(ev.clienteId) : '';
   var tarefaObj = {
     id:        existingIdx > -1 ? list[existingIdx].id : uid(),
     _eventoId: ev.id,
-    titulo:    ev.titulo + (ev.tipo ? ' (' + ev.tipo + ')' : ''),
+    titulo:    ev.titulo + (clienteNome ? ' — ' + clienteNome : ''),
     data:      datePart,
     hora:      hora,
     horaFim:   horaFim,
