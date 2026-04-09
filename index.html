@@ -1141,7 +1141,7 @@
         <div class="section-actions">
           <div class="filter-row" style="margin:0;">
             <input type="text" id="client-search" placeholder="Buscar cliente..." oninput="renderClientes()">
-            <select id="client-status-filter" onchange="renderClientes()">
+            <select id="client-status-filter" onchange="renderClientes()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;height:100%;">
               <option value="">Ativos</option>
               <option value="Prospect">Prospect</option>
               <option value="Contratado">Contratado</option>
@@ -1174,12 +1174,11 @@
       <div class="section-header">
         <div class="section-title">Agenda</div>
         <div class="section-actions">
-          <div style="display:flex;gap:4px;">
-            <button id="agenda-btn-upcoming" class="btn primary" style="font-size:0.72rem;padding:4px 10px;" onclick="setAgendaFilter('upcoming')">Próximos</button>
-            <button id="agenda-btn-all"      class="btn"         style="font-size:0.72rem;padding:4px 10px;" onclick="setAgendaFilter('all')">Todos</button>
-            <button id="agenda-btn-past"     class="btn"         style="font-size:0.72rem;padding:4px 10px;" onclick="setAgendaFilter('past')">Passados</button>
-          </div>
-          <input type="hidden" id="agenda-filter" value="upcoming">
+          <select id="agenda-filter" onchange="renderAgenda()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
+            <option value="upcoming">Próximos</option>
+            <option value="all">Todos</option>
+            <option value="past">Passados</option>
+          </select>
           <button class="btn primary" onclick="openEventModal()">+ Evento</button>
         </div>
       </div>
