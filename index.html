@@ -1103,9 +1103,9 @@
     <!-- ── RESUMO ─────────────────────────────────────── -->
     <div class="tab-panel active" id="spanel-resumo">
       <div class="summary-grid" id="studio-summary-grid">
+        <div class="sum-card accent-amber"><div class="sum-label">Instagram</div><div class="sum-value" id="ss-seg">—</div><div class="sum-sub">Seguidores</div></div>
         <div class="sum-card accent-amber"><div class="sum-label">Faturamento total</div><div class="sum-value" id="ss-fat">R$ —</div><div class="sum-sub">&nbsp;</div></div>
         <div class="sum-card accent-teal"><div class="sum-label">A receber</div><div class="sum-value" id="ss-recv">R$ —</div><div class="sum-sub">&nbsp;</div></div>
-        <div class="sum-card"><div class="sum-label">Casamentos / ano</div><div class="sum-value" id="ss-wed">—</div><div class="sum-sub">confirmados</div></div>
         <div class="sum-card accent-coral"><div class="sum-label">Ticket médio</div><div class="sum-value" id="ss-ticket">R$ —</div><div class="sum-sub">por casamento</div></div>
       </div>
 
@@ -3183,8 +3183,8 @@ function renderResumo() {
 
   document.getElementById('ss-fat').textContent    = fmtMoney(totalPago);
   document.getElementById('ss-recv').textContent   = fmtMoney(aReceber);
-  document.getElementById('ss-wed').textContent    = weddings;
-
+  var ssSegEl = document.getElementById('ss-seg');
+  if (ssSegEl) ssSegEl.textContent = localStorage.getItem('dash_m-seguidores') || '—';
   document.getElementById('ss-ticket').textContent = ticket > 0 ? fmtMoney(ticket) : '—';
 
   // mini agenda
