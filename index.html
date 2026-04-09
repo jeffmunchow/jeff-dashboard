@@ -2979,7 +2979,12 @@ function deletePessoalFin() {
   renderPessoalFin();
   buildChart();
 }
-function confirmarRenovacaoPessoal(id) { _confirmarRenovacao(getPessoalFin(), id, savePessoalFinData, renderPessoalFin); }
+function confirmarRenovacaoPessoal(id) {
+  _confirmarRenovacao(getPessoalFin(), id, savePessoalFinData, function() {
+    renderPessoalFin();
+    buildChart();
+  });
+}
 
 /* ── JIU-JITSU PROGRESS ── */
 // Regras baseadas em https://dojojj.com.br/a-jornada-do-aluno
@@ -5740,6 +5745,8 @@ setTimeout(function() {
     buildSparklines();
     buildChart();
     _updateMFaturamento();
+    // Segunda reconstrução — garante que dados lentos do Supabase já chegaram
+    setTimeout(function() { buildChart(); _updateMFaturamento(); }, 1500);
   });
 }, 100);
 
