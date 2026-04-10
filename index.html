@@ -2642,8 +2642,14 @@ function buildChart() {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
+        interaction: { mode: 'nearest', intersect: true, axis: 'xy' },
         animation: { duration: 350, easing: 'easeInOutQuart' },
+        onHover: function(event, elements) {
+          if (elements && elements.length > 0) {
+            var lbl = elements[0].element.$context.dataset.label || '';
+            this._nearestProject = lbl.split(' ')[0].toLowerCase();
+          }
+        },
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -2651,7 +2657,12 @@ function buildChart() {
             titleColor: c.tooltipTitle, bodyColor: c.tooltipBody, padding: 12,
             titleFont: { family: 'DM Sans, sans-serif', size: 11, weight: '400' },
             bodyFont:  { family: 'DM Sans, sans-serif', size: 11 },
-            filter: function(item) { return item.parsed.y !== null; },
+            filter: function(item) {
+              if (item.parsed.y === null) return false;
+              var lbl = item.dataset.label.split(' ')[0].toLowerCase();
+              var nearest = item.chart._nearestProject || '';
+              return nearest === '' || lbl === nearest;
+            },
             callbacks: {
               title: function(items) {
                 // Reconstruct Saturday date from index
@@ -2702,8 +2713,14 @@ function buildChart() {
 function _chartOptions(c, isWeekly, labels) {
   return {
     responsive: true, maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
+    interaction: { mode: 'nearest', intersect: true, axis: 'xy' },
     animation: { duration: 350, easing: 'easeInOutQuart' },
+    onHover: function(event, elements) {
+      if (elements && elements.length > 0) {
+        var lbl = elements[0].element.$context.dataset.label || '';
+        this._nearestProject = lbl.split(' ')[0].toLowerCase();
+      }
+    },
     plugins: {
       legend: { display: false },
       tooltip: {
