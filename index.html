@@ -2653,21 +2653,27 @@ function buildChart() {
             bodyFont:  { family: 'DM Sans, sans-serif', size: 11 },
             filter: function(item) {
               if (item.parsed.y === null) return false;
-              // Group: show only items whose project matches the first non-null dataset at this index
-              var proj = item.dataset.label.split(' ')[0];
               var chart = item.chart;
+              var proj = item.dataset.label.split(' ')[0];
               if (!chart._tooltipProj) {
-                // Find the dataset with highest value at this index to determine active project
+                // Find which project's line is closest to the cursor Y position
                 var idx = item.dataIndex;
-                var maxVal = -Infinity, maxProj = '';
-                chart.data.datasets.forEach(function(ds) {
+                var cursorY = chart.tooltip._eventPosition ? chart.tooltip._eventPosition.y : null;
+                var bestProj = '';
+                var bestDist = Infinity;
+                chart.data.datasets.forEach(function(ds, dsIdx) {
                   var v = ds.data[idx];
-                  if (v !== null && v !== undefined && v > maxVal) {
-                    maxVal = v;
-                    maxProj = ds.label.split(' ')[0];
+                  if (v === null || v === undefined) return;
+                  var meta = chart.getDatasetMeta(dsIdx);
+                  if (!meta || !meta.data || !meta.data[idx]) return;
+                  var pixelY = meta.data[idx].y;
+                  var dist = cursorY !== null ? Math.abs(pixelY - cursorY) : 0;
+                  if (dist < bestDist) {
+                    bestDist = dist;
+                    bestProj = ds.label.split(' ')[0];
                   }
                 });
-                chart._tooltipProj = maxProj;
+                chart._tooltipProj = bestProj;
               }
               return proj === chart._tooltipProj;
             },
