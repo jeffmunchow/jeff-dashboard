@@ -2642,45 +2642,18 @@ function buildChart() {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
+        interaction: { mode: 'nearest', intersect: true },
         animation: { duration: 350, easing: 'easeInOutQuart' },
         plugins: {
           legend: { display: false },
           tooltip: {
+            position: 'nearest',
             backgroundColor: c.tooltipBg, borderColor: c.tooltipBorder, borderWidth: 1,
             titleColor: c.tooltipTitle, bodyColor: c.tooltipBody, padding: 12,
             titleFont: { family: 'DM Sans, sans-serif', size: 11, weight: '400' },
             bodyFont:  { family: 'DM Sans, sans-serif', size: 11 },
-            filter: function(item) {
-              if (item.parsed.y === null) return false;
-              var chart = item.chart;
-              var proj = item.dataset.label.split(' ')[0];
-              if (!chart._tooltipProj) {
-                // Find which project's line is closest to the cursor Y position
-                var idx = item.dataIndex;
-                var cursorY = chart.tooltip._eventPosition ? chart.tooltip._eventPosition.y : null;
-                var bestProj = '';
-                var bestDist = Infinity;
-                chart.data.datasets.forEach(function(ds, dsIdx) {
-                  var v = ds.data[idx];
-                  if (v === null || v === undefined) return;
-                  var meta = chart.getDatasetMeta(dsIdx);
-                  if (!meta || !meta.data || !meta.data[idx]) return;
-                  var pixelY = meta.data[idx].y;
-                  var dist = cursorY !== null ? Math.abs(pixelY - cursorY) : 0;
-                  if (dist < bestDist) {
-                    bestDist = dist;
-                    bestProj = ds.label.split(' ')[0];
-                  }
-                });
-                chart._tooltipProj = bestProj;
-              }
-              return proj === chart._tooltipProj;
-            },
+            filter: function(item) { return item.parsed.y !== null; },
             callbacks: {
-              beforeTitle: function(items) {
-                if (items[0]) items[0].chart._tooltipProj = null;
-              },
               title: function(items) {
                 // Reconstruct Saturday date from index
                 var idx = items[0] ? items[0].dataIndex : 0;
@@ -2730,7 +2703,7 @@ function buildChart() {
 function _chartOptions(c, isWeekly, labels) {
   return {
     responsive: true, maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
+    interaction: { mode: 'nearest', intersect: true },
     animation: { duration: 350, easing: 'easeInOutQuart' },
     plugins: {
       legend: { display: false },
