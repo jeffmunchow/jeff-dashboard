@@ -2644,6 +2644,10 @@ function buildChart() {
         responsive: true, maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         animation: { duration: 350, easing: 'easeInOutQuart' },
+        onHover: function(evt, elements, chart) {
+          chart._cursorY = evt.y;
+          chart._closestDsIdx = null; // reset cache on every move so it recalculates
+        },
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -2651,10 +2655,29 @@ function buildChart() {
             titleColor: c.tooltipTitle, bodyColor: c.tooltipBody, padding: 12,
             titleFont: { family: 'DM Sans, sans-serif', size: 11, weight: '400' },
             bodyFont:  { family: 'DM Sans, sans-serif', size: 11 },
-            filter: function(item) { return item.parsed.y !== null; },
+            filter: function(item) {
+              if (item.parsed.y === null) return false;
+              var chart = item.chart;
+              var cursorY = chart._cursorY;
+              // If cursor Y not tracked yet, show everything
+              if (cursorY == null) return true;
+              // Find dataset closest to cursor Y at this x-index
+              if (chart._closestDsIdx == null) {
+                var bestDist = Infinity, bestIdx = 0;
+                chart.data.datasets.forEach(function(ds, i) {
+                  if (ds.data[item.dataIndex] === null || ds.data[item.dataIndex] === undefined) return;
+                  var m = chart.getDatasetMeta(i);
+                  if (!m || !m.data || !m.data[item.dataIndex]) return;
+                  var d = Math.abs(m.data[item.dataIndex].y - cursorY);
+                  if (d < bestDist) { bestDist = d; bestIdx = i; }
+                });
+                chart._closestDsIdx = bestIdx;
+              }
+              var closestProj = chart.data.datasets[chart._closestDsIdx].label.split(' ')[0];
+              return item.dataset.label.split(' ')[0] === closestProj;
+            },
             callbacks: {
               title: function(items) {
-                // Reconstruct Saturday date from index
                 var idx = items[0] ? items[0].dataIndex : 0;
                 var d = new Date('2026-01-01T00:00:00');
                 while (d.getDay() !== 6) d = new Date(d.getTime() + 86400000);
@@ -2704,6 +2727,10 @@ function _chartOptions(c, isWeekly, labels) {
     responsive: true, maintainAspectRatio: false,
     interaction: { mode: 'index', intersect: false },
     animation: { duration: 350, easing: 'easeInOutQuart' },
+    onHover: function(evt, elements, chart) {
+      chart._cursorY = evt.y;
+      chart._closestDsIdx = null;
+    },
     plugins: {
       legend: { display: false },
       tooltip: {
@@ -2711,6 +2738,25 @@ function _chartOptions(c, isWeekly, labels) {
         titleColor: c.tooltipTitle, bodyColor: c.tooltipBody, padding: 12,
         titleFont: { family: 'DM Sans, sans-serif', size: 11, weight: '400' },
         bodyFont:  { family: 'DM Sans, sans-serif', size: 11 },
+        filter: function(item) {
+          if (item.parsed.y === null || item.parsed.y === undefined) return false;
+          var chart = item.chart;
+          var cursorY = chart._cursorY;
+          if (cursorY == null) return true;
+          if (chart._closestDsIdx == null) {
+            var bestDist = Infinity, bestIdx = 0;
+            chart.data.datasets.forEach(function(ds, i) {
+              if (!ds.data[item.dataIndex] && ds.data[item.dataIndex] !== 0) return;
+              var m = chart.getDatasetMeta(i);
+              if (!m || !m.data[item.dataIndex]) return;
+              var d = Math.abs(m.data[item.dataIndex].y - cursorY);
+              if (d < bestDist) { bestDist = d; bestIdx = i; }
+            });
+            chart._closestDsIdx = bestIdx;
+          }
+          var closestProj = chart.data.datasets[chart._closestDsIdx].label.split(' ')[0];
+          return item.dataset.label.split(' ')[0] === closestProj;
+        },
         callbacks: {
           title: function(items) { return 'Semana ' + (items[0].dataIndex + 1); },
           label: function(ctx) {
