@@ -4431,7 +4431,7 @@ function recordFollowerPoint(proj, value) {
   var seed = [
     {"d": "2026-04-07", "v": 0},
     {"d": "2026-04-08", "v": 106},
-    {"d": "2026-04-09", "v": 107}
+    {"d": "2026-04-09", "v": 123}
   ];
   var existing = getFollowerHistory('m');
   var todaySeed = _todayKey();
@@ -4482,7 +4482,7 @@ var sparkData = {
 
 var _sparkEndIds = { m: 'm-seguidores', s: 's-seguidores', r: 'r-seguidores' };
 var _sparkStoreKeys = { m: 'dash_m-seguidores', s: 'dash_s-seguidores', r: 'dash_r-seguidores' };
-var _sparkDefaults  = { m: 107, s: 22, r: 7000 };
+var _sparkDefaults  = { m: 123, s: 22, r: 7000 };
 
 function buildSparkDataForKey(key) {
   var d = sparkData[key];
