@@ -2609,14 +2609,14 @@ function buildChart() {
       data: {
         labels: weeklyLabels,
         datasets: [
-          { label: 'Münchow fat.',   data: mRaw.fat, borderColor: c.amber,   borderWidth: 1,   borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Soup fat.',      data: sRaw.fat, borderColor: c.teal,    borderWidth: 1,   borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,    borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Re.leio fat.',   data: rRaw.fat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Pessoal fat.',   data: pRaw.fat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, tension: 0.45, fill: false },
-          { label: 'Pessoal custos', data: pRaw.luc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.45, fill: false }
+          { label: 'Münchow fat.',   data: mRaw.fat, borderColor: c.amber,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, tension: 0.45, fill: false },
+          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, tension: 0.45, fill: false },
+          { label: 'Soup fat.',      data: sRaw.fat, borderColor: c.teal,    borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, tension: 0.45, fill: false },
+          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,    borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, tension: 0.45, fill: false },
+          { label: 'Re.leio fat.',   data: rRaw.fat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, tension: 0.45, fill: false },
+          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, tension: 0.45, fill: false },
+          { label: 'Pessoal fat.',   data: pRaw.fat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, tension: 0.45, fill: false },
+          { label: 'Pessoal custos', data: pRaw.luc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, tension: 0.45, fill: false }
         ]
       },
       options: _chartOptions(c, true, weeklyLabels)
@@ -2630,26 +2630,20 @@ function buildChart() {
       data: {
         labels: cd.labels,
         datasets: [
-          { label: 'Münchow fat.',  data: cd.mFat, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Münchow custos', data: cd.mLuc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Soup fat.',      data: cd.sFat, borderColor: c.teal,    borderWidth: 1.5, borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Soup custos',    data: cd.sLuc, borderColor: c.teal,    borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Re.leio fat.',   data: cd.rFat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Re.leio custos', data: cd.rLuc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Pessoal fat.',   data: cd.pFat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Pessoal custos', data: cd.pLuc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false }
+          { label: 'Münchow fat.',  data: cd.mFat, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, pointHoverRadius: 4, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Münchow custos', data: cd.mLuc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Soup fat.',      data: cd.sFat, borderColor: c.teal,    borderWidth: 1.5, borderDash: [],    pointRadius: 0, pointHoverRadius: 4, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Soup custos',    data: cd.sLuc, borderColor: c.teal,    borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Re.leio fat.',   data: cd.rFat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Re.leio custos', data: cd.rLuc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Pessoal fat.',   data: cd.pFat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Pessoal custos', data: cd.pLuc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false }
         ]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        interaction: { mode: 'nearest', intersect: true, axis: 'xy' },
+        interaction: { mode: 'index', intersect: false },
         animation: { duration: 350, easing: 'easeInOutQuart' },
-        onHover: function(event, elements) {
-          if (elements && elements.length > 0) {
-            var lbl = elements[0].element.$context.dataset.label || '';
-            this._nearestProject = lbl.split(' ')[0].toLowerCase();
-          }
-        },
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -2659,11 +2653,28 @@ function buildChart() {
             bodyFont:  { family: 'DM Sans, sans-serif', size: 11 },
             filter: function(item) {
               if (item.parsed.y === null) return false;
-              var lbl = item.dataset.label.split(' ')[0].toLowerCase();
-              var nearest = item.chart._nearestProject || '';
-              return nearest === '' || lbl === nearest;
+              // Group: show only items whose project matches the first non-null dataset at this index
+              var proj = item.dataset.label.split(' ')[0];
+              var chart = item.chart;
+              if (!chart._tooltipProj) {
+                // Find the dataset with highest value at this index to determine active project
+                var idx = item.dataIndex;
+                var maxVal = -Infinity, maxProj = '';
+                chart.data.datasets.forEach(function(ds) {
+                  var v = ds.data[idx];
+                  if (v !== null && v !== undefined && v > maxVal) {
+                    maxVal = v;
+                    maxProj = ds.label.split(' ')[0];
+                  }
+                });
+                chart._tooltipProj = maxProj;
+              }
+              return proj === chart._tooltipProj;
             },
             callbacks: {
+              beforeTitle: function(items) {
+                if (items[0]) items[0].chart._tooltipProj = null;
+              },
               title: function(items) {
                 // Reconstruct Saturday date from index
                 var idx = items[0] ? items[0].dataIndex : 0;
@@ -2713,14 +2724,8 @@ function buildChart() {
 function _chartOptions(c, isWeekly, labels) {
   return {
     responsive: true, maintainAspectRatio: false,
-    interaction: { mode: 'nearest', intersect: true, axis: 'xy' },
+    interaction: { mode: 'index', intersect: false },
     animation: { duration: 350, easing: 'easeInOutQuart' },
-    onHover: function(event, elements) {
-      if (elements && elements.length > 0) {
-        var lbl = elements[0].element.$context.dataset.label || '';
-        this._nearestProject = lbl.split(' ')[0].toLowerCase();
-      }
-    },
     plugins: {
       legend: { display: false },
       tooltip: {
