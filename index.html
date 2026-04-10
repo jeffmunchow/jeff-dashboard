@@ -2642,12 +2642,11 @@ function buildChart() {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        interaction: { mode: 'nearest', intersect: true },
+        interaction: { mode: 'index', intersect: false },
         animation: { duration: 350, easing: 'easeInOutQuart' },
         plugins: {
           legend: { display: false },
           tooltip: {
-            position: 'nearest',
             backgroundColor: c.tooltipBg, borderColor: c.tooltipBorder, borderWidth: 1,
             titleColor: c.tooltipTitle, bodyColor: c.tooltipBody, padding: 12,
             titleFont: { family: 'DM Sans, sans-serif', size: 11, weight: '400' },
@@ -2703,7 +2702,7 @@ function buildChart() {
 function _chartOptions(c, isWeekly, labels) {
   return {
     responsive: true, maintainAspectRatio: false,
-    interaction: { mode: 'nearest', intersect: true },
+    interaction: { mode: 'index', intersect: false },
     animation: { duration: 350, easing: 'easeInOutQuart' },
     plugins: {
       legend: { display: false },
