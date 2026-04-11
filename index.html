@@ -6094,11 +6094,9 @@ function _openPastDiaryView(key, data) {
   } else {
     editor.innerHTML = '';
   }
-  // Position past view to the right of archive panel if it's open
-  var panel = document.getElementById('diary-archive-panel');
+  // Always keep past view at same position — archive panel floats over it
   var pastView = document.getElementById('diary-past-view');
-  var panelOpen = panel && panel.style.display !== 'none';
-  pastView.style.left = panelOpen ? '324px' : '44px';
+  pastView.style.left = '44px';
   pastView.style.display = 'block';
   // Keep archive panel open — don't close it
   editor.focus();
