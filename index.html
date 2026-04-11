@@ -744,7 +744,13 @@
   <div class="diary-container">
     <div class="diary-date" id="diary-past-date"></div>
     <div id="diary-past-location-wrap">
-      <span class="diary-location" id="diary-past-location"></span>
+      <span class="diary-location" id="diary-past-location-display" onclick="editPastDiaryLocation()">
+        <span id="diary-past-location-text"></span>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="opacity:0.4;flex-shrink:0;"><path d="M1.5 8.5l5.5-5.5M5.5 1.5l3 3-5.5 5.5H.5v-3l5-5z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <input type="text" class="diary-location-input" id="diary-past-location-input"
+        onblur="savePastDiaryLocation()" onkeydown="if(event.key==='Enter'||event.key==='Escape')savePastDiaryLocation()"
+        style="display:none;">
     </div>
     <div class="diary-editor" id="diary-past-textarea" contenteditable="true" oninput="autosavePastDiary()"></div>
   </div>
@@ -5865,6 +5871,16 @@ function toggleDiaryArchive() {
   }
 }
 
+// Close archive panel when clicking outside it
+document.addEventListener('mousedown', function(e) {
+  var panel = document.getElementById('diary-archive-panel');
+  var btn   = document.getElementById('diary-archive-btn');
+  if (!panel || panel.style.display === 'none') return;
+  if (panel.contains(e.target) || btn.contains(e.target)) return;
+  panel.style.display = 'none';
+  btn.classList.remove('active');
+});
+
 function renderDiaryArchive() {
   var todayKey = diaryTodayKey();
   var q = ((document.getElementById('diary-archive-search')||{}).value||'').toLowerCase().trim();
@@ -6065,7 +6081,11 @@ function _openPastDiaryView(key, data) {
   _diaryPastKey = key;
   var d = diaryKeyToDate(key);
   document.getElementById('diary-past-date').textContent = d ? diaryFormatFullDate(d) : key;
-  document.getElementById('diary-past-location').textContent = data.location || '';
+  var loc = data.location || '';
+  document.getElementById('diary-past-location-text').textContent = loc;
+  document.getElementById('diary-past-location-input').value = loc;
+  document.getElementById('diary-past-location-display').style.display = loc ? 'inline-flex' : 'inline-flex';
+  document.getElementById('diary-past-location-input').style.display = 'none';
   var editor = document.getElementById('diary-past-textarea');
   if (data.html && data.html.trim()) {
     editor.innerHTML = data.html;
@@ -6074,13 +6094,36 @@ function _openPastDiaryView(key, data) {
   } else {
     editor.innerHTML = '';
   }
-  document.getElementById('diary-past-view').style.display = 'block';
-  // Close archive panel
+  // Position past view to the right of archive panel if it's open
   var panel = document.getElementById('diary-archive-panel');
-  if (panel) panel.style.display = 'none';
-  var btn = document.getElementById('diary-archive-btn');
-  if (btn) btn.classList.remove('active');
+  var pastView = document.getElementById('diary-past-view');
+  var panelOpen = panel && panel.style.display !== 'none';
+  pastView.style.left = panelOpen ? '324px' : '44px';
+  pastView.style.display = 'block';
+  // Keep archive panel open — don't close it
   editor.focus();
+}
+
+function editPastDiaryLocation() {
+  document.getElementById('diary-past-location-display').style.display = 'none';
+  var input = document.getElementById('diary-past-location-input');
+  input.style.display = 'inline-block';
+  input.focus();
+  input.select();
+}
+function savePastDiaryLocation() {
+  var val = document.getElementById('diary-past-location-input').value.trim();
+  document.getElementById('diary-past-location-text').textContent = val;
+  document.getElementById('diary-past-location-display').style.display = 'inline-flex';
+  document.getElementById('diary-past-location-input').style.display = 'none';
+  // Save immediately
+  if (!_diaryPastKey) return;
+  var existing = null;
+  try { existing = JSON.parse(localStorage.getItem(_diaryPastKey)); } catch(e) {}
+  if (!existing) return;
+  existing.location = val;
+  localStorage.setItem(_diaryPastKey, JSON.stringify(existing));
+  dbMetricSave(_diaryPastKey, JSON.stringify(existing));
 }
 
 function autosavePastDiary() {
@@ -6094,7 +6137,7 @@ function autosavePastDiary() {
     if (!text.trim()) return;
     var existing = null;
     try { existing = JSON.parse(localStorage.getItem(_diaryPastKey)); } catch(e) {}
-    var location = (existing && existing.location) || '';
+    var location = document.getElementById('diary-past-location-text').textContent || (existing && existing.location) || '';
     var data = { text: text, html: html, location: location, savedAt: new Date().toISOString() };
     localStorage.setItem(_diaryPastKey, JSON.stringify(data));
     dbMetricSave(_diaryPastKey, JSON.stringify(data));
