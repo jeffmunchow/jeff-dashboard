@@ -2614,14 +2614,14 @@ function buildChart() {
       data: {
         labels: weeklyLabels,
         datasets: [
-          { label: 'Münchow faturamento',   data: mRaw.fat, borderColor: c.amber,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, tension: 0.45, fill: false },
-          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, tension: 0.45, fill: false },
-          { label: 'Soup faturamento',      data: sRaw.fat, borderColor: c.teal,    borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, tension: 0.45, fill: false },
-          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,    borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, tension: 0.45, fill: false },
-          { label: 'Re.leio faturamento',   data: rRaw.fat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, tension: 0.45, fill: false },
-          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, tension: 0.45, fill: false },
-          { label: 'Pessoal faturamento',   data: pRaw.fat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, tension: 0.45, fill: false },
-          { label: 'Pessoal custos', data: pRaw.luc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, tension: 0.45, fill: false }
+          { label: 'Münchow faturamento',   data: mRaw.fat, borderColor: c.amber,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Soup faturamento',      data: sRaw.fat, borderColor: c.teal,    borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,    borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Re.leio faturamento',   data: rRaw.fat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Pessoal faturamento',   data: pRaw.fat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Pessoal custos', data: pRaw.luc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, tension: 0.45, cubicInterpolationMode: 'monotone', fill: false }
         ]
       },
       options: _chartOptions(c, true, weeklyLabels)
