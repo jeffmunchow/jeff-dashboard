@@ -2691,6 +2691,9 @@ function buildChart() {
                 d = new Date(d.getTime() + idx * 7 * 86400000);
                 return 'Semana de ' + _pad(d.getDate()) + '/' + _pad(d.getMonth()+1);
               },
+              labelColor: function(ctx) {
+                return { borderColor: ctx.dataset.borderColor, backgroundColor: ctx.dataset.borderColor, borderWidth: 0, borderRadius: 6 };
+              },
               label: function(ctx) {
                 if (ctx.parsed.y === null) return null;
                 var v = ctx.parsed.y;
@@ -2769,6 +2772,9 @@ function _chartOptions(c, isWeekly, labels) {
         },
         callbacks: {
           title: function(items) { return 'Semana ' + (items[0].dataIndex + 1); },
+          labelColor: function(ctx) {
+            return { borderColor: ctx.dataset.borderColor, backgroundColor: ctx.dataset.borderColor, borderWidth: 0, borderRadius: 6 };
+          },
           label: function(ctx) {
             var v = ctx.parsed.y;
             return ' ' + ctx.dataset.label + ':  ' + (v < 0 ? '-R$ ' : 'R$ ') + Math.abs(Math.round(v)).toLocaleString('pt-BR');
