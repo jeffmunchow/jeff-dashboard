@@ -746,7 +746,6 @@
     <div id="diary-past-location-wrap">
       <span class="diary-location" id="diary-past-location-display" onclick="editPastDiaryLocation()">
         <span id="diary-past-location-text"></span>
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="opacity:0.4;flex-shrink:0;"><path d="M1.5 8.5l5.5-5.5M5.5 1.5l3 3-5.5 5.5H.5v-3l5-5z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
       <input type="text" class="diary-location-input" id="diary-past-location-input"
         onblur="savePastDiaryLocation()" onkeydown="if(event.key==='Enter'||event.key==='Escape')savePastDiaryLocation()"
@@ -2615,14 +2614,14 @@ function buildChart() {
       data: {
         labels: weeklyLabels,
         datasets: [
-          { label: 'Münchow faturamento',   data: mRaw.fat, borderColor: c.amber,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.45, fill: false },
-          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.45, fill: false },
-          { label: 'Soup faturamento',      data: sRaw.fat, borderColor: c.teal,    borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.45, fill: false },
-          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,    borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.45, fill: false },
-          { label: 'Re.leio faturamento',   data: rRaw.fat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.45, fill: false },
-          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.45, fill: false },
-          { label: 'Pessoal faturamento',   data: pRaw.fat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.45, fill: false },
-          { label: 'Pessoal custos', data: pRaw.luc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.45, fill: false }
+          { label: 'Münchow faturamento',   data: mRaw.fat, borderColor: c.amber,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
+          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
+          { label: 'Soup faturamento',      data: sRaw.fat, borderColor: c.teal,    borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
+          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,    borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
+          { label: 'Re.leio faturamento',   data: rRaw.fat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
+          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
+          { label: 'Pessoal faturamento',   data: pRaw.fat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
+          { label: 'Pessoal custos', data: pRaw.luc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false }
         ]
       },
       options: _chartOptions(c, true, weeklyLabels)
@@ -2636,14 +2635,14 @@ function buildChart() {
       data: {
         labels: cd.labels,
         datasets: [
-          { label: 'Münchow faturamento',  data: cd.mFat, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Münchow custos', data: cd.mLuc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Soup faturamento',      data: cd.sFat, borderColor: c.teal,    borderWidth: 1.5, borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Soup custos',    data: cd.sLuc, borderColor: c.teal,    borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Re.leio faturamento',   data: cd.rFat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Re.leio custos', data: cd.rLuc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Pessoal faturamento',   data: cd.pFat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Pessoal custos', data: cd.pLuc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false }
+          { label: 'Münchow faturamento',  data: cd.mFat, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Münchow custos', data: cd.mLuc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Soup faturamento',      data: cd.sFat, borderColor: c.teal,    borderWidth: 1.5, borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Soup custos',    data: cd.sLuc, borderColor: c.teal,    borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Re.leio faturamento',   data: cd.rFat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Re.leio custos', data: cd.rLuc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Pessoal faturamento',   data: cd.pFat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Pessoal custos', data: cd.pLuc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false }
         ]
       },
       options: {
@@ -5787,6 +5786,14 @@ _updateMFaturamento();
 // Força rebuild adicional para garantir dados pessoais do localStorage
 setTimeout(function() { buildChart(); }, 200);
 
+// Auto-renovação: cria lançamentos para datas vencidas em todos os projetos
+(function() {
+  _autoRenovar(getFinEntries(), saveFinEntries);
+  _autoRenovar(getSoupFin(),    saveSoupFinData);
+  _autoRenovar(getReleioFin(),  saveReleioFin);
+  _autoRenovar(getPessoalFin(), savePessoalFinData);
+})();
+
 // Sincroniza com Supabase em background depois que o app já está visível
 setTimeout(function() {
   loadFromSupabase().then(function() {
@@ -8252,13 +8259,13 @@ var _recorrMap = {
 };
 
 function toggleRecorrFields(prefix) {
-  // Handles both prefixed IDs (ffF-recorr, sff-recorr) and re.leio special case
   var selectId = prefix === 'rlfinf' ? 'rlfinff-recorr' : prefix + 'f-recorr';
   var rowId    = prefix === 'rlfinf' ? 'rlfinidf-renovacao-row' : prefix + 'f-renovacao-row';
   var sel = document.getElementById(selectId);
   var row = document.getElementById(rowId);
   if (!sel || !row) return;
-  row.style.display = (sel.value === 'mensal' || sel.value === 'anual') ? '' : 'none';
+  // Hide renovacao field — date is set automatically
+  row.style.display = 'none';
 }
 
 function _getRecorrVal(prefix) {
@@ -8266,8 +8273,21 @@ function _getRecorrVal(prefix) {
   var renovId  = prefix === 'rlfinf' ? 'rlfinf-renovacao' : prefix + 'f-renovacao';
   var sel = document.getElementById(selectId);
   var recorr = sel ? sel.value : 'unico';
-  var renov  = (recorr !== 'unico') ? getDateValue(renovId) : '';
-  return { recorr: recorr, renovacao: renov };
+  // Auto-calculate renovacao from the entry's data field
+  var renovacao = '';
+  if (recorr !== 'unico') {
+    var dataId = prefix === 'rlfinf' ? 'rlfinf-data' : prefix + 'f-data';
+    // Try to get from existing renovacao field first (editing existing entry)
+    var existingRenov = getDateValue(renovId);
+    if (existingRenov) {
+      renovacao = existingRenov;
+    } else {
+      // Calculate from entry date
+      var entryDate = getDateValue(dataId) || _todayKey();
+      renovacao = _calcProximaRenovacao(entryDate, recorr);
+    }
+  }
+  return { recorr: recorr, renovacao: renovacao };
 }
 
 function _setRecorrVal(prefix, recorr, renovacao) {
@@ -8318,19 +8338,44 @@ function _renderProximasCobrancas(entries, confirmFn) {
   return html;
 }
 
-// ── Confirmar renovação ───────────────────────────────────────────
+// ── Auto-renovação: cria lançamentos para todas as datas vencidas ──
+function _autoRenovar(entries, saveFn) {
+  var today = _todayKey();
+  var changed = false;
+  var toAdd = [];
+  entries.forEach(function(e) {
+    if (!e.renovacao || e.recorr === 'unico' || !e.recorr) return;
+    // Keep advancing while renovacao <= today
+    while (e.renovacao && e.renovacao <= today) {
+      // Create new entry for this due date
+      toAdd.push(Object.assign({}, e, {
+        id: uid(),
+        data: e.renovacao,
+        renovacao: _calcProximaRenovacao(e.renovacao, e.recorr),
+        previsto: false
+      }));
+      // Advance the original's renovacao
+      e.renovacao = _calcProximaRenovacao(e.renovacao, e.recorr);
+      changed = true;
+    }
+  });
+  if (changed || toAdd.length) {
+    toAdd.forEach(function(n){ entries.push(n); });
+    saveFn(entries);
+  }
+}
+
+// ── Confirmar renovação (mantido para compatibilidade) ────────────
 function _confirmarRenovacao(entries, id, saveFn, renderFn) {
   var list = entries;
   var e = list.find(function(x){ return x.id === id; });
   if (!e) return;
-  // Cria novo lançamento com data de hoje
   var novo = Object.assign({}, e, {
     id: uid(),
-    data: _todayKey(),
+    data: e.renovacao,
     renovacao: _calcProximaRenovacao(e.renovacao, e.recorr),
-    confirmado: true
+    previsto: false
   });
-  // Atualiza a próxima renovação no original
   e.renovacao = novo.renovacao;
   list.push(novo);
   saveFn(list);
