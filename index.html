@@ -2504,12 +2504,12 @@ function buildCumulWeekly2026() {
       cur = new Date(cur.getTime() + msDay);
     }
 
-    mFat.push(weekEnd >= mStart ? mSumF : 0);
-    mLuc.push(weekEnd >= mStart ? mSumL : 0);
-    sFat.push(weekEnd >= sStart ? sSumF : 0);
-    sLuc.push(weekEnd >= sStart ? sSumL : 0);
-    rFat.push(weekEnd >= rStart ? rSumF : 0);
-    rLuc.push(weekEnd >= rStart ? rSumL : 0);
+    mFat.push(weekEnd >= mStart ? mSumF : null);
+    mLuc.push(weekEnd >= mStart ? mSumL : null);
+    sFat.push(weekEnd >= sStart ? sSumF : null);
+    sLuc.push(weekEnd >= sStart ? sSumL : null);
+    rFat.push(weekEnd >= rStart ? rSumF : null);
+    rLuc.push(weekEnd >= rStart ? rSumL : null);
     pFat.push(pSumF);
     pLuc.push(pSumL);
 
