@@ -2614,14 +2614,14 @@ function buildChart() {
       data: {
         labels: weeklyLabels,
         datasets: [
-          { label: 'Münchow faturamento',   data: mRaw.fat, borderColor: c.amber,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
-          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
-          { label: 'Soup faturamento',      data: sRaw.fat, borderColor: c.teal,    borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
-          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,    borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
-          { label: 'Re.leio faturamento',   data: rRaw.fat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
-          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
-          { label: 'Pessoal faturamento',   data: pRaw.fat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false },
-          { label: 'Pessoal custos', data: pRaw.luc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, fill: false }
+          { label: 'Münchow faturamento',   data: mRaw.fat, borderColor: c.amber,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Soup faturamento',      data: sRaw.fat, borderColor: c.teal,    borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,    borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Re.leio faturamento',   data: rRaw.fat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Pessoal faturamento',   data: pRaw.fat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false },
+          { label: 'Pessoal custos', data: pRaw.luc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false }
         ]
       },
       options: _chartOptions(c, true, weeklyLabels)
@@ -2635,14 +2635,14 @@ function buildChart() {
       data: {
         labels: cd.labels,
         datasets: [
-          { label: 'Münchow faturamento',  data: cd.mFat, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Münchow custos', data: cd.mLuc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Soup faturamento',      data: cd.sFat, borderColor: c.teal,    borderWidth: 1.5, borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Soup custos',    data: cd.sLuc, borderColor: c.teal,    borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Re.leio faturamento',   data: cd.rFat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Re.leio custos', data: cd.rLuc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Pessoal faturamento',   data: cd.pFat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
-          { label: 'Pessoal custos', data: cd.pLuc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.6, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false }
+          { label: 'Münchow faturamento',  data: cd.mFat, borderColor: c.amber, borderWidth: 1, borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Münchow custos', data: cd.mLuc, borderColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Soup faturamento',      data: cd.sFat, borderColor: c.teal,    borderWidth: 1.5, borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Soup custos',    data: cd.sLuc, borderColor: c.teal,    borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Re.leio faturamento',   data: cd.rFat, borderColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Re.leio custos', data: cd.rLuc, borderColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Pessoal faturamento',   data: cd.pFat, borderColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Pessoal custos', data: cd.pLuc, borderColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 4, pointStyle: 'circle', tension: 0.4, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false }
         ]
       },
       options: {
