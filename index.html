@@ -3779,6 +3779,33 @@ function saveClient() {
   // Save parcelas and sync confirmed ones to financeiro
   saveParcelasCliente(obj.id, _parcelasTemp);
   _syncParcelasToFin(obj.id, obj.nome);
+  // Sync wedding date to Agenda
+  if (obj.dataCasamento) {
+    var evs = getEvents();
+    var existingEv = evs.find(function(e){ return e._clienteId === obj.id && e.tipo === 'Casamento'; });
+    if (!existingEv) {
+      // Create new event
+      var newEv = {
+        id: uid(),
+        titulo: obj.nome,
+        tipo: 'Casamento',
+        data: obj.dataCasamento,
+        hora: '',
+        local: obj.local || '',
+        notas: '',
+        _clienteId: obj.id
+      };
+      evs.push(newEv);
+      saveEvents(evs);
+      _syncEventToTarefa(newEv);
+    } else if (existingEv.data !== obj.dataCasamento || existingEv.local !== obj.local) {
+      // Update existing event
+      existingEv.data  = obj.dataCasamento;
+      existingEv.local = obj.local || '';
+      existingEv.titulo = obj.nome;
+      saveEvents(evs);
+    }
+  }
   closeClientModal();
   renderClientes();
   renderResumo();
