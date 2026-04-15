@@ -5809,6 +5809,34 @@ toggleTheme = function() {
   });
   if (changed) saveEvents(evs);
 })();
+
+// Garante que todos os clientes válidos têm evento na Agenda
+(function _syncClientesToAgenda() {
+  var agendaStatuses = ['Contratado','Sessão Pré-Casamento','Religioso','Casamento'];
+  var clients = getClients();
+  var evs = getEvents();
+  var changed = false;
+  clients.forEach(function(c) {
+    if (!c.dataCasamento) return;
+    if (agendaStatuses.indexOf(c.status) === -1) return;
+    var exists = evs.find(function(e) {
+      return (e.clienteId === c.id || e._clienteId === c.id) && e.tipo === 'Casamento';
+    });
+    if (!exists) {
+      evs.push({
+        id: uid(),
+        titulo: c.nome,
+        tipo: 'Casamento',
+        data: c.dataCasamento,
+        local: c.local || '',
+        notas: '',
+        clienteId: c.id
+      });
+      changed = true;
+    }
+  });
+  if (changed) saveEvents(evs);
+})();
 init();
 buildSparklines();
 
