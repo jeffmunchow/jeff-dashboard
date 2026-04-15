@@ -4287,15 +4287,22 @@ async function loadFromSupabase() {
     ...tables.map(function(tbl) {
       return dbLoad(tbl).then(function(remoteList) {
         if (!remoteList || remoteList.length === 0) return;
-        var localKey = tbl; // key matches table name exactly
         var localList = [];
-        try { localList = JSON.parse(localStorage.getItem(localKey) || '[]'); } catch(e){}
-        // Local always wins — only use remote if local is empty
+        try { localList = JSON.parse(localStorage.getItem(tbl) || '[]'); } catch(e){}
         if (localList.length === 0) {
-          localStorage.setItem(localKey, JSON.stringify(remoteList));
+          // Local empty — use remote
+          localStorage.setItem(tbl, JSON.stringify(remoteList));
         } else {
-          // Push local to Supabase to keep it in sync
-          dbSaveList(tbl, localList).catch(function(){});
+          // Merge: local IDs win on conflict, but add any remote IDs not in local
+          var localIds = {};
+          localList.forEach(function(x){ if(x.id) localIds[x.id] = true; });
+          var toAdd = remoteList.filter(function(x){ return x.id && !localIds[x.id]; });
+          if (toAdd.length > 0) {
+            var merged = localList.concat(toAdd);
+            localStorage.setItem(tbl, JSON.stringify(merged));
+          }
+          // Always push local to Supabase to keep in sync
+          dbSaveList(tbl, JSON.parse(localStorage.getItem(tbl) || '[]')).catch(function(){});
         }
       }).catch(function(){});
     }),
