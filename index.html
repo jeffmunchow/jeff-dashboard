@@ -2393,6 +2393,7 @@ function buildMunchowChartData() {
   var msDay = 86400000;
   var today = new Date(); today.setHours(0,0,0,0);
   var currentWeek = Math.min(51, Math.ceil((today - firstSat) / msDay / 7));
+  var entries = getFinEntries ? getFinEntries() : [];
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
     if (!e.data || !e.valor || e.previsto) return;
@@ -2419,6 +2420,7 @@ function buildSoupChartData() {
   var msDay = 86400000;
   var today = new Date(); today.setHours(0,0,0,0);
   var currentWeek = Math.min(51, Math.ceil((today - firstSat) / msDay / 7));
+  var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
     if (!e.data || !e.valor) return;
     var d = new Date(e.data + 'T00:00:00');
@@ -2545,12 +2547,13 @@ var sRaw = { fat: new Array(52).fill(0), luc: new Array(52).fill(0) };
 function buildReleioChartData() {
   var fat = [], cus = [];
   var entries = getReleioFin ? getReleioFin() : [];
-  var weeklyFat = {}, weeklyCus = {};
   var firstSat = new Date('2026-01-03T00:00:00');
   var yearStart = new Date('2026-01-01T00:00:00');
   var msDay = 86400000;
   var today = new Date(); today.setHours(0,0,0,0);
   var currentWeek = Math.min(51, Math.ceil((today - firstSat) / msDay / 7));
+  var weeklyFat = {}, weeklyCus = {};
+  entries.forEach(function(e) {
     if (!e.data || !e.valor) return;
     var d = new Date(e.data + 'T00:00:00');
     if (d < yearStart) return;
@@ -2616,6 +2619,7 @@ function buildPessoalChartData() {
   var msDay = 86400000;
   var today = new Date(); today.setHours(0,0,0,0);
   var currentWeek = Math.min(51, Math.ceil((today - firstSat) / msDay / 7));
+  var entries = getPessoalFin ? getPessoalFin() : [];
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
     if (!e.data || !e.valor || e.previsto) return;
