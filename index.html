@@ -8303,14 +8303,10 @@ function _resetRecorr(prefix) { _setRecorrVal(prefix, 'unico', ''); }
 
 // ── Próximas cobranças ────────────────────────────────────────────
 function _getProximasCobrancas(entries, diasAdiante) {
-  diasAdiante = diasAdiante || 30;
-  var today = new Date(); today.setHours(0,0,0,0);
-  var limite = new Date(today.getTime() + diasAdiante * 86400000);
   var todayKey = _todayKey();
   return (entries || []).filter(function(e) {
     if (!e.renovacao || e.recorr === 'unico' || !e.recorr) return false;
-    var d = new Date(e.renovacao + 'T00:00:00');
-    return d >= today && d <= limite;
+    return e.renovacao === todayKey;
   }).sort(function(a,b){ return a.renovacao.localeCompare(b.renovacao); });
 }
 
@@ -8343,14 +8339,12 @@ function _autoRenovar(entries, saveFn) {
     if (!e.renovacao || e.recorr === 'unico' || !e.recorr) return;
     // Keep advancing while renovacao <= today
     while (e.renovacao && e.renovacao <= today) {
-      // Create new entry for this due date
       toAdd.push(Object.assign({}, e, {
         id: uid(),
         data: e.renovacao,
         renovacao: _calcProximaRenovacao(e.renovacao, e.recorr),
         previsto: false
       }));
-      // Advance the original's renovacao
       e.renovacao = _calcProximaRenovacao(e.renovacao, e.recorr);
       changed = true;
     }
@@ -8361,19 +8355,19 @@ function _autoRenovar(entries, saveFn) {
   }
 }
 
-// ── Confirmar renovação (mantido para compatibilidade) ────────────
+// ── Confirmar renovação ────────────────────────────────────────────
+// Ao confirmar, marca o lançamento atual como pago (previsto:false)
+// e cria o próximo como previsto:true (só vira real quando chegar a data)
 function _confirmarRenovacao(entries, id, saveFn, renderFn) {
   var list = entries;
   var e = list.find(function(x){ return x.id === id; });
   if (!e) return;
-  var novo = Object.assign({}, e, {
-    id: uid(),
-    data: e.renovacao,
-    renovacao: _calcProximaRenovacao(e.renovacao, e.recorr),
-    previsto: false
-  });
-  e.renovacao = novo.renovacao;
-  list.push(novo);
+  // Mark current as confirmed (not previsto)
+  e.previsto = false;
+  e.data = e.renovacao; // set date to when it was due
+  // Advance renovacao on the original entry
+  var nextDate = _calcProximaRenovacao(e.renovacao, e.recorr);
+  e.renovacao = nextDate;
   saveFn(list);
   renderFn();
 }
