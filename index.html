@@ -2562,11 +2562,19 @@ function buildReleioChartData() {
 }
 var rRaw = { fat: new Array(52).fill(0), luc: new Array(52).fill(0) };
 
-var weeklyLabels = [];
-for (var w = 1; w <= 52; w++) {
-  var mIdx = Math.min(Math.floor((w-1) / 4.33), 11);
-  weeklyLabels.push((w === 1 || Math.min(Math.floor((w-2)/4.33),11) !== mIdx) ? MON_S[mIdx] : '');
-}
+// weeklyLabels uses the same first-Saturday-of-month logic as buildCumulWeekly2026
+// so labels are at identical positions in both chart modes
+var weeklyLabels = (function() {
+  var labels = [];
+  var msDay = 86400000;
+  var d = new Date('2026-01-01T00:00:00');
+  while (d.getDay() !== 6) d = new Date(d.getTime() + msDay);
+  while (d.getFullYear() === 2026) {
+    labels.push(d.getDate() <= 7 ? MON_S[d.getMonth()] : '');
+    d = new Date(d.getTime() + 7 * msDay);
+  }
+  return labels;
+})();
 
 var cumulLabels = MON_S.slice();
 
