@@ -5788,6 +5788,20 @@ toggleTheme = function() {
     if (added) saveFinEntries(cleaned);
   });
 })();
+
+// Migra eventos com _clienteId → clienteId
+(function() {
+  var evs = getEvents();
+  var changed = false;
+  evs.forEach(function(e) {
+    if (e._clienteId && !e.clienteId) {
+      e.clienteId = e._clienteId;
+      delete e._clienteId;
+      changed = true;
+    }
+  });
+  if (changed) saveEvents(evs);
+})();
 init();
 buildSparklines();
 
