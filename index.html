@@ -4293,15 +4293,20 @@ async function loadFromSupabase() {
           // Local empty — use remote
           localStorage.setItem(tbl, JSON.stringify(remoteList));
         } else {
-          // Merge: local IDs win on conflict, but add any remote IDs not in local
+          // Merge: add remote IDs not in local, skip parcela/recorrente entries
           var localIds = {};
           localList.forEach(function(x){ if(x.id) localIds[x.id] = true; });
-          var toAdd = remoteList.filter(function(x){ return x.id && !localIds[x.id]; });
+          var toAdd = remoteList.filter(function(x){
+            if (!x.id || localIds[x.id]) return false;
+            // Skip parcela entries — they are regenerated locally on init
+            if (x._parcelaId) return false;
+            return true;
+          });
           if (toAdd.length > 0) {
             var merged = localList.concat(toAdd);
             localStorage.setItem(tbl, JSON.stringify(merged));
           }
-          // Always push local to Supabase to keep in sync
+          // Push local to Supabase
           dbSaveList(tbl, JSON.parse(localStorage.getItem(tbl) || '[]')).catch(function(){});
         }
       }).catch(function(){});
