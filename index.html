@@ -573,7 +573,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.8</div>
+    <div class="sidebar-version">v.1.7</div>
   </div>
 </div>
 
@@ -716,7 +716,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.8</div>
+      <div class="sidebar-version">v.1.7</div>
   </div>
 </div>
 
@@ -792,7 +792,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.8</div>
+      <div class="sidebar-version">v.1.7</div>
   </div>
 </div>
 
@@ -870,7 +870,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.8</div>
+      <div class="sidebar-version">v.1.7</div>
     </div>
   </div>
 
@@ -941,7 +941,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.8</div>
+      <div class="sidebar-version">v.1.7</div>
     </div>
   </div>
   <div class="header">
@@ -1153,7 +1153,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.8</div>
+    <div class="sidebar-version">v.1.7</div>
   </div>
 </div>
 
@@ -1371,7 +1371,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.8</div>
+    <div class="sidebar-version">v.1.7</div>
   </div>
 </div>
   <div class="header">
@@ -1592,7 +1592,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.8</div>
+    <div class="sidebar-version">v.1.7</div>
   </div>
 </div>
   <div class="header">
@@ -2525,14 +2525,14 @@ function buildCumulWeekly2026() {
       cur = new Date(cur.getTime() + msDay);
     }
 
-    mFat.push(weekEnd >= mStart ? mSumF : null);
-    mLuc.push(weekEnd >= mStart ? mSumL : null);
-    sFat.push(weekEnd >= sStart ? sSumF : null);
-    sLuc.push(weekEnd >= sStart ? sSumL : null);
-    rFat.push(weekEnd >= rStart ? rSumF : null);
-    rLuc.push(weekEnd >= rStart ? rSumL : null);
-    pFat.push(pSumF);
-    pLuc.push(pSumL);
+    mFat.push(weekEnd >= mStart && mSumF > 0 ? mSumF : null);
+    mLuc.push(weekEnd >= mStart && (mSumF > 0 || mSumL > 0) ? mSumL : null);
+    sFat.push(weekEnd >= sStart && sSumF > 0 ? sSumF : null);
+    sLuc.push(weekEnd >= sStart && (sSumF > 0 || sSumL > 0) ? sSumL : null);
+    rFat.push(weekEnd >= rStart && rSumF > 0 ? rSumF : null);
+    rLuc.push(weekEnd >= rStart && (rSumF > 0 || rSumL > 0) ? rSumL : null);
+    pFat.push(pSumF > 0 ? pSumF : null);
+    pLuc.push((pSumF > 0 || pSumL > 0) ? pSumL : null);
 
     prevSat = sat;
   });
@@ -3893,14 +3893,15 @@ function renderAgenda() {
   cont.innerHTML = '<div class="agenda-list">' + evs.map(function(e){
     var past = new Date(e.data) < now;
     var col = TIPO_COLOR[e.tipo] || '#B0ABA6';
-    var eid = e.id || '';
-    return '<div class="agenda-item'+(past?' past':'')+' cursor-pointer" onclick="openEventModal(\''+eid+'\')" style="cursor:pointer;">'+
+    var cid = e.clienteId || '';
+    return '<div class="agenda-item'+(past?' past':'')+'">'+
       '<div class="agenda-date">'+fmtDate(e.data)+'</div>'+
       '<div class="agenda-dot" style="background:'+col+'"></div>'+
       '<div class="agenda-info">'+
         '<div class="agenda-titulo">'+e.titulo+'</div>'+
         '<div class="agenda-sub">'+(e.clienteId?clientName(e.clienteId):'')+(e.local?(e.clienteId?' — ':'')+e.local:'')+'</div>'+
       '</div>'+
+      (cid ? '<button class="row-action" onclick="openClientModal(\''+cid+'\')" >Editar</button>' : '')+
     '</div>';
   }).join('') + '</div>';
 }
