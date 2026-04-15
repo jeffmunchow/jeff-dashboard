@@ -3779,8 +3779,9 @@ function saveClient() {
   // Save parcelas and sync confirmed ones to financeiro
   saveParcelasCliente(obj.id, _parcelasTemp);
   _syncParcelasToFin(obj.id, obj.nome);
-  // Sync wedding date to Agenda
-  if (obj.dataCasamento) {
+  // Sync wedding date to Agenda for active clients (not Prospect, not post-production)
+  var agendaStatuses = ['Contratado','Sessão Pré-Casamento','Religioso','Casamento'];
+  if (obj.dataCasamento && agendaStatuses.indexOf(obj.status) !== -1) {
     var evs = getEvents();
     var existingEv = evs.find(function(e){ return e._clienteId === obj.id && e.tipo === 'Casamento'; });
     if (!existingEv) {
