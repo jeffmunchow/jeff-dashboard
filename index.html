@@ -3783,18 +3783,16 @@ function saveClient() {
   var agendaStatuses = ['Contratado','Sessão Pré-Casamento','Religioso','Casamento'];
   if (obj.dataCasamento && agendaStatuses.indexOf(obj.status) !== -1) {
     var evs = getEvents();
-    var existingEv = evs.find(function(e){ return e._clienteId === obj.id && e.tipo === 'Casamento'; });
+    var existingEv = evs.find(function(e){ return (e.clienteId === obj.id || e._clienteId === obj.id) && e.tipo === 'Casamento'; });
     if (!existingEv) {
-      // Create new event
       var newEv = {
         id: uid(),
         titulo: obj.nome,
         tipo: 'Casamento',
         data: obj.dataCasamento,
-        hora: '',
         local: obj.local || '',
         notas: '',
-        _clienteId: obj.id
+        clienteId: obj.id
       };
       evs.push(newEv);
       saveEvents(evs);
