@@ -573,7 +573,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.7</div>
+    <div class="sidebar-version">v.1.8</div>
   </div>
 </div>
 
@@ -716,7 +716,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.7</div>
+      <div class="sidebar-version">v.1.8</div>
   </div>
 </div>
 
@@ -792,7 +792,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.7</div>
+      <div class="sidebar-version">v.1.8</div>
   </div>
 </div>
 
@@ -870,7 +870,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.7</div>
+      <div class="sidebar-version">v.1.8</div>
     </div>
   </div>
 
@@ -941,7 +941,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.7</div>
+      <div class="sidebar-version">v.1.8</div>
     </div>
   </div>
   <div class="header">
@@ -1153,7 +1153,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.7</div>
+    <div class="sidebar-version">v.1.8</div>
   </div>
 </div>
 
@@ -1371,7 +1371,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.7</div>
+    <div class="sidebar-version">v.1.8</div>
   </div>
 </div>
   <div class="header">
@@ -1592,7 +1592,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.7</div>
+    <div class="sidebar-version">v.1.8</div>
   </div>
 </div>
   <div class="header">
@@ -2387,17 +2387,17 @@ var pRaw = { fat: new Array(52).fill(0), luc: new Array(52).fill(0) };
 
 function buildMunchowChartData() {
   var fat = [], cus = [];
-  var startDate = new Date('2026-01-05T00:00:00');
-  var endDate   = new Date('2026-12-31T23:59:59');
+  var firstSat = new Date('2026-01-03T00:00:00');
+  var msDay = 86400000;
   var today = new Date(); today.setHours(0,0,0,0);
-  var currentWeek = Math.min(51, Math.floor((today - startDate) / 86400000 / 7));
+  var currentWeek = Math.min(51, Math.ceil((today - firstSat) / msDay / 7));
   var entries = getFinEntries ? getFinEntries() : [];
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
     if (!e.data || !e.valor || e.previsto) return;
     var d = new Date(e.data + 'T00:00:00');
-    if (d < startDate || d > endDate) return;
-    var week = Math.min(51, Math.floor((d - startDate) / 86400000 / 7));
+    var delta = (d - firstSat) / msDay;
+    var week = Math.min(51, delta <= 0 ? 0 : Math.ceil(delta / 7));
     if (e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
     if (e.tipo === 'saida')   weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
@@ -2413,20 +2413,22 @@ var mRaw = { fat: new Array(52).fill(0), luc: new Array(52).fill(0) };
 function buildSoupChartData() {
   var fat = [], cus = [];
   var entries = getSoupFin ? getSoupFin() : [];
-  var startDate = new Date('2026-01-05T00:00:00');
+  var firstSat = new Date('2026-01-03T00:00:00');
+  var msDay = 86400000;
   var today = new Date(); today.setHours(0,0,0,0);
-  var currentWeek = Math.min(51, Math.floor((today - startDate) / 86400000 / 7));
+  var currentWeek = Math.min(51, Math.ceil((today - firstSat) / msDay / 7));
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
     if (!e.data || !e.valor) return;
     var d = new Date(e.data + 'T00:00:00');
-    var week = Math.max(0, Math.min(51, Math.floor((d - startDate) / 86400000 / 7)));
+    var delta = (d - firstSat) / msDay;
+    var week = Math.min(51, Math.max(0, delta <= 0 ? 0 : Math.ceil(delta / 7)));
     if (e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
     if (e.tipo === 'saida')   weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
   for (var i = 0; i < 52; i++) {
     if (i > currentWeek) { fat.push(null); cus.push(null); }
-    else { fat.push(i < 4 ? 0 : (weeklyFat[i] || 0)); cus.push(i < 4 ? 0 : (weeklyCus[i] || 0)); }
+    else { fat.push(i < 5 ? 0 : (weeklyFat[i] || 0)); cus.push(i < 5 ? 0 : (weeklyCus[i] || 0)); }
   }
   return { fat: fat, luc: cus };
 }
@@ -2552,11 +2554,23 @@ function buildReleioChartData() {
     if (!e.tipo || e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
     if (e.tipo === 'saida') weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
+  var firstSat = new Date('2026-01-03T00:00:00');
+  var msDay = 86400000;
   var today = new Date(); today.setHours(0,0,0,0);
-  var currentWeek = Math.min(51, Math.floor((today - startDate) / 86400000 / 7));
+  var currentWeek = Math.min(51, Math.ceil((today - firstSat) / msDay / 7));
+  // re-bucket entries with unified formula
+  weeklyFat = {}; weeklyCus = {};
+  (getReleioFin ? getReleioFin() : []).forEach(function(e) {
+    if (!e.data || !e.valor) return;
+    var d = new Date(e.data + 'T00:00:00');
+    var delta = (d - firstSat) / msDay;
+    var week = Math.min(51, delta <= 0 ? 0 : Math.ceil(delta / 7));
+    if (!e.tipo || e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
+    if (e.tipo === 'saida') weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
+  });
   for (var i = 0; i < 52; i++) {
     if (i > currentWeek) { fat.push(null); cus.push(null); }
-    else { fat.push(i < 11 ? 0 : (weeklyFat[i] || 0)); cus.push(i < 11 ? 0 : (weeklyCus[i] || 0)); }
+    else { fat.push(i < 12 ? 0 : (weeklyFat[i] || 0)); cus.push(i < 12 ? 0 : (weeklyCus[i] || 0)); }
   }
   return { fat: fat, luc: cus };
 }
@@ -2607,17 +2621,17 @@ function getChartColors() {
 
 function buildPessoalChartData() {
   var fat = [], cus = [];
-  var startDate = new Date('2026-01-05T00:00:00');
-  var endDate   = new Date('2026-12-31T23:59:59');
+  var firstSat = new Date('2026-01-03T00:00:00');
+  var msDay = 86400000;
   var today = new Date(); today.setHours(0,0,0,0);
-  var currentWeek = Math.min(51, Math.floor((today - startDate) / 86400000 / 7));
+  var currentWeek = Math.min(51, Math.ceil((today - firstSat) / msDay / 7));
   var entries = getPessoalFin ? getPessoalFin() : [];
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
     if (!e.data || !e.valor || e.previsto) return;
     var d = new Date(e.data + 'T00:00:00');
-    if (d < startDate || d > endDate) return;
-    var week = Math.min(51, Math.floor((d - startDate) / 86400000 / 7));
+    var delta = (d - firstSat) / msDay;
+    var week = Math.min(51, delta <= 0 ? 0 : Math.ceil(delta / 7));
     if (e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
     if (e.tipo === 'saida')   weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
@@ -3817,9 +3831,10 @@ function saveClient() {
     var evs = getEvents();
     var existingEv = evs.find(function(e){ return (e.clienteId === obj.id || e._clienteId === obj.id) && e.tipo === 'Casamento'; });
     if (!existingEv) {
+      var evTitulo = obj.nome + (obj.local ? ' — ' + obj.local : '');
       var newEv = {
         id: uid(),
-        titulo: obj.nome,
+        titulo: evTitulo,
         tipo: 'Casamento',
         data: obj.dataCasamento,
         local: obj.local || '',
@@ -3829,12 +3844,13 @@ function saveClient() {
       evs.push(newEv);
       saveEvents(evs);
       _syncEventToTarefa(newEv);
-    } else if (existingEv.data !== obj.dataCasamento || existingEv.local !== obj.local) {
+    } else if (existingEv.data !== obj.dataCasamento || existingEv.local !== obj.local || existingEv.titulo !== (obj.nome + (obj.local ? ' — ' + obj.local : ''))) {
       // Update existing event
       existingEv.data  = obj.dataCasamento;
       existingEv.local = obj.local || '';
-      existingEv.titulo = obj.nome;
+      existingEv.titulo = obj.nome + (obj.local ? ' — ' + obj.local : '');
       saveEvents(evs);
+      _syncEventToTarefa(existingEv);
     }
   }
   closeClientModal();
@@ -3877,14 +3893,14 @@ function renderAgenda() {
   cont.innerHTML = '<div class="agenda-list">' + evs.map(function(e){
     var past = new Date(e.data) < now;
     var col = TIPO_COLOR[e.tipo] || '#B0ABA6';
-    return '<div class="agenda-item'+(past?' past':'')+'">'+
+    var eid = e.id || '';
+    return '<div class="agenda-item'+(past?' past':'')+' cursor-pointer" onclick="openEventModal(\''+eid+'\')" style="cursor:pointer;">'+
       '<div class="agenda-date">'+fmtDate(e.data)+'</div>'+
       '<div class="agenda-dot" style="background:'+col+'"></div>'+
       '<div class="agenda-info">'+
         '<div class="agenda-titulo">'+e.titulo+'</div>'+
         '<div class="agenda-sub">'+(e.clienteId?clientName(e.clienteId):'')+(e.local?(e.clienteId?' — ':'')+e.local:'')+'</div>'+
       '</div>'+
-      '<button class="row-action" onclick="openEventModal(\''+e.id+'\')">Editar</button>'+
     '</div>';
   }).join('') + '</div>';
 }
@@ -3959,11 +3975,10 @@ function _syncEventToTarefa(ev) {
   // Find existing linked tarefa
   var existingIdx = list.findIndex(function(t){ return t._eventoId === ev.id; });
 
-  var clienteNome = ev.clienteId ? clientName(ev.clienteId) : '';
   var tarefaObj = {
     id:        existingIdx > -1 ? list[existingIdx].id : uid(),
     _eventoId: ev.id,
-    titulo:    ev.titulo + (clienteNome ? ' — ' + clienteNome : ''),
+    titulo:    ev.titulo,
     data:      datePart,
     hora:      hora,
     horaFim:   horaFim,
