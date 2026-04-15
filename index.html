@@ -2387,17 +2387,17 @@ var pRaw = { fat: new Array(52).fill(0), luc: new Array(52).fill(0) };
 
 function buildMunchowChartData() {
   var fat = [], cus = [];
-  var firstSat = new Date('2026-01-03T00:00:00');
+  var startDate = new Date('2026-01-05T00:00:00');
   var msDay = 86400000;
   var today = new Date(); today.setHours(0,0,0,0);
-  var currentWeek = Math.min(51, Math.ceil((today - firstSat) / msDay / 7));
+  var currentWeek = Math.min(51, Math.floor((today - startDate) / msDay / 7));
   var entries = getFinEntries ? getFinEntries() : [];
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
     if (!e.data || !e.valor || e.previsto) return;
     var d = new Date(e.data + 'T00:00:00');
-    var delta = (d - firstSat) / msDay;
-    var week = Math.min(51, delta <= 0 ? 0 : Math.ceil(delta / 7));
+    var week = Math.min(51, Math.floor((d - startDate) / msDay / 7));
+    if (week < 0) return;
     if (e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
     if (e.tipo === 'saida')   weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
@@ -2413,16 +2413,15 @@ var mRaw = { fat: new Array(52).fill(0), luc: new Array(52).fill(0) };
 function buildSoupChartData() {
   var fat = [], cus = [];
   var entries = getSoupFin ? getSoupFin() : [];
-  var firstSat = new Date('2026-01-03T00:00:00');
+  var startDate = new Date('2026-01-05T00:00:00');
   var msDay = 86400000;
   var today = new Date(); today.setHours(0,0,0,0);
-  var currentWeek = Math.min(51, Math.ceil((today - firstSat) / msDay / 7));
+  var currentWeek = Math.min(51, Math.floor((today - startDate) / msDay / 7));
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
     if (!e.data || !e.valor) return;
     var d = new Date(e.data + 'T00:00:00');
-    var delta = (d - firstSat) / msDay;
-    var week = Math.min(51, Math.max(0, delta <= 0 ? 0 : Math.ceil(delta / 7)));
+    var week = Math.max(0, Math.min(51, Math.floor((d - startDate) / msDay / 7)));
     if (e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
     if (e.tipo === 'saida')   weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
@@ -2546,25 +2545,14 @@ function buildReleioChartData() {
   var entries = getReleioFin ? getReleioFin() : [];
   var weeklyFat = {}, weeklyCus = {};
   var startDate = new Date('2026-01-05T00:00:00');
+  var msDay = 86400000;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var currentWeek = Math.min(51, Math.floor((today - startDate) / msDay / 7));
   entries.forEach(function(e) {
     if (!e.data || !e.valor) return;
     var d = new Date(e.data + 'T00:00:00');
-    var week = Math.max(0, Math.min(51, Math.floor((d - startDate) / 86400000 / 7)));
-    // re.leio fin entries don't have tipo — treat all as fat; saídas if tipo=saida
-    if (!e.tipo || e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
-    if (e.tipo === 'saida') weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
-  });
-  var firstSat = new Date('2026-01-03T00:00:00');
-  var msDay = 86400000;
-  var today = new Date(); today.setHours(0,0,0,0);
-  var currentWeek = Math.min(51, Math.ceil((today - firstSat) / msDay / 7));
-  // re-bucket entries with unified formula
-  weeklyFat = {}; weeklyCus = {};
-  (getReleioFin ? getReleioFin() : []).forEach(function(e) {
-    if (!e.data || !e.valor) return;
-    var d = new Date(e.data + 'T00:00:00');
-    var delta = (d - firstSat) / msDay;
-    var week = Math.min(51, delta <= 0 ? 0 : Math.ceil(delta / 7));
+    var week = Math.min(51, Math.floor((d - startDate) / msDay / 7));
+    if (week < 0) return;
     if (!e.tipo || e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
     if (e.tipo === 'saida') weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
@@ -2621,17 +2609,17 @@ function getChartColors() {
 
 function buildPessoalChartData() {
   var fat = [], cus = [];
-  var firstSat = new Date('2026-01-03T00:00:00');
+  var startDate = new Date('2026-01-05T00:00:00');
   var msDay = 86400000;
   var today = new Date(); today.setHours(0,0,0,0);
-  var currentWeek = Math.min(51, Math.ceil((today - firstSat) / msDay / 7));
+  var currentWeek = Math.min(51, Math.floor((today - startDate) / msDay / 7));
   var entries = getPessoalFin ? getPessoalFin() : [];
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
     if (!e.data || !e.valor || e.previsto) return;
     var d = new Date(e.data + 'T00:00:00');
-    var delta = (d - firstSat) / msDay;
-    var week = Math.min(51, delta <= 0 ? 0 : Math.ceil(delta / 7));
+    var week = Math.min(51, Math.floor((d - startDate) / msDay / 7));
+    if (week < 0) return;
     if (e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
     if (e.tipo === 'saida')   weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
