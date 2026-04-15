@@ -2390,8 +2390,7 @@ function buildMunchowChartData() {
   var startDate = new Date('2026-01-05T00:00:00');
   var endDate   = new Date('2026-12-31T23:59:59');
   var today = new Date(); today.setHours(0,0,0,0);
-  var _firstSat2026 = new Date('2026-01-03T00:00:00');
-  var currentWeek = Math.min(51, Math.ceil((today - _firstSat2026) / 86400000 / 7));
+  var currentWeek = Math.min(51, Math.floor((today - startDate) / 86400000 / 7));
   var entries = getFinEntries ? getFinEntries() : [];
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
@@ -2416,8 +2415,7 @@ function buildSoupChartData() {
   var entries = getSoupFin ? getSoupFin() : [];
   var startDate = new Date('2026-01-05T00:00:00');
   var today = new Date(); today.setHours(0,0,0,0);
-  var _firstSat2026 = new Date('2026-01-03T00:00:00');
-  var currentWeek = Math.min(51, Math.ceil((today - _firstSat2026) / 86400000 / 7));
+  var currentWeek = Math.min(51, Math.floor((today - startDate) / 86400000 / 7));
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
     if (!e.data || !e.valor) return;
@@ -2555,8 +2553,7 @@ function buildReleioChartData() {
     if (e.tipo === 'saida') weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
   var today = new Date(); today.setHours(0,0,0,0);
-  var _firstSat2026 = new Date('2026-01-03T00:00:00');
-  var currentWeek = Math.min(51, Math.ceil((today - _firstSat2026) / 86400000 / 7));
+  var currentWeek = Math.min(51, Math.floor((today - startDate) / 86400000 / 7));
   for (var i = 0; i < 52; i++) {
     if (i > currentWeek) { fat.push(null); cus.push(null); }
     else { fat.push(i < 11 ? 0 : (weeklyFat[i] || 0)); cus.push(i < 11 ? 0 : (weeklyCus[i] || 0)); }
@@ -2613,8 +2610,7 @@ function buildPessoalChartData() {
   var startDate = new Date('2026-01-05T00:00:00');
   var endDate   = new Date('2026-12-31T23:59:59');
   var today = new Date(); today.setHours(0,0,0,0);
-  var _firstSat2026 = new Date('2026-01-03T00:00:00');
-  var currentWeek = Math.min(51, Math.ceil((today - _firstSat2026) / 86400000 / 7));
+  var currentWeek = Math.min(51, Math.floor((today - startDate) / 86400000 / 7));
   var entries = getPessoalFin ? getPessoalFin() : [];
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
