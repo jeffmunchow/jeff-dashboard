@@ -331,6 +331,14 @@
   #soup-view .studio-tab.active { border-bottom-color: var(--teal); }
   #releio-view .studio-tab.active { border-bottom-color: var(--coral); }
   .studio-tab:hover:not(.active) { color: var(--text-muted); }
+  .tab-download-btn {
+    margin-left: auto; align-self: center; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 6px; border: none;
+    background: transparent; color: var(--text-hint); cursor: pointer;
+    transition: background 0.15s, color 0.15s; margin-right: 4px;
+  }
+  .tab-download-btn:hover { background: var(--surface2); color: var(--text-muted); }
   .studio-body { padding: 2rem 2.5rem; }
   @media(max-width:960px){ .studio-body { padding: 1.25rem; } .studio-tabs { padding: 0 1.25rem; } }
   .tab-panel { display: none; }
@@ -565,7 +573,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.6</div>
+    <div class="sidebar-version">v.1.7</div>
   </div>
 </div>
 
@@ -708,7 +716,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.6</div>
+      <div class="sidebar-version">v.1.7</div>
   </div>
 </div>
 
@@ -784,7 +792,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.6</div>
+      <div class="sidebar-version">v.1.7</div>
   </div>
 </div>
 
@@ -862,7 +870,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.6</div>
+      <div class="sidebar-version">v.1.7</div>
     </div>
   </div>
 
@@ -933,7 +941,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.6</div>
+      <div class="sidebar-version">v.1.7</div>
     </div>
   </div>
   <div class="header">
@@ -1145,7 +1153,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.6</div>
+    <div class="sidebar-version">v.1.7</div>
   </div>
 </div>
 
@@ -1172,6 +1180,9 @@
     <button class="studio-tab"        id="stab-pendencias" onclick="switchStudioTab('pendencias')">Pós-produção</button>
     <button class="studio-tab"        id="stab-financeiro" onclick="switchStudioTab('financeiro')">Financeiro</button>
     <button class="studio-tab"        id="stab-tarefas"    onclick="switchStudioTab('tarefas')">Tarefas</button>
+    <button class="tab-download-btn" onclick="exportProjectTxt('studio')" title="Baixar resumo do projeto">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </button>
   </div>
 
   <!-- Tab Content -->
@@ -1360,7 +1371,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.6</div>
+    <div class="sidebar-version">v.1.7</div>
   </div>
 </div>
   <div class="header">
@@ -1386,6 +1397,9 @@
     <button class="studio-tab"        id="soupstab-marketing" onclick="switchSoupTab('marketing')">Marketing</button>
     <button class="studio-tab"        id="soupstab-prospectos" onclick="switchSoupTab('prospectos')">Prospectos</button>
     <button class="studio-tab"        id="soupstab-tarefas" onclick="switchSoupTab('tarefas')">Tarefas</button>
+    <button class="tab-download-btn" onclick="exportProjectTxt('soup')" title="Baixar resumo do projeto">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </button>
   </div>
 
   <div class="studio-body">
@@ -1578,7 +1592,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.6</div>
+    <div class="sidebar-version">v.1.7</div>
   </div>
 </div>
   <div class="header">
@@ -1601,7 +1615,9 @@
     <button class="studio-tab"        id="rltab-curadoria"  onclick="switchReleioTab('curadoria')">Curadoria</button>
     <button class="studio-tab"        id="rltab-financeiro" onclick="switchReleioTab('financeiro')">Financeiro</button>
     <button class="studio-tab"        id="rltab-tarefas"    onclick="switchReleioTab('tarefas')">Tarefas</button>
-
+    <button class="tab-download-btn" onclick="exportProjectTxt('releio')" title="Baixar resumo do projeto">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </button>
   </div>
 
   <div class="studio-body">
@@ -2373,6 +2389,8 @@ function buildMunchowChartData() {
   var fat = [], cus = [];
   var startDate = new Date('2026-01-05T00:00:00');
   var endDate   = new Date('2026-12-31T23:59:59');
+  var today = new Date(); today.setHours(0,0,0,0);
+  var currentWeek = Math.min(51, Math.floor((today - startDate) / 86400000 / 7));
   var entries = getFinEntries ? getFinEntries() : [];
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
@@ -2384,8 +2402,8 @@ function buildMunchowChartData() {
     if (e.tipo === 'saida')   weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
   for (var i = 0; i < 52; i++) {
-    fat.push(weeklyFat[i] || 0);
-    cus.push(weeklyCus[i] || 0);
+    if (i > currentWeek) { fat.push(null); cus.push(null); }
+    else { fat.push(weeklyFat[i] || 0); cus.push(weeklyCus[i] || 0); }
   }
   return { fat: fat, luc: cus };
 }
@@ -2396,6 +2414,8 @@ function buildSoupChartData() {
   var fat = [], cus = [];
   var entries = getSoupFin ? getSoupFin() : [];
   var startDate = new Date('2026-01-05T00:00:00');
+  var today = new Date(); today.setHours(0,0,0,0);
+  var currentWeek = Math.min(51, Math.floor((today - startDate) / 86400000 / 7));
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
     if (!e.data || !e.valor) return;
@@ -2405,8 +2425,8 @@ function buildSoupChartData() {
     if (e.tipo === 'saida')   weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
   for (var i = 0; i < 52; i++) {
-    fat.push(i < 4 ? 0 : (weeklyFat[i] || 0));
-    cus.push(i < 4 ? 0 : (weeklyCus[i] || 0));
+    if (i > currentWeek) { fat.push(null); cus.push(null); }
+    else { fat.push(i < 4 ? 0 : (weeklyFat[i] || 0)); cus.push(i < 4 ? 0 : (weeklyCus[i] || 0)); }
   }
   return { fat: fat, luc: cus };
 }
@@ -2532,9 +2552,11 @@ function buildReleioChartData() {
     if (!e.tipo || e.tipo === 'entrada') weeklyFat[week] = (weeklyFat[week] || 0) + (parseFloat(e.valor) || 0);
     if (e.tipo === 'saida') weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
+  var today = new Date(); today.setHours(0,0,0,0);
+  var currentWeek = Math.min(51, Math.floor((today - startDate) / 86400000 / 7));
   for (var i = 0; i < 52; i++) {
-    fat.push(i < 11 ? 0 : (weeklyFat[i] || 0));
-    cus.push(i < 11 ? 0 : (weeklyCus[i] || 0));
+    if (i > currentWeek) { fat.push(null); cus.push(null); }
+    else { fat.push(i < 11 ? 0 : (weeklyFat[i] || 0)); cus.push(i < 11 ? 0 : (weeklyCus[i] || 0)); }
   }
   return { fat: fat, luc: cus };
 }
@@ -2579,6 +2601,8 @@ function buildPessoalChartData() {
   var fat = [], cus = [];
   var startDate = new Date('2026-01-05T00:00:00');
   var endDate   = new Date('2026-12-31T23:59:59');
+  var today = new Date(); today.setHours(0,0,0,0);
+  var currentWeek = Math.min(51, Math.floor((today - startDate) / 86400000 / 7));
   var entries = getPessoalFin ? getPessoalFin() : [];
   var weeklyFat = {}, weeklyCus = {};
   entries.forEach(function(e) {
@@ -2590,8 +2614,8 @@ function buildPessoalChartData() {
     if (e.tipo === 'saida')   weeklyCus[week] = (weeklyCus[week] || 0) + (parseFloat(e.valor) || 0);
   });
   for (var i = 0; i < 52; i++) {
-    fat.push(weeklyFat[i] || 0);
-    cus.push(weeklyCus[i] || 0);
+    if (i > currentWeek) { fat.push(null); cus.push(null); }
+    else { fat.push(weeklyFat[i] || 0); cus.push(weeklyCus[i] || 0); }
   }
   return { fat: fat, luc: cus };
 }
@@ -2613,14 +2637,14 @@ function buildChart() {
       data: {
         labels: weeklyLabels,
         datasets: [
-          { label: 'Münchow faturamento',   data: mRaw.fat, borderColor: c.amber,   pointBackgroundColor: c.amber,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
-          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber,   pointBackgroundColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
-          { label: 'Soup faturamento',      data: sRaw.fat, borderColor: c.teal,    pointBackgroundColor: c.teal,    borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
-          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,    pointBackgroundColor: c.teal,    borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
-          { label: 'Re.leio faturamento',   data: rRaw.fat, borderColor: c.coral,   pointBackgroundColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
-          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral,   pointBackgroundColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
-          { label: 'Pessoal faturamento',   data: pRaw.fat, borderColor: c.pessoal, pointBackgroundColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false },
-          { label: 'Pessoal custos', data: pRaw.luc, borderColor: c.pessoal, pointBackgroundColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false }
+          { label: 'Münchow faturamento',   data: mRaw.fat, borderColor: c.amber,   pointBackgroundColor: c.amber,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Münchow custos', data: mRaw.luc, borderColor: c.amber,   pointBackgroundColor: c.amber,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Soup faturamento',      data: sRaw.fat, borderColor: c.teal,    pointBackgroundColor: c.teal,    borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Soup custos',    data: sRaw.luc, borderColor: c.teal,    pointBackgroundColor: c.teal,    borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Re.leio faturamento',   data: rRaw.fat, borderColor: c.coral,   pointBackgroundColor: c.coral,   borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Re.leio custos', data: rRaw.luc, borderColor: c.coral,   pointBackgroundColor: c.coral,   borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Pessoal faturamento',   data: pRaw.fat, borderColor: c.pessoal, pointBackgroundColor: c.pessoal, borderWidth: 1,   borderDash: [],    pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false },
+          { label: 'Pessoal custos', data: pRaw.luc, borderColor: c.pessoal, pointBackgroundColor: c.pessoal, borderWidth: 1,   borderDash: [4,4], pointRadius: 0, pointHoverRadius: 0, pointStyle: 'circle', tension: 0.45, cubicInterpolationMode: 'monotone', fill: false, spanGaps: false }
         ]
       },
       options: _chartOptions(c, true, weeklyLabels)
@@ -8593,6 +8617,467 @@ function _syncParcelasToFin(clienteId, clienteNome) {
     });
   });
   saveFinEntries(entries);
+}
+
+/* ── HELPER: bloco de histórico de seguidores para export ── */
+function _appendFollowerHistory(lines, proj, handle, sep, fmtDate) {
+  var history = getFollowerHistory(proj);
+  var currentVal = parseInt((localStorage.getItem('dash_' + (proj==='m'?'m':proj==='s'?'s':'r') + '-seguidores') || '0').replace(/\D/g,'')) || 0;
+
+  lines.push('INSTAGRAM ' + handle + ' — HISTÓRICO DE SEGUIDORES\n');
+  lines.push(sep);
+
+  if (!history.length) {
+    lines.push('Nenhum ponto de histórico registrado.\n');
+    lines.push('Total atual: ' + currentVal.toLocaleString('pt-BR') + '\n\n');
+    return;
+  }
+
+  // Garante ordenação por data
+  var hist = history.slice().sort(function(a,b){ return a.d.localeCompare(b.d); });
+
+  // Atualiza/adiciona o valor atual se não há ponto para hoje
+  var todayKey = (function(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()<9?'0':'')+(d.getMonth()+1)+'-'+(d.getDate()<10?'0':'')+d.getDate(); })();
+  if (currentVal > 0) {
+    var todayIdx = hist.findIndex(function(p){ return p.d === todayKey; });
+    if (todayIdx >= 0) { hist[todayIdx].v = currentVal; }
+    else               { hist.push({d: todayKey, v: currentVal}); hist.sort(function(a,b){ return a.d.localeCompare(b.d); }); }
+  }
+
+  var first = hist[0];
+  var last  = hist[hist.length - 1];
+  var totalDias = Math.round((new Date(last.d) - new Date(first.d)) / 86400000);
+  var crescTotal = last.v - first.v;
+  var mediaDiaria = totalDias > 0 ? (crescTotal / totalDias).toFixed(1) : '—';
+
+  lines.push('Total atual:        ' + last.v.toLocaleString('pt-BR') + ' seguidores\n');
+  lines.push('Período:            ' + fmtDate(first.d) + ' → ' + fmtDate(last.d) + ' (' + totalDias + ' dias)\n');
+  lines.push('Crescimento total:  ' + (crescTotal >= 0 ? '+' : '') + crescTotal.toLocaleString('pt-BR') + ' seguidores\n');
+  lines.push('Média diária:       ' + (crescTotal >= 0 ? '+' : '') + mediaDiaria + ' seg./dia\n\n');
+
+  lines.push('  Evolução (pontos registrados):\n');
+  hist.forEach(function(pt, i) {
+    var prefix = '  ' + fmtDate(pt.d) + '   ';
+    var valStr = pt.v.toLocaleString('pt-BR') + ' seg.';
+    if (i === 0) {
+      lines.push(prefix + valStr + '  (ponto inicial)\n');
+    } else {
+      var prev = hist[i-1];
+      var delta = pt.v - prev.v;
+      var dias  = Math.round((new Date(pt.d) - new Date(prev.d)) / 86400000);
+      var diaria = dias > 0 ? (delta / dias).toFixed(1) : delta;
+      var deltaStr = (delta >= 0 ? '+' : '') + delta.toLocaleString('pt-BR');
+      var periodoStr = dias === 1 ? '1 dia' : dias + ' dias';
+      var diariaStr  = (parseFloat(diaria) >= 0 ? '+' : '') + diaria + '/dia';
+      lines.push(prefix + valStr + '   (' + deltaStr + ' em ' + periodoStr + ' | ' + diariaStr + ')\n');
+    }
+  });
+  lines.push('\n');
+}
+
+/* ── EXPORTAÇÃO DE DADOS DO PROJETO (TXT para estratégia) ─── */
+function exportProjectTxt(projeto) {
+  var now = new Date();
+  var fmtDate = function(iso) {
+    if (!iso) return '—';
+    var p = iso.split('-');
+    return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : iso;
+  };
+  var fmtR = function(v) {
+    return 'R$ ' + (parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  };
+  var ln = function(s){ return (s||'') + '\n'; };
+  var sep  = '─────────────────────────────────────────────\n';
+  var sep2 = '═════════════════════════════════════════════\n';
+  var lines = [];
+
+  var dataExport = now.toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  var horaExport = now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+  if (projeto === 'studio') {
+    /* ── MÜNCHOW STUDIO ── */
+    var clients  = getClients()   || [];
+    var events   = getEvents()    || [];
+    var pends    = getPends()     || [];
+    var fin      = getFinEntries()|| [];
+    var todos    = getTodos()     || [];
+    var custos   = getCustos()    || [];
+    var pkgs     = getPkgs()      || [];
+    lines.push(sep2);
+    lines.push('MÜNCHOW STUDIO — RESUMO ESTRATÉGICO\n');
+    lines.push('Exportado em: ' + dataExport + ' às ' + horaExport + '\n');
+    lines.push(sep2 + '\n');
+
+    // Métricas rápidas
+    var ativos = clients.filter(function(c){ return c.status !== 'Finalizado' && c.status !== 'Entregue'; });
+    var totalFat = clients.reduce(function(s,c){ return s+(c.valor||0); },0);
+    var totalPago = clients.reduce(function(s,c){ return s+(c.pago||0); },0);
+    var totalRecv = totalFat - totalPago;
+    var ticket = ativos.length ? (ativos.reduce(function(s,c){return s+(c.valor||0);},0)/ativos.length) : 0;
+
+    lines.push('VISÃO GERAL\n');
+    lines.push(sep);
+    lines.push('Total de clientes na base:   ' + clients.length + '\n');
+    lines.push('Clientes ativos:             ' + ativos.length + '\n');
+    lines.push('Faturamento total cadastrado: ' + fmtR(totalFat) + '\n');
+    lines.push('Total já recebido:           ' + fmtR(totalPago) + '\n');
+    lines.push('A receber:                   ' + fmtR(totalRecv) + '\n');
+    lines.push('Ticket médio (ativos):       ' + fmtR(ticket) + '\n\n');
+
+    // Instagram — histórico de seguidores detalhado
+    _appendFollowerHistory(lines, 'm', '@munchow.studio', sep, fmtDate);
+
+    // Clientes
+    lines.push('CLIENTES\n');
+    lines.push(sep);
+    if (!clients.length) {
+      lines.push('Nenhum cliente cadastrado.\n');
+    } else {
+      clients.forEach(function(c) {
+        lines.push('• ' + (c.nome||'—') + '\n');
+        lines.push('  Status: ' + (c.status||'—') + ' | Casamento: ' + fmtDate(c.dataCasamento) + ' | Local: ' + (c.local||'—') + '\n');
+        lines.push('  Contrato: ' + fmtR(c.valor) + ' | Pago: ' + fmtR(c.pago) + ' | A receber: ' + fmtR((c.valor||0)-(c.pago||0)) + '\n');
+        if (c.notas) lines.push('  Notas: ' + c.notas + '\n');
+      });
+    }
+    lines.push('\n');
+
+    // Agenda
+    var futureEvs = events.filter(function(e){ return e.data >= now.toISOString().slice(0,10); })
+                          .sort(function(a,b){ return a.data.localeCompare(b.data); });
+    lines.push('AGENDA — PRÓXIMOS EVENTOS (' + futureEvs.length + ')\n');
+    lines.push(sep);
+    if (!futureEvs.length) {
+      lines.push('Nenhum evento futuro.\n');
+    } else {
+      futureEvs.forEach(function(e) {
+        lines.push('• ' + fmtDate(e.data) + ' — ' + (e.titulo||'—') + ' [' + (e.tipo||'—') + ']\n');
+        if (e.local)  lines.push('  Local: ' + e.local + '\n');
+        if (e.notas)  lines.push('  Notas: ' + e.notas + '\n');
+      });
+    }
+    lines.push('\n');
+
+    // Pós-produção
+    lines.push('PÓS-PRODUÇÃO PENDENTE (' + pends.length + ')\n');
+    lines.push(sep);
+    if (!pends.length) {
+      lines.push('Nenhuma pendência.\n');
+    } else {
+      pends.forEach(function(p) {
+        lines.push('• ' + (p.nome||p.titulo||'—') + ' — Prazo: ' + fmtDate(p.prazo||p.data) + '\n');
+        if (p.notas) lines.push('  ' + p.notas + '\n');
+      });
+    }
+    lines.push('\n');
+
+    // Financeiro — entradas e saídas por categoria
+    var entradas = fin.filter(function(f){ return f.tipo==='entrada' && !f.previsto; });
+    var saidas   = fin.filter(function(f){ return f.tipo==='saida'; });
+    var previstas = fin.filter(function(f){ return f.previsto; });
+    var totEnt = entradas.reduce(function(s,f){ return s+(f.valor||0); },0);
+    var totSai = saidas.reduce(function(s,f){ return s+(f.valor||0); },0);
+    var totPrev = previstas.reduce(function(s,f){ return s+(f.valor||0); },0);
+
+    lines.push('FINANCEIRO\n');
+    lines.push(sep);
+    lines.push('Entradas confirmadas: ' + fmtR(totEnt) + ' (' + entradas.length + ' lançamentos)\n');
+    lines.push('Saídas:               ' + fmtR(totSai) + ' (' + saidas.length + ' lançamentos)\n');
+    lines.push('Saldo realizado:      ' + fmtR(totEnt - totSai) + '\n');
+    lines.push('A receber (previsto): ' + fmtR(totPrev) + ' (' + previstas.length + ' lançamentos)\n\n');
+
+    // Agrupado por categoria
+    var catMap = {};
+    entradas.concat(saidas).forEach(function(f) {
+      var cat = f.cat || 'Sem categoria';
+      catMap[cat] = catMap[cat] || {ent:0, sai:0};
+      if (f.tipo==='entrada') catMap[cat].ent += (f.valor||0);
+      else catMap[cat].sai += (f.valor||0);
+    });
+    lines.push('  Por categoria:\n');
+    Object.keys(catMap).forEach(function(cat) {
+      lines.push('  ' + cat + ': ent ' + fmtR(catMap[cat].ent) + ' / sai ' + fmtR(catMap[cat].sai) + '\n');
+    });
+    lines.push('\n');
+
+    // Pacotes
+    if (pkgs.length) {
+      lines.push('PACOTES FOTOGRÁFICOS (' + pkgs.length + ')\n');
+      lines.push(sep);
+      pkgs.forEach(function(p) {
+        lines.push('• ' + (p.nome||'—') + ' — ' + fmtR(p.valor) + '\n');
+        if (p.descricao) lines.push('  ' + p.descricao + '\n');
+      });
+      lines.push('\n');
+    }
+
+    // Custos fixos
+    if (custos.length) {
+      lines.push('CUSTOS RECORRENTES (' + custos.length + ')\n');
+      lines.push(sep);
+      custos.forEach(function(c) {
+        lines.push('• ' + (c.nome||'—') + ' — ' + fmtR(c.valor) + '/mês\n');
+      });
+      lines.push('\n');
+    }
+
+    // Tarefas abertas
+    var tarefasAbertas = todos.filter(function(t){ return !t.done; });
+    lines.push('TAREFAS ABERTAS (' + tarefasAbertas.length + ')\n');
+    lines.push(sep);
+    if (!tarefasAbertas.length) {
+      lines.push('Nenhuma tarefa pendente.\n');
+    } else {
+      tarefasAbertas.forEach(function(t) {
+        lines.push('• ' + (t.texto||t.text||t.titulo||'—') + (t.prazo ? ' [prazo: '+fmtDate(t.prazo)+']' : '') + '\n');
+      });
+    }
+
+    var filename = 'munchow_studio_' + now.toISOString().slice(0,10) + '.txt';
+
+  } else if (projeto === 'soup') {
+    /* ── SOUP TRAVEL CLUB ── */
+    var membros    = getSoupMembros()   || [];
+    var viagens    = getSoupViagens()   || [];
+    var milhas     = getSoupMilhas()    || [];
+    var finSoup    = getSoupFin()       || [];
+    var todosSoup  = getSoupTodos()     || [];
+    var marketing  = getSoupMkt()       || [];
+    var prospectos = getSoupProsp()     || [];
+
+    lines.push(sep2);
+    lines.push('SOUP TRAVEL CLUB — RESUMO ESTRATÉGICO\n');
+    lines.push('Exportado em: ' + dataExport + ' às ' + horaExport + '\n');
+    lines.push(sep2 + '\n');
+
+    var ativos  = membros.filter(function(m){ return m.status==='Ativo'; });
+    var inativos = membros.filter(function(m){ return m.status!=='Ativo'; });
+    var mrr = ativos.reduce(function(s,m){ return s+(m.mensalidade||0); },0);
+    var totEntSoup = finSoup.filter(function(f){ return f.tipo==='entrada'; }).reduce(function(s,f){ return s+(f.valor||0); },0);
+    var totSaiSoup = finSoup.filter(function(f){ return f.tipo==='saida'; }).reduce(function(s,f){ return s+(f.valor||0); },0);
+
+    lines.push('VISÃO GERAL\n');
+    lines.push(sep);
+    lines.push('Membros ativos:     ' + ativos.length + '\n');
+    lines.push('Membros inativos:   ' + inativos.length + '\n');
+    lines.push('MRR estimado:       ' + fmtR(mrr) + '\n');
+    lines.push('Receita total:      ' + fmtR(totEntSoup) + '\n');
+    lines.push('Despesas total:     ' + fmtR(totSaiSoup) + '\n');
+    lines.push('Saldo:              ' + fmtR(totEntSoup - totSaiSoup) + '\n\n');
+
+    // Instagram — histórico de seguidores detalhado
+    _appendFollowerHistory(lines, 's', '@souptravel', sep, fmtDate);
+
+    // Membros
+    lines.push('MEMBROS (' + membros.length + ')\n');
+    lines.push(sep);
+    if (!membros.length) {
+      lines.push('Nenhum membro cadastrado.\n');
+    } else {
+      membros.forEach(function(m) {
+        lines.push('• ' + (m.nome||'—') + ' [' + (m.status||'—') + ']\n');
+        lines.push('  Plano: ' + (m.plano||'—') + ' | Pagamento: ' + (m.pagamento==='avista'? 'À vista ('+fmtR(m.avista)+')' : 'Mensal ('+fmtR(m.mensalidade)+')') + '\n');
+        lines.push('  Início: ' + fmtDate(m.inicio) + ' | Fim: ' + fmtDate(m.fim) + '\n');
+        if (m.notas) lines.push('  Notas: ' + m.notas + '\n');
+      });
+    }
+    lines.push('\n');
+
+    // Viagens
+    var viagFut = viagens.filter(function(v){ return v.dataIda >= now.toISOString().slice(0,10) && v.status!=='Cancelado'; })
+                         .sort(function(a,b){ return a.dataIda.localeCompare(b.dataIda); });
+    var viagPass = viagens.filter(function(v){ return v.dataIda < now.toISOString().slice(0,10); });
+    lines.push('VIAGENS\n');
+    lines.push(sep);
+    lines.push('Próximas (' + viagFut.length + '):\n');
+    viagFut.forEach(function(v) {
+      lines.push('• ' + fmtDate(v.dataIda) + ' → ' + fmtDate(v.dataVolta) + ' | ' + (v.destino||'—') + ' [' + (v.status||'—') + ']\n');
+      var nomesMembros = (v.membros||[]).map(function(id){ return soupMemberName(id); }).join(', ');
+      if (nomesMembros) lines.push('  Membros: ' + nomesMembros + '\n');
+      if (v.notas) lines.push('  Notas: ' + v.notas + '\n');
+    });
+    if (!viagFut.length) lines.push('  Nenhuma viagem futura.\n');
+    lines.push('Realizadas: ' + viagPass.length + '\n\n');
+
+    // Milhas — saldo por membro
+    lines.push('MILHAS (' + milhas.length + ' lançamentos)\n');
+    lines.push(sep);
+    var saldoMilhas = {};
+    milhas.forEach(function(m) {
+      var key = m.membroId || 'geral';
+      saldoMilhas[key] = (saldoMilhas[key]||0) + (m.tipo==='credito'? (m.qtd||0) : -(m.qtd||0));
+    });
+    Object.keys(saldoMilhas).forEach(function(id) {
+      lines.push('• ' + soupMemberName(id) + ': ' + saldoMilhas[id].toLocaleString('pt-BR') + ' milhas\n');
+    });
+    if (!Object.keys(saldoMilhas).length) lines.push('Nenhum lançamento de milhas.\n');
+    lines.push('\n');
+
+    // Financeiro
+    lines.push('FINANCEIRO\n');
+    lines.push(sep);
+    var catSoup = {};
+    finSoup.forEach(function(f) {
+      var cat = f.cat || 'Sem categoria';
+      catSoup[cat] = catSoup[cat]||{ent:0,sai:0};
+      if (f.tipo==='entrada') catSoup[cat].ent += (f.valor||0);
+      else catSoup[cat].sai += (f.valor||0);
+    });
+    Object.keys(catSoup).forEach(function(cat) {
+      lines.push('  ' + cat + ': ent ' + fmtR(catSoup[cat].ent) + ' / sai ' + fmtR(catSoup[cat].sai) + '\n');
+    });
+    lines.push('\n');
+
+    // Marketing
+    if (marketing.length) {
+      lines.push('MARKETING (' + marketing.length + ' ações)\n');
+      lines.push(sep);
+      marketing.forEach(function(m) {
+        lines.push('• [' + (m.status||'—') + '] ' + (m.titulo||m.nome||'—') + '\n');
+        if (m.notas) lines.push('  ' + m.notas + '\n');
+      });
+      lines.push('\n');
+    }
+
+    // Prospectos
+    if (prospectos.length) {
+      lines.push('PROSPECTOS (' + prospectos.length + ')\n');
+      lines.push(sep);
+      prospectos.forEach(function(p) {
+        lines.push('• ' + (p.nome||'—') + ' [' + (p.status||'—') + ']\n');
+        if (p.origem) lines.push('  Origem: ' + p.origem + '\n');
+        if (p.notas)  lines.push('  Notas: ' + p.notas + '\n');
+      });
+      lines.push('\n');
+    }
+
+    // Tarefas
+    var tSoup = todosSoup.filter(function(t){ return !t.done; });
+    lines.push('TAREFAS ABERTAS (' + tSoup.length + ')\n');
+    lines.push(sep);
+    if (!tSoup.length) {
+      lines.push('Nenhuma tarefa pendente.\n');
+    } else {
+      tSoup.forEach(function(t) {
+        lines.push('• ' + (t.texto||t.text||t.titulo||'—') + (t.prazo ? ' [prazo: '+fmtDate(t.prazo)+']' : '') + '\n');
+      });
+    }
+
+    var filename = 'soup_travel_club_' + now.toISOString().slice(0,10) + '.txt';
+
+  } else if (projeto === 'releio') {
+    /* ── RE.LEIO ── */
+    var livros     = getReleioLivros()      || [];
+    var pubs       = getReleioPublicacoes() || [];
+    var substack   = getReleioSubstack()    || [];
+    var todosRl    = getReleioTodos()       || [];
+    var finRl      = getReleioFin()         || [];
+    var segRl      = localStorage.getItem('dash_r-seguidores') || '—';
+    var assinRl    = rlLoad('assinantes') || 0;
+    lines.push(sep2);
+    lines.push('RE.LEIO — RESUMO ESTRATÉGICO\n');
+    lines.push('Exportado em: ' + dataExport + ' às ' + horaExport + '\n');
+    lines.push(sep2 + '\n');
+
+    var totEntRl = finRl.filter(function(f){ return f.tipo==='entrada'; }).reduce(function(s,f){ return s+(f.valor||0); },0);
+    var totSaiRl = finRl.filter(function(f){ return f.tipo==='saida'; }).reduce(function(s,f){ return s+(f.valor||0); },0);
+
+    lines.push('VISÃO GERAL\n');
+    lines.push(sep);
+    lines.push('Assinantes Substack: ' + assinRl + '\n');
+    lines.push('Livros no acervo:    ' + livros.length + '\n');
+    lines.push('Publicações:         ' + pubs.length + '\n');
+    lines.push('Posts Substack:      ' + substack.length + '\n');
+    lines.push('Receita total:       ' + fmtR(totEntRl) + '\n');
+    lines.push('Despesas total:      ' + fmtR(totSaiRl) + '\n');
+    lines.push('Saldo:               ' + fmtR(totEntRl - totSaiRl) + '\n\n');
+
+    // Instagram — histórico de seguidores detalhado
+    _appendFollowerHistory(lines, 'r', '@releio', sep, fmtDate);
+
+    // Livros
+    lines.push('ACERVO DE LIVROS (' + livros.length + ')\n');
+    lines.push(sep);
+    if (!livros.length) {
+      lines.push('Nenhum livro cadastrado.\n');
+    } else {
+      livros.forEach(function(l) {
+        lines.push('• ' + (l.titulo||'—') + (l.autor ? ' — ' + l.autor : '') + '\n');
+        lines.push('  Status: ' + (l.status||'—') + (l.estrelas ? ' | ' + l.estrelas + '★' : '') + '\n');
+        if (l.notas) lines.push('  Notas: ' + l.notas + '\n');
+      });
+    }
+    lines.push('\n');
+
+    // Publicações Instagram
+    if (pubs.length) {
+      lines.push('PUBLICAÇÕES INSTAGRAM (' + pubs.length + ')\n');
+      lines.push(sep);
+      var pubRecentes = pubs.slice().sort(function(a,b){ return (b.data||'').localeCompare(a.data||''); }).slice(0,10);
+      pubRecentes.forEach(function(p) {
+        lines.push('• ' + fmtDate(p.data) + ' — ' + (p.titulo||p.legenda||'—').slice(0,80) + '\n');
+        if (p.tipo) lines.push('  Tipo: ' + p.tipo + '\n');
+      });
+      if (pubs.length > 10) lines.push('  ... e mais ' + (pubs.length-10) + ' publicações.\n');
+      lines.push('\n');
+    }
+
+    // Substack
+    if (substack.length) {
+      lines.push('SUBSTACK (' + substack.length + ' publicações)\n');
+      lines.push(sep);
+      var ssRecentes = substack.slice().sort(function(a,b){ return (b.data||'').localeCompare(a.data||''); }).slice(0,5);
+      ssRecentes.forEach(function(s) {
+        lines.push('• ' + fmtDate(s.data) + ' — ' + (s.titulo||'—') + '\n');
+        if (s.aberturas) lines.push('  Aberturas: ' + s.aberturas + '\n');
+      });
+      lines.push('\n');
+    }
+
+    // Financeiro
+    lines.push('FINANCEIRO\n');
+    lines.push(sep);
+    var catRl = {};
+    finRl.forEach(function(f) {
+      var cat = f.cat || 'Sem categoria';
+      catRl[cat] = catRl[cat]||{ent:0,sai:0};
+      if (f.tipo==='entrada') catRl[cat].ent += (f.valor||0);
+      else catRl[cat].sai += (f.valor||0);
+    });
+    if (Object.keys(catRl).length) {
+      Object.keys(catRl).forEach(function(cat) {
+        lines.push('  ' + cat + ': ent ' + fmtR(catRl[cat].ent) + ' / sai ' + fmtR(catRl[cat].sai) + '\n');
+      });
+    } else {
+      lines.push('  Nenhum lançamento financeiro.\n');
+    }
+    lines.push('\n');
+
+    // Tarefas
+    var tRl = todosRl.filter(function(t){ return !t.done; });
+    lines.push('TAREFAS ABERTAS (' + tRl.length + ')\n');
+    lines.push(sep);
+    if (!tRl.length) {
+      lines.push('Nenhuma tarefa pendente.\n');
+    } else {
+      tRl.forEach(function(t) {
+        lines.push('• ' + (t.texto||t.text||t.titulo||'—') + (t.prazo ? ' [prazo: '+fmtDate(t.prazo)+']' : '') + '\n');
+      });
+    }
+
+    var filename = 'releio_' + now.toISOString().slice(0,10) + '.txt';
+  }
+
+  // Dispara o download
+  var blob = new Blob([lines.join('')], { type: 'text/plain;charset=utf-8' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename || ('orgos_export_' + now.toISOString().slice(0,10) + '.txt');
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // Registra service worker — atualiza automaticamente e funciona offline
