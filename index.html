@@ -2849,6 +2849,28 @@ function setChartMode(mode) {
     ? 'Valores semanais por projeto'
     : 'Soma acumulada mês a mês';
   buildChart();
+
+// ── Migrate existing tarefas to Nome — Local format ──
+(function() {
+  var evs = getEvents ? getEvents() : [];
+  var tarefas = getTarefas ? getTarefas() : [];
+  var changed = false;
+  tarefas.forEach(function(t) {
+    if (!t._eventoId) return;
+    var ev = evs.find(function(e){ return e.id === t._eventoId; });
+    if (!ev) return;
+    var nome = ev.clienteId ? clientName(ev.clienteId) : '';
+    var expected = nome
+      ? nome + (ev.local ? ' — ' + ev.local : '')
+      : ev.titulo;
+    if (t.titulo !== expected) {
+      t.titulo = expected;
+      changed = true;
+    }
+  });
+  if (changed && saveTarefasData) saveTarefasData(tarefas);
+})();
+
 }
 
 function toggleTheme() {
@@ -3970,10 +3992,17 @@ function _syncEventToTarefa(ev) {
   // Find existing linked tarefa
   var existingIdx = list.findIndex(function(t){ return t._eventoId === ev.id; });
 
+  // Build tarefa title: use ev.local if available, otherwise use ev.titulo as-is
+  // This ensures format is always "Nome — Local" regardless of when event was created
+  var clienteNome = ev.clienteId ? clientName(ev.clienteId) : '';
+  var tarefaTitulo = clienteNome
+    ? clienteNome + (ev.local ? ' — ' + ev.local : '')
+    : ev.titulo;
+
   var tarefaObj = {
     id:        existingIdx > -1 ? list[existingIdx].id : uid(),
     _eventoId: ev.id,
-    titulo:    ev.titulo,
+    titulo:    tarefaTitulo,
     data:      datePart,
     hora:      hora,
     horaFim:   horaFim,
