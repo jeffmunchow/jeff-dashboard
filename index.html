@@ -3884,7 +3884,7 @@ function renderAgenda() {
   var cont = document.getElementById('agenda-container');
   if (!evs.length) { cont.innerHTML = '<div class="agenda-empty">Nenhum evento para mostrar</div>'; return; }
   var TIPO_COLOR = { 'Casamento':'#0A7864','Ensaio':'#C4780A','Reunião':'#5255A0','Entrega':'#2E7D32','Outro':'#B0ABA6' };
-  cont.innerHTML = '<div class="agenda-list">' + evs.map(function(e){
+  cont.innerHTML = '<div style="border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;"><div class="agenda-list">' + evs.map(function(e){
     var past = new Date(e.data) < now;
     var col = TIPO_COLOR[e.tipo] || '#B0ABA6';
     var cid = e.clienteId || '';
@@ -3897,7 +3897,7 @@ function renderAgenda() {
       '</div>'+
       (cid ? '<button class="row-action" onclick="openClientModal(\''+cid+'\')" >Editar</button>' : '')+
     '</div>';
-  }).join('') + '</div>';
+  }).join('') + '</div></div>';
 }
 
 var editingEventId = null;
