@@ -2850,34 +2850,6 @@ function setChartMode(mode) {
     : 'Soma acumulada mês a mês';
   buildChart();
 
-// ── Migrate existing tarefas to Nome — Local format ──
-(function() {
-  var evs = getEvents ? getEvents() : [];
-  var clients = getClients ? getClients() : [];
-  var tarefas = getTarefas ? getTarefas() : [];
-  var changed = false;
-  tarefas.forEach(function(t) {
-    if (!t._eventoId) return;
-    var ev = evs.find(function(e){ return e.id === t._eventoId; });
-    if (!ev || !ev.clienteId) return;
-    var nome = clientName(ev.clienteId);
-    if (!nome) return;
-    // Use ev.local first; fall back to the client's local field
-    var local = ev.local || (clients.find(function(c){ return c.id === ev.clienteId; }) || {}).local || '';
-    // Also update the event's local if it was empty
-    if (!ev.local && local) { ev.local = local; }
-    var expected = nome + (local ? ' — ' + local : '');
-    if (t.titulo !== expected) {
-      t.titulo = expected;
-      changed = true;
-    }
-  });
-  // Save updated events (with filled-in local) and tarefas
-  if (changed) {
-    if (saveEvents) saveEvents(evs);
-    if (saveTarefasData) saveTarefasData(tarefas);
-  }
-})();
 
 }
 
@@ -7422,6 +7394,31 @@ function saveTarefasData(d) {
   localStorage.setItem('tarefas_v1', JSON.stringify(d));
   dbMetricSave('tarefas_v1', JSON.stringify(d));
 }
+
+
+// ── Migrate existing tarefas to Nome — Local format ──
+// Runs after all functions are defined. Fixes tarefas created with old "Nome — Nome" pattern.
+(function() {
+  try {
+    var evs     = getEvents();
+    var clients = getClients();
+    var tarefas = getTarefas();
+    var changed = false;
+    tarefas.forEach(function(t) {
+      if (!t._eventoId) return;
+      var ev = evs.find(function(e){ return e.id === t._eventoId; });
+      if (!ev || !ev.clienteId) return;
+      var nome  = clientName(ev.clienteId);
+      if (!nome) return;
+      // ev.local may be empty on old events — fall back to the client's local field
+      var local = ev.local || (clients.find(function(c){ return c.id === ev.clienteId; }) || {}).local || '';
+      if (!ev.local && local) ev.local = local; // patch the event too
+      var expected = nome + (local ? ' — ' + local : '');
+      if (t.titulo !== expected) { t.titulo = expected; changed = true; }
+    });
+    if (changed) { saveEvents(evs); saveTarefasData(tarefas); }
+  } catch(e) { console.warn('Tarefa migration error:', e); }
+})();
 
 // ── Navigation ──────────────────────────────────────────────────
 function showTarefasView() {
