@@ -3827,10 +3827,9 @@ function saveClient() {
     var evs = getEvents();
     var existingEv = evs.find(function(e){ return (e.clienteId === obj.id || e._clienteId === obj.id) && e.tipo === 'Casamento'; });
     if (!existingEv) {
-      var evTitulo = obj.nome + (obj.local ? ' — ' + obj.local : '');
       var newEv = {
         id: uid(),
-        titulo: evTitulo,
+        titulo: obj.nome,
         tipo: 'Casamento',
         data: obj.dataCasamento,
         local: obj.local || '',
@@ -3840,11 +3839,11 @@ function saveClient() {
       evs.push(newEv);
       saveEvents(evs);
       _syncEventToTarefa(newEv);
-    } else if (existingEv.data !== obj.dataCasamento || existingEv.local !== obj.local || existingEv.titulo !== (obj.nome + (obj.local ? ' — ' + obj.local : ''))) {
+    } else if (existingEv.data !== obj.dataCasamento || existingEv.local !== obj.local || existingEv.titulo !== obj.nome) {
       // Update existing event
       existingEv.data  = obj.dataCasamento;
       existingEv.local = obj.local || '';
-      existingEv.titulo = obj.nome + (obj.local ? ' — ' + obj.local : '');
+      existingEv.titulo = obj.nome;
       saveEvents(evs);
       _syncEventToTarefa(existingEv);
     }
@@ -7416,7 +7415,20 @@ function saveTarefasData(d) {
       var expected = nome + (local ? ' — ' + local : '');
       if (t.titulo !== expected) { t.titulo = expected; changed = true; }
     });
-    if (changed) { saveEvents(evs); saveTarefasData(tarefas); }
+    // Also strip " — Local" from event titulos that were saved in the wrong format
+    var evChanged = false;
+    evs.forEach(function(ev) {
+      if (!ev.clienteId) return;
+      var nome = clientName(ev.clienteId);
+      if (!nome) return;
+      // If titulo contains " — " and starts with the client name, strip to just the name
+      if (ev.titulo && ev.titulo !== nome && ev.titulo.indexOf(nome + ' — ') === 0) {
+        ev.titulo = nome;
+        evChanged = true;
+      }
+    });
+    if (changed || evChanged) { saveEvents(evs); }
+    if (changed) { saveTarefasData(tarefas); }
   } catch(e) { console.warn('Tarefa migration error:', e); }
 })();
 
