@@ -1310,7 +1310,7 @@
       </div>
       <div class="fin-summary" id="fin-summary"></div>
       <div id="fin-proximas"></div>
-      <div class="table-wrap"><div class="table-scroll">
+      <div class="table-wrap" style="border:none;"><div class="table-scroll">
         <table class="data-table">
           <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Cliente</th><th>Tipo</th><th>Valor</th><th></th></tr></thead>
           <tbody id="fin-tbody"></tbody>
@@ -4020,7 +4020,7 @@ function renderPosProducao() {
   }
   var STATUS_ORDER = {'Pós-produção':0,'Álbum design':1,'Entregue':2};
   clients.sort(function(a,b){ return (STATUS_ORDER[a.status]||0) - (STATUS_ORDER[b.status]||0); });
-  cont.innerHTML = '<div class="table-wrap"><div class="table-scroll"><table class="data-table">'+
+  cont.innerHTML = '<div class="table-wrap" style="border:none;"><div class="table-scroll"><table class="data-table">'+
     '<thead><tr><th>Cliente</th><th>Data do evento</th><th>Status</th><th></th></tr></thead>'+
     '<tbody>' + clients.map(function(c){
       var sBadge = {'Pós-produção':'badge-posprod','Álbum design':'badge-preprod','Entregue':'badge-entregue'}[c.status]||'badge-prospect';
@@ -6746,7 +6746,7 @@ function buildMunchowSegChart() {
   var rd = buildSparkDataForKey('m');
   var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   var col = isDark ? '#D4902A' : '#C4780A';
-  var gridCol = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+  var gridCol = isDark ? 'rgba(255,255,255,0.032)' : 'rgba(0,0,0,0.032)';
   var textHint = isDark ? '#6B6660' : '#9E9892';
   if (_mSegChartInstance) { _mSegChartInstance.destroy(); _mSegChartInstance = null; }
   _mSegChartInstance = new Chart(canvas.getContext('2d'), {
@@ -6812,7 +6812,7 @@ function buildReleioSegChart() {
   var rd = buildSparkDataForKey('r');
   var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   var col = isDark ? '#CC4A28' : '#C43A1A';
-  var gridCol = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+  var gridCol = isDark ? 'rgba(255,255,255,0.032)' : 'rgba(0,0,0,0.032)';
   var textHint = isDark ? '#6B6660' : '#9E9892';
   if (_rlSegChartInstance) { _rlSegChartInstance.destroy(); _rlSegChartInstance = null; }
   _rlSegChartInstance = new Chart(canvas.getContext('2d'), {
