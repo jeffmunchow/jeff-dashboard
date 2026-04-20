@@ -996,6 +996,7 @@
       <div class="section-header">
         <div class="section-title">Financeiro Pessoal</div>
         <div class="section-actions">
+          <input type="text" id="pfin-search" placeholder="Buscar..." oninput="renderPessoalFin()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;width:160px;">
           <select id="pfin-period" onchange="renderPessoalFin()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
             <option value="all">Todo o período</option>
             <option value="month">Este mês</option>
@@ -1285,6 +1286,7 @@
       <div class="section-header">
         <div class="section-title">Financeiro</div>
         <div class="section-actions">
+          <input type="text" id="fin-search" placeholder="Buscar..." oninput="renderFinanceiro()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;width:160px;">
           <select id="fin-period" onchange="renderFinanceiro()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
             <option value="all">Todo o período</option>
             <option value="month">Este mês</option>
@@ -1483,6 +1485,7 @@
       <div class="section-header">
         <div class="section-title">Financeiro</div>
         <div class="section-actions">
+          <input type="text" id="soup-fin-search" placeholder="Buscar..." oninput="renderSoupFinanceiro()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;width:160px;">
           <select id="soup-fin-period" onchange="renderSoupFinanceiro()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
             <option value="all">Todo o período</option>
             <option value="month">Este mês</option>
@@ -1705,6 +1708,7 @@
       <div class="section-header">
         <div class="section-title">Financeiro</div>
         <div class="section-actions">
+<input type="text" id="rl-fin-search" placeholder="Buscar..." oninput="renderRlFin()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;width:160px;">
           <button class="btn primary" onclick="openRlFinModal()">+ Entrada</button>
         </div>
       </div>
@@ -2957,6 +2961,7 @@ function savePessoalFinData(d) {
 
 function renderPessoalFin() {
   var period = (document.getElementById('pfin-period')||{value:'all'}).value;
+  var searchQ = ((document.getElementById('pfin-search')||{value:''}).value||'').toLowerCase().trim();
   var now = new Date();
   var entries = getPessoalFin().filter(function(e) {
     if (period === 'all') return true;
@@ -2978,6 +2983,10 @@ function renderPessoalFin() {
   var proxEl = document.getElementById('pfin-proximas');
   if (proxEl) proxEl.innerHTML = _renderProximasCobrancas(getPessoalFin(), 'confirmarRenovacaoPessoal');
 
+  if (searchQ) entries = entries.filter(function(e){
+    return (e.desc||'').toLowerCase().indexOf(searchQ)!==-1||
+           (e.cat||'').toLowerCase().indexOf(searchQ)!==-1;
+  });
   var sorted = entries.slice().sort(function(a,b){ return new Date(b.data)-new Date(a.data); });
   var tbody = document.getElementById('pfin-tbody');
   if (!tbody) return;
@@ -4144,6 +4153,7 @@ function renderFinanceiro() {
   var period    = (document.getElementById('fin-period')||{value:'all'}).value;
   var catFlt    = (document.getElementById('fin-cat-filter')||{value:''}).value;
   var clientFlt = (document.getElementById('fin-client-filter')||{value:''}).value;
+  var searchQ   = ((document.getElementById('fin-search')||{value:''}).value || '').toLowerCase().trim();
   var now = new Date();
   var entries = getFinEntries().filter(function(e){
     if (period==='all') return true;
@@ -4158,6 +4168,10 @@ function renderFinanceiro() {
   if (catFlt === 'entrada') entries = entries.filter(function(e){ return e.tipo==='entrada'; });
   else if (catFlt === 'saida') entries = entries.filter(function(e){ return e.tipo==='saida'; });
   else if (catFlt) entries = entries.filter(function(e){ return e.cat===catFlt; });
+  if (searchQ) entries = entries.filter(function(e){
+    return (e.desc||'').toLowerCase().indexOf(searchQ) !== -1 ||
+           (e.cat||'').toLowerCase().indexOf(searchQ) !== -1;
+  });
   var totalIn  = entries.filter(function(e){ return e.tipo==='entrada' && !e.previsto; }).reduce(function(s,e){ return s+(parseFloat(e.valor)||0); },0);
   var totalOut = entries.filter(function(e){ return e.tipo==='saida'   && !e.previsto; }).reduce(function(s,e){ return s+(parseFloat(e.valor)||0); },0);
   var balance  = totalIn - totalOut;
@@ -5350,6 +5364,7 @@ function deleteSoupMilhas(){
 /* SOUP FINANCEIRO */
 function renderSoupFinanceiro(){
   var period=(document.getElementById('soup-fin-period')||{value:'all'}).value;
+  var searchQ=((document.getElementById('soup-fin-search')||{value:''}).value||'').toLowerCase().trim();
   var now=new Date();var nowM=now.getMonth();var nowY=now.getFullYear();
   var list=getSoupFin().filter(function(f){
     if(period==='all') return true;
@@ -5366,6 +5381,10 @@ function renderSoupFinanceiro(){
     '<div class="fin-balance"><div class="fin-label">Saldo</div><div class="fin-val">'+fmtMoney(entrada-saida)+'</div></div>';
   var soupProxEl = document.getElementById('soup-fin-proximas');
   if(soupProxEl) soupProxEl.innerHTML = _renderProximasCobrancas(getSoupFin(), 'confirmarRenovacaoSoup');
+  if(searchQ) list=list.filter(function(f){
+    return (f.desc||'').toLowerCase().indexOf(searchQ)!==-1||
+           (f.cat||'').toLowerCase().indexOf(searchQ)!==-1;
+  });
   var tbody=document.getElementById('soup-fin-tbody');if(!tbody)return;
   if(!list.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-hint);padding:2rem;">Nenhum lançamento</td></tr>';return;}
   tbody.innerHTML=list.sort(function(a,b){return new Date(b.data)-new Date(a.data);}).map(function(f){
@@ -6574,6 +6593,7 @@ function deleteRlFin() {
   buildChart();
 }
 function renderRlFin() {
+  var searchQ = ((document.getElementById('rl-fin-search')||{value:''}).value||'').toLowerCase().trim();
   var list = getReleioFin();
 
   // Summary cards
@@ -6642,8 +6662,13 @@ function renderRlFin() {
   });
 
   // Table
+  var displayList = searchQ ? list.filter(function(e){
+    return (e.desc||'').toLowerCase().indexOf(searchQ)!==-1||
+           (e.fonte||'').toLowerCase().indexOf(searchQ)!==-1;
+  }) : list;
   var tbody = document.getElementById('rlf-tbody');
   if (!tbody) return;
+  var list = displayList;
   if (!list.length) {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-hint);padding:2rem;">Nenhuma entrada ainda. O projeto iniciou em 23/03/2026.</td></tr>';
     return;
