@@ -1181,6 +1181,7 @@
     <button class="studio-tab"        id="stab-pendencias" onclick="switchStudioTab('pendencias')">Pós-produção</button>
     <button class="studio-tab"        id="stab-financeiro" onclick="switchStudioTab('financeiro')">Financeiro</button>
     <button class="studio-tab"        id="stab-tarefas"    onclick="switchStudioTab('tarefas')">Tarefas</button>
+    <button class="studio-tab"        id="stab-feedbacks"  onclick="switchStudioTab('feedbacks')">Feedbacks</button>
     <button class="tab-download-btn" onclick="exportProjectTxt('studio')" title="Baixar resumo do projeto">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
     </button>
@@ -1343,8 +1344,68 @@
     </div>
 
 
+
+    <!-- FEEDBACKS -->
+    <div class="tab-panel" id="spanel-feedbacks">
+      <div class="section-header">
+        <div class="section-title">Feedbacks</div>
+        <div class="section-actions">
+          <select id="fb-client-filter" onchange="renderFeedbacks()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
+            <option value="">Todos os clientes</option>
+          </select>
+          <select id="fb-stars-filter" onchange="renderFeedbacks()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
+            <option value="">Todas as estrelas</option>
+            <option value="5">★★★★★</option>
+            <option value="4">★★★★☆</option>
+            <option value="3">★★★☆☆</option>
+            <option value="2">★★☆☆☆</option>
+            <option value="1">★☆☆☆☆</option>
+          </select>
+          <button class="btn primary" onclick="openFeedbackModal()">+ Feedback</button>
+        </div>
+      </div>
+      <div id="feedbacks-list"></div>
+    </div>
+
   </div><!-- .studio-body -->
 </div><!-- #studio-view -->
+
+<!-- Feedback Modal -->
+<div class="overlay" id="fb-overlay">
+  <div class="modal" style="max-width:480px;">
+    <h2 id="fb-modal-title">Novo Feedback</h2>
+    <div class="field-row">
+      <label>Cliente</label>
+      <select id="fb-client" style="font-family:'DM Sans',sans-serif;font-size:0.82rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:8px 10px;color:var(--text);outline:none;width:100%;">
+        <option value="">Selecionar cliente...</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label>Feedback</label>
+      <textarea id="fb-text" rows="4" placeholder="O que o cliente disse..." style="width:100%;font-family:'DM Sans',sans-serif;font-size:0.82rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:8px 10px;color:var(--text);outline:none;resize:vertical;"></textarea>
+    </div>
+    <div class="field-row">
+      <label>Importância</label>
+      <div id="fb-stars-input" style="display:flex;gap:6px;font-size:1.5rem;cursor:pointer;">
+        <span data-v="1" onclick="setFbStar(1)">☆</span>
+        <span data-v="2" onclick="setFbStar(2)">☆</span>
+        <span data-v="3" onclick="setFbStar(3)">☆</span>
+        <span data-v="4" onclick="setFbStar(4)">☆</span>
+        <span data-v="5" onclick="setFbStar(5)">☆</span>
+      </div>
+      <input type="hidden" id="fb-stars-val" value="0">
+    </div>
+    <div class="field-row">
+      <label>Data</label>
+      <input type="date" id="fb-data" style="font-family:'DM Sans',sans-serif;font-size:0.82rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:8px 10px;color:var(--text);outline:none;">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="fb-delete-btn" style="display:none;color:var(--coral);" onclick="deleteFeedback()">Excluir</button>
+      <button class="btn" onclick="closeFbModal()">Cancelar</button>
+      <button class="btn primary" onclick="saveFeedback()">Salvar</button>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <!--  SOUP TRAVEL CLUB — SEÇÃO INTERNA                              -->
@@ -3445,7 +3506,7 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 var currentStudioTab = 'resumo';
 function switchStudioTab(tab) {
   currentStudioTab = tab;
-  ['resumo','clientes','agenda','pendencias','financeiro','tarefas'].forEach(function(t){
+  ['resumo','clientes','agenda','pendencias','financeiro','tarefas','feedbacks'].forEach(function(t){
     var btn = document.getElementById('stab-'+t);
     var pan = document.getElementById('spanel-'+t);
     if (btn) btn.classList.toggle('active', t===tab);
@@ -3458,6 +3519,7 @@ function switchStudioTab(tab) {
   if (tab==='financeiro') renderFinanceiro();
 
   if (tab==='tarefas')    { renderProjTarefasWeekBar('munchow'); renderProjTarefasList('munchow'); }
+  if (tab==='feedbacks')  renderFeedbacks();
 }
 
 /* ─── HELPERS ────────────────────────────────────────────── */
@@ -9166,6 +9228,134 @@ function exportProjectTxt(projeto) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+
+/* ─── FEEDBACKS ──────────────────────────────────────────────────── */
+function getFeedbacks() { return studioLoad('feedbacks') || []; }
+function saveFeedbacks(d) { studioSave('feedbacks', d); dbSaveList('studio_feedbacks', d); }
+
+var editingFbId = null;
+var _fbStar = 0;
+
+function setFbStar(n) {
+  _fbStar = n;
+  document.getElementById('fb-stars-val').value = n;
+  document.querySelectorAll('#fb-stars-input span').forEach(function(el) {
+    el.textContent = parseInt(el.getAttribute('data-v')) <= n ? '★' : '☆';
+    el.style.color = parseInt(el.getAttribute('data-v')) <= n ? 'var(--amber)' : 'var(--text-hint)';
+  });
+}
+
+function openFeedbackModal(id) {
+  editingFbId = id || null;
+  // Populate client select
+  var sel = document.getElementById('fb-client');
+  var prev = sel.value;
+  sel.innerHTML = '<option value="">Selecionar cliente...</option>' +
+    getClients().map(function(c){ return '<option value="'+c.id+'">'+(c.nome||'—')+'</option>'; }).join('');
+  if (id) {
+    var fb = getFeedbacks().find(function(f){ return f.id === id; });
+    if (fb) {
+      sel.value = fb.clienteId || '';
+      document.getElementById('fb-text').value = fb.texto || '';
+      document.getElementById('fb-data').value = fb.data || '';
+      setFbStar(fb.estrelas || 0);
+      document.getElementById('fb-modal-title').textContent = 'Editar Feedback';
+      document.getElementById('fb-delete-btn').style.display = '';
+    }
+  } else {
+    sel.value = prev;
+    document.getElementById('fb-text').value = '';
+    document.getElementById('fb-data').value = new Date().toISOString().slice(0,10);
+    setFbStar(0);
+    document.getElementById('fb-modal-title').textContent = 'Novo Feedback';
+    document.getElementById('fb-delete-btn').style.display = 'none';
+  }
+  document.getElementById('fb-overlay').classList.add('open');
+}
+
+function closeFbModal() {
+  document.getElementById('fb-overlay').classList.remove('open');
+  editingFbId = null;
+}
+
+function saveFeedback() {
+  var clienteId = document.getElementById('fb-client').value;
+  var texto     = document.getElementById('fb-text').value.trim();
+  var estrelas  = parseInt(document.getElementById('fb-stars-val').value) || 0;
+  var data      = document.getElementById('fb-data').value;
+  if (!clienteId) { alert('Selecione um cliente.'); return; }
+  if (!texto)     { alert('Insira o feedback.'); return; }
+  var list = getFeedbacks();
+  if (editingFbId) {
+    var idx = list.findIndex(function(f){ return f.id === editingFbId; });
+    if (idx > -1) list[idx] = { id: editingFbId, clienteId: clienteId, texto: texto, estrelas: estrelas, data: data };
+  } else {
+    list.push({ id: uid(), clienteId: clienteId, texto: texto, estrelas: estrelas, data: data });
+  }
+  saveFeedbacks(list);
+  closeFbModal();
+  renderFeedbacks();
+}
+
+function deleteFeedback() {
+  if (!editingFbId) return;
+  var list = getFeedbacks().filter(function(f){ return f.id !== editingFbId; });
+  saveFeedbacks(list);
+  closeFbModal();
+  renderFeedbacks();
+}
+
+function renderFeedbacks() {
+  // Populate client filter
+  var cf = document.getElementById('fb-client-filter');
+  if (cf) {
+    var prev = cf.value;
+    cf.innerHTML = '<option value="">Todos os clientes</option>' +
+      getClients().map(function(c){ return '<option value="'+c.id+'">'+(c.nome||'—')+'</option>'; }).join('');
+    cf.value = prev;
+  }
+  var clientFlt = (document.getElementById('fb-client-filter')||{value:''}).value;
+  var starsFlt  = (document.getElementById('fb-stars-filter')||{value:''}).value;
+  var list = getFeedbacks().slice().sort(function(a,b){
+    if (b.estrelas !== a.estrelas) return (b.estrelas||0) - (a.estrelas||0);
+    return (b.data||'').localeCompare(a.data||'');
+  });
+  if (clientFlt) list = list.filter(function(f){ return f.clienteId === clientFlt; });
+  if (starsFlt)  list = list.filter(function(f){ return f.estrelas === parseInt(starsFlt); });
+
+  var cont = document.getElementById('feedbacks-list');
+  if (!cont) return;
+  if (!list.length) {
+    cont.innerHTML = '<div style="text-align:center;color:var(--text-hint);padding:3rem;font-size:0.82rem;">Nenhum feedback ainda.</div>';
+    return;
+  }
+
+  function stars(n) {
+    var s = '';
+    for (var i=1;i<=5;i++) s += '<span style="color:'+(i<=n?'var(--amber)':'var(--border-strong)')+';">'+(i<=n?'★':'☆')+'</span>';
+    return s;
+  }
+
+  cont.innerHTML = '<div style="display:flex;flex-direction:column;gap:1px;">' +
+    list.map(function(f) {
+      var nome = clientName(f.clienteId) || '—';
+      var dt   = f.data ? f.data.split('-').reverse().join('/') : '';
+      return '<div style="background:var(--surface);padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.5rem;border-bottom:0.5px solid var(--border-strong);" onclick="openFeedbackModal(''+f.id+'')" style="cursor:pointer;">' +
+        '<div style="display:flex;align-items:center;gap:0.75rem;justify-content:space-between;">' +
+          '<div style="font-size:0.82rem;font-weight:500;color:var(--text);">'+nome+'</div>' +
+          '<div style="display:flex;align-items:center;gap:0.75rem;">' +
+            '<div style="font-size:1rem;letter-spacing:1px;">'+stars(f.estrelas||0)+'</div>' +
+            (dt ? '<div style="font-size:0.72rem;color:var(--text-hint);">'+dt+'</div>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div style="font-size:0.82rem;color:var(--text-muted);line-height:1.5;">'+f.texto+'</div>' +
+      '</div>';
+    }).join('') +
+  '</div>';
+}
+
+document.getElementById('fb-overlay').addEventListener('click', function(e){ if(e.target===this) closeFbModal(); });
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
