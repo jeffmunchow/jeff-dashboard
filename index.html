@@ -573,7 +573,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.7</div>
+    <div class="sidebar-version">v.1.8</div>
   </div>
 </div>
 
@@ -716,7 +716,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.7</div>
+      <div class="sidebar-version">v.1.8</div>
   </div>
 </div>
 
@@ -792,7 +792,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.7</div>
+      <div class="sidebar-version">v.1.8</div>
   </div>
 </div>
 
@@ -870,7 +870,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.7</div>
+      <div class="sidebar-version">v.1.8</div>
     </div>
   </div>
 
@@ -941,7 +941,7 @@
       <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       </button>
-      <div class="sidebar-version">v.1.7</div>
+      <div class="sidebar-version">v.1.8</div>
     </div>
   </div>
   <div class="header">
@@ -1154,7 +1154,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.7</div>
+    <div class="sidebar-version">v.1.8</div>
   </div>
 </div>
 
@@ -1433,7 +1433,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.7</div>
+    <div class="sidebar-version">v.1.8</div>
   </div>
 </div>
   <div class="header">
@@ -1655,7 +1655,7 @@
     <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
     </button>
-    <div class="sidebar-version">v.1.7</div>
+    <div class="sidebar-version">v.1.8</div>
   </div>
 </div>
   <div class="header">
@@ -9341,7 +9341,7 @@ function renderFeedbacks() {
     list.map(function(f) {
       var nome = clientName(f.clienteId) || '—';
       var dt   = f.data ? f.data.split('-').reverse().join('/') : '';
-      return '<div style="background:var(--surface);padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.5rem;border-bottom:0.5px solid var(--border-strong);" onclick="openFeedbackModal(''+f.id+'')" style="cursor:pointer;">' +
+      return '<div style="background:var(--surface);padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.5rem;border-bottom:0.5px solid var(--border-strong);cursor:pointer;" onclick="openFeedbackModal(\'' + f.id + '\')">' +
         '<div style="display:flex;align-items:center;gap:0.75rem;justify-content:space-between;">' +
           '<div style="font-size:0.82rem;font-weight:500;color:var(--text);">'+nome+'</div>' +
           '<div style="display:flex;align-items:center;gap:0.75rem;">' +
