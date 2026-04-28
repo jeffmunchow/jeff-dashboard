@@ -688,9 +688,6 @@
 </head>
 <body>
 
-<div id="main-view">
-
-<!-- Sidebar -->
 <!-- Mobile nav drawer -->
 <div id="mobile-drawer-overlay" onclick="closeMobileMenu()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:299;"></div>
 <div id="mobile-drawer" style="display:none;position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--surface);z-index:300;flex-direction:column;padding:1.5rem 1rem;gap:4px;border-right:0.5px solid var(--border);overflow-y:auto;">
@@ -727,6 +724,9 @@
   </div>
 </div>
 
+<div id="main-view">
+
+<!-- Sidebar -->
 <div class="sidebar" id="main-sidebar">
   <div class="sidebar-top">
     <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
