@@ -634,6 +634,8 @@
     .diary-editor { font-size: 0.9rem !important; }
     .diary-history { padding: 0 1rem 5rem; }
     .diary-container { padding: 2rem 1.25rem !important; }
+    .diary-editor { font-size: 16px !important; }
+    #diary-past-textarea { font-size: 16px !important; }
     .mobile-diary-nav { display: flex !important; }
     .mobile-diary-nav .mobile-burger-btn { display: flex !important; align-items: center; }
 
@@ -4596,10 +4598,10 @@ function deleteTodo(id) {
 async function loadFromSupabase() {
   var tables = [
     'studio_clients','studio_events','studio_pends','studio_fin',
-    'studio_todos','studio_custos','studio_packages',
+    'studio_todos','studio_custos','studio_packages','studio_feedbacks',
     'soup_membros','soup_viagens','soup_milhas','soup_fin','soup_todos',
     'releio_livros','releio_publicacoes','releio_substack','releio_todos','releio_fin',
-    'pessoal_fin'
+    'pessoal_fin','citacoes','tarefas_v1'
   ];
   var metricIds = ['m-faturamento','m-casamentos','m-seguidores',
                    's-faturamento','s-clientes','s-seguidores','s-milhas',
