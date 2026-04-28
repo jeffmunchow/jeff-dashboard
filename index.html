@@ -2030,9 +2030,12 @@
   <div class="notes-modal">
     <div class="notes-modal-title">Atualizações do sistema</div>
     <textarea class="notes-modal-textarea" id="notes-modal-text" placeholder="Escreva aqui as atualizações que quer fazer no sistema..."></textarea>
-    <div class="notes-modal-actions">
-      <button class="btn" onclick="copyNotesText()">Copiar</button>
-      <button class="btn" onclick="toggleNotesModal()">Fechar</button>
+    <div class="notes-modal-actions" style="flex-wrap:wrap;gap:6px;justify-content:space-between;">
+      <button id="force-sync-btn" class="btn" onclick="forceSyncAll()" style="font-size:0.72rem;color:var(--text-muted);">Forçar sync ↑</button>
+      <div style="display:flex;gap:6px;">
+        <button class="btn" onclick="copyNotesText()">Copiar</button>
+        <button class="btn" onclick="toggleNotesModal()">Fechar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -9587,6 +9590,40 @@ function toggleMobileMenu() {
 function closeMobileMenu() {
   document.getElementById('mobile-drawer').classList.remove('open');
   document.getElementById('mobile-drawer-overlay').classList.remove('open');
+}
+
+async function forceSyncAll() {
+  var btn = document.getElementById('force-sync-btn');
+  if (btn) { btn.textContent = 'Sincronizando...'; btn.disabled = true; }
+  var tables = [
+    'studio_clients','studio_events','studio_pends','studio_fin',
+    'studio_todos','studio_custos','studio_packages','studio_feedbacks',
+    'soup_membros','soup_viagens','soup_milhas','soup_fin','soup_todos',
+    'releio_livros','releio_publicacoes','releio_substack','releio_todos','releio_fin',
+    'pessoal_fin','citacoes','tarefas_v1'
+  ];
+  var ok = 0, fail = 0;
+  await Promise.all(tables.map(async function(tbl) {
+    try {
+      var list = [];
+      try { list = JSON.parse(localStorage.getItem(tbl) || '[]'); } catch(e){}
+      if (list.length > 0) { await dbSaveList(tbl, list); ok++; }
+    } catch(e) { fail++; }
+  }));
+  var metricIds = ['m-faturamento','m-casamentos','m-seguidores',
+                   's-faturamento','s-clientes','s-seguidores','s-milhas',
+                   'r-seguidores','r-livros','r-assinantes',
+                   'm-updated','s-updated','r-updated'];
+  metricIds.forEach(function(key) {
+    var val = localStorage.getItem('dash_' + key);
+    if (val) dbMetricSave(key, val).catch(function(){});
+  });
+  if (btn) {
+    btn.textContent = fail === 0 ? '✓ Sincronizado' : '⚠ ' + fail + ' erro(s)';
+    btn.disabled = false;
+    btn.style.color = fail === 0 ? 'var(--teal)' : 'var(--coral)';
+    setTimeout(function() { btn.textContent = 'Forçar sync ↑'; btn.style.color = ''; }, 4000);
+  }
 }
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
