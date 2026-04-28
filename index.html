@@ -6224,9 +6224,21 @@ setTimeout(function() {
     buildSparklines();
     buildChart();
     _updateMFaturamento();
+    // Re-render resumo cards de cada projeto com dados do Supabase
+    if (typeof renderResumo === 'function') renderResumo();
+    if (typeof renderSoupResumo === 'function') renderSoupResumo();
+    if (typeof renderReleioResumo === 'function') renderReleioResumo();
     // Garante que dados lentos já chegaram
-    setTimeout(function() { buildChart(); _updateMFaturamento(); }, 1500);
-    setTimeout(function() { buildChart(); _updateMFaturamento(); }, 4000);
+    setTimeout(function() {
+      buildChart(); _updateMFaturamento();
+      if (typeof renderResumo === 'function') renderResumo();
+      if (typeof renderSoupResumo === 'function') renderSoupResumo();
+      if (typeof renderReleioResumo === 'function') renderReleioResumo();
+    }, 1500);
+    setTimeout(function() {
+      buildChart(); _updateMFaturamento();
+      if (typeof renderResumo === 'function') renderResumo();
+    }, 4000);
   });
 }, 100);
 
