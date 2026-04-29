@@ -652,6 +652,7 @@
     #cit-list div[style*="Playfair Display"] { font-size: 0.82rem !important; }
     #cit-list span[style*="0.8rem"] { font-size: 0.72rem !important; }
     #cit-list span[style*="0.75rem"] { font-size: 0.68rem !important; }
+    .cit-search-input { font-size: 16px !important; width: auto !important; flex: 1; min-width: 0; }
 
     /* ── Próximos eventos / notas no dashboard ── */
     .notes-area { padding: 0.75rem 1rem 0; }
@@ -1007,7 +1008,7 @@
     <div style="display:flex;justify-content:flex-end;margin-bottom:1.5rem;">
       <div class="section-actions">
         <input type="text" id="cit-search" placeholder="Buscar por autor, palavra, livro..." oninput="renderCitacoes()"
-          style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:5px 10px;color:var(--text);outline:none;width:240px;">
+          style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:5px 10px;color:var(--text);outline:none;width:240px;" class="cit-search-input">
         <button class="btn primary" onclick="openCitacaoModal()">+ Citação</button>
       </div>
     </div>
