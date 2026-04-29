@@ -2031,7 +2031,7 @@
     <div class="notes-modal-title">Atualizações do sistema</div>
     <textarea class="notes-modal-textarea" id="notes-modal-text" placeholder="Escreva aqui as atualizações que quer fazer no sistema..."></textarea>
     <div class="notes-modal-actions" style="flex-wrap:wrap;gap:6px;justify-content:space-between;">
-      <button id="force-sync-btn" class="btn" onclick="forceSyncAll()" style="font-size:0.72rem;color:var(--text-muted);">Forçar sync ↑</button>
+      <button id="force-sync-btn" class="btn" onclick="forceSyncAll()" title="Execute apenas no desktop para enviar dados locais ao Supabase" style="font-size:0.72rem;color:var(--text-muted);">Forçar sync ↑ (desktop)</button>
       <pre id="force-sync-log" style="display:none;font-size:0.65rem;color:var(--text-muted);margin-top:6px;max-height:120px;overflow-y:auto;background:var(--surface2);padding:6px;border-radius:4px;text-align:left;width:100%;"></pre>
       <div style="display:flex;gap:6px;">
         <button class="btn" onclick="copyNotesText()">Copiar</button>
@@ -4605,40 +4605,47 @@ async function loadFromSupabase() {
     'studio_todos','studio_custos','studio_packages','studio_feedbacks',
     'soup_membros','soup_viagens','soup_milhas','soup_fin','soup_todos',
     'releio_livros','releio_publicacoes','releio_substack','releio_todos','releio_fin',
-    'pessoal_fin','citacoes','tarefas_v1'
+    'pessoal_fin','citacoes'
   ];
   var metricIds = ['m-faturamento','m-casamentos','m-seguidores',
                    's-faturamento','s-clientes','s-seguidores','s-milhas',
                    'r-seguidores','r-livros','r-assinantes',
                    'm-updated','s-updated','r-updated'];
 
-  // Load all tables in parallel
+  // Load all tables — true bidirectional sync (union by ID)
   await Promise.all([
     ...tables.map(function(tbl) {
       return dbLoad(tbl).then(function(remoteList) {
-        if (!remoteList || remoteList.length === 0) return;
         var localList = [];
         try { localList = JSON.parse(localStorage.getItem(tbl) || '[]'); } catch(e){}
-        if (localList.length === 0) {
-          // Local empty — use remote
+
+        // Union: local + remote items, deduplicated by ID
+        var localMap = {};
+        localList.forEach(function(x){ if(x.id) localMap[x.id] = true; });
+
+        var toAdd = (remoteList||[]).filter(function(x){
+          return x.id && !localMap[x.id] && !x._parcelaId;
+        });
+
+        if (localList.length === 0 && (remoteList||[]).length > 0) {
+          // Local empty — load from Supabase
           localStorage.setItem(tbl, JSON.stringify(remoteList));
-        } else {
-          // Merge: add remote IDs not in local, skip parcela/recorrente entries
-          var localIds = {};
-          localList.forEach(function(x){ if(x.id) localIds[x.id] = true; });
-          var toAdd = remoteList.filter(function(x){
-            if (!x.id || localIds[x.id]) return false;
-            // Skip parcela entries — they are regenerated locally on init
-            if (x._parcelaId) return false;
-            return true;
-          });
-          if (toAdd.length > 0) {
-            var merged = localList.concat(toAdd);
-            localStorage.setItem(tbl, JSON.stringify(merged));
-          }
-          // Push local to Supabase
-          dbSaveList(tbl, JSON.parse(localStorage.getItem(tbl) || '[]')).catch(function(){});
+        } else if (toAdd.length > 0) {
+          // Remote has new items — add them locally
+          var merged = localList.concat(toAdd);
+          localStorage.setItem(tbl, JSON.stringify(merged));
         }
+
+        // Push any local-only items to Supabase (new items from this device)
+        var remoteMap = {};
+        (remoteList||[]).forEach(function(x){ if(x.id) remoteMap[x.id] = true; });
+        var localOnly = localList.filter(function(x){ return x.id && !remoteMap[x.id] && !x._parcelaId; });
+        if (localOnly.length > 0) {
+          var current = [];
+          try { current = JSON.parse(localStorage.getItem(tbl) || '[]'); } catch(e){}
+          dbSaveList(tbl, current).catch(function(){});
+        }
+
       }).catch(function(){});
     }),
     ...metricIds.map(function(key) {
@@ -9597,14 +9604,18 @@ async function forceSyncAll() {
   var btn = document.getElementById('force-sync-btn');
   var log = document.getElementById('force-sync-log');
   if (btn) { btn.textContent = 'Sincronizando...'; btn.disabled = true; }
-  if (log) { log.textContent = ''; log.style.display = 'block'; }
+  if (window.innerWidth <= 768) {
+    if (log) { log.textContent = "✗ Execute apenas no desktop, não no mobile."; log.style.display = "block"; }
+    return;
+  }
+  if (log) { log.textContent = 'Iniciando...'; log.style.display = 'block'; }
 
   var tables = [
     'studio_clients','studio_events','studio_pends','studio_fin',
     'studio_todos','studio_custos','studio_packages','studio_feedbacks',
     'soup_membros','soup_viagens','soup_milhas','soup_fin','soup_todos',
     'releio_livros','releio_publicacoes','releio_substack','releio_todos','releio_fin',
-    'pessoal_fin','citacoes','tarefas_v1'
+    'pessoal_fin','citacoes'
   ];
 
   var results = [];
@@ -9614,28 +9625,34 @@ async function forceSyncAll() {
     try { list = JSON.parse(localStorage.getItem(tbl) || '[]'); } catch(e){}
     if (!list.length) { results.push(tbl + ': vazio'); continue; }
     try {
-      // Simpler push: just upsert, no delete step
-      var rows = list.map(function(item) {
-        var d = Object.assign({}, item);
-        delete d.id;
-        return { id: item.id, data: d, updated_at: new Date().toISOString() };
-      }).filter(function(r){ return r.id; }); // only rows with id
+      // Step 1: delete all rows in Supabase for this table
+      var delRes = await sb.from(tbl).delete().neq('id', '__none__');
+      if (delRes.error) throw new Error('delete: ' + delRes.error.message);
+      // Step 2: insert fresh from localStorage
+      var rows = list
+        .filter(function(item){ return item.id; })
+        .map(function(item) {
+          var d = Object.assign({}, item);
+          delete d.id;
+          return { id: item.id, data: d, updated_at: new Date().toISOString() };
+        });
       if (rows.length > 0) {
-        var res = await sb.from(tbl).upsert(rows);
-        if (res.error) throw res.error;
-        results.push('✓ ' + tbl + ' (' + rows.length + ')');
-      } else {
-        results.push(tbl + ': sem id');
+        var insRes = await sb.from(tbl).insert(rows);
+        if (insRes.error) throw new Error('insert: ' + insRes.error.message);
       }
+      results.push('✓ ' + tbl + ' (' + rows.length + ')');
+      if (log) log.textContent = results.join('\n');
     } catch(e) {
       results.push('✗ ' + tbl + ': ' + (e.message||'erro'));
+      if (log) log.textContent = results.join('\n');
     }
   }
 
   // Metrics
   var metricIds = ['m-faturamento','m-casamentos','m-seguidores',
                    's-faturamento','s-clientes','s-seguidores','s-milhas',
-                   'r-seguidores','r-livros','r-assinantes'];
+                   'r-seguidores','r-livros','r-assinantes',
+                   'm-updated','s-updated','r-updated'];
   for (var j = 0; j < metricIds.length; j++) {
     var key = metricIds[j];
     var val = localStorage.getItem('dash_' + key);
@@ -9643,12 +9660,16 @@ async function forceSyncAll() {
   }
 
   var failed = results.filter(function(r){ return r.indexOf('✗') === 0; });
-  if (log) { log.textContent = results.join('\n'); }
+  if (log) log.textContent = results.join('\n');
   if (btn) {
     btn.textContent = failed.length === 0 ? '✓ Sincronizado' : '⚠ ' + failed.length + ' erro(s)';
     btn.disabled = false;
     btn.style.color = failed.length === 0 ? 'var(--teal)' : 'var(--coral)';
-    setTimeout(function() { btn.textContent = 'Forçar sync ↑'; btn.style.color = ''; if(log) log.style.display='none'; }, 8000);
+    setTimeout(function() {
+      btn.textContent = 'Forçar sync ↑ (desktop)';
+      btn.style.color = '';
+      if (log) log.style.display = 'none';
+    }, 10000);
   }
 }
 // Registra service worker — atualiza automaticamente e funciona offline
