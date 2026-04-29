@@ -2551,9 +2551,11 @@ async function dbLoad(table) {
   try {
     const { data, error } = await sb.from(table).select('id, data, updated_at');
     if (error) throw error;
-    return (data || []).map(function(r) {
+    var result = (data || []).map(function(r) {
       return Object.assign({ id: r.id, _updatedAt: r.updated_at || '' }, r.data);
     });
+    if (table === 'citacoes') console.log('[Orgos] dbLoad citacoes from Supabase:', result.length, 'items');
+    return result;
   } catch(e) {
     console.warn('dbLoad error', table, e.message);
     try { return JSON.parse(localStorage.getItem(table) || '[]'); } catch(_){ return []; }
@@ -6339,21 +6341,39 @@ setTimeout(function() {
     buildSparklines();
     buildChart();
     _updateMFaturamento();
-    // Re-render resumo cards de cada projeto com dados do Supabase
-    if (typeof renderResumo === 'function') renderResumo();
-    if (typeof renderSoupResumo === 'function') renderSoupResumo();
-    if (typeof renderReleioResumo === 'function') renderReleioResumo();
-    // Garante que dados lentos já chegaram
-    setTimeout(function() {
-      buildChart(); _updateMFaturamento();
+    // Re-render todos os painéis com dados frescos do Supabase
+    function _reRenderAll() {
+      buildChart();
+      _updateMFaturamento();
+      renderDashboardNextEvents();
       if (typeof renderResumo === 'function') renderResumo();
       if (typeof renderSoupResumo === 'function') renderSoupResumo();
       if (typeof renderReleioResumo === 'function') renderReleioResumo();
-    }, 1500);
-    setTimeout(function() {
-      buildChart(); _updateMFaturamento();
-      if (typeof renderResumo === 'function') renderResumo();
-    }, 4000);
+      // Re-render a view atual se estiver em alguma sessão interna
+      if (typeof renderCitacoes === 'function') renderCitacoes();
+      if (typeof renderAgenda === 'function') renderAgenda();
+      if (typeof renderClientes === 'function') renderClientes();
+      if (typeof renderFinanceiro === 'function') renderFinanceiro();
+      if (typeof renderPosProducao === 'function') renderPosProducao();
+      if (typeof renderSoupFinanceiro === 'function') renderSoupFinanceiro();
+      if (typeof renderSoupMembros === 'function') renderSoupMembros();
+      if (typeof renderReleioLivros === 'function') renderReleioLivros();
+      if (typeof renderPessoalFin === 'function') renderPessoalFin();
+      if (typeof renderFeedbacks === 'function') renderFeedbacks();
+      // Re-render tarefas se estiver visível
+      var tv = document.getElementById('tarefas-view');
+      if (tv && tv.style.display !== 'none') {
+        if (typeof renderTarefasDia === 'function') renderTarefasDia();
+      }
+      // Re-render diário se estiver visível
+      var dv = document.getElementById('diario-view');
+      if (dv && dv.style.display !== 'none') {
+        if (typeof renderDiaryArchive === 'function' && document.getElementById('diary-archive-panel') && document.getElementById('diary-archive-panel').style.display !== 'none') renderDiaryArchive();
+      }
+    }
+    _reRenderAll();
+    setTimeout(_reRenderAll, 1500);
+    setTimeout(_reRenderAll, 4000);
   });
 }, 100);
 
@@ -7670,7 +7690,11 @@ function getCitacoes() {
 }
 function saveCitacoesData(d) {
   localStorage.setItem('citacoes', JSON.stringify(d));
-  dbSaveList('citacoes', d);
+  dbSaveList('citacoes', d).then(function() {
+    console.log('[Orgos] citacoes synced to Supabase:', d.length, 'items');
+  }).catch(function(e) {
+    console.warn('[Orgos] citacoes sync FAILED:', e);
+  });
 }
 
 function showCitacoesView() {
