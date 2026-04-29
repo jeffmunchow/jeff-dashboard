@@ -9819,6 +9819,21 @@ async function forceSyncAll() {
     }, 10000);
   }
 }
+// Re-sync when app comes back to foreground (PWA mobile background/foreground)
+(function() {
+  var lastSync = Date.now();
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState !== 'visible') return;
+    var now = Date.now();
+    // Only re-sync if at least 30 seconds have passed since last sync
+    if (now - lastSync < 30000) return;
+    lastSync = now;
+    loadFromSupabase().then(function() {
+      _reRenderAll();
+    }).catch(function(){});
+  });
+})();
+
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
   // Limpa service workers e caches para garantir versão mais recente
