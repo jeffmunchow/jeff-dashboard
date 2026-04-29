@@ -2031,8 +2031,7 @@
     <div class="notes-modal-title">Atualizações do sistema</div>
     <textarea class="notes-modal-textarea" id="notes-modal-text" placeholder="Escreva aqui as atualizações que quer fazer no sistema..."></textarea>
     <div class="notes-modal-actions" style="flex-wrap:wrap;gap:6px;justify-content:space-between;">
-      <button id="force-sync-btn" class="btn" onclick="forceSyncAll()" title="Execute apenas no desktop para enviar dados locais ao Supabase" style="font-size:0.72rem;color:var(--text-muted);">Forçar sync ↑ (desktop)</button>
-      <pre id="force-sync-log" style="display:none;font-size:0.65rem;color:var(--text-muted);margin-top:6px;max-height:120px;overflow-y:auto;background:var(--surface2);padding:6px;border-radius:4px;text-align:left;width:100%;"></pre>
+
       <div style="display:flex;gap:6px;">
         <button class="btn" onclick="copyNotesText()">Copiar</button>
         <button class="btn" onclick="toggleNotesModal()">Fechar</button>
@@ -2550,25 +2549,26 @@ const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 /* ── Generic DB helpers ─────────────────────────────────── */
 async function dbLoad(table) {
   try {
-    const { data, error } = await sb.from(table).select('id, data');
+    const { data, error } = await sb.from(table).select('id, data, updated_at');
     if (error) throw error;
     return (data || []).map(function(r) {
-      return Object.assign({ id: r.id }, r.data);
+      return Object.assign({ id: r.id, _updatedAt: r.updated_at || '' }, r.data);
     });
   } catch(e) {
     console.warn('dbLoad error', table, e.message);
-    // fallback to localStorage
     try { return JSON.parse(localStorage.getItem(table) || '[]'); } catch(_){ return []; }
   }
 }
 
 async function dbSaveList(table, list) {
   try {
-    // upsert all items
+    // upsert all items — stamp _updatedAt so devices can resolve conflicts
+    var now = new Date().toISOString();
     const rows = list.map(function(item) {
       const d = Object.assign({}, item);
       delete d.id;
-      return { id: item.id, data: d, updated_at: new Date().toISOString() };
+      if (!d._updatedAt) d._updatedAt = now; // stamp if not already set
+      return { id: item.id, data: d, updated_at: d._updatedAt };
     });
     if (rows.length > 0) {
       const { error } = await sb.from(table).upsert(rows);
@@ -4611,7 +4611,7 @@ async function loadFromSupabase() {
                    's-faturamento','s-clientes','s-seguidores','s-milhas',
                    'r-seguidores','r-livros','r-assinantes',
                    'm-updated','s-updated','r-updated',
-                   'tarefas_v1_sync'];
+                   'tarefas_v1_sync','diary_index'];
 
   // Check if desktop did a full sync after our last load
   var lastPush = 0, lastPull = 0;
@@ -4639,21 +4639,46 @@ async function loadFromSupabase() {
           return;
         }
 
-        // Normal union merge: add remote items not in local
+        // Timestamp-based merge: for same ID, keep the more recently updated version
         var localMap = {};
-        localList.forEach(function(x){ if(x.id) localMap[x.id] = true; });
-        var toAdd = remoteList.filter(function(x){ return x.id && !localMap[x.id] && !x._parcelaId; });
-        if (toAdd.length > 0) {
-          localStorage.setItem(tbl, JSON.stringify(localList.concat(toAdd)));
-        }
-
-        // Push local-only items to Supabase (new items from this device)
+        localList.forEach(function(x){ if(x.id) localMap[x.id] = x; });
         var remoteMap = {};
-        remoteList.forEach(function(x){ if(x.id) remoteMap[x.id] = true; });
-        var localOnly = localList.filter(function(x){ return x.id && !remoteMap[x.id] && !x._parcelaId; });
-        if (localOnly.length > 0) {
-          var cur = []; try { cur = JSON.parse(localStorage.getItem(tbl)||'[]'); } catch(e){}
-          dbSaveList(tbl, cur).catch(function(){});
+        remoteList.forEach(function(x){ if(x.id) remoteMap[x.id] = x; });
+
+        var merged = localList.slice(); // start with local
+        var needsPush = false;
+
+        remoteList.forEach(function(remote) {
+          if (!remote.id || remote._parcelaId) return;
+          var local = localMap[remote.id];
+          if (!local) {
+            // New item from remote — add to local
+            merged.push(remote);
+          } else {
+            // Both have it — keep the newer one
+            var remoteTs = remote._updatedAt || '';
+            var localTs  = local._updatedAt  || '';
+            if (remoteTs > localTs) {
+              // Remote is newer — replace local version
+              var idx = merged.findIndex(function(x){ return x.id === remote.id; });
+              if (idx > -1) merged[idx] = remote;
+            }
+            // else local is newer or same — will push to Supabase below
+          }
+        });
+
+        localStorage.setItem(tbl, JSON.stringify(merged));
+
+        // Push local-only items AND newer local items to Supabase
+        var hasLocalNewer = localList.some(function(local) {
+          if (!local.id || local._parcelaId) return false;
+          var remote = remoteMap[local.id];
+          if (!remote) return true; // local-only
+          return (local._updatedAt || '') > (remote._updatedAt || ''); // local newer
+        });
+        if (hasLocalNewer) {
+          dbSaveList(tbl, merged).catch(function(){});
+          needsPush = true;
         }
 
       }).catch(function(){});
@@ -4662,18 +4687,55 @@ async function loadFromSupabase() {
       return dbMetricLoad(key).then(function(val) {
         if (!val) return;
         if (key === 'tarefas_v1_sync') {
-          // Merge tarefas: union by id
+          // Merge tarefas by timestamp — newest version of each task wins
           var remote = []; try { remote = JSON.parse(val); } catch(e){}
-          var local = []; try { local = JSON.parse(localStorage.getItem('tarefas_v1') || '[]'); } catch(e){}
-          var localMap = {}; local.forEach(function(x){ if(x.id) localMap[x.id]=true; });
-          var toAdd = remote.filter(function(x){ return x.id && !localMap[x.id]; });
-          if (toAdd.length > 0) {
-            var merged = local.concat(toAdd);
-            localStorage.setItem('tarefas_v1', JSON.stringify(merged));
+          var local  = []; try { local  = JSON.parse(localStorage.getItem('tarefas_v1') || '[]'); } catch(e){}
+          var remoteMap = {}, localMap = {};
+          remote.forEach(function(x){ if(x.id) remoteMap[x.id] = x; });
+          local.forEach(function(x){  if(x.id) localMap[x.id]  = x; });
+          // Union of all IDs
+          var allIds = Object.keys(Object.assign({}, remoteMap, localMap));
+          var merged = allIds.map(function(id) {
+            var r = remoteMap[id], l = localMap[id];
+            if (!r) return l;
+            if (!l) return r;
+            return (r._updatedAt || '') >= (l._updatedAt || '') ? r : l;
+          });
+          var needsPush = merged.some(function(t) {
+            var r = remoteMap[t.id];
+            return !r || (t._updatedAt || '') > (r._updatedAt || '');
+          });
+          localStorage.setItem('tarefas_v1', JSON.stringify(merged));
+          if (needsPush) {
             dbMetricSave('tarefas_v1_sync', JSON.stringify(merged)).catch(function(){});
-          } else if (local.length > 0 && remote.length < local.length) {
-            dbMetricSave('tarefas_v1_sync', JSON.stringify(local)).catch(function(){});
           }
+        } else if (key === 'diary_index') {
+          // Load all diary entries from Supabase using the index
+          var remoteIndex = []; try { remoteIndex = JSON.parse(val); } catch(e){}
+          // Also build local index from localStorage
+          var localIndex = []; try { localIndex = JSON.parse(localStorage.getItem('diary_index') || '[]'); } catch(e){}
+          var allKeys = remoteIndex.concat(localIndex.filter(function(k){ return remoteIndex.indexOf(k) === -1; }));
+          localStorage.setItem('diary_index', JSON.stringify(allKeys));
+          // Fetch each diary entry and resolve by savedAt timestamp
+          allKeys.forEach(function(dkey) {
+            dbMetricLoad(dkey).then(function(dval) {
+              if (!dval) return;
+              var remote = null; try { remote = JSON.parse(dval); } catch(e){}
+              if (!remote || !remote.text) return;
+              var local = null; try { local = JSON.parse(localStorage.getItem(dkey)); } catch(e){}
+              if (!local || !local.text) {
+                localStorage.setItem(dkey, JSON.stringify(remote));
+              } else {
+                // Keep newer version
+                if ((remote.savedAt || '') > (local.savedAt || '')) {
+                  localStorage.setItem(dkey, JSON.stringify(remote));
+                } else if ((local.savedAt || '') > (remote.savedAt || '')) {
+                  // Local is newer — push to Supabase
+                  dbMetricSave(dkey, JSON.stringify(local)).catch(function(){});
+                }
+              }
+            }).catch(function(){});
+          });
         } else {
           localStorage.setItem('dash_' + key, val);
         }
@@ -6232,6 +6294,22 @@ buildSparklines();
 buildChart();
 _updateMFaturamento();
 
+// Build diary_index from existing localStorage entries (one-time migration for sync)
+(function() {
+  var index = []; try { index = JSON.parse(localStorage.getItem('diary_index') || '[]'); } catch(e){}
+  var added = false;
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (k && k.startsWith('diary_') && k !== 'diary_location' && k !== 'diary_index') {
+      if (index.indexOf(k) === -1) { index.push(k); added = true; }
+    }
+  }
+  if (added) {
+    localStorage.setItem('diary_index', JSON.stringify(index));
+    dbMetricSave('diary_index', JSON.stringify(index)).catch(function(){});
+  }
+})();
+
 // Força rebuild adicional para garantir dados pessoais do localStorage
 setTimeout(function() { buildChart(); }, 200);
 
@@ -6498,7 +6576,17 @@ function saveDiarySupabase() {
   var stored = null;
   try { stored = JSON.parse(localStorage.getItem(_diaryTodayKey)); } catch(e){}
   if (!stored || !stored.text.trim()) return; // never sync empty
+  // Stamp savedAt so cross-device merge can resolve conflicts
+  if (!stored.savedAt) stored.savedAt = new Date().toISOString();
   dbMetricSave(_diaryTodayKey, JSON.stringify(stored));
+  // Maintain a diary index so other devices can discover all entries
+  var index = [];
+  try { index = JSON.parse(localStorage.getItem('diary_index') || '[]'); } catch(e){}
+  if (index.indexOf(_diaryTodayKey) === -1) {
+    index.push(_diaryTodayKey);
+    localStorage.setItem('diary_index', JSON.stringify(index));
+    dbMetricSave('diary_index', JSON.stringify(index)).catch(function(){});
+  }
 }
 
 // On page unload, do a final save
@@ -7731,9 +7819,14 @@ function getTarefas() {
   try { return JSON.parse(localStorage.getItem('tarefas_v1') || '[]'); } catch(e){ return []; }
 }
 function saveTarefasData(d) {
-  localStorage.setItem('tarefas_v1', JSON.stringify(d));
-  dbMetricSave('tarefas_v1', JSON.stringify(d));
-  dbMetricSave('tarefas_v1_sync', JSON.stringify(d));
+  // Stamp _updatedAt on each task so cross-device merge can resolve conflicts
+  var now = new Date().toISOString();
+  var stamped = d.map(function(t) {
+    return t._updatedAt ? t : Object.assign({}, t, { _updatedAt: now });
+  });
+  localStorage.setItem('tarefas_v1', JSON.stringify(stamped));
+  dbMetricSave('tarefas_v1', JSON.stringify(stamped));
+  dbMetricSave('tarefas_v1_sync', JSON.stringify(stamped));
 }
 
 
