@@ -669,6 +669,7 @@
     /* ── Botões nos headers das views ── */
     .header-right .btn { padding: 5px 12px; font-size: 0.72rem; }
     .header-right .theme-toggle { width: 38px; height: 21px; }
+    #themeToggle { display: none !important; }
     .header-right .theme-toggle::after { width: 15px; height: 15px; }
     [data-theme="dark"] .header-right .theme-toggle::after { transform: translateX(17px); }
 
@@ -725,6 +726,12 @@
       Notas do sistema
     </button>
     <div style="font-size:0.65rem;color:var(--text-hint);padding:4px 8px;">v.2.0</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px;">
+    <span style="font-size:0.82rem;color:var(--text-muted);">Tema</span>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema" style="flex-shrink:0;">
+      <span class="icon-sun">☀</span><span class="icon-moon">☾</span>
+    </button>
+  </div>
   </div>
 </div>
 
