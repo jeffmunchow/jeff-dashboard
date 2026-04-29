@@ -2604,7 +2604,8 @@ async function dbMetricSave(key, value) {
 
 async function dbMetricLoad(key) {
   try {
-    const { data } = await sb.from('dashboard_metrics').select('value').eq('key', key).single();
+    const { data, error } = await sb.from('dashboard_metrics').select('value').eq('key', key).maybeSingle();
+    if (error) throw error;
     return data ? data.value : null;
   } catch(e) {
     return localStorage.getItem('dash_' + key);
