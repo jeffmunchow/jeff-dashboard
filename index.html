@@ -4613,38 +4613,47 @@ async function loadFromSupabase() {
                    'm-updated','s-updated','r-updated',
                    'tarefas_v1_sync'];
 
-  // Load all tables — true bidirectional sync (union by ID)
+  // Check if desktop did a full sync after our last load
+  var lastPush = 0, lastPull = 0;
+  try { lastPush = parseInt(await dbMetricLoad('last_push') || '0'); } catch(e){}
+  try { lastPull = parseInt(localStorage.getItem('last_pull') || '0'); } catch(e){}
+  var doFullReplace = lastPush > lastPull;
+  localStorage.setItem('last_pull', Date.now().toString());
+
+  // Load all tables — bidirectional sync with full-replace support
   await Promise.all([
     ...tables.map(function(tbl) {
       return dbLoad(tbl).then(function(remoteList) {
         var localList = [];
         try { localList = JSON.parse(localStorage.getItem(tbl) || '[]'); } catch(e){}
 
-        // Union: local + remote items, deduplicated by ID
-        var localMap = {};
-        localList.forEach(function(x){ if(x.id) localMap[x.id] = true; });
-
-        var toAdd = (remoteList||[]).filter(function(x){
-          return x.id && !localMap[x.id] && !x._parcelaId;
-        });
-
-        if (localList.length === 0 && (remoteList||[]).length > 0) {
-          // Local empty — load from Supabase
-          localStorage.setItem(tbl, JSON.stringify(remoteList));
-        } else if (toAdd.length > 0) {
-          // Remote has new items — add them locally
-          var merged = localList.concat(toAdd);
-          localStorage.setItem(tbl, JSON.stringify(merged));
+        if (!remoteList || remoteList.length === 0) {
+          // Remote empty — push local up
+          if (localList.length > 0) dbSaveList(tbl, localList).catch(function(){});
+          return;
         }
 
-        // Push any local-only items to Supabase (new items from this device)
+        if (doFullReplace || localList.length === 0) {
+          // Full replace: Supabase is ground truth (after force sync from desktop)
+          localStorage.setItem(tbl, JSON.stringify(remoteList));
+          return;
+        }
+
+        // Normal union merge: add remote items not in local
+        var localMap = {};
+        localList.forEach(function(x){ if(x.id) localMap[x.id] = true; });
+        var toAdd = remoteList.filter(function(x){ return x.id && !localMap[x.id] && !x._parcelaId; });
+        if (toAdd.length > 0) {
+          localStorage.setItem(tbl, JSON.stringify(localList.concat(toAdd)));
+        }
+
+        // Push local-only items to Supabase (new items from this device)
         var remoteMap = {};
-        (remoteList||[]).forEach(function(x){ if(x.id) remoteMap[x.id] = true; });
+        remoteList.forEach(function(x){ if(x.id) remoteMap[x.id] = true; });
         var localOnly = localList.filter(function(x){ return x.id && !remoteMap[x.id] && !x._parcelaId; });
         if (localOnly.length > 0) {
-          var current = [];
-          try { current = JSON.parse(localStorage.getItem(tbl) || '[]'); } catch(e){}
-          dbSaveList(tbl, current).catch(function(){});
+          var cur = []; try { cur = JSON.parse(localStorage.getItem(tbl)||'[]'); } catch(e){}
+          dbSaveList(tbl, cur).catch(function(){});
         }
 
       }).catch(function(){});
@@ -9679,6 +9688,8 @@ async function forceSyncAll() {
 
   var failed = results.filter(function(r){ return r.indexOf('✗') === 0; });
   if (log) log.textContent = results.join('\n');
+  // Stamp last_push so other devices know to do a full replace
+  if (failed.length === 0) { dbMetricSave('last_push', Date.now().toString()).catch(function(){}); }
   if (btn) {
     btn.textContent = failed.length === 0 ? '✓ Sincronizado' : '⚠ ' + failed.length + ' erro(s)';
     btn.disabled = false;
