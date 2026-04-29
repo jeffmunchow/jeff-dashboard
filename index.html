@@ -7750,7 +7750,7 @@ function deleteCitacao() {
 }
 function renderCitacoes() {
   var q = (document.getElementById('cit-search')||{value:''}).value.toLowerCase().trim();
-  var list = getCitacoes();
+  var list = getCitacoes().slice().reverse();
   if (q) {
     list = list.filter(function(c) {
       return (c.texto||'').toLowerCase().includes(q) ||
