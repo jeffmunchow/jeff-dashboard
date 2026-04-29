@@ -4610,7 +4610,8 @@ async function loadFromSupabase() {
   var metricIds = ['m-faturamento','m-casamentos','m-seguidores',
                    's-faturamento','s-clientes','s-seguidores','s-milhas',
                    'r-seguidores','r-livros','r-assinantes',
-                   'm-updated','s-updated','r-updated'];
+                   'm-updated','s-updated','r-updated',
+                   'tarefas_v1_sync'];
 
   // Load all tables — true bidirectional sync (union by ID)
   await Promise.all([
@@ -4650,7 +4651,23 @@ async function loadFromSupabase() {
     }),
     ...metricIds.map(function(key) {
       return dbMetricLoad(key).then(function(val) {
-        if (val) localStorage.setItem('dash_' + key, val);
+        if (!val) return;
+        if (key === 'tarefas_v1_sync') {
+          // Merge tarefas: union by id
+          var remote = []; try { remote = JSON.parse(val); } catch(e){}
+          var local = []; try { local = JSON.parse(localStorage.getItem('tarefas_v1') || '[]'); } catch(e){}
+          var localMap = {}; local.forEach(function(x){ if(x.id) localMap[x.id]=true; });
+          var toAdd = remote.filter(function(x){ return x.id && !localMap[x.id]; });
+          if (toAdd.length > 0) {
+            var merged = local.concat(toAdd);
+            localStorage.setItem('tarefas_v1', JSON.stringify(merged));
+            dbMetricSave('tarefas_v1_sync', JSON.stringify(merged)).catch(function(){});
+          } else if (local.length > 0 && remote.length < local.length) {
+            dbMetricSave('tarefas_v1_sync', JSON.stringify(local)).catch(function(){});
+          }
+        } else {
+          localStorage.setItem('dash_' + key, val);
+        }
       }).catch(function(){});
     })
   ]);
@@ -7707,6 +7724,7 @@ function getTarefas() {
 function saveTarefasData(d) {
   localStorage.setItem('tarefas_v1', JSON.stringify(d));
   dbMetricSave('tarefas_v1', JSON.stringify(d));
+  dbMetricSave('tarefas_v1_sync', JSON.stringify(d));
 }
 
 
