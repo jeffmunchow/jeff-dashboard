@@ -9818,8 +9818,7 @@ async function forceSyncAll() {
     var now = Date.now();
     if (now - lastSync < 10000) return; // throttle 10s
     lastSync = now;
-    // forceFullReplace=true so Supabase always wins on foreground
-    loadFromSupabase(true).then(function() {
+    loadFromSupabase().then(function() {
       _reRenderAll();
     }).catch(function(){});
   }
