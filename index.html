@@ -6398,6 +6398,29 @@ function _reRenderAll() {
     _reRenderAll();
     setTimeout(_reRenderAll, 1500);
     setTimeout(_reRenderAll, 4000);
+    // Desktop: push critical financial tables to Supabase after load
+    // Uses dbPushOnly (upsert only, never deletes) to keep Supabase correct
+    if (window.innerWidth > 768) {
+      setTimeout(function() {
+        var critical = [
+          ['studio_fin', getFinEntries],
+          ['studio_clients', getClients],
+          ['studio_events', getEvents],
+          ['studio_pends', getPends],
+          ['soup_fin', getSoupFin],
+          ['soup_membros', getSoupMembros],
+          ['citacoes', getCitacoes],
+          ['pessoal_fin', getPessoalFin],
+        ];
+        critical.forEach(function(pair) {
+          try {
+            var list = pair[1]();
+            if (list && list.length > 0) dbPushOnly(pair[0], list).catch(function(){});
+          } catch(e){}
+        });
+        dbMetricSave('last_push', Date.now().toString()).catch(function(){});
+      }, 2000);
+    }
   });
 }, 100);
 
