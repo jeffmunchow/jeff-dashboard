@@ -6347,6 +6347,41 @@ function _reRenderAll() {
   if (tv && tv.style.display !== 'none' && typeof renderTarefasDia === 'function') renderTarefasDia();
 }
 
+  // Desktop: push all local data to Supabase on startup to keep it as source of truth
+  if (window.innerWidth > 768) {
+    setTimeout(function() {
+      var tables = [
+        ['studio_clients', getClients],
+        ['studio_events', getEvents],
+        ['studio_pends', getPends],
+        ['studio_fin', getFinEntries],
+        ['studio_todos', getTodos],
+        ['studio_custos', getCustos],
+        ['studio_packages', getPkgs],
+        ['soup_membros', getSoupMembros],
+        ['soup_fin', getSoupFin],
+        ['soup_viagens', getSoupViagens],
+        ['soup_milhas', getSoupMilhas],
+        ['soup_todos', getSoupTodos],
+        ['releio_livros', getReleioLivros],
+        ['releio_publicacoes', getReleioPublicacoes],
+        ['releio_substack', getReleioSubstack],
+        ['releio_todos', getReleioTodos],
+        ['releio_fin', getReleioFin],
+        ['pessoal_fin', getPessoalFin],
+        ['citacoes', getCitacoes],
+      ];
+      tables.forEach(function(pair) {
+        var tbl = pair[0], getter = pair[1];
+        try {
+          var list = typeof getter === 'function' ? getter() : [];
+          if (list && list.length > 0) dbSaveList(tbl, list).catch(function(){});
+        } catch(e) {}
+      });
+      dbMetricSave('last_push', Date.now().toString()).catch(function(){});
+    }, 3000); // delay 3s to let init complete first
+  }
+
   loadFromSupabase().then(function() {
     // Re-renderiza só o que pode ter mudado desde o último acesso
     renderDashboardNextEvents();
