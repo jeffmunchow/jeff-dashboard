@@ -7772,7 +7772,7 @@ function saveCitacao() {
   if (editingCitacaoId) {
     var idx = list.findIndex(function(x){ return x.id===editingCitacaoId; });
     if (idx > -1) list[idx] = obj; else list.push(obj);
-  } else { list.unshift(obj); }
+  } else { list.push(obj); }
   saveCitacoesData(list);
   document.getElementById('cit-overlay').classList.remove('open');
   renderCitacoes();
@@ -7785,7 +7785,7 @@ function deleteCitacao() {
 }
 function renderCitacoes() {
   var q = (document.getElementById('cit-search')||{value:''}).value.toLowerCase().trim();
-  var list = getCitacoes().slice().reverse();
+  var list = getCitacoes().slice().sort(function(a,b){ return (b.criadoEm||'').localeCompare(a.criadoEm||''); });
   if (q) {
     list = list.filter(function(c) {
       return (c.texto||'').toLowerCase().includes(q) ||
