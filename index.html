@@ -4602,7 +4602,7 @@ function deleteTodo(id) {
   if (el) el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('open'); });
 });
 
-async function loadFromSupabase() {
+async function loadFromSupabase(forceFullReplace) {
   var tables = [
     'studio_clients','studio_events','studio_pends','studio_fin',
     'studio_todos','studio_custos','studio_packages','studio_feedbacks',
@@ -4636,8 +4636,8 @@ async function loadFromSupabase() {
           return;
         }
 
-        if (doFullReplace || localList.length === 0) {
-          // Full replace: Supabase is ground truth (after force sync from desktop)
+        if (forceFullReplace || doFullReplace || localList.length === 0) {
+          // Full replace: Supabase is ground truth
           localStorage.setItem(tbl, JSON.stringify(remoteList));
           return;
         }
@@ -9813,17 +9813,27 @@ async function forceSyncAll() {
 }
 // Re-sync when app comes back to foreground (PWA mobile background/foreground)
 (function() {
-  var lastSync = Date.now();
-  document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState !== 'visible') return;
+  var lastSync = 0;
+  function doSync() {
     var now = Date.now();
-    // Only re-sync if at least 30 seconds have passed since last sync
-    if (now - lastSync < 30000) return;
+    if (now - lastSync < 10000) return; // throttle 10s
     lastSync = now;
-    loadFromSupabase().then(function() {
+    // forceFullReplace=true so Supabase always wins on foreground
+    loadFromSupabase(true).then(function() {
       _reRenderAll();
     }).catch(function(){});
+  }
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') doSync();
   });
+  // Also fire on pageshow (iOS BFCache restore)
+  window.addEventListener('pageshow', function(e) {
+    if (e.persisted) doSync();
+  });
+  // Also poll every 60s while app is open
+  setInterval(function() {
+    if (document.visibilityState === 'visible') doSync();
+  }, 60000);
 })();
 
 // Registra service worker — atualiza automaticamente e funciona offline
