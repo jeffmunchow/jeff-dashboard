@@ -4657,13 +4657,14 @@ async function loadFromSupabase(forceFullReplace) {
           return;
         }
 
-        if (forceFullReplace || doFullReplace || localList.length === 0) {
-          // Full replace: Supabase is ground truth
+        // Mobile: always trust Supabase for existing data
+        var isMobileDevice = window.innerWidth <= 768;
+        if (forceFullReplace || doFullReplace || localList.length === 0 || isMobileDevice) {
           localStorage.setItem(tbl, JSON.stringify(remoteList));
           return;
         }
 
-        // Timestamp-based merge: for same ID, keep the more recently updated version
+        // Desktop: timestamp-based merge
         var localMap = {};
         localList.forEach(function(x){ if(x.id) localMap[x.id] = x; });
         var remoteMap = {};
