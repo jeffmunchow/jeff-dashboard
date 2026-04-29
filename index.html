@@ -2563,6 +2563,26 @@ async function dbLoad(table) {
   }
 }
 
+async function dbPushOnly(table, list) {
+  // Upsert only — never deletes. Safe for cross-device sync.
+  if (!list || list.length === 0) return;
+  try {
+    var now = new Date().toISOString();
+    const rows = list.map(function(item) {
+      const d = Object.assign({}, item);
+      delete d.id;
+      if (!d._updatedAt) d._updatedAt = now;
+      return { id: item.id, data: d, updated_at: d._updatedAt };
+    }).filter(function(r){ return r.id; });
+    if (rows.length > 0) {
+      const { error } = await sb.from(table).upsert(rows);
+      if (error) throw error;
+    }
+  } catch(e) {
+    console.warn('dbPushOnly error', table, e.message);
+  }
+}
+
 async function dbSaveList(table, list) {
   try {
     // upsert all items — stamp _updatedAt so devices can resolve conflicts
