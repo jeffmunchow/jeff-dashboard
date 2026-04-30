@@ -4646,12 +4646,9 @@ async function loadFromSupabase(forceFullReplace) {
                    'm-updated','s-updated','r-updated',
                    'tarefas_v1_sync','diary_index'];
 
-  // Check if desktop did a full sync after our last load
-  var lastPush = 0, lastPull = 0;
-  try { lastPush = parseInt(await dbMetricLoad('last_push') || '0'); } catch(e){}
-  try { lastPull = parseInt(localStorage.getItem('last_pull') || '0'); } catch(e){}
-  var doFullReplace = lastPush > lastPull;
+  // Track last pull for diagnostics
   localStorage.setItem('last_pull', Date.now().toString());
+  var doFullReplace = false; // Desktop never does full replace
 
   // Load all tables — bidirectional sync with full-replace support
   await Promise.all([
@@ -4666,14 +4663,17 @@ async function loadFromSupabase(forceFullReplace) {
           return;
         }
 
-        // Mobile: always trust Supabase for existing data
+        // Mobile: always trust Supabase (full replace)
+        // Desktop: NEVER full replace — always keep local data, only add new items
         var isMobileDevice = window.innerWidth <= 768;
-        if (forceFullReplace || doFullReplace || localList.length === 0 || isMobileDevice) {
-          localStorage.setItem(tbl, JSON.stringify(remoteList));
+        if (isMobileDevice) {
+          if (remoteList && remoteList.length > 0) {
+            localStorage.setItem(tbl, JSON.stringify(remoteList));
+          }
           return;
         }
 
-        // Desktop: timestamp-based merge
+        // Desktop: add only items from Supabase not already in local (never overwrite)
         var localMap = {};
         localList.forEach(function(x){ if(x.id) localMap[x.id] = x; });
         var remoteMap = {};
