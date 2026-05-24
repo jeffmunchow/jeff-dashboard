@@ -6501,7 +6501,7 @@ document.addEventListener('mousedown', function(e) {
 function renderDiaryArchive() {
   var todayKey = diaryTodayKey();
   var q = ((document.getElementById('diary-archive-search')||{}).value||'').toLowerCase().trim();
-  var entries = getDiaryEntries().filter(function(e){ return e.key !== todayKey; });
+  var entries = getDiaryEntries();
   if (q) {
     entries = entries.filter(function(e) {
       var text = (e.text||'').toLowerCase();
