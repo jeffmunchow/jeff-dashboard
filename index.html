@@ -6502,6 +6502,12 @@ function renderDiaryArchive() {
   var todayKey = diaryTodayKey();
   var q = ((document.getElementById('diary-archive-search')||{}).value||'').toLowerCase().trim();
   var entries = getDiaryEntries();
+  // Ensure today always appears at top, even if empty
+  var hasTodayEntry = entries.some(function(e){ return e.key === todayKey; });
+  if (!hasTodayEntry) {
+    var todayDate = new Date();
+    entries.unshift({ key: todayKey, text: '', html: '', location: localStorage.getItem('diary_location') || '', markers: {} });
+  }
   if (q) {
     entries = entries.filter(function(e) {
       var text = (e.text||'').toLowerCase();
