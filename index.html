@@ -133,7 +133,7 @@
   .diary-entry-item { padding: 0.9rem 0; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: opacity 0.15s; }
   .diary-entry-item:hover { opacity: 0.7; }
   .diary-entry-date { font-size: 0.63rem; color: var(--text); font-weight: 400; margin-bottom: 3px; }
-  .diary-markers { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
+  .diary-markers { display: flex; gap: 2px; align-items: center; flex-shrink: 0; }
   .diary-marker-btn { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 7px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; opacity: 0.3; }
   .diary-marker-btn.active { opacity: 1; color: var(--amber); background: var(--surface2); }
   .diary-marker-btn:hover { background: var(--surface2); opacity: 0.7; }
@@ -6466,7 +6466,7 @@ function getDiaryEntries() {
         var val = JSON.parse(localStorage.getItem(k));
         // Accept entries with either text or html content
         if (val && (val.text || val.html)) {
-          entries.push({ key: k, text: val.text || '', html: val.html || '', location: val.location || '' });
+          entries.push({ key: k, text: val.text || '', html: val.html || '', location: val.location || '', markers: val.markers || {} });
         }
       } catch(e) {}
     }
@@ -6540,7 +6540,7 @@ function renderDiaryArchive() {
           '<svg width="15" height="15" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5a3.5 3.5 0 0 1 2.5 5.9c-.4.4-.5.7-.5 1.1H5c0-.4-.1-.7-.5-1.1A3.5 3.5 0 0 1 6.5 1.5z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><path d="M5 9h3v1.5a1 1 0 0 1-2 0V9z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>' +
         '</button>' +
         '<button class="diary-marker-btn' + gymCls + '" data-key="' + k + '" data-marker="gym" title="Treino">' +
-          '<svg width="15" height="15" viewBox="0 0 13 13" fill="none"><rect x="1" y="5.5" width="2" height="2" rx="0.5" fill="currentColor"/><rect x="10" y="5.5" width="2" height="2" rx="0.5" fill="currentColor"/><rect x="3" y="4" width="1.5" height="5" rx="0.5" fill="currentColor"/><rect x="8.5" y="4" width="1.5" height="5" rx="0.5" fill="currentColor"/><rect x="4.5" y="5.5" width="4" height="2" rx="0.5" fill="currentColor" opacity="0.7"/></svg>' +
+          '<svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M3 11 C3 11 2 9 3 7 C4 5 6 4 7 3 C8 2 9 2 9.5 2.5 C10 3 10 4 9 5 C8.5 5.5 8 6 8 6 C8 6 9.5 5.5 10.5 6 C11.5 6.5 11.5 7.5 11 8 C10.5 8.5 9 9 8 9 C7 9 6.5 8.5 6.5 8.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 8.5 C5.5 9.5 5 10.5 5 11 C5 11.5 5.5 12 6 12 C7 12 8 11 8.5 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>' +
         '</button>' +
       '</div>' +
     '</div>';
