@@ -6528,7 +6528,7 @@ function renderDiaryArchive() {
     var gymCls  = marks.gym  ? ' active' : '';
     var k = e.key;
     return '<div style="padding:0.75rem 0;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:0.5rem;">' +
-      '<div class="diary-entry-click" data-key="' + k + '" style="flex:1;min-width:0;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.6'" onmouseout="this.style.opacity='1'">' +
+      '<div class="diary-entry-click" data-key="' + k + '" style="flex:1;min-width:0;cursor:pointer;transition:opacity 0.15s;">' +
         '<div style="font-size:0.63rem;color:var(--text);margin-bottom:3px;">' + dateStr + '</div>' +
         '<div style="font-size:0.56rem;color:var(--text-hint);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + preview + '</div>' +
       '</div>' +
@@ -6544,23 +6544,15 @@ function renderDiaryArchive() {
         '</button>' +
       '</div>' +
     '</div>';
-  // Event delegation: handles marker clicks and entry clicks
-  (function() {
-    var list = document.getElementById('diary-archive-list');
-    if (!list) return;
-    list.onclick = function(e) {
-      var btn = e.target.closest ? e.target.closest('.diary-marker-btn') : null;
-      if (btn) {
-        e.stopPropagation();
-        toggleDiaryMarker(btn.getAttribute('data-key'), btn.getAttribute('data-marker'));
-        return;
-      }
-      var entry = e.target.closest ? e.target.closest('.diary-entry-click') : null;
-      if (entry) openDiaryEntry(entry.getAttribute('data-key'));
-    };
-  })();
+  }).join('');
+  // Event delegation for clicks
+  el.onclick = function(ev) {
+    var btn = ev.target.closest('.diary-marker-btn');
+    if (btn) { ev.stopPropagation(); toggleDiaryMarker(btn.getAttribute('data-key'), btn.getAttribute('data-marker')); return; }
+    var entry = ev.target.closest('.diary-entry-click');
+    if (entry) openDiaryEntry(entry.getAttribute('data-key'));
+  };
 }
-
 
 function toggleDiaryMarker(key, marker) {
   var entries = getDiaryEntries();
