@@ -6538,14 +6538,14 @@ function renderDiaryArchive() {
         '<div style="font-size:0.63rem;color:var(--text);margin-bottom:3px;">' + dateStr + '</div>' +
         '<div style="font-size:0.56rem;color:var(--text-hint);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + preview + '</div>' +
       '</div>' +
-      '<div class="diary-markers">' +
-        '<button class="diary-marker-btn' + bookCls + '" data-key="' + k + '" data-marker="book" title="Leitura">' +
+      '<div class="diary-markers" onclick="event.stopPropagation()">' +
+        '<button class="diary-marker-btn' + bookCls + '" onclick="toggleDiaryMarker(\'' + k + '\',\'book\')" title="Leitura">' +
           '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" style="transform:scaleY(-1)"><path d="M10 4C10 4 6 3.5 3 5V16C6 14.5 10 15 10 15C10 15 14 14.5 17 16V5C14 3.5 10 4 10 4Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="10" y1="4" x2="10" y2="15" stroke="currentColor" stroke-width="1.2"/></svg>' +
         '</button>' +
-        '<button class="diary-marker-btn' + ideaCls + '" data-key="' + k + '" data-marker="idea" title="Ideia">' +
+        '<button class="diary-marker-btn' + ideaCls + '" onclick="toggleDiaryMarker(\'' + k + '\',\'idea\')" title="Ideia">' +
           '<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M10 3C7.2 3 5 5.2 5 8C5 9.8 5.9 11.4 7.3 12.3C7.8 12.6 8 13.1 8 13.6V15H12V13.6C12 13.1 12.2 12.6 12.7 12.3C14.1 11.4 15 9.8 15 8C15 5.2 12.8 3 10 3Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 15H12M8.5 17H11.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>' +
         '</button>' +
-        '<button class="diary-marker-btn' + gymCls + '" data-key="' + k + '" data-marker="gym" title="Treino">' +
+        '<button class="diary-marker-btn' + gymCls + '" onclick="toggleDiaryMarker(\'' + k + '\',\'gym\')" title="Treino">' +
           '<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="2" y="7.5" width="2.5" height="5" rx="1.2" stroke="currentColor" stroke-width="1.2"/><rect x="15.5" y="7.5" width="2.5" height="5" rx="1.2" stroke="currentColor" stroke-width="1.2"/><rect x="4.5" y="5.5" width="2" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="13.5" y="5.5" width="2" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="6.5" y="8.5" width="7" height="3" rx="1.5" stroke="currentColor" stroke-width="1.2"/></svg>' +
         '</button>' +
       '</div>' +
@@ -6553,9 +6553,7 @@ function renderDiaryArchive() {
   }).join('');
   // Event delegation for clicks
   el.onclick = function(ev) {
-    var btn = ev.target.closest('.diary-marker-btn');
-    if (btn) { ev.stopPropagation(); toggleDiaryMarker(btn.getAttribute('data-key'), btn.getAttribute('data-marker')); return; }
-    var entry = ev.target.closest('.diary-entry-click');
+    var entry = ev.target.closest ? ev.target.closest('.diary-entry-click') : null;
     if (entry) openDiaryEntry(entry.getAttribute('data-key'));
   };
 }
