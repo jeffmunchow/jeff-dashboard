@@ -6563,11 +6563,18 @@ function renderDiaryArchive() {
 function toggleDiaryMarker(key, marker) {
   var entries = getDiaryEntries();
   var entry = entries.find(function(e){ return e.key === key; });
-  if (!entry) return;
+  // If entry doesn't exist yet (e.g. today with no text), create a minimal one
+  if (!entry) {
+    entry = { key: key, text: '', html: '', location: localStorage.getItem('diary_location') || '', markers: {} };
+  }
   if (!entry.markers) entry.markers = {};
   entry.markers[marker] = !entry.markers[marker];
-  localStorage.setItem(key, JSON.stringify(entry));
-  dbMetricSave(key, JSON.stringify(entry)).catch(function(){});
+  // Preserve existing content if any
+  var existing = null;
+  try { existing = JSON.parse(localStorage.getItem(key)); } catch(e){}
+  var toSave = Object.assign({}, existing || {}, { markers: entry.markers });
+  localStorage.setItem(key, JSON.stringify(toSave));
+  dbMetricSave(key, JSON.stringify(toSave)).catch(function(){});
   renderDiaryArchive();
 }
 
