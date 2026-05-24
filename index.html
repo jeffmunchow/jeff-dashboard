@@ -133,6 +133,10 @@
   .diary-entry-item { padding: 0.9rem 0; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: opacity 0.15s; }
   .diary-entry-item:hover { opacity: 0.7; }
   .diary-entry-date { font-size: 0.7rem; color: var(--text); font-weight: 400; margin-bottom: 3px; }
+  .diary-markers { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .diary-marker-btn { background: none; border: none; cursor: pointer; padding: 2px; opacity: 0.18; transition: opacity 0.15s, color 0.15s; line-height: 1; color: var(--text); }
+  .diary-marker-btn.active { opacity: 1; color: var(--amber); }
+  .diary-marker-btn:hover { opacity: 0.45; }
   .diary-entry-preview { font-size: 0.62rem; color: var(--text-hint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .diary-entry-empty { font-size: 0.75rem; color: var(--text-hint); font-style: italic; padding: 1rem 0; }
   /* Diary modal for past entries */
@@ -6518,11 +6522,41 @@ function renderDiaryArchive() {
     var d = diaryKeyToDate(e.key);
     var dateStr = d ? diaryFormatFullDate(d) : e.key;
     var preview = e.location || '—';
-    return '<div onclick="openDiaryEntry(\'' + e.key + '\')" style="padding:0.75rem 0;border-bottom:0.5px solid var(--border);cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity=\'0.6\'" onmouseout="this.style.opacity=\'1\'">' +
-      '<div style="font-size:0.8rem;color:var(--text);margin-bottom:3px;">' + dateStr + '</div>' +
-      '<div style="font-size:0.7rem;color:var(--text-hint);font-style:italic;">' + preview + '</div>' +
+    var marks = e.markers || {};
+    var bookCls = marks.book ? ' active' : '';
+    var ideaCls = marks.idea ? ' active' : '';
+    var gymCls  = marks.gym  ? ' active' : '';
+    var k = e.key;
+    return '<div style="padding:0.75rem 0;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:0.5rem;">' +
+      '<div onclick="openDiaryEntry(\'' + k + '\')" style="flex:1;min-width:0;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity=\'0.6\'" onmouseout="this.style.opacity=\'1\'">' +
+        '<div style="font-size:0.8rem;color:var(--text);margin-bottom:3px;">' + dateStr + '</div>' +
+        '<div style="font-size:0.7rem;color:var(--text-hint);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + preview + '</div>' +
+      '</div>' +
+      '<div class="diary-markers" onclick="event.stopPropagation()">' +
+        '<button class="diary-marker-btn' + bookCls + '" onclick="toggleDiaryMarker(\'' + k + '\',\'book\')" title="Leitura">' +
+          '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2" y="1" width="7" height="10" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M2 10.5h7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M2 3.5h5M2 5.5h5M2 7.5h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><rect x="9" y="1" width="2" height="10" rx="0.5" fill="currentColor" opacity="0.4"/></svg>' +
+        '</button>' +
+        '<button class="diary-marker-btn' + ideaCls + '" onclick="toggleDiaryMarker(\'' + k + '\',\'idea\')" title="Ideia">' +
+          '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5a3.5 3.5 0 0 1 2.5 5.9c-.4.4-.5.7-.5 1.1H5c0-.4-.1-.7-.5-1.1A3.5 3.5 0 0 1 6.5 1.5z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><path d="M5 9h3v1.5a1 1 0 0 1-2 0V9z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>' +
+        '</button>' +
+        '<button class="diary-marker-btn' + gymCls + '" onclick="toggleDiaryMarker(\'' + k + '\',\'gym\')" title="Treino">' +
+          '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="5.5" width="2" height="2" rx="0.5" fill="currentColor"/><rect x="10" y="5.5" width="2" height="2" rx="0.5" fill="currentColor"/><rect x="3" y="4" width="1.5" height="5" rx="0.5" fill="currentColor"/><rect x="8.5" y="4" width="1.5" height="5" rx="0.5" fill="currentColor"/><rect x="4.5" y="5.5" width="4" height="2" rx="0.5" fill="currentColor" opacity="0.7"/></svg>' +
+        '</button>' +
+      '</div>' +
     '</div>';
   }).join('');
+}
+
+
+function toggleDiaryMarker(key, marker) {
+  var entries = getDiaryEntries();
+  var entry = entries.find(function(e){ return e.key === key; });
+  if (!entry) return;
+  if (!entry.markers) entry.markers = {};
+  entry.markers[marker] = !entry.markers[marker];
+  localStorage.setItem(key, JSON.stringify(entry));
+  dbMetricSave(key, JSON.stringify(entry)).catch(function(){});
+  renderDiaryArchive();
 }
 
 function showDiaryView() {
