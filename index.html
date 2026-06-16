@@ -10052,13 +10052,7 @@ function showRadarView() {
           </clipPath>
         </defs>
 
-        <!-- Sector fills -->
-        <path d="M250,250 L250,10 A240,240 0 0,0 10,250 Z" fill="#C4780A" opacity="0.06"/>
-        <path d="M250,250 L490,250 A240,240 0 0,0 250,10 Z" fill="#0A7864" opacity="0.06"/>
-        <path d="M250,250 L250,490 A240,240 0 0,0 490,250 Z" fill="#7B5EA7" opacity="0.06"/>
-        <path d="M250,250 L10,250 A240,240 0 0,0 250,490 Z" fill="#C43A1A" opacity="0.06"/>
-
-        <!-- Concentric rings (10 levels = 10% each, max radius 240) -->
+        <!-- Concentric rings -->
         <circle cx="250" cy="250" r="24"  fill="none" stroke="var(--border-strong)" stroke-width="0.6"/>
         <circle cx="250" cy="250" r="48"  fill="none" stroke="var(--border-strong)" stroke-width="0.6"/>
         <circle cx="250" cy="250" r="72"  fill="none" stroke="var(--border-strong)" stroke-width="0.6"/>
@@ -10070,33 +10064,31 @@ function showRadarView() {
         <circle cx="250" cy="250" r="216" fill="none" stroke="var(--border-strong)" stroke-width="0.6"/>
         <circle cx="250" cy="250" r="240" fill="none" stroke="var(--border-strong)" stroke-width="1"/>
 
-        <!-- 20 spokes (4 interior per quadrant, at 18° each) -->
-        <line x1="250" y1="250" x2="250"   y2="10"    stroke="var(--border-strong)" stroke-width="1.2"/>
-        <line x1="250" y1="250" x2="324.16" y2="21.75" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="391.07" y2="55.84" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="444.16" y2="108.93" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="478.25" y2="175.84" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="490"   y2="250"   stroke="var(--border-strong)" stroke-width="1.2"/>
-        <line x1="250" y1="250" x2="478.25" y2="324.16" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="444.16" y2="391.07" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="391.07" y2="444.16" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="324.16" y2="478.25" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="250"   y2="490"   stroke="var(--border-strong)" stroke-width="1.2"/>
-        <line x1="250" y1="250" x2="175.84" y2="478.25" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="108.93" y2="444.16" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="55.84"  y2="391.07" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="21.75"  y2="324.16" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="10"    y2="250"   stroke="var(--border-strong)" stroke-width="1.2"/>
-        <line x1="250" y1="250" x2="21.75"  y2="175.84" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="55.84"  y2="108.93" stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="108.93" y2="55.84"  stroke="var(--border-strong)" stroke-width="0.6"/>
-        <line x1="250" y1="250" x2="175.84" y2="21.75"  stroke="var(--border-strong)" stroke-width="0.6"/>
-
-        <!-- Sector divider lines (thicker, colored) -->
-        <line x1="250" y1="250" x2="250" y2="10"   stroke="#C4780A" stroke-width="1.5" opacity="0.5"/>
-        <line x1="250" y1="250" x2="490" y2="250"  stroke="#0A7864" stroke-width="1.5" opacity="0.5"/>
-        <line x1="250" y1="250" x2="250" y2="490"  stroke="#7B5EA7" stroke-width="1.5" opacity="0.5"/>
-        <line x1="250" y1="250" x2="10" y2="250"   stroke="#C43A1A" stroke-width="1.5" opacity="0.5"/>
+        <!-- Spokes coloridos por quadrante -->
+        <!-- Münchow Studio (teal) — 0° a 90° -->
+        <line x1="250" y1="250" x2="250"   y2="10"    stroke="#0A7864" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="324.16" y2="21.75" stroke="#0A7864" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="391.07" y2="55.84" stroke="#0A7864" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="444.16" y2="108.93" stroke="#0A7864" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="478.25" y2="175.84" stroke="#0A7864" stroke-width="1" opacity="0.6"/>
+        <!-- Kelvn (purple) — 90° a 180° -->
+        <line x1="250" y1="250" x2="490"   y2="250"   stroke="#7B5EA7" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="478.25" y2="324.16" stroke="#7B5EA7" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="444.16" y2="391.07" stroke="#7B5EA7" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="391.07" y2="444.16" stroke="#7B5EA7" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="324.16" y2="478.25" stroke="#7B5EA7" stroke-width="1" opacity="0.6"/>
+        <!-- Releio (coral) — 180° a 270° -->
+        <line x1="250" y1="250" x2="250"   y2="490"   stroke="#C43A1A" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="175.84" y2="478.25" stroke="#C43A1A" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="108.93" y2="444.16" stroke="#C43A1A" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="55.84"  y2="391.07" stroke="#C43A1A" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="21.75"  y2="324.16" stroke="#C43A1A" stroke-width="1" opacity="0.6"/>
+        <!-- Pessoal (amber) — 270° a 360° -->
+        <line x1="250" y1="250" x2="10"    y2="250"   stroke="#C4780A" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="21.75"  y2="175.84" stroke="#C4780A" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="55.84"  y2="108.93" stroke="#C4780A" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="108.93" y2="55.84"  stroke="#C4780A" stroke-width="1" opacity="0.6"/>
+        <line x1="250" y1="250" x2="175.84" y2="21.75"  stroke="#C4780A" stroke-width="1" opacity="0.6"/>
 
         <!-- Center dot -->
         <circle cx="250" cy="250" r="3" fill="var(--text-muted)" opacity="0.5"/>
