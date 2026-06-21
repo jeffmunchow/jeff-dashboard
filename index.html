@@ -6395,6 +6395,7 @@ function _reRenderAll() {
   if (typeof renderFeedbacks === 'function') renderFeedbacks();
   var tv = document.getElementById('tarefas-view');
   if (tv && tv.style.display !== 'none' && typeof renderTarefasDia === 'function') renderTarefasDia();
+  if (typeof renderDiaryArchive === 'function') renderDiaryArchive();
 }
 
   loadFromSupabase().then(function() {
