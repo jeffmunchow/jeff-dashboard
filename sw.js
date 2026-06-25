@@ -1,5 +1,5 @@
 // Cache com timestamp único — muda a cada deploy, força atualização automática
-const CACHE = 'jeff-v20260616160000';
+const CACHE = 'jeff-v20260625000000';
 
 self.addEventListener('install', function(e) {
   e.waitUntil(
