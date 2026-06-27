@@ -186,6 +186,8 @@
   .btn:hover { background: var(--surface); color: var(--text); }
   .btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
   .btn.primary:hover { opacity: 0.82; }
+  .btn-cit { background: transparent; color: var(--text); border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm); }
+  .btn-cit:hover { background: var(--surface); color: var(--text); }
   .theme-toggle {
     position: relative; width: 44px; height: 24px;
     background: var(--toggle-bg); border-radius: 12px;
@@ -1016,7 +1018,7 @@
       <div class="section-actions">
         <input type="text" id="cit-search" placeholder="Buscar..." oninput="renderCitacoes()"
           style="font-family:'DM Sans',sans-serif;font-size:0.73rem;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:5px 9px;color:var(--text);outline:none;width:240px;" class="cit-search-input">
-        <button class="btn" onclick="openCitacaoModal()" style="background:transparent;color:var(--text);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);">+ Citação</button>
+        <button class="btn btn-cit" onclick="openCitacaoModal()">+ Citação</button>
       </div>
     </div>
     <div id="cit-list"></div>
