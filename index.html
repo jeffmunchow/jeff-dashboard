@@ -316,6 +316,7 @@
   .field-row label { display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
   .field-row input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; color: var(--text); outline: none; transition: background 0.25s, border-color 0.25s, color 0.25s; }
   .field-row input:focus { border-color: var(--border-strong); }
+  .field-row input::placeholder, .field-row textarea::placeholder { color: var(--text-hint); opacity: 1; }
   .modal-actions { display: flex; gap: 8px; margin-top: 1.5rem; justify-content: flex-end; }
   .modal-actions .btn:hover { background: var(--surface2); color: var(--text); }
   .footer { text-align: center; padding: 0.25rem 1.25rem 0.75rem; font-size: 0.68rem; color: var(--text-hint); font-weight: 300; font-style: italic; letter-spacing: 0.01em; }
@@ -2340,16 +2341,26 @@
       </div>
       <div class="field-row"><label>Páginas</label><input type="number" id="rlf-paginas" placeholder="ex: 432" min="1"></div>
       <div class="field-row"><label>Finalizado em</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="rlf-finalizado"></div>
-      <div class="field-row"><label>Status</label>
-        <select id="rlf-status"><option>Fila</option><option>Lendo</option><option>Lido</option><option>Curado</option><option>Publicado</option></select>
+      <div class="field-row" style="position:relative;"><label>Status</label>
+        <button type="button" id="rlf-status-btn" onclick="toggleRlfStatusMenu()" style="width:100%;text-align:left;font-family:'DM Sans',sans-serif;font-size:0.88rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;color:var(--text);outline:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+          <span id="rlf-status-label">Fila</span><span style="font-size:0.6rem;">▾</span>
+        </button>
+        <div id="rlf-status-menu" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);z-index:50;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.15);">
+          <div class="rl-status-menu-item" onclick="setRlfStatus('Fila')" style="padding:7px 12px;font-size:0.85rem;color:var(--text);cursor:pointer;">Fila</div>
+          <div class="rl-status-menu-item" onclick="setRlfStatus('Lendo')" style="padding:7px 12px;font-size:0.85rem;color:var(--text);cursor:pointer;">Lendo</div>
+          <div class="rl-status-menu-item" onclick="setRlfStatus('Lido')" style="padding:7px 12px;font-size:0.85rem;color:var(--text);cursor:pointer;">Lido</div>
+          <div class="rl-status-menu-item" onclick="setRlfStatus('Curado')" style="padding:7px 12px;font-size:0.85rem;color:var(--text);cursor:pointer;">Curado</div>
+          <div class="rl-status-menu-item" onclick="setRlfStatus('Publicado')" style="padding:7px 12px;font-size:0.85rem;color:var(--text);cursor:pointer;">Publicado</div>
+        </div>
+        <select id="rlf-status" style="display:none;"><option>Fila</option><option>Lendo</option><option>Lido</option><option>Curado</option><option>Publicado</option></select>
       </div>
       <div class="field-row" style="grid-column:1/-1;"><label>Resumo / reflexão pessoal</label><textarea id="rlf-resumo" rows="3" placeholder="O que mais tocou em você neste livro..."></textarea></div>
     </div>
     <div class="modal-actions">
-      <button class="btn" id="rl-livro-delete-btn" style="display:none;color:var(--coral);" onclick="deleteReleioLivro()">Excluir</button>
+      <button class="btn" id="rl-livro-delete-btn" style="display:none;color:var(--coral);border-radius:var(--radius-sm);" onclick="deleteReleioLivro()">Excluir</button>
       <div style="flex:1;"></div>
-      <button class="btn" onclick="closeReleioLivroModal()">Cancelar</button>
-      <button class="btn primary" onclick="saveReleioLivro()">Salvar</button>
+      <button class="btn" style="border-radius:var(--radius-sm);" onclick="closeReleioLivroModal()">Cancelar</button>
+      <button class="btn btn-cit" onclick="saveReleioLivro()">Salvar</button>
     </div>
   </div>
 </div>
@@ -5990,11 +6001,23 @@ function setRlStatusFilter(value,label){
   document.getElementById('rl-livro-status-menu').style.display='none';
   renderReleioLivros();
 }
+function toggleRlfStatusMenu(){
+  var menu=document.getElementById('rlf-status-menu');
+  if(!menu)return;
+  menu.style.display=(menu.style.display==='none'||!menu.style.display)?'block':'none';
+}
+function setRlfStatus(value){
+  document.getElementById('rlf-status').value=value;
+  document.getElementById('rlf-status-label').textContent=value;
+  document.getElementById('rlf-status-menu').style.display='none';
+}
 document.addEventListener('click',function(e){
-  var btn=document.getElementById('rl-livro-status-btn'),menu=document.getElementById('rl-livro-status-menu');
-  if(menu&&menu.style.display==='block'&&!menu.contains(e.target)&&e.target!==btn&&!btn.contains(e.target)){
-    menu.style.display='none';
-  }
+  [['rl-livro-status-btn','rl-livro-status-menu'],['rlf-status-btn','rlf-status-menu']].forEach(function(pair){
+    var btn=document.getElementById(pair[0]),menu=document.getElementById(pair[1]);
+    if(btn&&menu&&menu.style.display==='block'&&!menu.contains(e.target)&&e.target!==btn&&!btn.contains(e.target)){
+      menu.style.display='none';
+    }
+  });
 });
 function renderReleioLivros(){
   // Restore sort indicator
@@ -6101,6 +6124,7 @@ function openReleioLivroModal(id){
     document.getElementById('rlf-editora').value=l.editora||'';document.getElementById('rlf-genero').value=l.genero||'';
     document.getElementById('rlf-paginas').value=l.paginas||'';setDateValue('rlf-finalizado', l.finalizado||'');
     document.getElementById('rlf-status').value=l.status||'Fila';
+    document.getElementById('rlf-status-label').textContent=l.status||'Fila';
     document.getElementById('rlf-resumo').value=l.resumo||'';
     document.getElementById('rl-livro-delete-btn').style.display='inline-flex';
   } else {
@@ -6110,6 +6134,7 @@ function openReleioLivroModal(id){
     var dateEl = document.getElementById('rlf-finalizado');
     if (dateEl) { dateEl.value=''; dateEl.setAttribute('data-raw',''); dateEl.setAttribute('data-value',''); }
     document.getElementById('rlf-status').value='Fila';
+    document.getElementById('rlf-status-label').textContent='Fila';
     document.getElementById('rl-livro-delete-btn').style.display='none';
   }
   document.getElementById('rl-livro-overlay').classList.add('open');
