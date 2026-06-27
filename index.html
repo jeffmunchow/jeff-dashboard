@@ -286,8 +286,7 @@
   #diary-archive-search::placeholder { color: var(--text-hint); opacity: 1; }
   #cit-search::placeholder { color: var(--text-hint); opacity: 1; }
   #rl-livro-search::placeholder { color: var(--text-hint); opacity: 1; }
-  #rl-livro-status-filter { color-scheme: light; }
-  [data-theme="dark"] #rl-livro-status-filter { color-scheme: dark; }
+  .rl-status-menu-item:hover { background: var(--surface2); }
   /* Softer placeholder for client modal */
   #client-overlay input::placeholder,
   #client-overlay textarea::placeholder { color: var(--border-strong); opacity: 1; }
@@ -1937,9 +1936,22 @@
         <div class="section-title">Biblioteca</div>
         <div class="section-actions">
           <input type="text" id="rl-livro-search" placeholder="Buscar..." oninput="renderReleioLivros()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:transparent;border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
-          <select id="rl-livro-status-filter" onchange="renderReleioLivros()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:transparent;border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
-            <option value="">Todos</option><option>Lendo</option><option>Lido</option><option>Curado</option><option>Publicado</option><option>Fila</option>
-          </select>
+          <div style="position:relative;display:inline-block;">
+            <button type="button" id="rl-livro-status-btn" onclick="toggleRlStatusMenu()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:transparent;border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text-hint);outline:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+              <span id="rl-livro-status-label">Todos</span><span style="font-size:0.6rem;">▾</span>
+            </button>
+            <div id="rl-livro-status-menu" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);min-width:130px;z-index:50;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.15);">
+              <div class="rl-status-menu-item" onclick="setRlStatusFilter('','Todos')" style="padding:7px 12px;font-size:0.75rem;color:var(--text);cursor:pointer;">Todos</div>
+              <div class="rl-status-menu-item" onclick="setRlStatusFilter('Lendo','Lendo')" style="padding:7px 12px;font-size:0.75rem;color:var(--text);cursor:pointer;">Lendo</div>
+              <div class="rl-status-menu-item" onclick="setRlStatusFilter('Lido','Lido')" style="padding:7px 12px;font-size:0.75rem;color:var(--text);cursor:pointer;">Lido</div>
+              <div class="rl-status-menu-item" onclick="setRlStatusFilter('Curado','Curado')" style="padding:7px 12px;font-size:0.75rem;color:var(--text);cursor:pointer;">Curado</div>
+              <div class="rl-status-menu-item" onclick="setRlStatusFilter('Publicado','Publicado')" style="padding:7px 12px;font-size:0.75rem;color:var(--text);cursor:pointer;">Publicado</div>
+              <div class="rl-status-menu-item" onclick="setRlStatusFilter('Fila','Fila')" style="padding:7px 12px;font-size:0.75rem;color:var(--text);cursor:pointer;">Fila</div>
+            </div>
+            <select id="rl-livro-status-filter" style="display:none;">
+              <option value="">Todos</option><option>Lendo</option><option>Lido</option><option>Curado</option><option>Publicado</option><option>Fila</option>
+            </select>
+          </div>
           <button class="btn btn-cit" onclick="openReleioLivroModal()">+ Livro</button>
         </div>
       </div>
@@ -5967,6 +5979,23 @@ function sortLivros(col) {
   renderReleioLivros();
 }
 
+function toggleRlStatusMenu(){
+  var menu=document.getElementById('rl-livro-status-menu');
+  if(!menu)return;
+  menu.style.display=(menu.style.display==='none'||!menu.style.display)?'block':'none';
+}
+function setRlStatusFilter(value,label){
+  document.getElementById('rl-livro-status-filter').value=value;
+  document.getElementById('rl-livro-status-label').textContent=label;
+  document.getElementById('rl-livro-status-menu').style.display='none';
+  renderReleioLivros();
+}
+document.addEventListener('click',function(e){
+  var btn=document.getElementById('rl-livro-status-btn'),menu=document.getElementById('rl-livro-status-menu');
+  if(menu&&menu.style.display==='block'&&!menu.contains(e.target)&&e.target!==btn&&!btn.contains(e.target)){
+    menu.style.display='none';
+  }
+});
 function renderReleioLivros(){
   // Restore sort indicator
   ['titulo','autor','editora','genero','paginas','finalizado','status','avaliacao'].forEach(function(c) {
