@@ -712,6 +712,17 @@
 </head>
 <body>
 
+<!-- Calendário customizado (date picker) -->
+<div id="date-calendar-popup" style="display:none;position:fixed;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius);box-shadow:0 8px 28px rgba(0,0,0,0.25);padding:0.9rem;z-index:500;width:260px;font-family:'DM Sans',sans-serif;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;">
+    <button type="button" onclick="shiftDateCalendarMonth(-1)" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:0.85rem;padding:4px 8px;border-radius:var(--radius-sm);">‹</button>
+    <div id="date-calendar-label" style="font-size:0.78rem;color:var(--text);text-transform:capitalize;"></div>
+    <button type="button" onclick="shiftDateCalendarMonth(1)" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:0.85rem;padding:4px 8px;border-radius:var(--radius-sm);">›</button>
+  </div>
+  <div id="date-calendar-weekdays" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:2px;"></div>
+  <div id="date-calendar-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
+</div>
+
 <!-- Mobile nav drawer -->
 <div id="mobile-drawer-overlay" onclick="closeMobileMenu()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:299;"></div>
 <div id="mobile-drawer" style="display:none;position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--surface);z-index:300;flex-direction:column;padding:1.5rem 1rem;gap:4px;border-right:0.5px solid var(--border);overflow-y:auto;">
@@ -2340,7 +2351,7 @@
         <div id="ac-genero" class="ac-dropdown" style="display:none;"></div>
       </div>
       <div class="field-row"><label>Páginas</label><input type="number" id="rlf-paginas" placeholder="ex: 432" min="1"></div>
-      <div class="field-row"><label>Finalizado em</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="rlf-finalizado"></div>
+      <div class="field-row" style="position:relative;"><label>Finalizado em</label><input type="text" class="smart-date-input" placeholder="DD/MM/AAAA" autocomplete="off" maxlength="10" id="rlf-finalizado" readonly onclick="openDateCalendar('rlf-finalizado',this)" style="cursor:pointer;"></div>
       <div class="field-row" style="position:relative;"><label>Status</label>
         <button type="button" id="rlf-status-btn" onclick="toggleRlfStatusMenu()" style="width:100%;text-align:left;font-family:'DM Sans',sans-serif;font-size:0.88rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;color:var(--text);outline:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
           <span id="rlf-status-label">Fila</span><span style="font-size:0.6rem;">▾</span>
@@ -6001,6 +6012,69 @@ function setRlStatusFilter(value,label){
   document.getElementById('rl-livro-status-menu').style.display='none';
   renderReleioLivros();
 }
+var _dcalInputId=null, _dcalYear=null, _dcalMonth=null;
+var _dcalMonthNames=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+var _dcalWeekdays=['D','S','T','Q','Q','S','S'];
+function openDateCalendar(inputId, anchorEl){
+  _dcalInputId=inputId;
+  var current=getDateValue(inputId);
+  var base=current?new Date(current+'T00:00:00'):new Date();
+  _dcalYear=base.getFullYear(); _dcalMonth=base.getMonth();
+  var popup=document.getElementById('date-calendar-popup');
+  var rect=anchorEl.getBoundingClientRect();
+  popup.style.top=(rect.bottom+6)+'px';
+  popup.style.left=Math.min(rect.left,window.innerWidth-280)+'px';
+  popup.style.display='block';
+  renderDateCalendar();
+}
+function closeDateCalendar(){
+  document.getElementById('date-calendar-popup').style.display='none';
+  _dcalInputId=null;
+}
+function shiftDateCalendarMonth(delta){
+  _dcalMonth+=delta;
+  if(_dcalMonth<0){_dcalMonth=11;_dcalYear--;}
+  if(_dcalMonth>11){_dcalMonth=0;_dcalYear++;}
+  renderDateCalendar();
+}
+function renderDateCalendar(){
+  var label=document.getElementById('date-calendar-label');
+  label.textContent=_dcalMonthNames[_dcalMonth]+' de '+_dcalYear;
+  var wd=document.getElementById('date-calendar-weekdays');
+  wd.innerHTML=_dcalWeekdays.map(function(d){return '<div style="text-align:center;font-size:0.62rem;color:var(--text-hint);padding:2px 0;">'+d+'</div>';}).join('');
+  var current=_dcalInputId?getDateValue(_dcalInputId):'';
+  var firstDay=new Date(_dcalYear,_dcalMonth,1).getDay();
+  var daysInMonth=new Date(_dcalYear,_dcalMonth+1,0).getDate();
+  var todayStr=_todayKey?_todayKey():'';
+  var cells='';
+  for(var i=0;i<firstDay;i++){cells+='<div></div>';}
+  for(var d=1;d<=daysInMonth;d++){
+    var mm=(_dcalMonth+1<10?'0':'')+(_dcalMonth+1), dd=(d<10?'0':'')+d;
+    var iso=_dcalYear+'-'+mm+'-'+dd;
+    var isSelected=(iso===current);
+    var isToday=(iso===todayStr);
+    var bg=isSelected?'var(--text)':'transparent';
+    var fg=isSelected?'var(--bg)':'var(--text)';
+    var extra=(!isSelected&&isToday)?'border:0.5px solid var(--border-strong);':'';
+    cells+='<div onclick="selectDateCalendarDay('+d+')" style="text-align:center;font-size:0.74rem;padding:6px 0;border-radius:var(--radius-sm);cursor:pointer;background:'+bg+';color:'+fg+';'+extra+'" '+
+      'onmouseover="if(this.style.background===\'transparent\')this.style.background=\'var(--surface2)\';" '+
+      'onmouseout="if(this.style.color!==\'var(--bg)\')this.style.background=\'transparent\';">'+d+'</div>';
+  }
+  document.getElementById('date-calendar-grid').innerHTML=cells;
+}
+function selectDateCalendarDay(d){
+  var mm=(_dcalMonth+1<10?'0':'')+(_dcalMonth+1), dd=(d<10?'0':'')+d;
+  var iso=_dcalYear+'-'+mm+'-'+dd;
+  setDateValue(_dcalInputId, iso);
+  document.getElementById(_dcalInputId).dispatchEvent(new Event('change',{bubbles:true}));
+  closeDateCalendar();
+}
+document.addEventListener('click',function(e){
+  var popup=document.getElementById('date-calendar-popup');
+  if(popup&&popup.style.display==='block'&&!popup.contains(e.target)&&!(_dcalInputId&&e.target===document.getElementById(_dcalInputId))){
+    closeDateCalendar();
+  }
+});
 function toggleRlfStatusMenu(){
   var menu=document.getElementById('rlf-status-menu');
   if(!menu)return;
