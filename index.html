@@ -285,6 +285,9 @@
   .notes-area textarea::placeholder { color: var(--text-hint); }
   #diary-archive-search::placeholder { color: var(--text-hint); opacity: 1; }
   #cit-search::placeholder { color: var(--text-hint); opacity: 1; }
+  #rl-livro-search::placeholder { color: var(--text-hint); opacity: 1; }
+  #rl-livro-status-filter { color-scheme: light; }
+  [data-theme="dark"] #rl-livro-status-filter { color-scheme: dark; }
   /* Softer placeholder for client modal */
   #client-overlay input::placeholder,
   #client-overlay textarea::placeholder { color: var(--border-strong); opacity: 1; }
@@ -395,6 +398,7 @@
   .badge-entregue    { background: #E8F5E9; color: #2E7D32; }
   [data-theme="dark"] .badge-entregue { background: #0A1F0B; color: #66BB6A; }
   .badge-finalizado  { background: var(--surface2); color: var(--text-hint); }
+  #rl-livros-table .badge { background: transparent; padding: 2px 0; }
   /* Agenda items */
   .agenda-list { display: flex; flex-direction: column; }
   .agenda-item { background: var(--surface); padding: 0.9rem 1.25rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; border-bottom: 0.5px solid var(--border-strong); }
@@ -1932,11 +1936,11 @@
       <div class="section-header">
         <div class="section-title">Biblioteca</div>
         <div class="section-actions">
-          <input type="text" id="rl-livro-search" placeholder="Buscar livro ou autor..." oninput="renderReleioLivros()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
-          <select id="rl-livro-status-filter" onchange="renderReleioLivros()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
+          <input type="text" id="rl-livro-search" placeholder="Buscar..." oninput="renderReleioLivros()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:transparent;border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
+          <select id="rl-livro-status-filter" onchange="renderReleioLivros()" style="font-family:'DM Sans',sans-serif;font-size:0.75rem;background:transparent;border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);outline:none;">
             <option value="">Todos</option><option>Lendo</option><option>Lido</option><option>Curado</option><option>Publicado</option><option>Fila</option>
           </select>
-          <button class="btn primary" onclick="openReleioLivroModal()">+ Livro</button>
+          <button class="btn btn-cit" onclick="openReleioLivroModal()">+ Livro</button>
         </div>
       </div>
       <div class="table-wrap"><div class="table-scroll">
