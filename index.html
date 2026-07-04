@@ -10182,49 +10182,104 @@ async function forceSyncAll() {
   }, 60000);
 })();
 
-/* ── PROJETOS (barras de metas por projeto) ────────────────────────
+/* ── PROJETOS (linhas de metas por projeto, profundidade livre) ─────
    Dados de exemplo — ainda não persistem no Supabase. Próximo passo:
-   ligar PROJETOS_DATA a uma tabela própria (hoje só as submetas são
-   editáveis em memória, durante a sessão). */
+   ligar PROJETOS_DATA a uma tabela própria (hoje os títulos só são
+   editáveis em memória, durante a sessão). Cada nó é {title, children}
+   e pode ser aninhado indefinidamente. */
 var PROJETOS_DATA = [
   {name:'Re.leio', dot:'#534AB7', goals:[
-    {title:'Lançar app', subs:['Definir MVP','Testar com 10 leitores','Publicar na loja']},
-    {title:'100 assinantes', subs:['Campanha de indicação','Parceria com 3 perfis']},
-    {title:'Monetização', subs:['Plano Pro','Checkout Stripe']}
+    {title:'Lançar app', children:[
+      {title:'Definir MVP', children:[
+        {title:'Escopo do MVP', children:[]},
+        {title:'Prazo de entrega', children:[]}
+      ]},
+      {title:'Testar com 10 leitores', children:[]},
+      {title:'Publicar na loja', children:[]}
+    ]},
+    {title:'100 assinantes', children:[
+      {title:'Campanha de indicação', children:[]},
+      {title:'Parceria com 3 perfis', children:[]}
+    ]},
+    {title:'Monetização', children:[
+      {title:'Plano Pro', children:[]},
+      {title:'Checkout Stripe', children:[]}
+    ]}
   ]},
   {name:'Vikka.io', dot:'#0F6E56', goals:[
-    {title:'CloudKit', subs:['Ativar capability no Xcode','Testar sync entre devices']},
-    {title:'Versão Mac', subs:['Menu bar app','Compra universal']},
-    {title:'App Store', subs:['Screenshots','Descrição','Revisão da Apple']}
+    {title:'CloudKit', children:[
+      {title:'Ativar capability no Xcode', children:[
+        {title:'Criar conta paga', children:[]},
+        {title:'Configurar entitlements', children:[]}
+      ]},
+      {title:'Testar sync entre devices', children:[]}
+    ]},
+    {title:'Versão Mac', children:[
+      {title:'Menu bar app', children:[]},
+      {title:'Compra universal', children:[]}
+    ]},
+    {title:'App Store', children:[
+      {title:'Screenshots', children:[]},
+      {title:'Descrição', children:[]},
+      {title:'Revisão da Apple', children:[]}
+    ]}
   ]},
   {name:'Kelvn', dot:'#993C1D', goals:[
-    {title:'Compliance App Store', subs:['Resolver regra 3.1.1','Revisão jurídica']},
-    {title:'LGPD', subs:['Política de privacidade','Termos de uso']},
-    {title:'Onboarding', subs:['Fluxo guiado','Vídeo tutorial']}
+    {title:'Compliance App Store', children:[
+      {title:'Resolver regra 3.1.1', children:[]},
+      {title:'Revisão jurídica', children:[]}
+    ]},
+    {title:'LGPD', children:[
+      {title:'Política de privacidade', children:[]},
+      {title:'Termos de uso', children:[]}
+    ]},
+    {title:'Onboarding', children:[
+      {title:'Fluxo guiado', children:[]},
+      {title:'Vídeo tutorial', children:[]}
+    ]}
   ]},
   {name:'Café', dot:'#993556', goals:[
-    {title:'Identidade visual', subs:['Logo','Paleta de cores']},
-    {title:'Cardápio', subs:['Precificação','Fotos dos produtos']}
+    {title:'Identidade visual', children:[
+      {title:'Logo', children:[]},
+      {title:'Paleta de cores', children:[]}
+    ]},
+    {title:'Cardápio', children:[
+      {title:'Precificação', children:[]},
+      {title:'Fotos dos produtos', children:[]}
+    ]}
   ]},
   {name:'Münchow Studio', dot:'#5F5E5A', goals:[
-    {title:'Novo site', subs:['Portfólio atualizado','SEO técnico']},
-    {title:'Captação', subs:['3 ensaios fechados','Parcerias com fornecedores']}
+    {title:'Novo site', children:[
+      {title:'Portfólio atualizado', children:[]},
+      {title:'SEO técnico', children:[]}
+    ]},
+    {title:'Captação', children:[
+      {title:'3 ensaios fechados', children:[]},
+      {title:'Parcerias com fornecedores', children:[]}
+    ]}
   ]}
 ];
 
-var PROJ_PHASE1_MS = 320;
-var PROJ_PHASE2_MS = 380;
-var _projState = PROJETOS_DATA.map(function(){ return {view:'meta', activeGoal:null, animating:false}; });
-
+var PROJ_ANIM_MS = 360;
 var PROJ_ROW_H = 54;
 var PROJ_LINE_TOP = 20;
 var PROJ_TICK_TOP = 14;
+var _projState = PROJETOS_DATA.map(function(){ return {path:[], animating:false}; });
 
 function projBuildLabel(p){
   return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'+
     '<span style="width:8px;height:8px;border-radius:50%;background:'+p.dot+';flex-shrink:0;"></span>'+
     '<span style="font-size:0.82rem;font-weight:500;color:var(--text);">'+p.name+'</span>'+
   '</div>';
+}
+
+function projGetNode(pi, path){
+  var node = {children: PROJETOS_DATA[pi].goals};
+  for (var d=0; d<path.length; d++) node = node.children[path[d]];
+  return node;
+}
+function projChildren(pi, path){
+  return projGetNode(pi, path).children;
 }
 
 function projInitAll(){
@@ -10234,191 +10289,133 @@ function projInitAll(){
   PROJETOS_DATA.forEach(function(p, pi){
     var wrap = document.createElement('div');
     wrap.innerHTML = projBuildLabel(p) +
-      '<div style="position:relative;height:'+PROJ_ROW_H+'px;">'+
-        '<div style="position:absolute;left:0;right:0;top:'+PROJ_LINE_TOP+'px;height:1px;background:'+p.dot+';pointer-events:none;"></div>'+
-        '<div class="proj-segs" id="proj-bar-'+pi+'" style="position:absolute;inset:0;"></div>'+
-      '</div>';
+      '<div class="proj-row" id="proj-row-'+pi+'" style="position:relative;height:'+PROJ_ROW_H+'px;display:flex;align-items:stretch;"></div>';
     root.appendChild(wrap);
-    projRenderMetaLevel(pi, null);
+    projRenderRow(pi, 'settle');
   });
 }
 
-function projRenderMetaLevel(pi, animateFromIndex){
+function projRenderRow(pi, mode){
   var p = PROJETOS_DATA[pi];
-  var bar = document.getElementById('proj-bar-'+pi);
-  bar.style.display = 'flex';
-  bar.innerHTML = '';
-  var n = p.goals.length;
-  var segs = [];
-  p.goals.forEach(function(g, gi){
-    var seg = document.createElement('div');
-    seg.className = 'proj-meta-seg';
-    seg.dataset.pi = pi; seg.dataset.gi = gi;
-    seg.style.cssText = 'position:relative;cursor:pointer;min-width:0;transition:flex-basis '+PROJ_PHASE1_MS+'ms ease;';
-    var startBasis = (animateFromIndex!==null) ? (gi===animateFromIndex?100:0) : (100/n);
-    seg.style.flex = '0 0 '+startBasis+'%';
-    var op = (animateFromIndex!==null && gi!==animateFromIndex) ? 0 : 1;
-    seg.innerHTML =
-      '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+p.dot+';transform:translateX(50%);opacity:'+op+';transition:opacity 180ms ease;"></span>'+
-      '<span class="proj-label" style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);cursor:text;opacity:'+op+';transition:opacity 180ms ease, color 150ms ease;">'+g.title+'</span>';
-    seg.addEventListener('click', function(){ projOnMetaClick(pi, gi); });
-    seg.addEventListener('mouseenter', function(){ seg.querySelector('.proj-label').style.color = 'var(--text)'; });
-    seg.addEventListener('mouseleave', function(){ seg.querySelector('.proj-label').style.color = 'var(--text-muted)'; });
-    seg.querySelector('.proj-label').addEventListener('click', function(e){
-      e.stopPropagation();
-      projEditMetaTitle(pi, gi);
-    });
-    bar.appendChild(seg);
-    segs.push(seg);
-  });
-  if (animateFromIndex!==null){
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        segs.forEach(function(seg){
-          seg.style.flex = '0 0 '+(100/n)+'%';
-          seg.querySelector('.proj-tick').style.opacity = '1';
-          seg.querySelector('.proj-label').style.opacity = '1';
-        });
-      });
-    });
-  }
-}
-
-function projOnMetaClick(pi, gi){
   var st = _projState[pi];
-  if (st.animating || st.view!=='meta') return;
-  st.animating = true;
-  var bar = document.getElementById('proj-bar-'+pi);
-  var segs = Array.from(bar.querySelectorAll('.proj-meta-seg'));
-  segs.forEach(function(seg){
-    var segGi = +seg.dataset.gi;
-    var isSel = segGi===gi;
-    seg.style.flex = '0 0 '+(isSel?100:0)+'%';
-    seg.querySelector('.proj-tick').style.opacity = isSel ? '1' : '0';
-    seg.querySelector('.proj-label').style.opacity = isSel ? '1' : '0';
-  });
-  setTimeout(function(){
-    st.view = 'sub';
-    st.activeGoal = gi;
-    projRenderSubLevel(pi, gi, true);
-    st.animating = false;
-  }, PROJ_PHASE1_MS + 20);
-}
+  var path = st.path;
+  var kids = projChildren(pi, path);
+  var n = kids.length;
+  var row = document.getElementById('proj-row-'+pi);
 
-function projRenderSubLevel(pi, gi, animateOpen){
-  var p = PROJETOS_DATA[pi];
-  var goal = p.goals[gi];
-  var bar = document.getElementById('proj-bar-'+pi);
-  bar.innerHTML = '';
-  bar.style.display = 'block';
-  var k = goal.subs.length;
+  var gutterHtml = '';
+  path.forEach(function(_, li){
+    gutterHtml += '<div class="proj-crumb" data-depth="'+li+'" title="Voltar a este nível" style="position:relative;width:14px;height:22px;margin-top:'+PROJ_TICK_TOP+'px;cursor:pointer;flex-shrink:0;">'+
+      '<span style="position:absolute;left:2px;top:0;width:1px;height:22px;background:'+p.dot+';opacity:0.5;"></span>'+
+      '<span style="position:absolute;left:9px;top:0;width:1px;height:22px;background:'+p.dot+';opacity:0.5;"></span>'+
+    '</div>';
+  });
+
+  var wrapDiv = document.createElement('div');
+  wrapDiv.className = 'proj-segs-wrap';
+  wrapDiv.style.cssText = 'position:relative;flex:1;min-width:0;';
+  wrapDiv.innerHTML = '<div style="position:absolute;left:0;right:0;top:'+PROJ_LINE_TOP+'px;height:1px;background:'+p.dot+';pointer-events:none;"></div>';
+
   var segs = [];
-  goal.subs.forEach(function(s, si){
+  kids.forEach(function(node, i){
     var seg = document.createElement('div');
-    seg.className = 'proj-sub-seg';
-    seg.dataset.pi = pi; seg.dataset.si = si;
+    seg.className = 'proj-node-seg';
+    seg.dataset.i = i;
     seg.style.cssText = 'position:absolute;top:0;bottom:0;cursor:pointer;min-width:0;'+
-      'transition:left '+PROJ_PHASE2_MS+'ms ease, width '+PROJ_PHASE2_MS+'ms ease;';
-    var startLeft = animateOpen ? 50 : (si*100/k);
-    var startWidth = animateOpen ? 0 : (100/k);
+      'transition:left '+PROJ_ANIM_MS+'ms ease, width '+PROJ_ANIM_MS+'ms ease;';
+    var startLeft = (mode==='crackOpen') ? 50 : (i*100/n);
+    var startWidth = (mode==='crackOpen') ? 0 : (100/n);
     seg.style.left = startLeft+'%';
     seg.style.width = startWidth+'%';
     seg.innerHTML =
       '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+p.dot+';transform:translateX(50%);"></span>'+
-      '<span style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;display:flex;align-items:center;gap:4px;">'+
-        '<span class="proj-sub-text" style="font-size:0.7rem;color:var(--text-muted);cursor:text;">'+s+'</span>'+
-      '</span>';
-    seg.addEventListener('click', function(e){
-      if (e.target.classList.contains('proj-sub-text')) return;
-      projOnSubBgClick(pi);
-    });
-    seg.querySelector('.proj-sub-text').addEventListener('click', function(e){
+      '<span class="proj-label" style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);cursor:text;">'+node.title+'</span>';
+    seg.addEventListener('click', function(){ projDrillIn(pi, i); });
+    seg.addEventListener('mouseenter', function(){ seg.querySelector('.proj-label').style.color = 'var(--text)'; });
+    seg.addEventListener('mouseleave', function(){ seg.querySelector('.proj-label').style.color = 'var(--text-muted)'; });
+    seg.querySelector('.proj-label').addEventListener('click', function(e){
       e.stopPropagation();
-      projEditSubgoal(pi, gi, si);
+      projEditNodeTitle(pi, i);
     });
-    bar.appendChild(seg);
+    wrapDiv.appendChild(seg);
     segs.push(seg);
   });
-  if (animateOpen){
+
+  row.innerHTML = gutterHtml;
+  row.appendChild(wrapDiv);
+
+  row.querySelectorAll('.proj-crumb').forEach(function(el){
+    el.addEventListener('click', function(){ projJumpTo(pi, +el.dataset.depth); });
+  });
+
+  if (mode==='crackOpen'){
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
-        segs.forEach(function(seg, si){
-          seg.style.left = (si*100/k)+'%';
-          seg.style.width = (100/k)+'%';
+        segs.forEach(function(seg, i){
+          seg.style.left = (i*100/n)+'%';
+          seg.style.width = (100/n)+'%';
         });
       });
     });
   }
 }
 
-function projOnSubBgClick(pi){
+function projDrillIn(pi, i){
   var st = _projState[pi];
-  if (st.animating || st.view!=='sub') return;
+  if (st.animating) return;
+  var kids = projChildren(pi, st.path);
+  var node = kids[i];
+  if (!node.children || !node.children.length) return;
   st.animating = true;
-  var bar = document.getElementById('proj-bar-'+pi);
-  var segs = Array.from(bar.querySelectorAll('.proj-sub-seg'));
+  var row = document.getElementById('proj-row-'+pi);
+  var segs = Array.from(row.querySelectorAll('.proj-node-seg'));
   segs.forEach(function(seg){
-    seg.style.left = '50%';
-    seg.style.width = '0%';
+    var si = +seg.dataset.i;
+    if (si===i){
+      seg.style.left = '0%';
+      seg.style.width = '100%';
+    } else {
+      seg.style.width = '0%';
+    }
   });
   setTimeout(function(){
-    var gi = st.activeGoal;
-    st.view = 'meta';
-    st.activeGoal = null;
-    projRenderMetaLevel(pi, gi);
+    st.path = st.path.concat([i]);
     st.animating = false;
-  }, PROJ_PHASE2_MS + 20);
+    projRenderRow(pi, 'crackOpen');
+  }, PROJ_ANIM_MS + 20);
 }
 
-function projEditMetaTitle(pi, gi){
-  var bar = document.getElementById('proj-bar-'+pi);
-  var seg = bar.querySelector('.proj-meta-seg[data-gi="'+gi+'"]');
+function projJumpTo(pi, depth){
+  var st = _projState[pi];
+  if (st.animating) return;
+  st.path = st.path.slice(0, depth);
+  projRenderRow(pi, 'settle');
+}
+
+function projEditNodeTitle(pi, i){
+  var st = _projState[pi];
+  var row = document.getElementById('proj-row-'+pi);
+  var seg = row.querySelector('.proj-node-seg[data-i="'+i+'"]');
   if (!seg) return;
+  var kids = projChildren(pi, st.path);
+  var node = kids[i];
   var label = seg.querySelector('.proj-label');
   var input = document.createElement('input');
-  input.value = PROJETOS_DATA[pi].goals[gi].title;
+  input.value = node.title;
   input.size = Math.max(6, input.value.length);
   input.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);font-size:0.72rem;text-align:center;background:transparent;border:none;border-bottom:0.5px solid var(--border-strong);color:var(--text);outline:none;';
   label.replaceWith(input);
   input.focus();
   input.select();
   function commit(){
-    var val = input.value.trim() || PROJETOS_DATA[pi].goals[gi].title;
-    PROJETOS_DATA[pi].goals[gi].title = val;
+    var val = input.value.trim() || node.title;
+    node.title = val;
     var newLabel = document.createElement('span');
     newLabel.className = 'proj-label';
     newLabel.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);cursor:text;';
     newLabel.textContent = val;
-    newLabel.addEventListener('click', function(e){ e.stopPropagation(); projEditMetaTitle(pi, gi); });
+    newLabel.addEventListener('click', function(e){ e.stopPropagation(); projEditNodeTitle(pi, i); });
     input.replaceWith(newLabel);
-  }
-  input.addEventListener('blur', commit);
-  input.addEventListener('keydown', function(ev){ if (ev.key==='Enter') input.blur(); });
-}
-
-function projEditSubgoal(pi, gi, si){
-  var bar = document.getElementById('proj-bar-'+pi);
-  var seg = bar.querySelector('.proj-sub-seg[data-si="'+si+'"]');
-  var span = seg.querySelector('.proj-sub-text');
-  var input = document.createElement('input');
-  input.value = PROJETOS_DATA[pi].goals[gi].subs[si];
-  input.size = Math.max(6, input.value.length);
-  input.style.cssText = 'font-size:0.7rem;background:transparent;border:none;border-bottom:0.5px solid var(--border-strong);color:var(--text);outline:none;';
-  span.replaceWith(input);
-  input.focus();
-  input.select();
-  function commit(){
-    var val = input.value.trim() || PROJETOS_DATA[pi].goals[gi].subs[si];
-    PROJETOS_DATA[pi].goals[gi].subs[si] = val;
-    var newSpan = document.createElement('span');
-    newSpan.className = 'proj-sub-text';
-    newSpan.style.cssText = 'font-size:0.7rem;color:var(--text-muted);cursor:text;';
-    newSpan.textContent = val;
-    newSpan.addEventListener('click', function(e){
-      e.stopPropagation();
-      projEditSubgoal(pi, gi, si);
-    });
-    input.replaceWith(newSpan);
   }
   input.addEventListener('blur', commit);
   input.addEventListener('keydown', function(ev){ if (ev.key==='Enter') input.blur(); });
