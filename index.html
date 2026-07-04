@@ -10480,7 +10480,6 @@ function projEditNodeTitle(pi, i){
   var label = seg.querySelector('.proj-label');
   var input = document.createElement('input');
   input.value = node.title;
-  input.placeholder = 'Nome da meta';
   input.size = Math.max(6, input.value.length);
   input.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);font-size:0.72rem;text-align:center;background:transparent;border:none;border-bottom:0.5px solid var(--border-strong);color:var(--text);outline:none;';
   label.replaceWith(input);
