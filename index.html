@@ -10236,7 +10236,7 @@ function projInitAll(){
     var wrap = document.createElement('div');
     wrap.innerHTML = projBuildLabel(p) +
       '<div style="position:relative;height:'+PROJ_ROW_H+'px;">'+
-        '<div style="position:absolute;left:0;right:0;top:'+PROJ_LINE_TOP+'px;height:2px;background:'+p.dot+';pointer-events:none;"></div>'+
+        '<div style="position:absolute;left:0;right:0;top:'+PROJ_LINE_TOP+'px;height:1px;background:'+p.dot+';pointer-events:none;"></div>'+
         '<div class="proj-segs" id="proj-bar-'+pi+'" style="position:absolute;inset:0;"></div>'+
       '</div>';
     root.appendChild(wrap);
@@ -10260,7 +10260,7 @@ function projRenderMetaLevel(pi, animateFromIndex){
     seg.style.flex = '0 0 '+startBasis+'%';
     var op = (animateFromIndex!==null && gi!==animateFromIndex) ? 0 : 1;
     seg.innerHTML =
-      '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:2px;height:12px;background:'+p.dot+';transform:translateX(50%);opacity:'+op+';transition:opacity 180ms ease;"></span>'+
+      '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+p.dot+';transform:translateX(50%);opacity:'+op+';transition:opacity 180ms ease;"></span>'+
       '<span class="proj-label" style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);opacity:'+op+';transition:opacity 180ms ease, color 150ms ease;">'+g.title+'</span>';
     seg.addEventListener('click', function(){ projOnMetaClick(pi, gi); });
     seg.addEventListener('mouseenter', function(){ seg.querySelector('.proj-label').style.color = 'var(--text)'; });
@@ -10321,7 +10321,7 @@ function projRenderSubLevel(pi, gi, animateOpen){
     seg.style.left = startLeft+'%';
     seg.style.width = startWidth+'%';
     seg.innerHTML =
-      '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:2px;height:12px;background:'+p.dot+';transform:translateX(50%);"></span>'+
+      '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+p.dot+';transform:translateX(50%);"></span>'+
       '<span style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;display:flex;align-items:center;gap:4px;">'+
         '<span class="proj-sub-text" style="font-size:0.7rem;color:var(--text-muted);">'+s+'</span>'+
         '<i class="proj-sub-edit" data-pi="'+pi+'" data-gi="'+gi+'" data-si="'+si+'" title="Editar submeta" style="font-size:0.64rem;color:var(--text-hint);cursor:pointer;">✎</i>'+
