@@ -1125,9 +1125,9 @@
     </div>
   </div>
 
-  <div style="padding:2rem 2.5rem;max-width:820px;margin:0 auto;">
-    <p style="font-size:0.75rem;color:var(--text-hint);margin-bottom:1.5rem;">Toque em uma meta para abrir as submetas. Toque no fundo de uma submeta para fechar. O lápis edita o texto.</p>
-    <div id="projetos-list" style="display:flex;flex-direction:column;gap:1.75rem;"></div>
+  <div style="padding:2rem 2.5rem;">
+    <p style="font-size:0.75rem;color:var(--text-hint);margin-bottom:1.5rem;max-width:640px;">Toque em uma meta para abrir as submetas. Toque no fundo de uma submeta para fechar. O lápis edita o texto.</p>
+    <div id="projetos-list" style="display:flex;flex-direction:column;gap:2rem;"></div>
   </div>
 </div>
 
@@ -10217,8 +10217,12 @@ var PROJ_PHASE1_MS = 320;
 var PROJ_PHASE2_MS = 380;
 var _projState = PROJETOS_DATA.map(function(){ return {view:'meta', activeGoal:null, animating:false}; });
 
+var PROJ_ROW_H = 54;
+var PROJ_LINE_TOP = 20;
+var PROJ_TICK_TOP = 14;
+
 function projBuildLabel(p){
-  return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'+
+  return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'+
     '<span style="width:8px;height:8px;border-radius:50%;background:'+p.dot+';flex-shrink:0;"></span>'+
     '<span style="font-size:0.82rem;font-weight:500;color:var(--text);">'+p.name+'</span>'+
   '</div>';
@@ -10231,7 +10235,10 @@ function projInitAll(){
   PROJETOS_DATA.forEach(function(p, pi){
     var wrap = document.createElement('div');
     wrap.innerHTML = projBuildLabel(p) +
-      '<div class="proj-bar" id="proj-bar-'+pi+'" style="position:relative;height:44px;border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;"></div>';
+      '<div style="position:relative;height:'+PROJ_ROW_H+'px;">'+
+        '<div style="position:absolute;left:0;right:0;top:'+PROJ_LINE_TOP+'px;height:2px;background:'+p.dot+';pointer-events:none;"></div>'+
+        '<div class="proj-segs" id="proj-bar-'+pi+'" style="position:absolute;inset:0;"></div>'+
+      '</div>';
     root.appendChild(wrap);
     projRenderMetaLevel(pi, null);
   });
@@ -10248,13 +10255,16 @@ function projRenderMetaLevel(pi, animateFromIndex){
     var seg = document.createElement('div');
     seg.className = 'proj-meta-seg';
     seg.dataset.pi = pi; seg.dataset.gi = gi;
-    seg.style.cssText = 'overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;min-width:0;'+
-      'border-right:'+(gi<n-1?'0.5px solid var(--border)':'none')+';background:transparent;'+
-      'transition:flex-basis '+PROJ_PHASE1_MS+'ms ease;';
+    seg.style.cssText = 'position:relative;cursor:pointer;min-width:0;transition:flex-basis '+PROJ_PHASE1_MS+'ms ease;';
     var startBasis = (animateFromIndex!==null) ? (gi===animateFromIndex?100:0) : (100/n);
     seg.style.flex = '0 0 '+startBasis+'%';
-    seg.innerHTML = '<span style="font-size:0.78rem;color:var(--text);white-space:nowrap;padding:0 10px;opacity:'+(animateFromIndex!==null&&gi!==animateFromIndex?0:1)+';transition:opacity 180ms ease;">'+g.title+'</span>';
+    var op = (animateFromIndex!==null && gi!==animateFromIndex) ? 0 : 1;
+    seg.innerHTML =
+      '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:2px;height:12px;background:'+p.dot+';transform:translateX(50%);opacity:'+op+';transition:opacity 180ms ease;"></span>'+
+      '<span class="proj-label" style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);opacity:'+op+';transition:opacity 180ms ease, color 150ms ease;">'+g.title+'</span>';
     seg.addEventListener('click', function(){ projOnMetaClick(pi, gi); });
+    seg.addEventListener('mouseenter', function(){ seg.querySelector('.proj-label').style.color = 'var(--text)'; });
+    seg.addEventListener('mouseleave', function(){ seg.querySelector('.proj-label').style.color = 'var(--text-muted)'; });
     bar.appendChild(seg);
     segs.push(seg);
   });
@@ -10263,7 +10273,8 @@ function projRenderMetaLevel(pi, animateFromIndex){
       requestAnimationFrame(function(){
         segs.forEach(function(seg){
           seg.style.flex = '0 0 '+(100/n)+'%';
-          seg.querySelector('span').style.opacity = '1';
+          seg.querySelector('.proj-tick').style.opacity = '1';
+          seg.querySelector('.proj-label').style.opacity = '1';
         });
       });
     });
@@ -10278,9 +10289,10 @@ function projOnMetaClick(pi, gi){
   var segs = Array.from(bar.querySelectorAll('.proj-meta-seg'));
   segs.forEach(function(seg){
     var segGi = +seg.dataset.gi;
-    seg.style.flex = '0 0 '+(segGi===gi?100:0)+'%';
-    seg.style.borderRight = 'none';
-    seg.querySelector('span').style.opacity = segGi===gi ? '1' : '0';
+    var isSel = segGi===gi;
+    seg.style.flex = '0 0 '+(isSel?100:0)+'%';
+    seg.querySelector('.proj-tick').style.opacity = isSel ? '1' : '0';
+    seg.querySelector('.proj-label').style.opacity = isSel ? '1' : '0';
   });
   setTimeout(function(){
     st.view = 'sub';
@@ -10302,15 +10314,18 @@ function projRenderSubLevel(pi, gi, animateOpen){
     var seg = document.createElement('div');
     seg.className = 'proj-sub-seg';
     seg.dataset.pi = pi; seg.dataset.si = si;
-    seg.style.cssText = 'position:absolute;top:0;bottom:0;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0;'+
-      'background:var(--surface2);border-right:'+(si<k-1?'0.5px solid var(--border)':'none')+';'+
+    seg.style.cssText = 'position:absolute;top:0;bottom:0;cursor:pointer;min-width:0;'+
       'transition:left '+PROJ_PHASE2_MS+'ms ease, width '+PROJ_PHASE2_MS+'ms ease;';
     var startLeft = animateOpen ? 50 : (si*100/k);
     var startWidth = animateOpen ? 0 : (100/k);
     seg.style.left = startLeft+'%';
     seg.style.width = startWidth+'%';
-    seg.innerHTML = '<span class="proj-sub-text" style="font-size:0.72rem;color:var(--text-muted);white-space:nowrap;padding:0 4px 0 10px;overflow:hidden;text-overflow:ellipsis;">'+s+'</span>'+
-      '<i class="proj-sub-edit" data-pi="'+pi+'" data-gi="'+gi+'" data-si="'+si+'" title="Editar submeta" style="font-size:0.68rem;color:var(--text-hint);cursor:pointer;flex-shrink:0;margin-right:8px;">✎</i>';
+    seg.innerHTML =
+      '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:2px;height:12px;background:'+p.dot+';transform:translateX(50%);"></span>'+
+      '<span style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;display:flex;align-items:center;gap:4px;">'+
+        '<span class="proj-sub-text" style="font-size:0.7rem;color:var(--text-muted);">'+s+'</span>'+
+        '<i class="proj-sub-edit" data-pi="'+pi+'" data-gi="'+gi+'" data-si="'+si+'" title="Editar submeta" style="font-size:0.64rem;color:var(--text-hint);cursor:pointer;">✎</i>'+
+      '</span>';
     seg.addEventListener('click', function(e){
       if (e.target.classList.contains('proj-sub-edit')) return;
       projOnSubBgClick(pi);
@@ -10361,7 +10376,8 @@ function projEditSubgoal(pi, gi, si){
   var span = seg.querySelector('.proj-sub-text');
   var input = document.createElement('input');
   input.value = PROJETOS_DATA[pi].goals[gi].subs[si];
-  input.style.cssText = 'flex:1;font-size:0.72rem;min-width:0;margin-left:10px;background:transparent;border:none;border-bottom:0.5px solid var(--border-strong);color:var(--text);outline:none;';
+  input.size = Math.max(6, input.value.length);
+  input.style.cssText = 'font-size:0.7rem;background:transparent;border:none;border-bottom:0.5px solid var(--border-strong);color:var(--text);outline:none;';
   span.replaceWith(input);
   input.focus();
   input.select();
@@ -10369,7 +10385,7 @@ function projEditSubgoal(pi, gi, si){
     PROJETOS_DATA[pi].goals[gi].subs[si] = input.value;
     var newSpan = document.createElement('span');
     newSpan.className = 'proj-sub-text';
-    newSpan.style.cssText = 'font-size:0.72rem;color:var(--text-muted);white-space:nowrap;padding:0 4px 0 10px;overflow:hidden;text-overflow:ellipsis;';
+    newSpan.style.cssText = 'font-size:0.7rem;color:var(--text-muted);';
     newSpan.textContent = input.value;
     input.replaceWith(newSpan);
   }
