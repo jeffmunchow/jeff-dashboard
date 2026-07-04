@@ -10393,8 +10393,14 @@ function projDrillIn(pi, i){
   setTimeout(function(){
     // Fase 2: a meta, já ocupando a largura toda, racha ao meio e revela
     // as submetas — continuidade garantida pois o centro da barra (50%)
-    // é exatamente o centro da meta que acabou de se expandir.
-    segs.forEach(function(seg){ seg.remove(); });
+    // é exatamente o centro da meta que acabou de se expandir. O próprio
+    // rótulo da meta some em crossfade (não é removido de repente) para
+    // não haver soluço entre as duas fases.
+    var selectedSeg = segs.find(function(s){ return +s.dataset.i === i; });
+    segs.forEach(function(seg){ if (seg !== selectedSeg) seg.remove(); });
+    selectedSeg.querySelector('.proj-tick').style.opacity = '0';
+    selectedSeg.querySelector('.proj-label').style.opacity = '0';
+
     var newKids = node.children;
     var k = newKids.length;
     var newSegs = newKids.map(function(childNode, ci){
