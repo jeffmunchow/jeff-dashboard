@@ -10304,12 +10304,13 @@ function projRenderRow(pi, mode){
   var row = document.getElementById('proj-row-'+pi);
 
   var gutterHtml = '';
-  path.forEach(function(_, li){
-    gutterHtml += '<div class="proj-crumb" data-depth="'+li+'" title="Voltar a este nível" style="position:relative;width:14px;height:22px;margin-top:'+PROJ_TICK_TOP+'px;cursor:pointer;flex-shrink:0;">'+
-      '<span style="position:absolute;left:2px;top:0;width:1px;height:22px;background:'+p.dot+';opacity:0.5;"></span>'+
-      '<span style="position:absolute;left:9px;top:0;width:1px;height:22px;background:'+p.dot+';opacity:0.5;"></span>'+
-    '</div>';
-  });
+  if (path.length >= 1){
+    for (var t=0; t<=path.length; t++){
+      gutterHtml += '<div class="proj-crumb" data-depth="'+t+'" title="Ir para este nível" style="position:relative;width:14px;cursor:pointer;flex-shrink:0;">'+
+        '<span class="proj-tick" style="position:absolute;left:50%;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+p.dot+';transform:translateX(-50%);"></span>'+
+      '</div>';
+    }
+  }
 
   var wrapDiv = document.createElement('div');
   wrapDiv.className = 'proj-segs-wrap';
