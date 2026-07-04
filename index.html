@@ -10291,11 +10291,32 @@ function projInitAll(){
     wrap.innerHTML = projBuildLabel(p) +
       '<div class="proj-row" id="proj-row-'+pi+'" style="position:relative;height:'+PROJ_ROW_H+'px;display:flex;align-items:stretch;"></div>';
     root.appendChild(wrap);
-    projRenderRow(pi, 'settle');
+    projRenderRow(pi);
   });
 }
 
-function projRenderRow(pi, mode){
+function projMakeSeg(pi, i, node, dot, left, width, opacity){
+  var seg = document.createElement('div');
+  seg.className = 'proj-node-seg';
+  seg.dataset.i = i;
+  seg.style.cssText = 'position:absolute;top:0;bottom:0;cursor:pointer;min-width:0;'+
+    'transition:left '+PROJ_ANIM_MS+'ms ease, width '+PROJ_ANIM_MS+'ms ease;';
+  seg.style.left = left+'%';
+  seg.style.width = width+'%';
+  seg.innerHTML =
+    '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+dot+';transform:translateX(50%);opacity:'+opacity+';transition:opacity '+PROJ_ANIM_MS+'ms ease;"></span>'+
+    '<span class="proj-label" style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);cursor:text;opacity:'+opacity+';transition:opacity '+PROJ_ANIM_MS+'ms ease;">'+node.title+'</span>';
+  seg.addEventListener('click', function(){ projDrillIn(pi, i); });
+  seg.addEventListener('mouseenter', function(){ seg.querySelector('.proj-label').style.color = 'var(--text)'; });
+  seg.addEventListener('mouseleave', function(){ seg.querySelector('.proj-label').style.color = 'var(--text-muted)'; });
+  seg.querySelector('.proj-label').addEventListener('click', function(e){
+    e.stopPropagation();
+    projEditNodeTitle(pi, i);
+  });
+  return seg;
+}
+
+function projRenderRow(pi){
   var p = PROJETOS_DATA[pi];
   var st = _projState[pi];
   var path = st.path;
@@ -10320,29 +10341,9 @@ function projRenderRow(pi, mode){
   wrapDiv.style.cssText = 'position:relative;flex:1;min-width:0;';
   wrapDiv.innerHTML = '<div style="position:absolute;left:0;right:0;top:'+PROJ_LINE_TOP+'px;height:1px;background:'+p.dot+';pointer-events:none;"></div>';
 
-  var segs = [];
   kids.forEach(function(node, i){
-    var seg = document.createElement('div');
-    seg.className = 'proj-node-seg';
-    seg.dataset.i = i;
-    seg.style.cssText = 'position:absolute;top:0;bottom:0;cursor:pointer;min-width:0;'+
-      'transition:left '+PROJ_ANIM_MS+'ms ease, width '+PROJ_ANIM_MS+'ms ease;';
-    var startLeft = (mode==='crackOpen') ? 50 : (i*100/n);
-    var startWidth = (mode==='crackOpen') ? 0 : (100/n);
-    seg.style.left = startLeft+'%';
-    seg.style.width = startWidth+'%';
-    seg.innerHTML =
-      '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+p.dot+';transform:translateX(50%);"></span>'+
-      '<span class="proj-label" style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);cursor:text;">'+node.title+'</span>';
-    seg.addEventListener('click', function(){ projDrillIn(pi, i); });
-    seg.addEventListener('mouseenter', function(){ seg.querySelector('.proj-label').style.color = 'var(--text)'; });
-    seg.addEventListener('mouseleave', function(){ seg.querySelector('.proj-label').style.color = 'var(--text-muted)'; });
-    seg.querySelector('.proj-label').addEventListener('click', function(e){
-      e.stopPropagation();
-      projEditNodeTitle(pi, i);
-    });
+    var seg = projMakeSeg(pi, i, node, p.dot, i*100/n, 100/n, 1);
     wrapDiv.appendChild(seg);
-    segs.push(seg);
   });
 
   row.innerHTML = gutterHtml;
@@ -10351,17 +10352,6 @@ function projRenderRow(pi, mode){
   row.querySelectorAll('.proj-crumb').forEach(function(el){
     el.addEventListener('click', function(){ projJumpTo(pi, +el.dataset.depth); });
   });
-
-  if (mode==='crackOpen'){
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        segs.forEach(function(seg, i){
-          seg.style.left = (i*100/n)+'%';
-          seg.style.width = (100/n)+'%';
-        });
-      });
-    });
-  }
 }
 
 function projDrillIn(pi, i){
@@ -10371,29 +10361,55 @@ function projDrillIn(pi, i){
   var node = kids[i];
   if (!node.children || !node.children.length) return;
   st.animating = true;
+
+  var p = PROJETOS_DATA[pi];
   var row = document.getElementById('proj-row-'+pi);
-  var segs = Array.from(row.querySelectorAll('.proj-node-seg'));
-  segs.forEach(function(seg){
-    var si = +seg.dataset.i;
-    if (si===i){
-      seg.style.left = '0%';
-      seg.style.width = '100%';
-    } else {
-      seg.style.width = '0%';
-    }
+  var wrap = row.querySelector('.proj-segs-wrap');
+  var oldSegs = Array.from(wrap.querySelectorAll('.proj-node-seg'));
+  var clicked = oldSegs.find(function(s){ return +s.dataset.i === i; });
+  var clickedLeft = parseFloat(clicked.style.left);
+  var clickedWidth = parseFloat(clicked.style.width);
+  var originCenter = clickedLeft + clickedWidth/2;
+
+  // Os irmãos não escolhidos encolhem no próprio lugar — a meta clicada
+  // some para dar lugar às suas submetas, nascendo exatamente do ponto
+  // onde ela estava (sem recriar o DOM do zero, para não haver salto).
+  oldSegs.forEach(function(seg){
+    if (+seg.dataset.i !== i) seg.style.width = '0%';
   });
+  clicked.remove();
+
+  var newKids = node.children;
+  var k = newKids.length;
+  var newSegs = newKids.map(function(childNode, ci){
+    var seg = projMakeSeg(pi, ci, childNode, p.dot, originCenter, 0, 0);
+    wrap.appendChild(seg);
+    return seg;
+  });
+
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      newSegs.forEach(function(seg, ci){
+        seg.style.left = (ci*100/k)+'%';
+        seg.style.width = (100/k)+'%';
+        seg.querySelector('.proj-tick').style.opacity = '1';
+        seg.querySelector('.proj-label').style.opacity = '1';
+      });
+    });
+  });
+
   setTimeout(function(){
     st.path = st.path.concat([i]);
     st.animating = false;
-    projRenderRow(pi, 'crackOpen');
-  }, PROJ_ANIM_MS + 20);
+    projRenderRow(pi);
+  }, PROJ_ANIM_MS + 40);
 }
 
 function projJumpTo(pi, depth){
   var st = _projState[pi];
   if (st.animating) return;
   st.path = st.path.slice(0, depth);
-  projRenderRow(pi, 'settle');
+  projRenderRow(pi);
 }
 
 function projEditNodeTitle(pi, i){
