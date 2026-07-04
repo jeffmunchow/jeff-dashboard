@@ -10295,7 +10295,26 @@ function projInitAll(){
   });
 }
 
-function projMakeSeg(pi, i, node, dot, left, width, opacity){
+function projMakeFlexSeg(pi, i, node, dot, n){
+  var seg = document.createElement('div');
+  seg.className = 'proj-node-seg';
+  seg.dataset.i = i;
+  seg.style.cssText = 'position:relative;cursor:pointer;min-width:0;flex:0 0 '+(100/n)+'%;'+
+    'transition:flex-basis '+PROJ_ANIM_MS+'ms ease;';
+  seg.innerHTML =
+    '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+dot+';transform:translateX(50%);transition:opacity '+PROJ_ANIM_MS+'ms ease;"></span>'+
+    '<span class="proj-label" style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);cursor:text;transition:opacity '+PROJ_ANIM_MS+'ms ease;">'+node.title+'</span>';
+  seg.addEventListener('click', function(){ projDrillIn(pi, i); });
+  seg.addEventListener('mouseenter', function(){ seg.querySelector('.proj-label').style.color = 'var(--text)'; });
+  seg.addEventListener('mouseleave', function(){ seg.querySelector('.proj-label').style.color = 'var(--text-muted)'; });
+  seg.querySelector('.proj-label').addEventListener('click', function(e){
+    e.stopPropagation();
+    projEditNodeTitle(pi, i);
+  });
+  return seg;
+}
+
+function projMakeAbsSeg(pi, i, node, dot, left, width, opacity){
   var seg = document.createElement('div');
   seg.className = 'proj-node-seg';
   seg.dataset.i = i;
@@ -10306,13 +10325,6 @@ function projMakeSeg(pi, i, node, dot, left, width, opacity){
   seg.innerHTML =
     '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+dot+';transform:translateX(50%);opacity:'+opacity+';transition:opacity '+PROJ_ANIM_MS+'ms ease;"></span>'+
     '<span class="proj-label" style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);cursor:text;opacity:'+opacity+';transition:opacity '+PROJ_ANIM_MS+'ms ease;">'+node.title+'</span>';
-  seg.addEventListener('click', function(){ projDrillIn(pi, i); });
-  seg.addEventListener('mouseenter', function(){ seg.querySelector('.proj-label').style.color = 'var(--text)'; });
-  seg.addEventListener('mouseleave', function(){ seg.querySelector('.proj-label').style.color = 'var(--text-muted)'; });
-  seg.querySelector('.proj-label').addEventListener('click', function(e){
-    e.stopPropagation();
-    projEditNodeTitle(pi, i);
-  });
   return seg;
 }
 
@@ -10338,11 +10350,11 @@ function projRenderRow(pi){
 
   var wrapDiv = document.createElement('div');
   wrapDiv.className = 'proj-segs-wrap';
-  wrapDiv.style.cssText = 'position:relative;flex:1;min-width:0;';
+  wrapDiv.style.cssText = 'position:relative;flex:1;min-width:0;display:flex;';
   wrapDiv.innerHTML = '<div style="position:absolute;left:0;right:0;top:'+PROJ_LINE_TOP+'px;height:1px;background:'+p.dot+';pointer-events:none;"></div>';
 
   kids.forEach(function(node, i){
-    var seg = projMakeSeg(pi, i, node, p.dot, i*100/n, 100/n, 1);
+    var seg = projMakeFlexSeg(pi, i, node, p.dot, n);
     wrapDiv.appendChild(seg);
   });
 
@@ -10365,44 +10377,47 @@ function projDrillIn(pi, i){
   var p = PROJETOS_DATA[pi];
   var row = document.getElementById('proj-row-'+pi);
   var wrap = row.querySelector('.proj-segs-wrap');
-  var oldSegs = Array.from(wrap.querySelectorAll('.proj-node-seg'));
-  var clicked = oldSegs.find(function(s){ return +s.dataset.i === i; });
-  var clickedLeft = parseFloat(clicked.style.left);
-  var clickedWidth = parseFloat(clicked.style.width);
-  var originCenter = clickedLeft + clickedWidth/2;
+  var segs = Array.from(wrap.querySelectorAll('.proj-node-seg'));
 
-  // Os irmãos não escolhidos encolhem no próprio lugar — a meta clicada
-  // some para dar lugar às suas submetas, nascendo exatamente do ponto
-  // onde ela estava (sem recriar o DOM do zero, para não haver salto).
-  oldSegs.forEach(function(seg){
-    if (+seg.dataset.i !== i) seg.style.width = '0%';
-  });
-  clicked.remove();
-
-  var newKids = node.children;
-  var k = newKids.length;
-  var newSegs = newKids.map(function(childNode, ci){
-    var seg = projMakeSeg(pi, ci, childNode, p.dot, originCenter, 0, 0);
-    wrap.appendChild(seg);
-    return seg;
-  });
-
-  requestAnimationFrame(function(){
-    requestAnimationFrame(function(){
-      newSegs.forEach(function(seg, ci){
-        seg.style.left = (ci*100/k)+'%';
-        seg.style.width = (100/k)+'%';
-        seg.querySelector('.proj-tick').style.opacity = '1';
-        seg.querySelector('.proj-label').style.opacity = '1';
-      });
-    });
+  // Fase 1: as demais metas correm para os lados (encolhem via flex-basis,
+  // o layout empurra naturalmente as anteriores para a esquerda e as
+  // posteriores para a direita) enquanto a clicada cresce até 100%.
+  segs.forEach(function(seg){
+    var si = +seg.dataset.i;
+    var isSel = si===i;
+    seg.style.flex = '0 0 '+(isSel?100:0)+'%';
+    seg.querySelector('.proj-tick').style.opacity = isSel ? '1' : '0';
+    seg.querySelector('.proj-label').style.opacity = isSel ? '1' : '0';
   });
 
   setTimeout(function(){
-    st.path = st.path.concat([i]);
-    st.animating = false;
-    projRenderRow(pi);
-  }, PROJ_ANIM_MS + 40);
+    // Fase 2: a meta, já ocupando a largura toda, racha ao meio e revela
+    // as submetas — continuidade garantida pois o centro da barra (50%)
+    // é exatamente o centro da meta que acabou de se expandir.
+    segs.forEach(function(seg){ seg.remove(); });
+    var newKids = node.children;
+    var k = newKids.length;
+    var newSegs = newKids.map(function(childNode, ci){
+      var seg = projMakeAbsSeg(pi, ci, childNode, p.dot, 50, 0, 0);
+      wrap.appendChild(seg);
+      return seg;
+    });
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        newSegs.forEach(function(seg, ci){
+          seg.style.left = (ci*100/k)+'%';
+          seg.style.width = (100/k)+'%';
+          seg.querySelector('.proj-tick').style.opacity = '1';
+          seg.querySelector('.proj-label').style.opacity = '1';
+        });
+      });
+    });
+    setTimeout(function(){
+      st.path = st.path.concat([i]);
+      st.animating = false;
+      projRenderRow(pi);
+    }, PROJ_ANIM_MS + 40);
+  }, PROJ_ANIM_MS + 20);
 }
 
 function projJumpTo(pi, depth){
