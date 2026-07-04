@@ -10295,6 +10295,22 @@ function projInitAll(){
   });
 }
 
+function projMakeFlank(pi, i, dot, side){
+  var flank = document.createElement('span');
+  var edgeProp = side==='left' ? 'right' : 'left';
+  flank.className = 'proj-flank';
+  flank.title = side==='left' ? 'Adicionar antes' : 'Adicionar depois';
+  flank.style.cssText = 'position:absolute;'+edgeProp+':6px;top:'+(PROJ_TICK_TOP-7)+'px;width:14px;height:26px;cursor:cell;z-index:2;';
+  flank.innerHTML = '<span class="plus" style="position:absolute;'+edgeProp+':0;top:0;font-size:13px;color:'+dot+';opacity:0;transition:opacity 120ms ease;">+</span>';
+  flank.addEventListener('mouseenter', function(){ flank.querySelector('.plus').style.opacity = '1'; });
+  flank.addEventListener('mouseleave', function(){ flank.querySelector('.plus').style.opacity = '0'; });
+  flank.addEventListener('click', function(e){
+    e.stopPropagation();
+    projInsertNode(pi, side==='left' ? i : i+1);
+  });
+  return flank;
+}
+
 function projMakeFlexSeg(pi, i, node, dot, n){
   var seg = document.createElement('div');
   seg.className = 'proj-node-seg';
@@ -10304,6 +10320,8 @@ function projMakeFlexSeg(pi, i, node, dot, n){
   seg.innerHTML =
     '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+dot+';transform:translateX(50%);transition:opacity '+PROJ_ANIM_MS+'ms ease;"></span>'+
     '<span class="proj-label" style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);cursor:text;transition:opacity '+PROJ_ANIM_MS+'ms ease;">'+node.title+'</span>';
+  seg.appendChild(projMakeFlank(pi, i, dot, 'left'));
+  seg.appendChild(projMakeFlank(pi, i, dot, 'right'));
   seg.addEventListener('click', function(){ projDrillIn(pi, i); });
   seg.addEventListener('mouseenter', function(){ seg.querySelector('.proj-label').style.color = 'var(--text)'; });
   seg.addEventListener('mouseleave', function(){ seg.querySelector('.proj-label').style.color = 'var(--text-muted)'; });
@@ -10312,6 +10330,14 @@ function projMakeFlexSeg(pi, i, node, dot, n){
     projEditNodeTitle(pi, i);
   });
   return seg;
+}
+
+function projInsertNode(pi, atIndex){
+  var st = _projState[pi];
+  if (st.animating) return;
+  var kids = projChildren(pi, st.path);
+  kids.splice(atIndex, 0, {title:'', children:[]});
+  projRenderRow(pi);
 }
 
 function projMakeAbsSeg(pi, i, node, dot, left, width, opacity){
@@ -10353,16 +10379,27 @@ function projRenderRow(pi){
   wrapDiv.style.cssText = 'position:relative;flex:1;min-width:0;display:flex;';
   wrapDiv.innerHTML = '<div style="position:absolute;left:0;right:0;top:'+PROJ_LINE_TOP+'px;height:1px;background:'+p.dot+';pointer-events:none;"></div>';
 
-  kids.forEach(function(node, i){
-    var seg = projMakeFlexSeg(pi, i, node, p.dot, n);
-    wrapDiv.appendChild(seg);
-  });
+  if (n === 0){
+    var emptySeg = document.createElement('div');
+    emptySeg.style.cssText = 'position:relative;flex:1;min-width:0;';
+    emptySeg.appendChild(projMakeFlank(pi, 0, p.dot, 'left'));
+    wrapDiv.appendChild(emptySeg);
+  } else {
+    kids.forEach(function(node, i){
+      var seg = projMakeFlexSeg(pi, i, node, p.dot, n);
+      wrapDiv.appendChild(seg);
+    });
+  }
 
   row.innerHTML = gutterHtml;
   row.appendChild(wrapDiv);
 
   row.querySelectorAll('.proj-crumb').forEach(function(el){
     el.addEventListener('click', function(){ projJumpTo(pi, +el.dataset.depth); });
+  });
+
+  kids.forEach(function(node, i){
+    if (node.title === '') projEditNodeTitle(pi, i);
   });
 }
 
@@ -10443,13 +10480,22 @@ function projEditNodeTitle(pi, i){
   var label = seg.querySelector('.proj-label');
   var input = document.createElement('input');
   input.value = node.title;
+  input.placeholder = 'Nome da meta';
   input.size = Math.max(6, input.value.length);
   input.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);font-size:0.72rem;text-align:center;background:transparent;border:none;border-bottom:0.5px solid var(--border-strong);color:var(--text);outline:none;';
   label.replaceWith(input);
   input.focus();
   input.select();
+  var committed = false;
   function commit(){
-    var val = input.value.trim() || node.title;
+    if (committed) return;
+    committed = true;
+    var val = input.value.trim();
+    if (!val){
+      kids.splice(i, 1);
+      projRenderRow(pi);
+      return;
+    }
     node.title = val;
     var newLabel = document.createElement('span');
     newLabel.className = 'proj-label';
