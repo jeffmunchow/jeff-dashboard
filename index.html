@@ -10306,8 +10306,8 @@ function projRenderRow(pi, mode){
   var gutterHtml = '';
   if (path.length >= 1){
     for (var t=0; t<=path.length; t++){
-      gutterHtml += '<div class="proj-crumb" data-depth="'+t+'" title="Ir para este nível" style="position:relative;width:14px;cursor:pointer;flex-shrink:0;">'+
-        '<span class="proj-tick" style="position:absolute;left:50%;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+p.dot+';transform:translateX(-50%);"></span>'+
+      gutterHtml += '<div class="proj-crumb" data-depth="'+t+'" title="Ir para este nível" style="position:relative;width:18px;height:100%;cursor:pointer;flex-shrink:0;border-radius:var(--radius-sm);transition:background 150ms ease;">'+
+        '<span class="proj-tick" style="position:absolute;left:50%;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+p.dot+';transform:translateX(-50%);pointer-events:none;"></span>'+
       '</div>';
     }
   }
@@ -10347,6 +10347,8 @@ function projRenderRow(pi, mode){
 
   row.querySelectorAll('.proj-crumb').forEach(function(el){
     el.addEventListener('click', function(){ projJumpTo(pi, +el.dataset.depth); });
+    el.addEventListener('mouseenter', function(){ el.style.background = 'var(--surface2)'; });
+    el.addEventListener('mouseleave', function(){ el.style.background = 'transparent'; });
   });
 
   if (mode==='crackOpen'){
