@@ -10327,21 +10327,18 @@ function projRenderSubLevel(pi, gi, animateOpen){
     seg.innerHTML =
       '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+p.dot+';transform:translateX(50%);"></span>'+
       '<span style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;display:flex;align-items:center;gap:4px;">'+
-        '<span class="proj-sub-text" style="font-size:0.7rem;color:var(--text-muted);">'+s+'</span>'+
-        '<i class="proj-sub-edit" data-pi="'+pi+'" data-gi="'+gi+'" data-si="'+si+'" title="Editar submeta" style="font-size:0.64rem;color:var(--text-hint);cursor:pointer;">✎</i>'+
+        '<span class="proj-sub-text" style="font-size:0.7rem;color:var(--text-muted);cursor:text;">'+s+'</span>'+
       '</span>';
     seg.addEventListener('click', function(e){
-      if (e.target.classList.contains('proj-sub-edit')) return;
+      if (e.target.classList.contains('proj-sub-text')) return;
       projOnSubBgClick(pi);
+    });
+    seg.querySelector('.proj-sub-text').addEventListener('click', function(e){
+      e.stopPropagation();
+      projEditSubgoal(pi, gi, si);
     });
     bar.appendChild(seg);
     segs.push(seg);
-  });
-  bar.querySelectorAll('.proj-sub-edit').forEach(function(icon){
-    icon.addEventListener('click', function(e){
-      e.stopPropagation();
-      projEditSubgoal(pi, +icon.dataset.gi, +icon.dataset.si);
-    });
   });
   if (animateOpen){
     requestAnimationFrame(function(){
@@ -10412,11 +10409,16 @@ function projEditSubgoal(pi, gi, si){
   input.focus();
   input.select();
   function commit(){
-    PROJETOS_DATA[pi].goals[gi].subs[si] = input.value;
+    var val = input.value.trim() || PROJETOS_DATA[pi].goals[gi].subs[si];
+    PROJETOS_DATA[pi].goals[gi].subs[si] = val;
     var newSpan = document.createElement('span');
     newSpan.className = 'proj-sub-text';
-    newSpan.style.cssText = 'font-size:0.7rem;color:var(--text-muted);';
-    newSpan.textContent = input.value;
+    newSpan.style.cssText = 'font-size:0.7rem;color:var(--text-muted);cursor:text;';
+    newSpan.textContent = val;
+    newSpan.addEventListener('click', function(e){
+      e.stopPropagation();
+      projEditSubgoal(pi, gi, si);
+    });
     input.replaceWith(newSpan);
   }
   input.addEventListener('blur', commit);
