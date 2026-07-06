@@ -244,7 +244,7 @@
     border-radius: var(--radius-sm); font-size: 0.7rem; color: var(--amber); line-height: 1.5;
     transition: background 0.25s, color 0.25s;
   }
-  .main { padding: 0 2rem 2rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+  .main { padding: 0 2rem 2rem; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
   @media (max-width: 960px) {
     .main { grid-template-columns: 1fr; }
     .header, .main, .chart-section { padding-left: 1.25rem; padding-right: 1.25rem; }
@@ -845,43 +845,59 @@
 
 <div class="main">
   <div class="project-card">
-    <div class="project-body-clickable" onclick="navigateToProject(event, 'munchow-studio')">
+    <div class="project-body-clickable" onclick="navigateToProject(event, 'projetos-view')">
     <div class="project-header" style="border-bottom:0.5px solid var(--border);">
-      <div><div class="project-name">Münchow</div><div class="project-meta">Studio</div></div>
-      <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('munchow')" title="Editar métricas">+</button>
+      <div><div class="project-name">Kelvn</div><div class="project-meta">Gestão para fotógrafos</div></div>
+      <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('kelvn')" title="Editar métricas">+</button>
     </div>
     <div class="metrics-grid">
-      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="m-seguidores">3.524</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-m"></canvas></div></div>
-      <div class="metric-cell"><div class="metric-label">Casamentos / ano</div><div class="metric-value" id="m-casamentos">—</div><div class="metric-sub">confirmados</div></div>
-      <div class="metric-cell accent-amber"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="m-faturamento">—</div><div class="metric-sub">&nbsp;</div></div>
+      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="k-seguidores">—</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-k"></canvas></div></div>
+      <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="k-faturamento" style="color:#993C1D;">—</div><div class="metric-sub">&nbsp;</div></div>
     </div>
     <div class="divider"></div>
-    <div class="next-event-widget" id="m-next-event-widget" onclick="event.stopPropagation()">
+    <div class="next-event-widget" id="k-next-event-widget" onclick="event.stopPropagation()">
       <div class="nev-label">Próxima tarefa</div>
-      <div id="m-nev-content" class="nev-empty">Nenhuma tarefa cadastrada</div>
+      <div id="k-nev-content" class="nev-empty">Nenhuma tarefa cadastrada</div>
     </div>
-    <div class="last-updated" id="m-updated">Nunca atualizado</div>
+    <div class="last-updated" id="k-updated">Nunca atualizado</div>
     </div>
   </div>
 
   <div class="project-card">
-    <div class="project-body-clickable" onclick="navigateToProject(event, 'soup-view')">
+    <div class="project-body-clickable" onclick="navigateToProject(event, 'projetos-view')">
     <div class="project-header" style="border-bottom:0.5px solid var(--border);">
-      <div><div class="project-name">Soup</div><div class="project-meta">Travel Club</div></div>
-      <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('soup')" title="Editar métricas">+</button>
+      <div><div class="project-name">Vikka.io</div><div class="project-meta">Rotina em família</div></div>
+      <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('vikka')" title="Editar métricas">+</button>
     </div>
     <div class="metrics-grid">
-      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="s-seguidores">22</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-s"></canvas></div></div>
-      <div class="metric-cell"><div class="metric-label">Clientes ativos</div><div class="metric-value" id="s-clientes">2</div></div>
-      <div class="metric-cell accent-teal"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="s-faturamento">—</div><div class="metric-sub">&nbsp;</div></div>
-      <div class="metric-cell"><div class="metric-label">Milhas gerenciadas</div><div class="metric-value" id="s-milhas">—</div><div class="metric-sub">total acumulado</div></div>
+      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="v-seguidores">—</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-v"></canvas></div></div>
+      <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="v-faturamento" style="color:#0F6E56;">—</div><div class="metric-sub">&nbsp;</div></div>
     </div>
     <div class="divider"></div>
-    <div class="next-event-widget" id="s-next-event-widget" onclick="event.stopPropagation()">
+    <div class="next-event-widget" id="v-next-event-widget" onclick="event.stopPropagation()">
       <div class="nev-label">Próxima tarefa</div>
-      <div id="s-nev-content" class="nev-empty">Nenhum evento cadastrado</div>
+      <div id="v-nev-content" class="nev-empty">Nenhuma tarefa cadastrada</div>
     </div>
-    <div class="last-updated" id="s-updated">Nunca atualizado</div>
+    <div class="last-updated" id="v-updated">Nunca atualizado</div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="project-body-clickable" onclick="navigateToProject(event, 'projetos-view')">
+    <div class="project-header" style="border-bottom:0.5px solid var(--border);">
+      <div><div class="project-name">Café</div><div class="project-meta">Cafés especiais</div></div>
+      <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('cafe')" title="Editar métricas">+</button>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="c-seguidores">—</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-c"></canvas></div></div>
+      <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="c-faturamento" style="color:#993556;">—</div><div class="metric-sub">&nbsp;</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="next-event-widget" id="c-next-event-widget" onclick="event.stopPropagation()">
+      <div class="nev-label">Próxima tarefa</div>
+      <div id="c-nev-content" class="nev-empty">Nenhuma tarefa cadastrada</div>
+    </div>
+    <div class="last-updated" id="c-updated">Nunca atualizado</div>
     </div>
   </div>
 
@@ -2784,6 +2800,18 @@ var PROJECTS = {
   releio: { title: 're.leio', suffix: 'r', fields: [
     { id: 'r-seguidores',  label: 'Seguidores Instagram', placeholder: 'ex: 340' },
     { id: 'r-assinantes',  label: 'Assinantes newsletter', placeholder: 'ex: 0' }
+  ]},
+  kelvn: { title: 'Kelvn', suffix: 'k', fields: [
+    { id: 'k-seguidores',   label: 'Seguidores Instagram', placeholder: 'ex: 100' },
+    { id: 'k-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 500' }
+  ]},
+  vikka: { title: 'Vikka.io', suffix: 'v', fields: [
+    { id: 'v-seguidores',   label: 'Seguidores Instagram', placeholder: 'ex: 50' },
+    { id: 'v-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 0' }
+  ]},
+  cafe: { title: 'Café', suffix: 'c', fields: [
+    { id: 'c-seguidores',   label: 'Seguidores Instagram', placeholder: 'ex: 50' },
+    { id: 'c-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 0' }
   ]}
 };
 
@@ -3316,6 +3344,7 @@ function navigateToProject(e, proj) {
   if (proj === 'munchow-studio') showStudio();
   else if (proj === 'soup-view') showSoupView();
   else if (proj === 'releio-view') showReleioView();
+  else if (proj === 'projetos-view') showProjetosView();
 }
 
 var ALL_VIEWS = ['main-view','studio-view','soup-view','releio-view','diario-view','citacoes-view','tarefas-view','pessoal-view','projetos-view'];
@@ -4997,7 +5026,8 @@ function saveEdit() {
     localStorage.setItem('dash_' + f.id, val);
     dbMetricSave(f.id, val);
     // Record follower history point for seguidores fields
-    var projKey = f.id === 'm-seguidores' ? 'm' : f.id === 's-seguidores' ? 's' : f.id === 'r-seguidores' ? 'r' : null;
+    var projKey = f.id === 'm-seguidores' ? 'm' : f.id === 's-seguidores' ? 's' : f.id === 'r-seguidores' ? 'r' :
+      f.id === 'k-seguidores' ? 'k' : f.id === 'v-seguidores' ? 'v' : f.id === 'c-seguidores' ? 'c' : null;
     if (projKey) recordFollowerPoint(projKey, val);
   });
   var now = new Date();
@@ -5017,8 +5047,8 @@ document.getElementById('overlay').addEventListener('click', function(e) {
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeEdit(); });
 
 /* ── FOLLOWER HISTORY — registro real por data ── */
-var SPARK_FOLLOWER_IDS = { m: 'm-seguidores', s: 's-seguidores', r: 'r-seguidores' };
-var SPARK_HISTORY_KEY  = { m: 'followers_history_m', s: 'followers_history_s', r: 'followers_history_r' };
+var SPARK_FOLLOWER_IDS = { m: 'm-seguidores', s: 's-seguidores', r: 'r-seguidores', k: 'k-seguidores', v: 'v-seguidores', c: 'c-seguidores' };
+var SPARK_HISTORY_KEY  = { m: 'followers_history_m', s: 'followers_history_s', r: 'followers_history_r', k: 'followers_history_k', v: 'followers_history_v', c: 'followers_history_c' };
 
 function _todayKey() {
   var d = new Date();
@@ -5137,12 +5167,15 @@ function recordFollowerPoint(proj, value) {
 var sparkData = {
   m: { start: 0,  startDate: '2026-04-07', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#D4902A' : '#C4780A'; } },
   s: { start: 1,    startDate: '2026-02-01', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#18926E' : '#0A7864'; } },
-  r: { start: 1,    startDate: '2026-03-24', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#CC4A28' : '#C43A1A'; } }
+  r: { start: 1,    startDate: '2026-03-24', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#CC4A28' : '#C43A1A'; } },
+  k: { start: 0,    startDate: _todayKey(),  color: function(){ return '#993C1D'; } },
+  v: { start: 0,    startDate: _todayKey(),  color: function(){ return '#0F6E56'; } },
+  c: { start: 0,    startDate: _todayKey(),  color: function(){ return '#993556'; } }
 };
 
-var _sparkEndIds = { m: 'm-seguidores', s: 's-seguidores', r: 'r-seguidores' };
-var _sparkStoreKeys = { m: 'dash_m-seguidores', s: 'dash_s-seguidores', r: 'dash_r-seguidores' };
-var _sparkDefaults  = { m: 123, s: 22, r: 7000 };
+var _sparkEndIds = { m: 'm-seguidores', s: 's-seguidores', r: 'r-seguidores', k: 'k-seguidores', v: 'v-seguidores', c: 'c-seguidores' };
+var _sparkStoreKeys = { m: 'dash_m-seguidores', s: 'dash_s-seguidores', r: 'dash_r-seguidores', k: 'dash_k-seguidores', v: 'dash_v-seguidores', c: 'dash_c-seguidores' };
+var _sparkDefaults  = { m: 123, s: 22, r: 7000, k: 0, v: 0, c: 0 };
 
 function buildSparkDataForKey(key) {
   var d = sparkData[key];
@@ -5218,7 +5251,7 @@ function buildReleioSparkData() { return buildSparkDataForKey('r'); }
 
 var sparkInstances = {};
 function buildSparklines() {
-  ['m', 's', 'r'].forEach(function(key) {
+  ['m', 's', 'r', 'k', 'v', 'c'].forEach(function(key) {
     var canvas = document.getElementById('spark-' + key);
     if (!canvas) return;
     var col = sparkData[key].color();
