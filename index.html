@@ -5442,9 +5442,17 @@ function renderCafeMetas() {
       if (metas[mi]) { metas[mi].title = input.value; saveCafeMetasList(metas); }
     });
     input.addEventListener('keydown', function(ev){
+      var mi = +input.dataset.mi;
+      if (ev.key === 'Backspace' && input.value === ''){
+        ev.preventDefault();
+        if (mi > 0) {
+          checkCafeMeta(mi);
+          focusCafeMetaInput(mi-1);
+        }
+        return;
+      }
       if (ev.key !== 'Enter') return;
       ev.preventDefault();
-      var mi = +input.dataset.mi;
       var metas = getCafeMetas();
       if (ev.metaKey || ev.ctrlKey){
         // Cmd+Enter numa meta = nova submeta (primeiro filho dela)
@@ -5469,9 +5477,16 @@ function renderCafeMetas() {
       if (metas[mi] && metas[mi].children[si]) { metas[mi].children[si].title = input.value; saveCafeMetasList(metas); }
     });
     input.addEventListener('keydown', function(ev){
+      var mi = +input.dataset.mi, si = +input.dataset.si;
+      if (ev.key === 'Backspace' && input.value === ''){
+        ev.preventDefault();
+        checkCafeSub(mi, si);
+        if (si > 0) focusCafeSubInput(mi, si-1);
+        else focusCafeMetaInput(mi);
+        return;
+      }
       if (ev.key !== 'Enter') return;
       ev.preventDefault();
-      var mi = +input.dataset.mi, si = +input.dataset.si;
       var metas = getCafeMetas();
       if (ev.metaKey || ev.ctrlKey){
         // Cmd+Enter numa submeta = nova submeta logo abaixo, na mesma meta
