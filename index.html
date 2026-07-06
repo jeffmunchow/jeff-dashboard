@@ -10326,7 +10326,7 @@ function projEditProjectName(pi, e){
   var caretPos = projCaretPosFromClick(e, span);
   var input = document.createElement('input');
   input.value = p.name;
-  input.style.cssText = 'font-family:inherit;font-size:0.82rem;font-weight:500;background:transparent;border:none;color:var(--text);outline:none;';
+  input.style.cssText = 'font-family:inherit;font-size:0.82rem;font-weight:500;background:transparent;border:none;padding:0;margin:0;color:var(--text);outline:none;';
   projAutosizeInput(input, span, 20);
   span.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
@@ -10354,7 +10354,7 @@ function projEditProjectDesc(pi, e){
   var caretPos = projCaretPosFromClick(e, span);
   var input = document.createElement('input');
   input.value = p.desc || '';
-  input.style.cssText = 'font-family:inherit;font-size:0.82rem;background:transparent;border:none;color:var(--text-hint);outline:none;';
+  input.style.cssText = 'font-family:inherit;font-size:0.82rem;background:transparent;border:none;padding:0;margin:0;color:var(--text-hint);outline:none;';
   projAutosizeInput(input, span, 200);
   span.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
@@ -10588,7 +10588,7 @@ function projEditNodeTitle(pi, i, e){
   var caretPos = projCaretPosFromClick(e, label);
   var input = document.createElement('input');
   input.value = node.title;
-  input.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);font-family:inherit;font-size:0.72rem;text-align:center;background:transparent;border:none;color:var(--text);outline:none;';
+  input.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);font-family:inherit;font-size:0.72rem;text-align:center;background:transparent;border:none;padding:0;margin:0;color:var(--text);outline:none;';
   projAutosizeInput(input, label, 12);
   label.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
