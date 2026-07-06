@@ -10308,7 +10308,7 @@ function projEditProjectName(pi, e){
   var caretPos = projCaretPosFromClick(e, span);
   var input = document.createElement('input');
   input.value = p.name;
-  input.size = Math.max(6, input.value.length);
+  input.size = Math.max(1, input.value.length);
   input.style.cssText = 'font-family:inherit;font-size:0.82rem;font-weight:500;background:transparent;border:none;color:var(--text);outline:none;';
   span.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
@@ -10570,7 +10570,7 @@ function projEditNodeTitle(pi, i, e){
   var caretPos = projCaretPosFromClick(e, label);
   var input = document.createElement('input');
   input.value = node.title;
-  input.size = Math.max(6, input.value.length);
+  input.size = Math.max(1, input.value.length);
   input.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);font-family:inherit;font-size:0.72rem;text-align:center;background:transparent;border:none;color:var(--text);outline:none;';
   label.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
