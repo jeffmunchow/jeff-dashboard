@@ -5409,8 +5409,7 @@ function saveCafeMetasList(list) {
 var _cafeMetasUndoStack = [];
 function ensureCafeMetasTrailingEmpty() {
   var metas = getCafeMetas();
-  var last = metas[metas.length - 1];
-  if (!last || last.title.trim() !== '') {
+  if (metas.length === 0) {
     metas.push({ title:'', children:[] });
     saveCafeMetasList(metas);
   }
@@ -5445,9 +5444,7 @@ function renderCafeMetas() {
       var mi = +input.dataset.mi;
       if (ev.key === 'Backspace' && input.value === ''){
         ev.preventDefault();
-        var metasNow = getCafeMetas();
-        var isTrailingGhost = mi === metasNow.length - 1;
-        if (mi > 0 && !isTrailingGhost) {
+        if (mi > 0) {
           checkCafeMeta(mi);
           focusCafeMetaInput(mi-1);
         }
