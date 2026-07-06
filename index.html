@@ -10295,7 +10295,7 @@ function projBuildLabel(pi){
     '<span style="width:8px;height:8px;border-radius:50%;background:'+p.dot+';flex-shrink:0;"></span>'+
     '<span class="proj-name" style="font-size:0.82rem;font-weight:500;color:var(--text);cursor:text;">'+p.name+'</span>'+
     '<span style="font-size:0.82rem;color:var(--text-muted);">—</span>'+
-    '<span class="proj-desc" style="font-size:0.82rem;color:var(--text-muted);cursor:text;">'+(p.desc||'')+'</span>';
+    '<span class="proj-desc" style="font-size:0.82rem;color:var(--text-hint);cursor:text;">'+(p.desc||'')+'</span>';
   div.querySelector('.proj-name').addEventListener('click', function(e){ projEditProjectName(pi, e); });
   div.querySelector('.proj-desc').addEventListener('click', function(e){ projEditProjectDesc(pi, e); });
   return div;
@@ -10337,7 +10337,7 @@ function projEditProjectDesc(pi, e){
   var input = document.createElement('input');
   input.value = p.desc || '';
   input.size = Math.max(30, input.value.length);
-  input.style.cssText = 'font-family:inherit;font-size:0.82rem;background:transparent;border:none;color:var(--text-muted);outline:none;';
+  input.style.cssText = 'font-family:inherit;font-size:0.82rem;background:transparent;border:none;color:var(--text-hint);outline:none;';
   span.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
   var committed = false;
@@ -10347,7 +10347,7 @@ function projEditProjectDesc(pi, e){
     p.desc = input.value.trim();
     var newSpan = document.createElement('span');
     newSpan.className = 'proj-desc';
-    newSpan.style.cssText = 'font-size:0.82rem;color:var(--text-muted);cursor:text;';
+    newSpan.style.cssText = 'font-size:0.82rem;color:var(--text-hint);cursor:text;';
     newSpan.textContent = p.desc;
     newSpan.addEventListener('click', function(e2){ projEditProjectDesc(pi, e2); });
     input.replaceWith(newSpan);
