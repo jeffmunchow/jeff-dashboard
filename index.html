@@ -5320,7 +5320,7 @@ function renderDashboardNextEvents() {
   // ── Helper: render 4 slots, blank when empty, hover effect + click to edit
   function _renderSlots(items, renderFn) {
     var html = '';
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < 5; i++) {
       if (items[i]) {
         var itemDate = items[i].data || items[i].dataIda || '';
         var isToday = itemDate === today;
