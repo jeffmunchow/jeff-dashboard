@@ -10309,9 +10309,9 @@ function projBuildLabel(pi){
   div.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;';
   div.innerHTML =
     '<span style="width:8px;height:8px;border-radius:50%;background:'+p.dot+';flex-shrink:0;"></span>'+
-    '<span class="proj-name" style="font-size:0.82rem;font-weight:500;color:var(--text);cursor:text;">'+p.name+'</span>'+
-    '<span style="font-size:0.82rem;color:var(--text-muted);">—</span>'+
-    '<span class="proj-desc" style="font-size:0.82rem;color:var(--text-hint);cursor:text;">'+(p.desc||'')+'</span>';
+    '<span class="proj-name" style="font-size:0.72rem;font-weight:500;color:var(--text);cursor:text;">'+p.name+'</span>'+
+    '<span style="font-size:0.72rem;color:var(--text-muted);">—</span>'+
+    '<span class="proj-desc" style="font-size:0.72rem;color:var(--text-hint);cursor:text;">'+(p.desc||'')+'</span>';
   div.querySelector('.proj-name').addEventListener('click', function(e){ projEditProjectName(pi, e); });
   div.querySelector('.proj-desc').addEventListener('click', function(e){ projEditProjectDesc(pi, e); });
   return div;
@@ -10324,7 +10324,7 @@ function projEditProjectName(pi, e){
   var caretPos = projCaretPosFromClick(e, span);
   var input = document.createElement('input');
   input.value = p.name;
-  input.style.cssText = 'font-family:inherit;font-size:0.82rem;font-weight:500;background:transparent;border:none;padding:0;margin:0;color:var(--text);outline:none;';
+  input.style.cssText = 'font-family:inherit;font-size:0.72rem;font-weight:500;background:transparent;border:none;padding:0;margin:0;color:var(--text);outline:none;';
   projAutosizeInput(input, span, 20);
   span.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
@@ -10336,7 +10336,7 @@ function projEditProjectName(pi, e){
     p.name = val;
     var newSpan = document.createElement('span');
     newSpan.className = 'proj-name';
-    newSpan.style.cssText = 'font-size:0.82rem;font-weight:500;color:var(--text);cursor:text;';
+    newSpan.style.cssText = 'font-size:0.72rem;font-weight:500;color:var(--text);cursor:text;';
     newSpan.textContent = val;
     newSpan.addEventListener('click', function(e2){ projEditProjectName(pi, e2); });
     input.replaceWith(newSpan);
@@ -10352,7 +10352,7 @@ function projEditProjectDesc(pi, e){
   var caretPos = projCaretPosFromClick(e, span);
   var input = document.createElement('input');
   input.value = p.desc || '';
-  input.style.cssText = 'font-family:inherit;font-size:0.82rem;background:transparent;border:none;padding:0;margin:0;color:var(--text-hint);outline:none;';
+  input.style.cssText = 'font-family:inherit;font-size:0.72rem;background:transparent;border:none;padding:0;margin:0;color:var(--text-hint);outline:none;';
   projAutosizeInput(input, span, 200);
   span.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
@@ -10363,7 +10363,7 @@ function projEditProjectDesc(pi, e){
     p.desc = input.value.trim();
     var newSpan = document.createElement('span');
     newSpan.className = 'proj-desc';
-    newSpan.style.cssText = 'font-size:0.82rem;color:var(--text-hint);cursor:text;';
+    newSpan.style.cssText = 'font-size:0.72rem;color:var(--text-hint);cursor:text;';
     newSpan.textContent = p.desc;
     newSpan.addEventListener('click', function(e2){ projEditProjectDesc(pi, e2); });
     input.replaceWith(newSpan);
