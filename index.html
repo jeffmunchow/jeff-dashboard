@@ -2371,20 +2371,42 @@
   </div>
 
   <div style="padding:1.5rem 2rem;">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.75rem;">
-      <div class="sum-card"><div class="sum-label">Pacotes vendidos — <span id="cafe-month-label-2"></span></div><div class="sum-value" id="cafe-pacotes-mes" style="color:var(--coral);">0</div><div class="sum-sub">unidades de 250g</div></div>
+    <div class="summary-grid">
+      <div class="sum-card"><div class="sum-label">Ticket médio — <span id="cafe-year-label-1"></span></div><div class="sum-value" id="cafe-ticket-medio">—</div><div class="sum-sub" id="cafe-ticket-medio-sub">sem dados ainda</div></div>
       <div class="sum-card"><div class="sum-label">Melhor mês — <span id="cafe-year-label-2"></span></div><div class="sum-value" id="cafe-melhor-mes" style="color:#993556;">—</div><div class="sum-sub" id="cafe-melhor-mes-sub">sem dados ainda</div></div>
-      <div class="chart-card" style="grid-row:span 2;">
-        <div class="section-header">
-          <div class="section-title">Metas</div>
-          <div style="font-size:0.68rem;color:var(--text-hint);">Cmd+Z para desfazer um check por engano</div>
+      <div class="sum-card"><div class="sum-label">Crescimento vs. ano anterior</div><div class="sum-value" id="cafe-crescimento">—</div><div class="sum-sub">sem dados do ano anterior</div></div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="sum-card">
+        <div class="sum-label">Faturamento — <span id="cafe-month-label-1"></span></div>
+        <div class="sum-value" id="cafe-fat-mes" style="color:#993556;">R$ 0,00</div>
+        <div style="margin-top:10px;">
+          <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-fat-progress" style="background:#993556;"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-fat-falta">defina uma meta</span><span id="cafe-fat-pct">0%</span></div>
         </div>
-        <div id="cafe-metas-list"></div>
-        <div id="cafe-meta-add" style="font-size:0.78rem;color:var(--text-hint);cursor:pointer;margin-top:6px;padding:4px 0;">+ Meta</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-label">Pacotes vendidos — <span id="cafe-month-label-2"></span></div>
+        <div class="sum-value" id="cafe-pacotes-mes" style="color:var(--coral);">0</div>
+        <div style="margin-top:10px;">
+          <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-pacotes-progress" style="background:var(--coral);"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-pacotes-falta">defina uma meta</span><span id="cafe-pacotes-pct">0%</span></div>
+        </div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-label" style="margin-bottom:10px;">Definir metas</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><span style="font-size:0.72rem;color:var(--text-muted);">Fat. mensal (R$)</span><input type="number" id="cafe-meta-fat-mensal" style="width:100px;text-align:right;font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:4px 8px;color:var(--text);outline:none;"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><span style="font-size:0.72rem;color:var(--text-muted);">Fat. anual (R$)</span><input type="number" id="cafe-meta-fat-anual" style="width:100px;text-align:right;font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:4px 8px;color:var(--text);outline:none;"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><span style="font-size:0.72rem;color:var(--text-muted);">Pacotes / mês</span><input type="number" id="cafe-meta-pacotes" style="width:100px;text-align:right;font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:4px 8px;color:var(--text);outline:none;"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><span style="font-size:0.72rem;color:var(--text-muted);">Preço / pacote (R$)</span><input type="number" id="cafe-preco-unitario" style="width:100px;text-align:right;font-family:'DM Sans',sans-serif;font-size:0.75rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:4px 8px;color:var(--text);outline:none;"></div>
+        </div>
+        <button class="btn primary" style="width:100%;margin-top:10px;" onclick="saveCafeSettings()">Salvar metas</button>
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr;gap:1.5rem;">
+    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:1.5rem;">
       <div class="chart-card">
         <div class="section-header">
           <div>
@@ -2398,6 +2420,14 @@
         </div>
         <div style="position:relative;width:100%;height:280px;">
           <canvas id="cafe250gChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="section-header">
+          <div class="section-title">Faturamento por mês</div>
+        </div>
+        <div style="position:relative;width:100%;height:280px;">
+          <canvas id="cafeFatChart"></canvas>
         </div>
       </div>
     </div>
@@ -4803,7 +4833,7 @@ async function loadFromSupabase(forceFullReplace) {
                    'k-seguidores','k-clientes','k-faturamento','k-assinantes',
                    'v-seguidores','v-clientes','v-faturamento','v-assinantes',
                    'c-seguidores','c-clientes','c-faturamento','c-itens',
-                   'cafe_vendas_250g','cafe_metas',
+                   'cafe_vendas_250g','cafe_settings',
                    'm-updated','s-updated','r-updated','k-updated','v-updated','c-updated',
                    'tarefas_v1_sync','diary_index'];
 
@@ -5250,6 +5280,22 @@ function buildReleioSparkData() { return buildSparkDataForKey('r'); }
 function getCafe250gVendas() {
   try { return JSON.parse(localStorage.getItem('dash_cafe_vendas_250g') || '[]'); } catch(e) { return []; }
 }
+function getCafeSettings() {
+  var defaults = { metaFatMensal: 0, metaFatAnual: 0, metaPacotes: 0, precoUnitario: 0 };
+  try { return Object.assign(defaults, JSON.parse(localStorage.getItem('dash_cafe_settings') || '{}')); }
+  catch(e) { return defaults; }
+}
+function saveCafeSettings() {
+  var s = {
+    metaFatMensal: parseFloat(document.getElementById('cafe-meta-fat-mensal').value) || 0,
+    metaFatAnual:  parseFloat(document.getElementById('cafe-meta-fat-anual').value) || 0,
+    metaPacotes:   parseFloat(document.getElementById('cafe-meta-pacotes').value) || 0,
+    precoUnitario: parseFloat(document.getElementById('cafe-preco-unitario').value) || 0
+  };
+  localStorage.setItem('dash_cafe_settings', JSON.stringify(s));
+  dbMetricSave('cafe_settings', JSON.stringify(s));
+  renderCafeDashboard();
+}
 function saveCafe250gVenda() {
   var input = document.getElementById('cafe-250g-input');
   var qty = parseInt(input.value);
@@ -5282,21 +5328,37 @@ function renderCafeBarList(containerId, items, color) {
 function renderCafeDashboard() {
   var year = new Date().getFullYear();
   var monthNamesFull = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  var settings = getCafeSettings();
+  var fmM = document.getElementById('cafe-meta-fat-mensal'); if (fmM) fmM.value = settings.metaFatMensal || '';
+  var faM = document.getElementById('cafe-meta-fat-anual');  if (faM) faM.value = settings.metaFatAnual || '';
+  var pM  = document.getElementById('cafe-meta-pacotes');    if (pM)  pM.value  = settings.metaPacotes || '';
+  var puM = document.getElementById('cafe-preco-unitario');  if (puM) puM.value = settings.precoUnitario || '';
 
-  var el2 = document.getElementById('cafe-year-label-2'); if (el2) el2.textContent = year;
+  ['cafe-year-label-1','cafe-year-label-2'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.textContent = year;
+  });
 
   var now = new Date();
   var curMonthKey = year + '-' + ('0'+(now.getMonth()+1)).slice(-2);
+  document.getElementById('cafe-month-label-1').textContent = monthNamesFull[now.getMonth()];
   document.getElementById('cafe-month-label-2').textContent = monthNamesFull[now.getMonth()];
 
   var vendas = getCafe250gVendas();
   var thisYear = vendas.filter(function(v){ return v.month.slice(0,4) === String(year); });
   var mesesComVenda = thisYear.filter(function(v){ return v.qty > 0; });
+  var totalRevenue = thisYear.reduce(function(sum,v){ return sum + v.qty * settings.precoUnitario; }, 0);
+
+  document.getElementById('cafe-ticket-medio').textContent = mesesComVenda.length
+    ? 'R$ ' + (totalRevenue / mesesComVenda.length).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})
+    : '—';
+  document.getElementById('cafe-ticket-medio-sub').textContent = mesesComVenda.length ? mesesComVenda.length + ' meses com venda' : 'sem dados ainda';
 
   if (mesesComVenda.length) {
     var best = mesesComVenda.reduce(function(a,b){ return b.qty > a.qty ? b : a; });
     var bd = new Date(best.month + '-01T00:00:00');
-    document.getElementById('cafe-melhor-mes').textContent = best.qty + ' pacotes';
+    document.getElementById('cafe-melhor-mes').textContent = settings.precoUnitario
+      ? 'R$ ' + (best.qty*settings.precoUnitario).toLocaleString('pt-BR')
+      : best.qty + ' pacotes';
     document.getElementById('cafe-melhor-mes-sub').textContent = monthNamesFull[bd.getMonth()];
   } else {
     document.getElementById('cafe-melhor-mes').textContent = '—';
@@ -5304,7 +5366,25 @@ function renderCafeDashboard() {
   }
 
   var curEntry = vendas.find(function(v){ return v.month === curMonthKey; });
-  document.getElementById('cafe-pacotes-mes').textContent = curEntry ? curEntry.qty : 0;
+  var curQty = curEntry ? curEntry.qty : 0;
+  var curRevenue = curQty * settings.precoUnitario;
+
+  document.getElementById('cafe-fat-mes').textContent = 'R$ ' + curRevenue.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  var fatPct = settings.metaFatMensal ? Math.min(100, curRevenue/settings.metaFatMensal*100) : 0;
+  document.getElementById('cafe-fat-progress').style.width = fatPct + '%';
+  document.getElementById('cafe-fat-pct').textContent = Math.round(fatPct) + '%';
+  document.getElementById('cafe-fat-falta').textContent = settings.metaFatMensal
+    ? 'Faltam R$ ' + Math.max(0, settings.metaFatMensal - curRevenue).toLocaleString('pt-BR')
+    : 'defina uma meta';
+
+  document.getElementById('cafe-pacotes-mes').textContent = curQty;
+  var pacotesPct = settings.metaPacotes ? Math.min(100, curQty/settings.metaPacotes*100) : 0;
+  document.getElementById('cafe-pacotes-progress').style.width = pacotesPct + '%';
+  document.getElementById('cafe-pacotes-pct').textContent = Math.round(pacotesPct) + '%';
+  document.getElementById('cafe-pacotes-falta').textContent = settings.metaPacotes
+    ? Math.max(0, settings.metaPacotes - curQty) + ' para a meta'
+    : 'defina uma meta';
+
 
   // Sugestões ilustrativas — ainda não têm um sistema de registro próprio,
   // ajuste os valores conforme a operação real da marca.
@@ -5321,141 +5401,9 @@ function renderCafeDashboard() {
     {label:'Feiras e eventos', value:1000}
   ], '#993556');
 
-  renderCafeMetas();
   buildCafe250gChart();
+  buildCafeFatChart();
 }
-
-/* ── Café: checklist de metas/submetas (check remove o item; Cmd+Z desfaz) ── */
-function getCafeMetas() {
-  try { return JSON.parse(localStorage.getItem('dash_cafe_metas') || '[]'); } catch(e) { return []; }
-}
-function saveCafeMetas(list) {
-  localStorage.setItem('dash_cafe_metas', JSON.stringify(list));
-  dbMetricSave('cafe_metas', JSON.stringify(list));
-}
-var _cafeMetasUndoStack = [];
-function renderCafeMetas() {
-  var container = document.getElementById('cafe-metas-list');
-  if (!container) return;
-  var metas = getCafeMetas();
-  var html = '';
-  metas.forEach(function(meta, mi){
-    html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'+
-      '<span class="cafe-meta-check" data-mi="'+mi+'" style="width:14px;height:14px;border-radius:50%;border:1.3px solid #993556;flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-      '<input type="text" class="cafe-meta-input" data-mi="'+mi+'" value="'+meta.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text);">'+
-    '</div>';
-    (meta.children||[]).forEach(function(sub, si){
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:22px;">'+
-        '<span class="cafe-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-        '<input type="text" class="cafe-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
-      '</div>';
-    });
-  });
-  container.innerHTML = html;
-
-  container.querySelectorAll('.cafe-meta-input').forEach(function(input){
-    input.addEventListener('input', function(){
-      var mi = +input.dataset.mi;
-      var metas = getCafeMetas();
-      if (metas[mi]) { metas[mi].title = input.value; saveCafeMetas(metas); }
-    });
-    input.addEventListener('keydown', function(ev){
-      if (ev.key === 'Enter'){
-        ev.preventDefault();
-        var mi = +input.dataset.mi;
-        var metas = getCafeMetas();
-        metas.splice(mi+1, 0, { title:'', children:[] });
-        saveCafeMetas(metas);
-        renderCafeMetas();
-        focusCafeMetaInput(mi+1);
-      }
-    });
-  });
-  container.querySelectorAll('.cafe-sub-input').forEach(function(input){
-    input.addEventListener('input', function(){
-      var mi = +input.dataset.mi, si = +input.dataset.si;
-      var metas = getCafeMetas();
-      if (metas[mi] && metas[mi].children[si]) { metas[mi].children[si].title = input.value; saveCafeMetas(metas); }
-    });
-    input.addEventListener('keydown', function(ev){
-      if (ev.key === 'Enter'){
-        ev.preventDefault();
-        var mi = +input.dataset.mi, si = +input.dataset.si;
-        var metas = getCafeMetas();
-        metas[mi].children.splice(si+1, 0, { title:'' });
-        saveCafeMetas(metas);
-        renderCafeMetas();
-        focusCafeSubInput(mi, si+1);
-      }
-    });
-  });
-  container.querySelectorAll('.cafe-meta-check').forEach(function(circle){
-    circle.addEventListener('click', function(){ checkCafeMeta(+circle.dataset.mi); });
-  });
-  container.querySelectorAll('.cafe-sub-check').forEach(function(circle){
-    circle.addEventListener('click', function(){ checkCafeSub(+circle.dataset.mi, +circle.dataset.si); });
-  });
-}
-function focusCafeMetaInput(mi){
-  setTimeout(function(){
-    var el = document.querySelector('.cafe-meta-input[data-mi="'+mi+'"]');
-    if (el) el.focus();
-  }, 0);
-}
-function focusCafeSubInput(mi, si){
-  setTimeout(function(){
-    var el = document.querySelector('.cafe-sub-input[data-mi="'+mi+'"][data-si="'+si+'"]');
-    if (el) el.focus();
-  }, 0);
-}
-function checkCafeMeta(mi){
-  var metas = getCafeMetas();
-  var removed = metas.splice(mi, 1)[0];
-  if (!removed) return;
-  saveCafeMetas(metas);
-  _cafeMetasUndoStack.push({ type:'meta', index:mi, data:removed });
-  renderCafeMetas();
-}
-function checkCafeSub(mi, si){
-  var metas = getCafeMetas();
-  if (!metas[mi]) return;
-  var removed = metas[mi].children.splice(si, 1)[0];
-  if (!removed) return;
-  saveCafeMetas(metas);
-  _cafeMetasUndoStack.push({ type:'sub', metaIndex:mi, index:si, data:removed });
-  renderCafeMetas();
-}
-function undoCafeMetaCheck(){
-  var last = _cafeMetasUndoStack.pop();
-  if (!last) return;
-  var metas = getCafeMetas();
-  if (last.type === 'meta') {
-    metas.splice(last.index, 0, last.data);
-  } else if (last.type === 'sub' && metas[last.metaIndex]) {
-    metas[last.metaIndex].children.splice(last.index, 0, last.data);
-  }
-  saveCafeMetas(metas);
-  renderCafeMetas();
-}
-document.addEventListener('keydown', function(e){
-  if ((e.metaKey || e.ctrlKey) && (e.key === 'z' || e.key === 'Z')) {
-    var cafeView = document.getElementById('cafe-view');
-    if (!cafeView || cafeView.style.display === 'none') return;
-    var tag = document.activeElement ? document.activeElement.tagName : '';
-    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-    e.preventDefault();
-    undoCafeMetaCheck();
-  }
-});
-document.addEventListener('click', function(e){
-  if (e.target && e.target.id === 'cafe-meta-add') {
-    var metas = getCafeMetas();
-    metas.push({ title:'', children:[] });
-    saveCafeMetas(metas);
-    renderCafeMetas();
-    focusCafeMetaInput(metas.length-1);
-  }
-});
 var cafe250gChartInstance = null;
 function buildCafe250gChart() {
   var canvas = document.getElementById('cafe250gChart');
@@ -5486,6 +5434,52 @@ function buildCafe250gChart() {
       scales: {
         x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 10 } } },
         y: { beginAtZero: true, ticks: { color: tickColor, font: { size: 10 }, precision: 0 }, grid: { color: gridColor } }
+      }
+    }
+  });
+}
+var cafeFatChartInstance = null;
+function buildCafeFatChart() {
+  var canvas = document.getElementById('cafeFatChart');
+  if (!canvas) return;
+  var year = new Date().getFullYear();
+  var settings = getCafeSettings();
+  var vendas = getCafe250gVendas();
+  var monthNamesFull = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  var isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  var tickColor = isDark ? '#9E9892' : '#6B6660';
+  var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  var fadedColor = isDark ? '#3A2226' : '#EBD3D8';
+
+  var revenueByMonth = [];
+  for (var m=0; m<12; m++) {
+    var key = year + '-' + ('0'+(m+1)).slice(-2);
+    var entry = vendas.find(function(v){ return v.month === key; });
+    revenueByMonth.push(entry ? entry.qty * settings.precoUnitario : 0);
+  }
+  var maxVal = Math.max.apply(null, revenueByMonth);
+  var maxIdx = revenueByMonth.indexOf(maxVal);
+  var barColors = revenueByMonth.map(function(v, i){ return (i === maxIdx && v > 0) ? '#993556' : fadedColor; });
+
+  if (cafeFatChartInstance) { cafeFatChartInstance.destroy(); }
+  cafeFatChartInstance = new Chart(canvas, {
+    data: {
+      labels: monthNamesFull,
+      datasets: [
+        { type: 'bar', data: revenueByMonth, backgroundColor: barColors, borderRadius: 4, maxBarThickness: 32, order: 2 },
+        { type: 'line', data: monthNamesFull.map(function(){ return settings.metaFatMensal || null; }),
+          borderColor: '#993556', borderDash: [5,4], borderWidth: 1.3, pointRadius: 0, fill: false, order: 1 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(ctx){ return 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR'); } } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 10 } } },
+        y: { beginAtZero: true, ticks: { color: tickColor, font: { size: 10 }, callback: function(v){ return 'R$'+(v/1000)+'k'; } }, grid: { color: gridColor } }
       }
     }
   });
