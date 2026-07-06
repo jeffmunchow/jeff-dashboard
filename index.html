@@ -730,10 +730,6 @@
     <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema"><svg class="icon-sun" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="2" fill="#C4780A"/><line x1="5" y1="0" x2="5" y2="1.5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="8.5" x2="5" y2="10" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="5" x2="1.5" y2="5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="8.5" y1="5" x2="10" y2="5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="1.46" y1="1.46" x2="2.52" y2="2.52" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="7.48" y1="7.48" x2="8.54" y2="8.54" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="8.54" y1="1.46" x2="7.48" y2="2.52" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="2.52" y1="7.48" x2="1.46" y2="8.54" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/></svg><svg class="icon-moon" viewBox="0 0 10 10" fill="none"><path d="M8.5 6.5A4 4 0 0 1 3.5 1.5a4 4 0 1 0 5 5z" fill="#D4902A"/></svg></button>
     <button onclick="closeMobileMenu()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.2rem;padding:4px;">✕</button>
   </div>
-  <button class="mobile-nav-item" onclick="closeMobileMenu();showProjetosView()">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.1"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.1"/></svg>
-    Projetos
-  </button>
   <button class="mobile-nav-item" onclick="closeMobileMenu();showMainDashboard()">
     <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
     Dashboard
@@ -768,9 +764,6 @@
 <!-- Sidebar -->
 <div class="sidebar" id="main-sidebar">
   <div class="sidebar-top">
-    <button class="sidebar-btn" onclick="showProjetosView()" title="Projetos">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.1"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.1"/></svg>
-    </button>
     <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
     </button>
@@ -845,7 +838,7 @@
 
 <div class="main">
   <div class="project-card">
-    <div class="project-body-clickable" onclick="navigateToProject(event, 'projetos-view')">
+    <div class="project-body-clickable">
     <div class="project-header" style="border-bottom:0.5px solid var(--border);">
       <div><div class="project-name">Kelvn</div><div class="project-meta">Gestão para fotógrafos</div></div>
       <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('kelvn')" title="Editar métricas">+</button>
@@ -866,7 +859,7 @@
   </div>
 
   <div class="project-card">
-    <div class="project-body-clickable" onclick="navigateToProject(event, 'projetos-view')">
+    <div class="project-body-clickable">
     <div class="project-header" style="border-bottom:0.5px solid var(--border);">
       <div><div class="project-name">Vikka.io</div><div class="project-meta">Rotina em família</div></div>
       <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('vikka')" title="Editar métricas">+</button>
@@ -887,7 +880,7 @@
   </div>
 
   <div class="project-card">
-    <div class="project-body-clickable" onclick="navigateToProject(event, 'projetos-view')">
+    <div class="project-body-clickable">
     <div class="project-header" style="border-bottom:0.5px solid var(--border);">
       <div><div class="project-name">Café</div><div class="project-meta">Cafés especiais</div></div>
       <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('cafe')" title="Editar métricas">+</button>
@@ -938,10 +931,7 @@
 <div id="diario-view" class="diary-view">
   <div class="sidebar">
     <div class="sidebar-top">
-      <button class="sidebar-btn" onclick="showProjetosView()" title="Projetos">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.1"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.1"/></svg>
-    </button>
-    <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+      <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
       </button>
       <button class="sidebar-btn" onclick="showPessoalView()" title="Pessoal">
@@ -1021,10 +1011,7 @@
 <div id="citacoes-view" style="display:none;min-height:100vh;">
   <div class="sidebar">
     <div class="sidebar-top">
-      <button class="sidebar-btn" onclick="showProjetosView()" title="Projetos">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.1"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.1"/></svg>
-    </button>
-    <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+      <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
       </button>
       <button class="sidebar-btn" onclick="showPessoalView()" title="Pessoal">
@@ -1099,70 +1086,13 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
-<!--  PROJETOS                                                       -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<div id="projetos-view" style="display:none;min-height:100vh;">
-  <div class="sidebar">
-    <div class="sidebar-top">
-      <button class="sidebar-btn active" onclick="showProjetosView()" title="Projetos" style="color:var(--teal);">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.1"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.1"/></svg>
-      </button>
-      <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
-      </button>
-      <button class="sidebar-btn" onclick="showPessoalView()" title="Pessoal">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      </button>
-      <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
-        <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/></svg>
-      </button>
-      <button class="sidebar-btn" onclick="showCitacoesView()" title="Citações">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 6.5C2.5 5.1 3.6 4 5 4h.5V2.5H5C2.8 2.5 1 4.3 1 6.5v3.5h3.5V6.5H2.5z" fill="currentColor" opacity="0.9"/><path d="M8.5 6.5C8.5 5.1 9.6 4 11 4h.5V2.5H11C8.8 2.5 7 4.3 7 6.5v3.5h3.5V6.5H8.5z" fill="currentColor" opacity="0.9"/></svg>
-      </button>
-      <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-      </button>
-    </div>
-    <div class="sidebar-bottom">
-      <button class="sidebar-btn" onclick="toggleNotesModal()" title="Atualizações do sistema">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-      </button>
-      <div class="sidebar-version">v.2.0</div>
-    </div>
-  </div>
-
-  <div class="header" style="border-bottom:0.5px solid var(--border);">
-    <div class="header-left">
-      <button id="mobile-menu-btn" onclick="toggleMobileMenu()" style="display:none;background:none;border:none;cursor:pointer;color:var(--text);padding:4px 8px 4px 0;flex-shrink:0;" title="Menu"><svg width="18" height="14" viewBox="0 0 18 14" fill="none"><line x1="0" y1="1" x2="18" y2="1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="7" x2="18" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="13" x2="18" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
-      <div>
-      <h1 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;letter-spacing:-0.01em;">Projetos</h1>
-      <p style="font-size:0.72rem;color:var(--text-hint);margin-top:2px;font-weight:300;letter-spacing:0;text-transform:none;">Metas e progresso</p>
-      </div>
-    </div>
-    <div class="header-right">
-      <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
-        <svg class="icon-sun" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="2" fill="#C4780A"/><line x1="5" y1="0" x2="5" y2="1.5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="8.5" x2="5" y2="10" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="0" y1="5" x2="1.5" y2="5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="8.5" y1="5" x2="10" y2="5" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="1.46" y1="1.46" x2="2.52" y2="2.52" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="7.48" y1="7.48" x2="8.54" y2="8.54" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="8.54" y1="1.46" x2="7.48" y2="2.52" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/><line x1="2.52" y1="7.48" x2="1.46" y2="8.54" stroke="#C4780A" stroke-width="1" stroke-linecap="round"/></svg>
-        <svg class="icon-moon" viewBox="0 0 10 10" fill="none"><path d="M8.5 6.5A4 4 0 0 1 3.5 1.5a4 4 0 1 0 5 5z" fill="#D4902A"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <div style="padding:2rem 2.5rem;max-width:720px;margin:0 auto;">
-    <div id="projetos-list" style="display:flex;flex-direction:column;gap:2.25rem;"></div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
 <!--  TAREFAS                                                        -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <div id="tarefas-view">
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-top">
-      <button class="sidebar-btn" onclick="showProjetosView()" title="Projetos">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.1"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.1"/></svg>
-    </button>
-    <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+      <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
       </button>
       <button class="sidebar-btn" onclick="showPessoalView()" title="Pessoal">
@@ -1236,10 +1166,7 @@
 <div id="pessoal-view" style="display:none;min-height:100vh;">
   <div class="sidebar">
     <div class="sidebar-top">
-      <button class="sidebar-btn" onclick="showProjetosView()" title="Projetos">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.1"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.1"/></svg>
-    </button>
-    <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+      <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
       </button>
       <button class="sidebar-btn active" onclick="showPessoalView()" title="Pessoal" style="color:var(--text);">
@@ -1455,9 +1382,6 @@
 <div id="studio-view">
   <div class="sidebar">
     <div class="sidebar-top">
-    <button class="sidebar-btn" onclick="showProjetosView()" title="Projetos">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.1"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.1"/></svg>
-    </button>
     <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
     </button>
@@ -1740,9 +1664,6 @@
 <div id="soup-view" style="display:none; min-height:100vh;">
   <div class="sidebar">
     <div class="sidebar-top">
-    <button class="sidebar-btn" onclick="showProjetosView()" title="Projetos">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.1"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.1"/></svg>
-    </button>
     <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
     </button>
@@ -1968,9 +1889,6 @@
 <div id="releio-view" style="display:none; min-height:100vh;">
   <div class="sidebar">
     <div class="sidebar-top">
-    <button class="sidebar-btn" onclick="showProjetosView()" title="Projetos">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="5" y1="5" x2="5" y2="9" stroke="currentColor" stroke-width="1.1"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.1"/></svg>
-    </button>
     <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
     </button>
@@ -3356,10 +3274,9 @@ function navigateToProject(e, proj) {
   if (proj === 'munchow-studio') showStudio();
   else if (proj === 'soup-view') showSoupView();
   else if (proj === 'releio-view') showReleioView();
-  else if (proj === 'projetos-view') showProjetosView();
 }
 
-var ALL_VIEWS = ['main-view','studio-view','soup-view','releio-view','diario-view','citacoes-view','tarefas-view','pessoal-view','projetos-view'];
+var ALL_VIEWS = ['main-view','studio-view','soup-view','releio-view','diario-view','citacoes-view','tarefas-view','pessoal-view'];
 function hideAllViews() {
   ALL_VIEWS.forEach(function(id){
     var el = document.getElementById(id);
@@ -3405,12 +3322,6 @@ function showPessoalView() {
   document.getElementById('pessoal-view').style.display = 'block';
   window.scrollTo(0,0);
   setJJView('line');
-}
-
-function showProjetosView() {
-  hideAllViews();
-  document.getElementById('projetos-view').style.display = 'block';
-  window.scrollTo(0,0);
 }
 
 /* ── PESSOAL TABS ───────────────────────────────────── */
@@ -10227,205 +10138,6 @@ async function forceSyncAll() {
   }, 60000);
 })();
 
-/* ── PROJETOS (checklist simples: título, missão, metas e submetas) ──
-   Dados de exemplo — ainda não persistem no Supabase. Cada nó é
-   {title, done, children}, aninhável indefinidamente (metas > submetas). */
-var PROJETOS_DATA = [
-  {name:'Re.leio', dot:'#534AB7', desc:'', goals:[
-    {title:'Lançar app', done:false, children:[
-      {title:'Definir MVP', done:false, children:[]},
-      {title:'Testar com 10 leitores', done:false, children:[]},
-      {title:'Publicar na loja', done:false, children:[]}
-    ]},
-    {title:'100 assinantes', done:false, children:[
-      {title:'Campanha de indicação', done:false, children:[]},
-      {title:'Parceria com 3 perfis', done:false, children:[]}
-    ]},
-    {title:'Monetização', done:false, children:[
-      {title:'Plano Pro', done:false, children:[]},
-      {title:'Checkout Stripe', done:false, children:[]}
-    ]}
-  ]},
-  {name:'Vikka.io', dot:'#0F6E56', desc:'', goals:[
-    {title:'CloudKit', done:false, children:[
-      {title:'Ativar capability no Xcode', done:false, children:[]},
-      {title:'Testar sync entre devices', done:false, children:[]}
-    ]},
-    {title:'Versão Mac', done:false, children:[
-      {title:'Menu bar app', done:false, children:[]},
-      {title:'Compra universal', done:false, children:[]}
-    ]},
-    {title:'App Store', done:false, children:[
-      {title:'Screenshots', done:false, children:[]},
-      {title:'Descrição', done:false, children:[]},
-      {title:'Revisão da Apple', done:false, children:[]}
-    ]}
-  ]},
-  {name:'Kelvn', dot:'#993C1D', desc:'', goals:[
-    {title:'Compliance App Store', done:false, children:[
-      {title:'Resolver regra 3.1.1', done:false, children:[]},
-      {title:'Revisão jurídica', done:false, children:[]}
-    ]},
-    {title:'LGPD', done:false, children:[
-      {title:'Política de privacidade', done:false, children:[]},
-      {title:'Termos de uso', done:false, children:[]}
-    ]},
-    {title:'Onboarding', done:false, children:[
-      {title:'Fluxo guiado', done:false, children:[]},
-      {title:'Vídeo tutorial', done:false, children:[]}
-    ]}
-  ]},
-  {name:'Café', dot:'#993556', desc:'Criar uma marca elegante de cafés especiais, minimalista, enxuta e escalável, capaz de gerar R$5.000 de lucro mensal ocupando pouco tempo operacional.', goals:[
-    {title:'Identidade visual', done:false, children:[
-      {title:'Logo', done:false, children:[]},
-      {title:'Paleta de cores', done:false, children:[]}
-    ]},
-    {title:'Cardápio', done:false, children:[
-      {title:'Precificação', done:false, children:[]},
-      {title:'Fotos dos produtos', done:false, children:[]}
-    ]}
-  ]},
-  {name:'Münchow Studio', dot:'#5F5E5A', desc:'', goals:[
-    {title:'Novo site', done:false, children:[
-      {title:'Portfólio atualizado', done:false, children:[]},
-      {title:'SEO técnico', done:false, children:[]}
-    ]},
-    {title:'Captação', done:false, children:[
-      {title:'3 ensaios fechados', done:false, children:[]},
-      {title:'Parcerias com fornecedores', done:false, children:[]}
-    ]}
-  ]}
-];
-
-var _projPendingFocus = null;
-
-function projRenderProject(pi){
-  var p = PROJETOS_DATA[pi];
-  var body = document.getElementById('proj-body-'+pi);
-  if (!body) return;
-  body.innerHTML = '';
-
-  var header = document.createElement('div');
-  header.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;';
-  var dot = document.createElement('span');
-  dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:'+p.dot+';flex-shrink:0;';
-  var titleInput = document.createElement('input');
-  titleInput.value = p.name;
-  titleInput.style.cssText = 'font-family:inherit;font-size:0.95rem;font-weight:500;background:transparent;border:none;padding:0;margin:0;color:var(--text);outline:none;flex:1;min-width:0;';
-  titleInput.addEventListener('input', function(){ p.name = titleInput.value; });
-  titleInput.addEventListener('keydown', function(ev){ if (ev.key==='Enter'){ ev.preventDefault(); titleInput.blur(); } });
-  header.appendChild(dot);
-  header.appendChild(titleInput);
-  body.appendChild(header);
-
-  var missionRow = document.createElement('div');
-  missionRow.style.cssText = 'display:flex;align-items:baseline;gap:6px;margin:0 0 16px 16px;';
-  var missionLabel = document.createElement('span');
-  missionLabel.textContent = 'Missão:';
-  missionLabel.style.cssText = 'font-size:0.78rem;color:var(--text-muted);flex-shrink:0;';
-  var missionInput = document.createElement('input');
-  missionInput.value = p.desc || '';
-  missionInput.placeholder = 'Qual é a missão deste projeto?';
-  missionInput.style.cssText = 'font-family:inherit;font-size:0.78rem;background:transparent;border:none;padding:0;margin:0;color:var(--text-hint);outline:none;flex:1;min-width:0;';
-  missionInput.addEventListener('input', function(){ p.desc = missionInput.value; });
-  missionInput.addEventListener('keydown', function(ev){ if (ev.key==='Enter'){ ev.preventDefault(); missionInput.blur(); } });
-  missionRow.appendChild(missionLabel);
-  missionRow.appendChild(missionInput);
-  body.appendChild(missionRow);
-
-  var list = document.createElement('div');
-  list.style.cssText = 'display:flex;flex-direction:column;';
-  body.appendChild(list);
-  projRenderChecklist(pi, p.goals, list, 0);
-
-  var addBtn = document.createElement('div');
-  addBtn.textContent = '+ Meta';
-  addBtn.style.cssText = 'font-size:0.78rem;color:var(--text-hint);cursor:pointer;margin-top:4px;padding:4px 0 4px 22px;';
-  addBtn.addEventListener('mouseenter', function(){ addBtn.style.color = 'var(--text-muted)'; });
-  addBtn.addEventListener('mouseleave', function(){ addBtn.style.color = 'var(--text-hint)'; });
-  addBtn.addEventListener('click', function(){
-    var node = {title:'', done:false, children:[]};
-    p.goals.push(node);
-    _projPendingFocus = node;
-    projRenderProject(pi);
-  });
-  body.appendChild(addBtn);
-
-  if (_projPendingFocus){
-    _projPendingFocus = null;
-    setTimeout(function(){
-      var el = list.querySelector('input[data-focus-me="1"]');
-      if (el) el.focus();
-    }, 0);
-  }
-}
-
-function projRenderChecklist(pi, nodes, container, depth){
-  nodes.forEach(function(node, i){
-    var row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:'+(depth*22)+'px;';
-
-    var circle = document.createElement('span');
-    circle.style.cssText = 'width:14px;height:14px;border-radius:50%;flex-shrink:0;cursor:pointer;box-sizing:border-box;'+
-      (node.done
-        ? 'background:'+PROJETOS_DATA[pi].dot+';border:1.3px solid '+PROJETOS_DATA[pi].dot+';'
-        : 'background:transparent;border:1.3px solid var(--border-strong);');
-    circle.title = node.done ? 'Marcar como não concluída' : 'Marcar como concluída';
-
-    var input = document.createElement('input');
-    input.value = node.title;
-    if (node === _projPendingFocus) input.dataset.focusMe = '1';
-    input.style.cssText = 'flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;'+
-      (node.done ? 'color:var(--text-hint);text-decoration:line-through;' : 'color:var(--text);text-decoration:none;');
-
-    circle.addEventListener('click', function(){
-      node.done = !node.done;
-      circle.style.background = node.done ? PROJETOS_DATA[pi].dot : 'transparent';
-      circle.style.borderColor = node.done ? PROJETOS_DATA[pi].dot : 'var(--border-strong)';
-      input.style.textDecoration = node.done ? 'line-through' : 'none';
-      input.style.color = node.done ? 'var(--text-hint)' : 'var(--text)';
-    });
-
-    input.addEventListener('input', function(){ node.title = input.value; });
-
-    input.addEventListener('keydown', function(ev){
-      if (ev.key === 'Enter'){
-        ev.preventDefault();
-        var newNode = {title:'', done:false, children:[]};
-        nodes.splice(i+1, 0, newNode);
-        _projPendingFocus = newNode;
-        projRenderProject(pi);
-      } else if (ev.key === 'Backspace' && input.value === ''){
-        ev.preventDefault();
-        nodes.splice(i, 1);
-        _projPendingFocus = null;
-        projRenderProject(pi);
-      }
-    });
-
-    row.appendChild(circle);
-    row.appendChild(input);
-    container.appendChild(row);
-
-    if (node.children && node.children.length){
-      projRenderChecklist(pi, node.children, container, depth+1);
-    }
-  });
-}
-
-function projInitAll(){
-  var root = document.getElementById('projetos-list');
-  if (!root || root.dataset.built) return;
-  root.dataset.built = '1';
-  PROJETOS_DATA.forEach(function(p, pi){
-    var body = document.createElement('div');
-    body.id = 'proj-body-'+pi;
-    root.appendChild(body);
-    projRenderProject(pi);
-  });
-}
-
-projInitAll();
 
 // Registra service worker — atualiza automaticamente e funciona offline
 if ('serviceWorker' in navigator) {
