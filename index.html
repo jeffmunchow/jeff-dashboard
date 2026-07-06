@@ -10309,7 +10309,7 @@ function projEditProjectName(pi, e){
   var input = document.createElement('input');
   input.value = p.name;
   input.size = Math.max(6, input.value.length);
-  input.style.cssText = 'font-size:0.82rem;font-weight:500;background:transparent;border:none;color:var(--text);outline:none;';
+  input.style.cssText = 'font-family:inherit;font-size:0.82rem;font-weight:500;background:transparent;border:none;color:var(--text);outline:none;';
   span.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
   var committed = false;
@@ -10337,7 +10337,7 @@ function projEditProjectDesc(pi, e){
   var input = document.createElement('input');
   input.value = p.desc || '';
   input.size = Math.max(30, input.value.length);
-  input.style.cssText = 'font-size:0.82rem;background:transparent;border:none;color:var(--text-muted);outline:none;';
+  input.style.cssText = 'font-family:inherit;font-size:0.82rem;background:transparent;border:none;color:var(--text-muted);outline:none;';
   span.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
   var committed = false;
@@ -10571,7 +10571,7 @@ function projEditNodeTitle(pi, i, e){
   var input = document.createElement('input');
   input.value = node.title;
   input.size = Math.max(6, input.value.length);
-  input.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);font-size:0.72rem;text-align:center;background:transparent;border:none;color:var(--text);outline:none;';
+  input.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);font-family:inherit;font-size:0.72rem;text-align:center;background:transparent;border:none;color:var(--text);outline:none;';
   label.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
   var committed = false;
