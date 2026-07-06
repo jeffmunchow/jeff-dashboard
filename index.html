@@ -5521,13 +5521,13 @@ window.addEventListener('resize', syncCafeMetasCardHeight);
 function focusCafeMetaInput(mi){
   setTimeout(function(){
     var el = document.querySelector('.cafe-meta-input[data-mi="'+mi+'"]');
-    if (el) el.focus();
+    if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
   }, 0);
 }
 function focusCafeSubInput(mi, si){
   setTimeout(function(){
     var el = document.querySelector('.cafe-sub-input[data-mi="'+mi+'"][data-si="'+si+'"]');
-    if (el) el.focus();
+    if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
   }, 0);
 }
 function checkCafeMeta(mi){
