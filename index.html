@@ -10287,6 +10287,24 @@ function projPlaceCaret(input, caretPos){
   input.setSelectionRange(pos, pos);
 }
 
+function projMeasureTextWidth(text, font){
+  var canvas = projMeasureTextWidth._canvas || (projMeasureTextWidth._canvas = document.createElement('canvas'));
+  var ctx = canvas.getContext('2d');
+  ctx.font = font;
+  return ctx.measureText(text || '').width;
+}
+
+function projAutosizeInput(input, refEl, minPx){
+  var cs = getComputedStyle(refEl);
+  var font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+  function resize(){
+    var w = projMeasureTextWidth(input.value, font);
+    input.style.width = Math.max(minPx || 8, Math.ceil(w) + 3) + 'px';
+  }
+  resize();
+  input.addEventListener('input', resize);
+}
+
 function projBuildLabel(pi){
   var p = PROJETOS_DATA[pi];
   var div = document.createElement('div');
@@ -10308,8 +10326,8 @@ function projEditProjectName(pi, e){
   var caretPos = projCaretPosFromClick(e, span);
   var input = document.createElement('input');
   input.value = p.name;
-  input.size = Math.max(1, input.value.length);
   input.style.cssText = 'font-family:inherit;font-size:0.82rem;font-weight:500;background:transparent;border:none;color:var(--text);outline:none;';
+  projAutosizeInput(input, span, 20);
   span.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
   var committed = false;
@@ -10336,8 +10354,8 @@ function projEditProjectDesc(pi, e){
   var caretPos = projCaretPosFromClick(e, span);
   var input = document.createElement('input');
   input.value = p.desc || '';
-  input.size = Math.max(30, input.value.length);
   input.style.cssText = 'font-family:inherit;font-size:0.82rem;background:transparent;border:none;color:var(--text-hint);outline:none;';
+  projAutosizeInput(input, span, 200);
   span.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
   var committed = false;
@@ -10570,8 +10588,8 @@ function projEditNodeTitle(pi, i, e){
   var caretPos = projCaretPosFromClick(e, label);
   var input = document.createElement('input');
   input.value = node.title;
-  input.size = Math.max(1, input.value.length);
   input.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);font-family:inherit;font-size:0.72rem;text-align:center;background:transparent;border:none;color:var(--text);outline:none;';
+  projAutosizeInput(input, label, 12);
   label.replaceWith(input);
   setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
   var committed = false;
