@@ -2395,7 +2395,6 @@
       <div class="sum-card" id="cafe-metas-card" style="flex:1;overflow-y:auto;box-sizing:border-box;">
         <div class="sum-label">Metas</div>
         <div id="cafe-metas-list"></div>
-        <div id="cafe-meta-add" style="font-size:0.78rem;color:var(--text-hint);cursor:pointer;margin-top:6px;padding:4px 0;">+ Meta</div>
       </div>
     </div>
 
@@ -5408,9 +5407,18 @@ function saveCafeMetasList(list) {
   dbMetricSave('cafe_metas', JSON.stringify(list));
 }
 var _cafeMetasUndoStack = [];
+function ensureCafeMetasTrailingEmpty() {
+  var metas = getCafeMetas();
+  var last = metas[metas.length - 1];
+  if (!last || last.title.trim() !== '') {
+    metas.push({ title:'', children:[] });
+    saveCafeMetasList(metas);
+  }
+}
 function renderCafeMetas() {
   var container = document.getElementById('cafe-metas-list');
   if (!container) return;
+  ensureCafeMetasTrailingEmpty();
   var metas = getCafeMetas();
   var html = '';
   metas.forEach(function(meta, mi){
@@ -5545,15 +5553,6 @@ document.addEventListener('keydown', function(e){
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
     e.preventDefault();
     undoCafeMetaCheck();
-  }
-});
-document.addEventListener('click', function(e){
-  if (e.target && e.target.id === 'cafe-meta-add') {
-    var metas = getCafeMetas();
-    metas.push({ title:'', children:[] });
-    saveCafeMetasList(metas);
-    renderCafeMetas();
-    focusCafeMetaInput(metas.length-1);
   }
 });
 
