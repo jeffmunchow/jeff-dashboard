@@ -5445,7 +5445,9 @@ function renderCafeMetas() {
       var mi = +input.dataset.mi;
       if (ev.key === 'Backspace' && input.value === ''){
         ev.preventDefault();
-        if (mi > 0) {
+        var metasNow = getCafeMetas();
+        var isTrailingGhost = mi === metasNow.length - 1;
+        if (mi > 0 && !isTrailingGhost) {
           checkCafeMeta(mi);
           focusCafeMetaInput(mi-1);
         }
