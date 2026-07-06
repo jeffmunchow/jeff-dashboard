@@ -1125,8 +1125,8 @@
     </div>
   </div>
 
-  <div style="padding:2rem 4.5rem 2rem 2.5rem;">
-    <div id="projetos-list" style="display:flex;flex-direction:column;gap:2rem;"></div>
+  <div style="padding:2rem 2.5rem;max-width:720px;margin:0 auto;">
+    <div id="projetos-list" style="display:flex;flex-direction:column;gap:2.25rem;"></div>
   </div>
 </div>
 
@@ -10182,203 +10182,190 @@ async function forceSyncAll() {
   }, 60000);
 })();
 
-/* ── PROJETOS (linhas de metas por projeto, profundidade livre) ─────
-   Dados de exemplo — ainda não persistem no Supabase. Próximo passo:
-   ligar PROJETOS_DATA a uma tabela própria (hoje os títulos só são
-   editáveis em memória, durante a sessão). Cada nó é {title, children}
-   e pode ser aninhado indefinidamente. */
+/* ── PROJETOS (checklist simples: título, missão, metas e submetas) ──
+   Dados de exemplo — ainda não persistem no Supabase. Cada nó é
+   {title, done, children}, aninhável indefinidamente (metas > submetas). */
 var PROJETOS_DATA = [
-  {name:'Re.leio', dot:'#534AB7', goals:[
-    {title:'Lançar app', children:[
-      {title:'Definir MVP', children:[
-        {title:'Escopo do MVP', children:[]},
-        {title:'Prazo de entrega', children:[]}
-      ]},
-      {title:'Testar com 10 leitores', children:[]},
-      {title:'Publicar na loja', children:[]}
+  {name:'Re.leio', dot:'#534AB7', desc:'', goals:[
+    {title:'Lançar app', done:false, children:[
+      {title:'Definir MVP', done:false, children:[]},
+      {title:'Testar com 10 leitores', done:false, children:[]},
+      {title:'Publicar na loja', done:false, children:[]}
     ]},
-    {title:'100 assinantes', children:[
-      {title:'Campanha de indicação', children:[]},
-      {title:'Parceria com 3 perfis', children:[]}
+    {title:'100 assinantes', done:false, children:[
+      {title:'Campanha de indicação', done:false, children:[]},
+      {title:'Parceria com 3 perfis', done:false, children:[]}
     ]},
-    {title:'Monetização', children:[
-      {title:'Plano Pro', children:[]},
-      {title:'Checkout Stripe', children:[]}
+    {title:'Monetização', done:false, children:[
+      {title:'Plano Pro', done:false, children:[]},
+      {title:'Checkout Stripe', done:false, children:[]}
     ]}
   ]},
-  {name:'Vikka.io', dot:'#0F6E56', goals:[
-    {title:'CloudKit', children:[
-      {title:'Ativar capability no Xcode', children:[
-        {title:'Criar conta paga', children:[]},
-        {title:'Configurar entitlements', children:[]}
-      ]},
-      {title:'Testar sync entre devices', children:[]}
+  {name:'Vikka.io', dot:'#0F6E56', desc:'', goals:[
+    {title:'CloudKit', done:false, children:[
+      {title:'Ativar capability no Xcode', done:false, children:[]},
+      {title:'Testar sync entre devices', done:false, children:[]}
     ]},
-    {title:'Versão Mac', children:[
-      {title:'Menu bar app', children:[]},
-      {title:'Compra universal', children:[]}
+    {title:'Versão Mac', done:false, children:[
+      {title:'Menu bar app', done:false, children:[]},
+      {title:'Compra universal', done:false, children:[]}
     ]},
-    {title:'App Store', children:[
-      {title:'Screenshots', children:[]},
-      {title:'Descrição', children:[]},
-      {title:'Revisão da Apple', children:[]}
+    {title:'App Store', done:false, children:[
+      {title:'Screenshots', done:false, children:[]},
+      {title:'Descrição', done:false, children:[]},
+      {title:'Revisão da Apple', done:false, children:[]}
     ]}
   ]},
-  {name:'Kelvn', dot:'#993C1D', goals:[
-    {title:'Compliance App Store', children:[
-      {title:'Resolver regra 3.1.1', children:[]},
-      {title:'Revisão jurídica', children:[]}
+  {name:'Kelvn', dot:'#993C1D', desc:'', goals:[
+    {title:'Compliance App Store', done:false, children:[
+      {title:'Resolver regra 3.1.1', done:false, children:[]},
+      {title:'Revisão jurídica', done:false, children:[]}
     ]},
-    {title:'LGPD', children:[
-      {title:'Política de privacidade', children:[]},
-      {title:'Termos de uso', children:[]}
+    {title:'LGPD', done:false, children:[
+      {title:'Política de privacidade', done:false, children:[]},
+      {title:'Termos de uso', done:false, children:[]}
     ]},
-    {title:'Onboarding', children:[
-      {title:'Fluxo guiado', children:[]},
-      {title:'Vídeo tutorial', children:[]}
+    {title:'Onboarding', done:false, children:[
+      {title:'Fluxo guiado', done:false, children:[]},
+      {title:'Vídeo tutorial', done:false, children:[]}
     ]}
   ]},
   {name:'Café', dot:'#993556', desc:'Criar uma marca elegante de cafés especiais, minimalista, enxuta e escalável, capaz de gerar R$5.000 de lucro mensal ocupando pouco tempo operacional.', goals:[
-    {title:'Identidade visual', children:[
-      {title:'Logo', children:[]},
-      {title:'Paleta de cores', children:[]}
+    {title:'Identidade visual', done:false, children:[
+      {title:'Logo', done:false, children:[]},
+      {title:'Paleta de cores', done:false, children:[]}
     ]},
-    {title:'Cardápio', children:[
-      {title:'Precificação', children:[]},
-      {title:'Fotos dos produtos', children:[]}
+    {title:'Cardápio', done:false, children:[
+      {title:'Precificação', done:false, children:[]},
+      {title:'Fotos dos produtos', done:false, children:[]}
     ]}
   ]},
-  {name:'Münchow Studio', dot:'#5F5E5A', goals:[
-    {title:'Novo site', children:[
-      {title:'Portfólio atualizado', children:[]},
-      {title:'SEO técnico', children:[]}
+  {name:'Münchow Studio', dot:'#5F5E5A', desc:'', goals:[
+    {title:'Novo site', done:false, children:[
+      {title:'Portfólio atualizado', done:false, children:[]},
+      {title:'SEO técnico', done:false, children:[]}
     ]},
-    {title:'Captação', children:[
-      {title:'3 ensaios fechados', children:[]},
-      {title:'Parcerias com fornecedores', children:[]}
+    {title:'Captação', done:false, children:[
+      {title:'3 ensaios fechados', done:false, children:[]},
+      {title:'Parcerias com fornecedores', done:false, children:[]}
     ]}
   ]}
 ];
 
-var PROJ_ANIM_MS = 360;
-var PROJ_ROW_H = 54;
-var PROJ_LINE_TOP = 20;
-var PROJ_TICK_TOP = 14;
-var _projState = PROJETOS_DATA.map(function(){ return {path:[], animating:false}; });
+var _projPendingFocus = null;
 
-function projCaretPosFromClick(e, span){
-  if (!e || !span) return null;
-  try {
-    var range = null;
-    if (document.caretRangeFromPoint) {
-      range = document.caretRangeFromPoint(e.clientX, e.clientY);
-    } else if (document.caretPositionFromPoint) {
-      var pos = document.caretPositionFromPoint(e.clientX, e.clientY);
-      if (pos) { range = document.createRange(); range.setStart(pos.offsetNode, pos.offset); }
+function projRenderProject(pi){
+  var p = PROJETOS_DATA[pi];
+  var body = document.getElementById('proj-body-'+pi);
+  if (!body) return;
+  body.innerHTML = '';
+
+  var header = document.createElement('div');
+  header.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;';
+  var dot = document.createElement('span');
+  dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:'+p.dot+';flex-shrink:0;';
+  var titleInput = document.createElement('input');
+  titleInput.value = p.name;
+  titleInput.style.cssText = 'font-family:inherit;font-size:0.95rem;font-weight:500;background:transparent;border:none;padding:0;margin:0;color:var(--text);outline:none;flex:1;min-width:0;';
+  titleInput.addEventListener('input', function(){ p.name = titleInput.value; });
+  titleInput.addEventListener('keydown', function(ev){ if (ev.key==='Enter'){ ev.preventDefault(); titleInput.blur(); } });
+  header.appendChild(dot);
+  header.appendChild(titleInput);
+  body.appendChild(header);
+
+  var missionRow = document.createElement('div');
+  missionRow.style.cssText = 'display:flex;align-items:baseline;gap:6px;margin:0 0 16px 16px;';
+  var missionLabel = document.createElement('span');
+  missionLabel.textContent = 'Missão:';
+  missionLabel.style.cssText = 'font-size:0.78rem;color:var(--text-muted);flex-shrink:0;';
+  var missionInput = document.createElement('input');
+  missionInput.value = p.desc || '';
+  missionInput.placeholder = 'Qual é a missão deste projeto?';
+  missionInput.style.cssText = 'font-family:inherit;font-size:0.78rem;background:transparent;border:none;padding:0;margin:0;color:var(--text-hint);outline:none;flex:1;min-width:0;';
+  missionInput.addEventListener('input', function(){ p.desc = missionInput.value; });
+  missionInput.addEventListener('keydown', function(ev){ if (ev.key==='Enter'){ ev.preventDefault(); missionInput.blur(); } });
+  missionRow.appendChild(missionLabel);
+  missionRow.appendChild(missionInput);
+  body.appendChild(missionRow);
+
+  var list = document.createElement('div');
+  list.style.cssText = 'display:flex;flex-direction:column;';
+  body.appendChild(list);
+  projRenderChecklist(pi, p.goals, list, 0);
+
+  var addBtn = document.createElement('div');
+  addBtn.textContent = '+ Meta';
+  addBtn.style.cssText = 'font-size:0.78rem;color:var(--text-hint);cursor:pointer;margin-top:4px;padding:4px 0 4px 22px;';
+  addBtn.addEventListener('mouseenter', function(){ addBtn.style.color = 'var(--text-muted)'; });
+  addBtn.addEventListener('mouseleave', function(){ addBtn.style.color = 'var(--text-hint)'; });
+  addBtn.addEventListener('click', function(){
+    var node = {title:'', done:false, children:[]};
+    p.goals.push(node);
+    _projPendingFocus = node;
+    projRenderProject(pi);
+  });
+  body.appendChild(addBtn);
+
+  if (_projPendingFocus){
+    _projPendingFocus = null;
+    setTimeout(function(){
+      var el = list.querySelector('input[data-focus-me="1"]');
+      if (el) el.focus();
+    }, 0);
+  }
+}
+
+function projRenderChecklist(pi, nodes, container, depth){
+  nodes.forEach(function(node, i){
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:'+(depth*22)+'px;';
+
+    var circle = document.createElement('span');
+    circle.style.cssText = 'width:14px;height:14px;border-radius:50%;flex-shrink:0;cursor:pointer;box-sizing:border-box;'+
+      (node.done
+        ? 'background:'+PROJETOS_DATA[pi].dot+';border:1.3px solid '+PROJETOS_DATA[pi].dot+';'
+        : 'background:transparent;border:1.3px solid var(--border-strong);');
+    circle.title = node.done ? 'Marcar como não concluída' : 'Marcar como concluída';
+
+    var input = document.createElement('input');
+    input.value = node.title;
+    if (node === _projPendingFocus) input.dataset.focusMe = '1';
+    input.style.cssText = 'flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;'+
+      (node.done ? 'color:var(--text-hint);text-decoration:line-through;' : 'color:var(--text);text-decoration:none;');
+
+    circle.addEventListener('click', function(){
+      node.done = !node.done;
+      circle.style.background = node.done ? PROJETOS_DATA[pi].dot : 'transparent';
+      circle.style.borderColor = node.done ? PROJETOS_DATA[pi].dot : 'var(--border-strong)';
+      input.style.textDecoration = node.done ? 'line-through' : 'none';
+      input.style.color = node.done ? 'var(--text-hint)' : 'var(--text)';
+    });
+
+    input.addEventListener('input', function(){ node.title = input.value; });
+
+    input.addEventListener('keydown', function(ev){
+      if (ev.key === 'Enter'){
+        ev.preventDefault();
+        var newNode = {title:'', done:false, children:[]};
+        nodes.splice(i+1, 0, newNode);
+        _projPendingFocus = newNode;
+        projRenderProject(pi);
+      } else if (ev.key === 'Backspace' && input.value === ''){
+        ev.preventDefault();
+        nodes.splice(i, 1);
+        _projPendingFocus = null;
+        projRenderProject(pi);
+      }
+    });
+
+    row.appendChild(circle);
+    row.appendChild(input);
+    container.appendChild(row);
+
+    if (node.children && node.children.length){
+      projRenderChecklist(pi, node.children, container, depth+1);
     }
-    if (range && span.contains(range.startContainer)) return range.startOffset;
-  } catch(err) {}
-  return null;
-}
-
-function projPlaceCaret(input, caretPos){
-  var pos = (caretPos===null || caretPos===undefined) ? input.value.length : caretPos;
-  input.focus();
-  input.setSelectionRange(pos, pos);
-}
-
-function projAutosizeInput(input, refEl, minPx){
-  var cs = getComputedStyle(refEl);
-  var mirror = document.createElement('span');
-  mirror.style.cssText = 'position:fixed;top:-9999px;left:-9999px;visibility:hidden;white-space:pre;'+
-    'font-family:'+cs.fontFamily+';font-size:'+cs.fontSize+';font-weight:'+cs.fontWeight+';font-style:'+cs.fontStyle+';letter-spacing:'+cs.letterSpacing+';';
-  document.body.appendChild(mirror);
-  function resize(){
-    mirror.textContent = input.value || '';
-    var w = mirror.getBoundingClientRect().width;
-    input.style.width = Math.max(minPx || 8, Math.ceil(w) + 2) + 'px';
-  }
-  resize();
-  input.addEventListener('blur', function(){ mirror.remove(); }, {once:true});
-  input.addEventListener('input', resize);
-}
-
-function projBuildLabel(pi){
-  var p = PROJETOS_DATA[pi];
-  var div = document.createElement('div');
-  div.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;';
-  div.innerHTML =
-    '<span style="width:8px;height:8px;border-radius:50%;background:'+p.dot+';flex-shrink:0;"></span>'+
-    '<span class="proj-name" style="font-size:0.72rem;font-weight:500;color:var(--text);cursor:text;">'+p.name+'</span>'+
-    '<span style="font-size:0.72rem;color:var(--text-muted);">—</span>'+
-    '<span class="proj-desc" style="font-size:0.72rem;color:var(--text-hint);cursor:text;">'+(p.desc||'')+'</span>';
-  div.querySelector('.proj-name').addEventListener('click', function(e){ projEditProjectName(pi, e); });
-  div.querySelector('.proj-desc').addEventListener('click', function(e){ projEditProjectDesc(pi, e); });
-  return div;
-}
-
-function projEditProjectName(pi, e){
-  var p = PROJETOS_DATA[pi];
-  var wrap = document.getElementById('proj-label-'+pi);
-  var span = wrap.querySelector('.proj-name');
-  var caretPos = projCaretPosFromClick(e, span);
-  var input = document.createElement('input');
-  input.value = p.name;
-  input.style.cssText = 'font-family:inherit;font-size:0.72rem;font-weight:500;background:transparent;border:none;padding:0;margin:0;color:var(--text);outline:none;';
-  projAutosizeInput(input, span, 20);
-  span.replaceWith(input);
-  setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
-  var committed = false;
-  function commit(){
-    if (committed) return;
-    committed = true;
-    var val = input.value.trim() || p.name;
-    p.name = val;
-    var newSpan = document.createElement('span');
-    newSpan.className = 'proj-name';
-    newSpan.style.cssText = 'font-size:0.72rem;font-weight:500;color:var(--text);cursor:text;';
-    newSpan.textContent = val;
-    newSpan.addEventListener('click', function(e2){ projEditProjectName(pi, e2); });
-    input.replaceWith(newSpan);
-  }
-  input.addEventListener('blur', commit);
-  input.addEventListener('keydown', function(ev){ if (ev.key==='Enter') input.blur(); });
-}
-
-function projEditProjectDesc(pi, e){
-  var p = PROJETOS_DATA[pi];
-  var wrap = document.getElementById('proj-label-'+pi);
-  var span = wrap.querySelector('.proj-desc');
-  var caretPos = projCaretPosFromClick(e, span);
-  var input = document.createElement('input');
-  input.value = p.desc || '';
-  input.style.cssText = 'font-family:inherit;font-size:0.72rem;background:transparent;border:none;padding:0;margin:0;color:var(--text-hint);outline:none;';
-  projAutosizeInput(input, span, 200);
-  span.replaceWith(input);
-  setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
-  var committed = false;
-  function commit(){
-    if (committed) return;
-    committed = true;
-    p.desc = input.value.trim();
-    var newSpan = document.createElement('span');
-    newSpan.className = 'proj-desc';
-    newSpan.style.cssText = 'font-size:0.72rem;color:var(--text-hint);cursor:text;';
-    newSpan.textContent = p.desc;
-    newSpan.addEventListener('click', function(e2){ projEditProjectDesc(pi, e2); });
-    input.replaceWith(newSpan);
-  }
-  input.addEventListener('blur', commit);
-  input.addEventListener('keydown', function(ev){ if (ev.key==='Enter') input.blur(); });
-}
-
-function projGetNode(pi, path){
-  var node = {children: PROJETOS_DATA[pi].goals};
-  for (var d=0; d<path.length; d++) node = node.children[path[d]];
-  return node;
-}
-function projChildren(pi, path){
-  return projGetNode(pi, path).children;
+  });
 }
 
 function projInitAll(){
@@ -10386,230 +10373,11 @@ function projInitAll(){
   if (!root || root.dataset.built) return;
   root.dataset.built = '1';
   PROJETOS_DATA.forEach(function(p, pi){
-    var wrap = document.createElement('div');
-    var label = projBuildLabel(pi);
-    label.id = 'proj-label-'+pi;
-    var rowDiv = document.createElement('div');
-    rowDiv.className = 'proj-row';
-    rowDiv.id = 'proj-row-'+pi;
-    rowDiv.style.cssText = 'position:relative;height:'+PROJ_ROW_H+'px;display:flex;align-items:stretch;';
-    wrap.appendChild(label);
-    wrap.appendChild(rowDiv);
-    root.appendChild(wrap);
-    projRenderRow(pi);
+    var body = document.createElement('div');
+    body.id = 'proj-body-'+pi;
+    root.appendChild(body);
+    projRenderProject(pi);
   });
-}
-
-function projMakeFlank(pi, i, dot, side){
-  var flank = document.createElement('span');
-  var edgeProp = side==='left' ? 'right' : 'left';
-  flank.className = 'proj-flank';
-  flank.title = side==='left' ? 'Adicionar antes' : 'Adicionar depois';
-  flank.style.cssText = 'position:absolute;'+edgeProp+':6px;top:'+(PROJ_TICK_TOP-7)+'px;width:14px;height:26px;cursor:cell;z-index:2;';
-  flank.innerHTML = '<span class="plus" style="position:absolute;'+edgeProp+':0;top:0;font-size:13px;color:'+dot+';opacity:0;transition:opacity 120ms ease;">+</span>';
-  flank.addEventListener('mouseenter', function(){ flank.querySelector('.plus').style.opacity = '1'; });
-  flank.addEventListener('mouseleave', function(){ flank.querySelector('.plus').style.opacity = '0'; });
-  flank.addEventListener('click', function(e){
-    e.stopPropagation();
-    projInsertNode(pi, side==='left' ? i : i+1);
-  });
-  return flank;
-}
-
-function projMakeFlexSeg(pi, i, node, dot, n){
-  var seg = document.createElement('div');
-  seg.className = 'proj-node-seg';
-  seg.dataset.i = i;
-  seg.style.cssText = 'position:relative;cursor:pointer;min-width:0;flex:0 0 '+(100/n)+'%;'+
-    'transition:flex-basis '+PROJ_ANIM_MS+'ms ease;';
-  seg.innerHTML =
-    '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+dot+';transform:translateX(50%);transition:opacity '+PROJ_ANIM_MS+'ms ease;"></span>'+
-    '<span class="proj-label" style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);cursor:text;transition:opacity '+PROJ_ANIM_MS+'ms ease;">'+node.title+'</span>';
-  seg.appendChild(projMakeFlank(pi, i, dot, 'left'));
-  seg.appendChild(projMakeFlank(pi, i, dot, 'right'));
-  seg.addEventListener('click', function(){ projDrillIn(pi, i); });
-  seg.addEventListener('mouseenter', function(){ seg.querySelector('.proj-label').style.color = 'var(--text)'; });
-  seg.addEventListener('mouseleave', function(){ seg.querySelector('.proj-label').style.color = 'var(--text-muted)'; });
-  seg.querySelector('.proj-label').addEventListener('click', function(e){
-    e.stopPropagation();
-    projEditNodeTitle(pi, i, e);
-  });
-  return seg;
-}
-
-function projInsertNode(pi, atIndex){
-  var st = _projState[pi];
-  if (st.animating) return;
-  var kids = projChildren(pi, st.path);
-  kids.splice(atIndex, 0, {title:'', children:[]});
-  projRenderRow(pi);
-}
-
-function projMakeAbsSeg(pi, i, node, dot, left, width, opacity){
-  var seg = document.createElement('div');
-  seg.className = 'proj-node-seg';
-  seg.dataset.i = i;
-  seg.style.cssText = 'position:absolute;top:0;bottom:0;cursor:pointer;min-width:0;'+
-    'transition:left '+PROJ_ANIM_MS+'ms ease, width '+PROJ_ANIM_MS+'ms ease;';
-  seg.style.left = left+'%';
-  seg.style.width = width+'%';
-  seg.innerHTML =
-    '<span class="proj-tick" style="position:absolute;right:0;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+dot+';transform:translateX(50%);opacity:'+opacity+';transition:opacity '+PROJ_ANIM_MS+'ms ease;"></span>'+
-    '<span class="proj-label" style="position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);cursor:text;opacity:'+opacity+';transition:opacity '+PROJ_ANIM_MS+'ms ease;">'+node.title+'</span>';
-  return seg;
-}
-
-function projRenderRow(pi){
-  var p = PROJETOS_DATA[pi];
-  var st = _projState[pi];
-  var path = st.path;
-  var kids = projChildren(pi, path);
-  var n = kids.length;
-  var row = document.getElementById('proj-row-'+pi);
-
-  var gutterHtml = '';
-  if (path.length >= 1){
-    for (var t=0; t<=path.length; t++){
-      gutterHtml += '<div style="position:relative;width:6px;flex-shrink:0;">'+
-        '<span class="proj-tick" style="position:absolute;left:50%;top:'+PROJ_TICK_TOP+'px;width:1px;height:12px;background:'+p.dot+';transform:translateX(-50%);"></span>'+
-      '</div>';
-      if (t < path.length){
-        gutterHtml += '<div class="proj-crumb" data-depth="'+t+'" title="Ir para este nível" style="width:12px;height:100%;cursor:pointer;flex-shrink:0;"></div>';
-      }
-    }
-  }
-
-  var wrapDiv = document.createElement('div');
-  wrapDiv.className = 'proj-segs-wrap';
-  wrapDiv.style.cssText = 'position:relative;flex:1;min-width:0;display:flex;';
-  wrapDiv.innerHTML = '<div style="position:absolute;left:0;right:0;top:'+PROJ_LINE_TOP+'px;height:0.5px;background:var(--border-strong);pointer-events:none;"></div>';
-
-  if (n === 0){
-    var emptySeg = document.createElement('div');
-    emptySeg.style.cssText = 'position:relative;flex:1;min-width:0;';
-    emptySeg.appendChild(projMakeFlank(pi, 0, p.dot, 'left'));
-    wrapDiv.appendChild(emptySeg);
-  } else {
-    kids.forEach(function(node, i){
-      var seg = projMakeFlexSeg(pi, i, node, p.dot, n);
-      wrapDiv.appendChild(seg);
-    });
-  }
-
-  row.innerHTML = gutterHtml;
-  row.appendChild(wrapDiv);
-
-  row.querySelectorAll('.proj-crumb').forEach(function(el){
-    el.addEventListener('click', function(){ projJumpTo(pi, +el.dataset.depth); });
-  });
-
-  kids.forEach(function(node, i){
-    if (node.title === '') projEditNodeTitle(pi, i);
-  });
-}
-
-function projDrillIn(pi, i){
-  var st = _projState[pi];
-  if (st.animating) return;
-  var kids = projChildren(pi, st.path);
-  var node = kids[i];
-  if (!node.children || !node.children.length) return;
-  st.animating = true;
-
-  var p = PROJETOS_DATA[pi];
-  var row = document.getElementById('proj-row-'+pi);
-  var wrap = row.querySelector('.proj-segs-wrap');
-  var segs = Array.from(wrap.querySelectorAll('.proj-node-seg'));
-
-  // Fase 1: as demais metas correm para os lados (encolhem via flex-basis,
-  // o layout empurra naturalmente as anteriores para a esquerda e as
-  // posteriores para a direita) enquanto a clicada cresce até 100%.
-  segs.forEach(function(seg){
-    var si = +seg.dataset.i;
-    var isSel = si===i;
-    seg.style.flex = '0 0 '+(isSel?100:0)+'%';
-    seg.querySelector('.proj-tick').style.opacity = isSel ? '1' : '0';
-    seg.querySelector('.proj-label').style.opacity = isSel ? '1' : '0';
-  });
-
-  setTimeout(function(){
-    // Fase 2: a meta, já ocupando a largura toda, racha ao meio e revela
-    // as submetas — continuidade garantida pois o centro da barra (50%)
-    // é exatamente o centro da meta que acabou de se expandir. O próprio
-    // rótulo da meta some em crossfade (não é removido de repente) para
-    // não haver soluço entre as duas fases.
-    var selectedSeg = segs.find(function(s){ return +s.dataset.i === i; });
-    segs.forEach(function(seg){ if (seg !== selectedSeg) seg.remove(); });
-    selectedSeg.querySelector('.proj-tick').style.opacity = '0';
-    selectedSeg.querySelector('.proj-label').style.opacity = '0';
-
-    var newKids = node.children;
-    var k = newKids.length;
-    var newSegs = newKids.map(function(childNode, ci){
-      var seg = projMakeAbsSeg(pi, ci, childNode, p.dot, 50, 0, 0);
-      wrap.appendChild(seg);
-      return seg;
-    });
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        newSegs.forEach(function(seg, ci){
-          seg.style.left = (ci*100/k)+'%';
-          seg.style.width = (100/k)+'%';
-          seg.querySelector('.proj-tick').style.opacity = '1';
-          seg.querySelector('.proj-label').style.opacity = '1';
-        });
-      });
-    });
-    setTimeout(function(){
-      st.path = st.path.concat([i]);
-      st.animating = false;
-      projRenderRow(pi);
-    }, PROJ_ANIM_MS + 40);
-  }, PROJ_ANIM_MS + 20);
-}
-
-function projJumpTo(pi, depth){
-  var st = _projState[pi];
-  if (st.animating) return;
-  st.path = st.path.slice(0, depth);
-  projRenderRow(pi);
-}
-
-function projEditNodeTitle(pi, i, e){
-  var st = _projState[pi];
-  var row = document.getElementById('proj-row-'+pi);
-  var seg = row.querySelector('.proj-node-seg[data-i="'+i+'"]');
-  if (!seg) return;
-  var kids = projChildren(pi, st.path);
-  var node = kids[i];
-  var label = seg.querySelector('.proj-label');
-  var caretPos = projCaretPosFromClick(e, label);
-  var input = document.createElement('input');
-  input.value = node.title;
-  input.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);font-family:inherit;font-size:0.72rem;text-align:center;background:transparent;border:none;padding:0;margin:0;color:var(--text);outline:none;';
-  projAutosizeInput(input, label, 12);
-  label.replaceWith(input);
-  setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
-  var committed = false;
-  function commit(){
-    if (committed) return;
-    committed = true;
-    var val = input.value.trim();
-    if (!val){
-      kids.splice(i, 1);
-      projRenderRow(pi);
-      return;
-    }
-    node.title = val;
-    var newLabel = document.createElement('span');
-    newLabel.className = 'proj-label';
-    newLabel.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);cursor:text;';
-    newLabel.textContent = val;
-    newLabel.addEventListener('click', function(e2){ e2.stopPropagation(); projEditNodeTitle(pi, i, e2); });
-    input.replaceWith(newLabel);
-  }
-  input.addEventListener('blur', commit);
-  input.addEventListener('keydown', function(ev){ if (ev.key==='Enter') input.blur(); });
 }
 
 projInitAll();
