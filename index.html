@@ -2371,29 +2371,31 @@
   </div>
 
   <div style="padding:1.5rem 2rem;">
-    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto auto;gap:1rem;margin-bottom:1.75rem;">
-      <div class="sum-card"><div class="sum-label">Ticket médio — <span id="cafe-year-label-1"></span></div><div class="sum-value" id="cafe-ticket-medio">—</div><div class="sum-sub" id="cafe-ticket-medio-sub">sem dados ainda</div></div>
-      <div class="sum-card"><div class="sum-label">Melhor mês — <span id="cafe-year-label-2"></span></div><div class="sum-value" id="cafe-melhor-mes" style="color:#993556;">—</div><div class="sum-sub" id="cafe-melhor-mes-sub">sem dados ainda</div></div>
-      <div class="sum-card" style="grid-column:3;grid-row:1 / 3;overflow-y:auto;">
+    <div style="display:flex;gap:1rem;margin-bottom:1.75rem;align-items:flex-start;">
+      <div id="cafe-stats-left" style="flex:2;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="sum-card"><div class="sum-label">Ticket médio — <span id="cafe-year-label-1"></span></div><div class="sum-value" id="cafe-ticket-medio">—</div><div class="sum-sub" id="cafe-ticket-medio-sub">sem dados ainda</div></div>
+        <div class="sum-card"><div class="sum-label">Melhor mês — <span id="cafe-year-label-2"></span></div><div class="sum-value" id="cafe-melhor-mes" style="color:#993556;">—</div><div class="sum-sub" id="cafe-melhor-mes-sub">sem dados ainda</div></div>
+        <div class="sum-card">
+          <div class="sum-label">Faturamento — <span id="cafe-month-label-1"></span></div>
+          <div class="sum-value" id="cafe-fat-mes" style="color:#993556;">R$ 0,00</div>
+          <div style="margin-top:10px;">
+            <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-fat-progress" style="background:#993556;"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-fat-falta">defina uma meta</span><span id="cafe-fat-pct">0%</span></div>
+          </div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-label">Pacotes vendidos — <span id="cafe-month-label-2"></span></div>
+          <div class="sum-value" id="cafe-pacotes-mes" style="color:var(--coral);">0</div>
+          <div style="margin-top:10px;">
+            <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-pacotes-progress" style="background:var(--coral);"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-pacotes-falta">defina uma meta</span><span id="cafe-pacotes-pct">0%</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="sum-card" id="cafe-metas-card" style="flex:1;overflow-y:auto;box-sizing:border-box;">
         <div class="sum-label">Metas</div>
         <div id="cafe-metas-list"></div>
         <div id="cafe-meta-add" style="font-size:0.78rem;color:var(--text-hint);cursor:pointer;margin-top:6px;padding:4px 0;">+ Meta</div>
-      </div>
-      <div class="sum-card">
-        <div class="sum-label">Faturamento — <span id="cafe-month-label-1"></span></div>
-        <div class="sum-value" id="cafe-fat-mes" style="color:#993556;">R$ 0,00</div>
-        <div style="margin-top:10px;">
-          <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-fat-progress" style="background:#993556;"></div></div>
-          <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-fat-falta">defina uma meta</span><span id="cafe-fat-pct">0%</span></div>
-        </div>
-      </div>
-      <div class="sum-card">
-        <div class="sum-label">Pacotes vendidos — <span id="cafe-month-label-2"></span></div>
-        <div class="sum-value" id="cafe-pacotes-mes" style="color:var(--coral);">0</div>
-        <div style="margin-top:10px;">
-          <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-pacotes-progress" style="background:var(--coral);"></div></div>
-          <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-pacotes-falta">defina uma meta</span><span id="cafe-pacotes-pct">0%</span></div>
-        </div>
       </div>
     </div>
 
@@ -5422,23 +5424,8 @@ function renderCafeMetas() {
         '<input type="text" class="cafe-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
       '</div>';
     });
-    html += '<div class="cafe-sub-add" data-mi="'+mi+'" style="margin-left:20px;font-size:0.72rem;color:var(--text-hint);cursor:pointer;padding:2px 0 4px;">+ Submeta</div>';
   });
   container.innerHTML = html;
-
-  container.querySelectorAll('.cafe-sub-add').forEach(function(link){
-    link.addEventListener('click', function(){
-      var mi = +link.dataset.mi;
-      var metas = getCafeMetas();
-      if (!metas[mi]) return;
-      metas[mi].children = metas[mi].children || [];
-      metas[mi].children.push({ title:'' });
-      var si = metas[mi].children.length - 1;
-      saveCafeMetasList(metas);
-      renderCafeMetas();
-      focusCafeSubInput(mi, si);
-    });
-  });
 
   container.querySelectorAll('.cafe-meta-input').forEach(function(input){
     input.addEventListener('input', function(){
@@ -5447,10 +5434,19 @@ function renderCafeMetas() {
       if (metas[mi]) { metas[mi].title = input.value; saveCafeMetasList(metas); }
     });
     input.addEventListener('keydown', function(ev){
-      if (ev.key === 'Enter'){
-        ev.preventDefault();
-        var mi = +input.dataset.mi;
-        var metas = getCafeMetas();
+      if (ev.key !== 'Enter') return;
+      ev.preventDefault();
+      var mi = +input.dataset.mi;
+      var metas = getCafeMetas();
+      if (ev.metaKey || ev.ctrlKey){
+        // Cmd+Enter numa meta = nova submeta (primeiro filho dela)
+        metas[mi].children = metas[mi].children || [];
+        metas[mi].children.unshift({ title:'' });
+        saveCafeMetasList(metas);
+        renderCafeMetas();
+        focusCafeSubInput(mi, 0);
+      } else {
+        // Enter = nova meta logo abaixo
         metas.splice(mi+1, 0, { title:'', children:[] });
         saveCafeMetasList(metas);
         renderCafeMetas();
@@ -5465,14 +5461,22 @@ function renderCafeMetas() {
       if (metas[mi] && metas[mi].children[si]) { metas[mi].children[si].title = input.value; saveCafeMetasList(metas); }
     });
     input.addEventListener('keydown', function(ev){
-      if (ev.key === 'Enter'){
-        ev.preventDefault();
-        var mi = +input.dataset.mi, si = +input.dataset.si;
-        var metas = getCafeMetas();
+      if (ev.key !== 'Enter') return;
+      ev.preventDefault();
+      var mi = +input.dataset.mi, si = +input.dataset.si;
+      var metas = getCafeMetas();
+      if (ev.metaKey || ev.ctrlKey){
+        // Cmd+Enter numa submeta = nova submeta logo abaixo, na mesma meta
         metas[mi].children.splice(si+1, 0, { title:'' });
         saveCafeMetasList(metas);
         renderCafeMetas();
         focusCafeSubInput(mi, si+1);
+      } else {
+        // Enter numa submeta = nova meta logo depois do grupo desta meta
+        metas.splice(mi+1, 0, { title:'', children:[] });
+        saveCafeMetasList(metas);
+        renderCafeMetas();
+        focusCafeMetaInput(mi+1);
       }
     });
   });
@@ -5482,7 +5486,16 @@ function renderCafeMetas() {
   container.querySelectorAll('.cafe-sub-check').forEach(function(circle){
     circle.addEventListener('click', function(){ checkCafeSub(+circle.dataset.mi, +circle.dataset.si); });
   });
+
+  syncCafeMetasCardHeight();
 }
+function syncCafeMetasCardHeight(){
+  var left = document.getElementById('cafe-stats-left');
+  var metasCard = document.getElementById('cafe-metas-card');
+  if (!left || !metasCard) return;
+  metasCard.style.height = left.offsetHeight + 'px';
+}
+window.addEventListener('resize', syncCafeMetasCardHeight);
 function focusCafeMetaInput(mi){
   setTimeout(function(){
     var el = document.querySelector('.cafe-meta-input[data-mi="'+mi+'"]');
