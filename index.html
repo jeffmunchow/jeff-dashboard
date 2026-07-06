@@ -852,7 +852,9 @@
     </div>
     <div class="metrics-grid">
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="k-seguidores">—</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-k"></canvas></div></div>
+      <div class="metric-cell"><div class="metric-label">Fotógrafos ativos</div><div class="metric-value" id="k-clientes">—</div></div>
       <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="k-faturamento" style="color:#993C1D;">—</div><div class="metric-sub">&nbsp;</div></div>
+      <div class="metric-cell"><div class="metric-label">Assinaturas Pro</div><div class="metric-value" id="k-assinantes">—</div></div>
     </div>
     <div class="divider"></div>
     <div class="next-event-widget" id="k-next-event-widget" onclick="event.stopPropagation()">
@@ -871,7 +873,9 @@
     </div>
     <div class="metrics-grid">
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="v-seguidores">—</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-v"></canvas></div></div>
+      <div class="metric-cell"><div class="metric-label">Famílias cadastradas</div><div class="metric-value" id="v-clientes">—</div></div>
       <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="v-faturamento" style="color:#0F6E56;">—</div><div class="metric-sub">&nbsp;</div></div>
+      <div class="metric-cell"><div class="metric-label">Avaliação na loja</div><div class="metric-value" id="v-assinantes">—</div></div>
     </div>
     <div class="divider"></div>
     <div class="next-event-widget" id="v-next-event-widget" onclick="event.stopPropagation()">
@@ -890,7 +894,9 @@
     </div>
     <div class="metrics-grid">
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="c-seguidores">—</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-c"></canvas></div></div>
+      <div class="metric-cell"><div class="metric-label">Clientes recorrentes</div><div class="metric-value" id="c-clientes">—</div></div>
       <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="c-faturamento" style="color:#993556;">—</div><div class="metric-sub">&nbsp;</div></div>
+      <div class="metric-cell"><div class="metric-label">Itens no cardápio</div><div class="metric-value" id="c-itens">—</div></div>
     </div>
     <div class="divider"></div>
     <div class="next-event-widget" id="c-next-event-widget" onclick="event.stopPropagation()">
@@ -2803,15 +2809,21 @@ var PROJECTS = {
   ]},
   kelvn: { title: 'Kelvn', suffix: 'k', fields: [
     { id: 'k-seguidores',   label: 'Seguidores Instagram', placeholder: 'ex: 100' },
-    { id: 'k-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 500' }
+    { id: 'k-clientes',     label: 'Fotógrafos ativos', placeholder: 'ex: 5' },
+    { id: 'k-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 500' },
+    { id: 'k-assinantes',   label: 'Assinaturas Pro', placeholder: 'ex: 3' }
   ]},
   vikka: { title: 'Vikka.io', suffix: 'v', fields: [
     { id: 'v-seguidores',   label: 'Seguidores Instagram', placeholder: 'ex: 50' },
-    { id: 'v-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 0' }
+    { id: 'v-clientes',     label: 'Famílias cadastradas', placeholder: 'ex: 10' },
+    { id: 'v-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 0' },
+    { id: 'v-assinantes',   label: 'Avaliação na loja', placeholder: 'ex: 4.8' }
   ]},
   cafe: { title: 'Café', suffix: 'c', fields: [
     { id: 'c-seguidores',   label: 'Seguidores Instagram', placeholder: 'ex: 50' },
-    { id: 'c-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 0' }
+    { id: 'c-clientes',     label: 'Clientes recorrentes', placeholder: 'ex: 20' },
+    { id: 'c-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 0' },
+    { id: 'c-itens',        label: 'Itens no cardápio', placeholder: 'ex: 8' }
   ]}
 };
 
