@@ -10289,8 +10289,7 @@ function projEditProjectName(pi){
   input.size = Math.max(6, input.value.length);
   input.style.cssText = 'font-size:0.82rem;font-weight:500;background:transparent;border:none;color:var(--text);outline:none;';
   span.replaceWith(input);
-  input.focus();
-  input.select();
+  setTimeout(function(){ input.focus(); input.select(); }, 0);
   var committed = false;
   function commit(){
     if (committed) return;
@@ -10317,8 +10316,7 @@ function projEditProjectDesc(pi){
   input.size = Math.max(30, input.value.length);
   input.style.cssText = 'font-size:0.82rem;background:transparent;border:none;color:var(--text-muted);outline:none;';
   span.replaceWith(input);
-  input.focus();
-  input.select();
+  setTimeout(function(){ input.focus(); input.select(); }, 0);
   var committed = false;
   function commit(){
     if (committed) return;
