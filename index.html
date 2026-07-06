@@ -2371,21 +2371,20 @@
   </div>
 
   <div style="padding:1.5rem 2rem;">
-    <div class="summary-grid">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.75rem;">
       <div class="sum-card"><div class="sum-label">Pacotes vendidos — <span id="cafe-month-label-2"></span></div><div class="sum-value" id="cafe-pacotes-mes" style="color:var(--coral);">0</div><div class="sum-sub">unidades de 250g</div></div>
       <div class="sum-card"><div class="sum-label">Melhor mês — <span id="cafe-year-label-2"></span></div><div class="sum-value" id="cafe-melhor-mes" style="color:#993556;">—</div><div class="sum-sub" id="cafe-melhor-mes-sub">sem dados ainda</div></div>
-    </div>
-
-    <div class="chart-card" style="margin-bottom:1.75rem;">
-      <div class="section-header">
-        <div class="section-title">Metas</div>
-        <div style="font-size:0.68rem;color:var(--text-hint);">Cmd+Z para desfazer um check por engano</div>
+      <div class="chart-card" style="grid-row:span 2;">
+        <div class="section-header">
+          <div class="section-title">Metas</div>
+          <div style="font-size:0.68rem;color:var(--text-hint);">Cmd+Z para desfazer um check por engano</div>
+        </div>
+        <div id="cafe-metas-list"></div>
+        <div id="cafe-meta-add" style="font-size:0.78rem;color:var(--text-hint);cursor:pointer;margin-top:6px;padding:4px 0;">+ Meta</div>
       </div>
-      <div id="cafe-metas-list"></div>
-      <div id="cafe-meta-add" style="font-size:0.78rem;color:var(--text-hint);cursor:pointer;margin-top:6px;padding:4px 0;">+ Meta</div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:1.5rem;">
+    <div style="display:grid;grid-template-columns:1fr;gap:1.5rem;">
       <div class="chart-card">
         <div class="section-header">
           <div>
@@ -2401,13 +2400,13 @@
           <canvas id="cafe250gChart"></canvas>
         </div>
       </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem;">
       <div class="chart-card">
         <div class="section-title" style="margin-bottom:1.25rem;">Vendas por variedade</div>
         <div id="cafe-variedade-bars"></div>
       </div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr;gap:1.5rem;margin-top:1.5rem;">
       <div class="chart-card">
         <div class="section-title" style="margin-bottom:1.25rem;">Vendas por canal</div>
         <div id="cafe-canal-bars"></div>
