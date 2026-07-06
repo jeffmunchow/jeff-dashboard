@@ -2442,14 +2442,6 @@
         <div id="cafe-canal-bars"></div>
       </div>
     </div>
-
-    <div class="chart-card" style="margin-top:1.5rem;">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
-        <div class="section-title" style="font-size:0.85rem;">Meta anual — <span id="cafe-year-label-3"></span></div>
-        <div style="font-size:0.72rem;color:var(--text-hint);" id="cafe-anual-label"></div>
-      </div>
-      <div class="cafe-progress-track" style="height:8px;"><div class="cafe-progress-fill" id="cafe-anual-progress" style="background:#993556;"></div></div>
-    </div>
   </div>
 </div>
 
@@ -5342,7 +5334,7 @@ function renderCafeDashboard() {
   var pM  = document.getElementById('cafe-meta-pacotes');    if (pM)  pM.value  = settings.metaPacotes || '';
   var puM = document.getElementById('cafe-preco-unitario');  if (puM) puM.value = settings.precoUnitario || '';
 
-  ['cafe-year-label-1','cafe-year-label-2','cafe-year-label-3'].forEach(function(id){
+  ['cafe-year-label-1','cafe-year-label-2'].forEach(function(id){
     var el = document.getElementById(id); if (el) el.textContent = year;
   });
 
@@ -5393,9 +5385,6 @@ function renderCafeDashboard() {
     ? Math.max(0, settings.metaPacotes - curQty) + ' para a meta'
     : 'defina uma meta';
 
-  document.getElementById('cafe-anual-label').textContent = 'R$ ' + totalRevenue.toLocaleString('pt-BR') + ' de R$ ' + (settings.metaFatAnual||0).toLocaleString('pt-BR');
-  var anualPct = settings.metaFatAnual ? Math.min(100, totalRevenue/settings.metaFatAnual*100) : 0;
-  document.getElementById('cafe-anual-progress').style.width = anualPct + '%';
 
   // Sugestões ilustrativas — ainda não têm um sistema de registro próprio,
   // ajuste os valores conforme a operação real da marca.
