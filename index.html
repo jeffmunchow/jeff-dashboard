@@ -10266,6 +10266,27 @@ var PROJ_LINE_TOP = 20;
 var PROJ_TICK_TOP = 14;
 var _projState = PROJETOS_DATA.map(function(){ return {path:[], animating:false}; });
 
+function projCaretPosFromClick(e, span){
+  if (!e || !span) return null;
+  try {
+    var range = null;
+    if (document.caretRangeFromPoint) {
+      range = document.caretRangeFromPoint(e.clientX, e.clientY);
+    } else if (document.caretPositionFromPoint) {
+      var pos = document.caretPositionFromPoint(e.clientX, e.clientY);
+      if (pos) { range = document.createRange(); range.setStart(pos.offsetNode, pos.offset); }
+    }
+    if (range && span.contains(range.startContainer)) return range.startOffset;
+  } catch(err) {}
+  return null;
+}
+
+function projPlaceCaret(input, caretPos){
+  var pos = (caretPos===null || caretPos===undefined) ? input.value.length : caretPos;
+  input.focus();
+  input.setSelectionRange(pos, pos);
+}
+
 function projBuildLabel(pi){
   var p = PROJETOS_DATA[pi];
   var div = document.createElement('div');
@@ -10275,21 +10296,22 @@ function projBuildLabel(pi){
     '<span class="proj-name" style="font-size:0.82rem;font-weight:500;color:var(--text);cursor:text;">'+p.name+'</span>'+
     '<span style="font-size:0.82rem;color:var(--text-muted);">—</span>'+
     '<span class="proj-desc" style="font-size:0.82rem;color:var(--text-muted);cursor:text;">'+(p.desc||'')+'</span>';
-  div.querySelector('.proj-name').addEventListener('click', function(){ projEditProjectName(pi); });
-  div.querySelector('.proj-desc').addEventListener('click', function(){ projEditProjectDesc(pi); });
+  div.querySelector('.proj-name').addEventListener('click', function(e){ projEditProjectName(pi, e); });
+  div.querySelector('.proj-desc').addEventListener('click', function(e){ projEditProjectDesc(pi, e); });
   return div;
 }
 
-function projEditProjectName(pi){
+function projEditProjectName(pi, e){
   var p = PROJETOS_DATA[pi];
   var wrap = document.getElementById('proj-label-'+pi);
   var span = wrap.querySelector('.proj-name');
+  var caretPos = projCaretPosFromClick(e, span);
   var input = document.createElement('input');
   input.value = p.name;
   input.size = Math.max(6, input.value.length);
   input.style.cssText = 'font-size:0.82rem;font-weight:500;background:transparent;border:none;color:var(--text);outline:none;';
   span.replaceWith(input);
-  setTimeout(function(){ input.focus(); input.select(); }, 0);
+  setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
   var committed = false;
   function commit(){
     if (committed) return;
@@ -10300,23 +10322,24 @@ function projEditProjectName(pi){
     newSpan.className = 'proj-name';
     newSpan.style.cssText = 'font-size:0.82rem;font-weight:500;color:var(--text);cursor:text;';
     newSpan.textContent = val;
-    newSpan.addEventListener('click', function(){ projEditProjectName(pi); });
+    newSpan.addEventListener('click', function(e2){ projEditProjectName(pi, e2); });
     input.replaceWith(newSpan);
   }
   input.addEventListener('blur', commit);
   input.addEventListener('keydown', function(ev){ if (ev.key==='Enter') input.blur(); });
 }
 
-function projEditProjectDesc(pi){
+function projEditProjectDesc(pi, e){
   var p = PROJETOS_DATA[pi];
   var wrap = document.getElementById('proj-label-'+pi);
   var span = wrap.querySelector('.proj-desc');
+  var caretPos = projCaretPosFromClick(e, span);
   var input = document.createElement('input');
   input.value = p.desc || '';
   input.size = Math.max(30, input.value.length);
   input.style.cssText = 'font-size:0.82rem;background:transparent;border:none;color:var(--text-muted);outline:none;';
   span.replaceWith(input);
-  setTimeout(function(){ input.focus(); input.select(); }, 0);
+  setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
   var committed = false;
   function commit(){
     if (committed) return;
@@ -10326,7 +10349,7 @@ function projEditProjectDesc(pi){
     newSpan.className = 'proj-desc';
     newSpan.style.cssText = 'font-size:0.82rem;color:var(--text-muted);cursor:text;';
     newSpan.textContent = p.desc;
-    newSpan.addEventListener('click', function(){ projEditProjectDesc(pi); });
+    newSpan.addEventListener('click', function(e2){ projEditProjectDesc(pi, e2); });
     input.replaceWith(newSpan);
   }
   input.addEventListener('blur', commit);
@@ -10393,7 +10416,7 @@ function projMakeFlexSeg(pi, i, node, dot, n){
   seg.addEventListener('mouseleave', function(){ seg.querySelector('.proj-label').style.color = 'var(--text-muted)'; });
   seg.querySelector('.proj-label').addEventListener('click', function(e){
     e.stopPropagation();
-    projEditNodeTitle(pi, i);
+    projEditNodeTitle(pi, i, e);
   });
   return seg;
 }
@@ -10536,7 +10559,7 @@ function projJumpTo(pi, depth){
   projRenderRow(pi);
 }
 
-function projEditNodeTitle(pi, i){
+function projEditNodeTitle(pi, i, e){
   var st = _projState[pi];
   var row = document.getElementById('proj-row-'+pi);
   var seg = row.querySelector('.proj-node-seg[data-i="'+i+'"]');
@@ -10544,13 +10567,13 @@ function projEditNodeTitle(pi, i){
   var kids = projChildren(pi, st.path);
   var node = kids[i];
   var label = seg.querySelector('.proj-label');
+  var caretPos = projCaretPosFromClick(e, label);
   var input = document.createElement('input');
   input.value = node.title;
   input.size = Math.max(6, input.value.length);
   input.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);font-size:0.72rem;text-align:center;background:transparent;border:none;color:var(--text);outline:none;';
   label.replaceWith(input);
-  input.focus();
-  input.select();
+  setTimeout(function(){ projPlaceCaret(input, caretPos); }, 0);
   var committed = false;
   function commit(){
     if (committed) return;
@@ -10566,7 +10589,7 @@ function projEditNodeTitle(pi, i){
     newLabel.className = 'proj-label';
     newLabel.style.cssText = 'position:absolute;right:0;top:30px;transform:translateX(50%);white-space:nowrap;font-size:0.72rem;color:var(--text-muted);cursor:text;';
     newLabel.textContent = val;
-    newLabel.addEventListener('click', function(e){ e.stopPropagation(); projEditNodeTitle(pi, i); });
+    newLabel.addEventListener('click', function(e2){ e2.stopPropagation(); projEditNodeTitle(pi, i, e2); });
     input.replaceWith(newLabel);
   }
   input.addEventListener('blur', commit);
