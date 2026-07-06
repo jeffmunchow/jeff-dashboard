@@ -10238,7 +10238,7 @@ var PROJETOS_DATA = [
       {title:'Vídeo tutorial', children:[]}
     ]}
   ]},
-  {name:'Café', dot:'#993556', goals:[
+  {name:'Café', dot:'#993556', desc:'Criar uma marca elegante de cafés especiais, minimalista, enxuta e escalável, capaz de gerar R$5.000 de lucro mensal ocupando pouco tempo operacional.', goals:[
     {title:'Identidade visual', children:[
       {title:'Logo', children:[]},
       {title:'Paleta de cores', children:[]}
@@ -10266,11 +10266,73 @@ var PROJ_LINE_TOP = 20;
 var PROJ_TICK_TOP = 14;
 var _projState = PROJETOS_DATA.map(function(){ return {path:[], animating:false}; });
 
-function projBuildLabel(p){
-  return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'+
+function projBuildLabel(pi){
+  var p = PROJETOS_DATA[pi];
+  var div = document.createElement('div');
+  div.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;';
+  div.innerHTML =
     '<span style="width:8px;height:8px;border-radius:50%;background:'+p.dot+';flex-shrink:0;"></span>'+
-    '<span style="font-size:0.82rem;font-weight:500;color:var(--text);">'+p.name+'</span>'+
-  '</div>';
+    '<span class="proj-name" style="font-size:0.82rem;font-weight:500;color:var(--text);cursor:text;">'+p.name+'</span>'+
+    '<span style="font-size:0.82rem;color:var(--text-muted);">—</span>'+
+    '<span class="proj-desc" style="font-size:0.82rem;color:var(--text-muted);cursor:text;">'+(p.desc||'')+'</span>';
+  div.querySelector('.proj-name').addEventListener('click', function(){ projEditProjectName(pi); });
+  div.querySelector('.proj-desc').addEventListener('click', function(){ projEditProjectDesc(pi); });
+  return div;
+}
+
+function projEditProjectName(pi){
+  var p = PROJETOS_DATA[pi];
+  var wrap = document.getElementById('proj-label-'+pi);
+  var span = wrap.querySelector('.proj-name');
+  var input = document.createElement('input');
+  input.value = p.name;
+  input.size = Math.max(6, input.value.length);
+  input.style.cssText = 'font-size:0.82rem;font-weight:500;background:transparent;border:none;color:var(--text);outline:none;';
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+  var committed = false;
+  function commit(){
+    if (committed) return;
+    committed = true;
+    var val = input.value.trim() || p.name;
+    p.name = val;
+    var newSpan = document.createElement('span');
+    newSpan.className = 'proj-name';
+    newSpan.style.cssText = 'font-size:0.82rem;font-weight:500;color:var(--text);cursor:text;';
+    newSpan.textContent = val;
+    newSpan.addEventListener('click', function(){ projEditProjectName(pi); });
+    input.replaceWith(newSpan);
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', function(ev){ if (ev.key==='Enter') input.blur(); });
+}
+
+function projEditProjectDesc(pi){
+  var p = PROJETOS_DATA[pi];
+  var wrap = document.getElementById('proj-label-'+pi);
+  var span = wrap.querySelector('.proj-desc');
+  var input = document.createElement('input');
+  input.value = p.desc || '';
+  input.size = Math.max(30, input.value.length);
+  input.style.cssText = 'font-size:0.82rem;background:transparent;border:none;color:var(--text-muted);outline:none;';
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+  var committed = false;
+  function commit(){
+    if (committed) return;
+    committed = true;
+    p.desc = input.value.trim();
+    var newSpan = document.createElement('span');
+    newSpan.className = 'proj-desc';
+    newSpan.style.cssText = 'font-size:0.82rem;color:var(--text-muted);cursor:text;';
+    newSpan.textContent = p.desc;
+    newSpan.addEventListener('click', function(){ projEditProjectDesc(pi); });
+    input.replaceWith(newSpan);
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', function(ev){ if (ev.key==='Enter') input.blur(); });
 }
 
 function projGetNode(pi, path){
@@ -10288,8 +10350,14 @@ function projInitAll(){
   root.dataset.built = '1';
   PROJETOS_DATA.forEach(function(p, pi){
     var wrap = document.createElement('div');
-    wrap.innerHTML = projBuildLabel(p) +
-      '<div class="proj-row" id="proj-row-'+pi+'" style="position:relative;height:'+PROJ_ROW_H+'px;display:flex;align-items:stretch;"></div>';
+    var label = projBuildLabel(pi);
+    label.id = 'proj-label-'+pi;
+    var rowDiv = document.createElement('div');
+    rowDiv.className = 'proj-row';
+    rowDiv.id = 'proj-row-'+pi;
+    rowDiv.style.cssText = 'position:relative;height:'+PROJ_ROW_H+'px;display:flex;align-items:stretch;';
+    wrap.appendChild(label);
+    wrap.appendChild(rowDiv);
     root.appendChild(wrap);
     projRenderRow(pi);
   });
