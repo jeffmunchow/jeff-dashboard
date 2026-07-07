@@ -2386,6 +2386,15 @@
       <div class="sum-card" id="cafe-pacotes-card" style="flex:1;box-sizing:border-box;min-height:262px;display:flex;flex-direction:column;">
         <div class="sum-label">Pacotes vendidos — <span id="cafe-month-label-2"></span></div>
         <div class="sum-value" id="cafe-pacotes-mes" style="color:#BFAF87;">0</div>
+        <div style="margin-top:14px;">
+          <div class="sum-label" style="margin-bottom:8px;">Clientes recorrentes</div>
+          <div id="cafe-variedade-bars"></div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap;">
+            <input type="number" id="cafe-clientes-primeira-input" placeholder="Primeira compra" style="font-family:'DM Sans',sans-serif;font-size:0.72rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:5px 8px;width:100px;color:var(--text);outline:none;">
+            <input type="number" id="cafe-clientes-recorrentes-input" placeholder="Recorrentes" style="font-family:'DM Sans',sans-serif;font-size:0.72rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:5px 8px;width:92px;color:var(--text);outline:none;">
+            <button class="btn primary" onclick="saveCafeClientesSemana()" style="padding:5px 10px;font-size:0.72rem;">Salvar semana</button>
+          </div>
+        </div>
         <div style="margin-top:auto;">
           <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-pacotes-progress" style="background:#BFAF87;"></div></div>
           <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-pacotes-falta">defina uma meta</span><span id="cafe-pacotes-pct">0%</span></div>
@@ -2425,18 +2434,14 @@
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem;">
       <div class="chart-card">
-        <div class="section-header">
-          <div>
-            <div class="section-title">Clientes recorrentes</div>
-            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Total do mês (soma das semanas)</div>
-          </div>
+        <div class="section-title" style="margin-bottom:1rem;">Produtos</div>
+        <div style="display:flex;gap:8px;padding:0 0 6px;font-size:0.6rem;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.04em;">
+          <div style="flex:1;">Produto</div>
+          <div style="width:64px;">Preço</div>
+          <div style="width:64px;">Custo</div>
+          <div style="width:52px;">Qtd</div>
         </div>
-        <div id="cafe-variedade-bars"></div>
-        <div style="display:flex;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap;">
-          <input type="number" id="cafe-clientes-primeira-input" placeholder="Primeira compra" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:118px;color:var(--text);outline:none;">
-          <input type="number" id="cafe-clientes-recorrentes-input" placeholder="Recorrentes" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:110px;color:var(--text);outline:none;">
-          <button class="btn primary" onclick="saveCafeClientesSemana()">Salvar semana</button>
-        </div>
+        <div id="cafe-produtos-list"></div>
       </div>
       <div class="chart-card">
         <div class="section-header">
@@ -5085,7 +5090,7 @@ async function loadFromSupabase(forceFullReplace) {
                    'k-seguidores','k-clientes','k-faturamento','k-assinantes',
                    'v-seguidores','v-clientes','v-faturamento','v-assinantes',
                    'c-seguidores','c-clientes','c-faturamento','c-itens',
-                   'cafe_vendas_250g','cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_canal_semanal',
+                   'cafe_vendas_250g','cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_canal_semanal','cafe_produtos',
                    'vikka_assinaturas','vikka_settings','vikka_metas',
                    'kelvn_novos_fotografos','kelvn_settings','kelvn_metas',
                    'm-updated','s-updated','r-updated','k-updated','v-updated','c-updated',
@@ -5596,6 +5601,95 @@ function saveCafeCanalSemana() {
   });
   renderCafeDashboard();
 }
+function getCafeProdutos() {
+  try { return JSON.parse(localStorage.getItem('dash_cafe_produtos') || '[]'); } catch(e) { return []; }
+}
+function saveCafeProdutosList(list) {
+  localStorage.setItem('dash_cafe_produtos', JSON.stringify(list));
+  dbMetricSave('cafe_produtos', JSON.stringify(list));
+}
+function ensureCafeProdutosTrailingEmpty() {
+  var list = getCafeProdutos();
+  if (list.length === 0) {
+    list.push({ nome:'', preco:0, custo:0, qtd:0 });
+    saveCafeProdutosList(list);
+  }
+}
+function focusCafeProdInput(i){
+  setTimeout(function(){
+    var el = document.querySelector('.cafe-prod-nome[data-i="'+i+'"]');
+    if (el) el.focus();
+  }, 0);
+}
+function renderCafeProdutos() {
+  var container = document.getElementById('cafe-produtos-list');
+  if (!container) return;
+  ensureCafeProdutosTrailingEmpty();
+  var list = getCafeProdutos();
+  var html = '';
+  list.forEach(function(p, i){
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'+
+      '<input type="text" class="cafe-prod-nome" data-i="'+i+'" value="'+(p.nome||'').replace(/"/g,'&quot;')+'" placeholder="Produto" style="flex:1;min-width:0;font-family:inherit;font-size:0.78rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text);">'+
+      '<input type="number" class="cafe-prod-preco" data-i="'+i+'" value="'+(p.preco||'')+'" placeholder="Preço" style="width:64px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
+      '<input type="number" class="cafe-prod-custo" data-i="'+i+'" value="'+(p.custo||'')+'" placeholder="Custo" style="width:64px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
+      '<input type="number" class="cafe-prod-qtd" data-i="'+i+'" value="'+(p.qtd||'')+'" placeholder="Qtd" style="width:52px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
+    '</div>';
+  });
+  container.innerHTML = html;
+
+  container.querySelectorAll('.cafe-prod-nome').forEach(function(input){
+    input.addEventListener('input', function(){
+      var i = +input.dataset.i;
+      var list = getCafeProdutos();
+      if (list[i]) { list[i].nome = input.value; saveCafeProdutosList(list); }
+    });
+    input.addEventListener('keydown', function(ev){
+      var i = +input.dataset.i;
+      if (ev.key === 'Backspace' && input.value === ''){
+        ev.preventDefault();
+        var list = getCafeProdutos();
+        if (list.length > 1) {
+          list.splice(i, 1);
+          saveCafeProdutosList(list);
+          renderCafeProdutos();
+          focusCafeProdInput(Math.max(0, i-1));
+        }
+        return;
+      }
+      if (ev.key !== 'Enter') return;
+      ev.preventDefault();
+      var list2 = getCafeProdutos();
+      list2.splice(i+1, 0, { nome:'', preco:0, custo:0, qtd:0 });
+      saveCafeProdutosList(list2);
+      renderCafeProdutos();
+      focusCafeProdInput(i+1);
+    });
+  });
+  ['preco','custo','qtd'].forEach(function(field){
+    container.querySelectorAll('.cafe-prod-'+field).forEach(function(input){
+      input.addEventListener('input', function(){
+        var i = +input.dataset.i;
+        var list = getCafeProdutos();
+        if (list[i]) { list[i][field] = parseFloat(input.value) || 0; saveCafeProdutosList(list); updateCafeLucroDisplay(); }
+      });
+    });
+  });
+}
+function updateCafeLucroDisplay() {
+  var settings = getCafeSettings();
+  var produtos = getCafeProdutos();
+  var curRevenue = produtos.reduce(function(sum,p){ return sum + ((p.preco||0)-(p.custo||0))*(p.qtd||0); }, 0);
+  var elVal = document.getElementById('cafe-fat-mes');
+  if (!elVal) return;
+  elVal.textContent = 'R$ ' + curRevenue.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  var fatPct = settings.metaFatMensal ? Math.min(100, curRevenue/settings.metaFatMensal*100) : 0;
+  document.getElementById('cafe-fat-progress').style.width = fatPct + '%';
+  document.getElementById('cafe-fat-pct').textContent = Math.round(fatPct) + '%';
+  document.getElementById('cafe-fat-falta').textContent = settings.metaFatMensal
+    ? 'Faltam R$ ' + Math.max(0, settings.metaFatMensal - curRevenue).toLocaleString('pt-BR')
+    : 'defina uma meta';
+  buildCafeFatChart();
+}
 function getCafeSettings() {
   var defaults = { metaFatMensal: 0, metaFatAnual: 0, metaPacotes: 0, precoUnitario: 0 };
   try { return Object.assign(defaults, JSON.parse(localStorage.getItem('dash_cafe_settings') || '{}')); }
@@ -5658,7 +5752,8 @@ function renderCafeDashboard() {
   var vendas = getCafe250gVendas();
 
   var curQty = _cafeMonthSum(vendas, curMonthKey, 'qty');
-  var curRevenue = curQty * settings.precoUnitario;
+  var produtos = getCafeProdutos();
+  var curRevenue = produtos.reduce(function(sum,p){ return sum + ((p.preco||0)-(p.custo||0))*(p.qtd||0); }, 0);
 
   document.getElementById('cafe-fat-mes').textContent = 'R$ ' + curRevenue.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
   var fatPct = settings.metaFatMensal ? Math.min(100, curRevenue/settings.metaFatMensal*100) : 0;
@@ -5694,6 +5789,7 @@ function renderCafeDashboard() {
   buildCafe250gChart();
   buildCafeFatChart();
   renderCafeMetas();
+  renderCafeProdutos();
 }
 
 /* ── Café: checklist de metas/submetas (check remove o item; Cmd+Z desfaz) ── */
@@ -5933,15 +6029,23 @@ function buildCafeFatChart() {
   var canvas = document.getElementById('cafeFatChart');
   if (!canvas) return;
   var year = new Date().getFullYear();
+  var now = new Date();
   var settings = getCafeSettings();
-  var vendas = getCafe250gVendas();
   var monthNamesFull = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   var isDark = document.documentElement.getAttribute('data-theme')==='dark';
   var tickColor = isDark ? '#9E9892' : '#6B6660';
   var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
   var fadedColor = isDark ? '#332E22' : '#EDE4CE';
 
-  var revenueByMonth = _cafeYearByMonth(vendas, year, 'qty').map(function(qty){ return qty * settings.precoUnitario; });
+  // Lucro vem da lista de Produtos (preço-custo × quantidade), que é um total
+  // acumulado editado manualmente — sem data por produto, só o mês corrente
+  // reflete um valor real; os demais meses ficam zerados.
+  var produtos = getCafeProdutos();
+  var lucroAtual = produtos.reduce(function(sum,p){ return sum + ((p.preco||0)-(p.custo||0))*(p.qtd||0); }, 0);
+  var revenueByMonth = [];
+  for (var m=0; m<12; m++) {
+    revenueByMonth.push((year === now.getFullYear() && m === now.getMonth()) ? lucroAtual : 0);
+  }
   var maxVal = Math.max.apply(null, revenueByMonth);
   var maxIdx = revenueByMonth.indexOf(maxVal);
   var barColors = revenueByMonth.map(function(v, i){ return (i === maxIdx && v > 0) ? '#D8C9A3' : fadedColor; });
