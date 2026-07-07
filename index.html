@@ -866,7 +866,7 @@
     <div class="metrics-grid">
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="c-seguidores">—</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-c"></canvas></div></div>
       <div class="metric-cell"><div class="metric-label">Clientes recorrentes</div><div class="metric-value" id="c-clientes">—</div></div>
-      <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="c-faturamento" style="color:#993556;">—</div><div class="metric-sub">&nbsp;</div></div>
+      <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="c-faturamento" style="color:#D8C9A3;">—</div><div class="metric-sub">&nbsp;</div></div>
       <div class="metric-cell"><div class="metric-label">Itens no cardápio</div><div class="metric-value" id="c-itens">—</div></div>
     </div>
     <div class="divider"></div>
@@ -2375,20 +2375,20 @@
     <div style="display:flex;gap:1rem;margin-bottom:1.75rem;align-items:flex-start;">
       <div id="cafe-stats-left" style="flex:2;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
         <div class="sum-card"><div class="sum-label">Ticket médio — <span id="cafe-year-label-1"></span></div><div class="sum-value" id="cafe-ticket-medio">—</div><div class="sum-sub" id="cafe-ticket-medio-sub">sem dados ainda</div></div>
-        <div class="sum-card"><div class="sum-label">Melhor mês — <span id="cafe-year-label-2"></span></div><div class="sum-value" id="cafe-melhor-mes" style="color:#993556;">—</div><div class="sum-sub" id="cafe-melhor-mes-sub">sem dados ainda</div></div>
+        <div class="sum-card"><div class="sum-label">Melhor mês — <span id="cafe-year-label-2"></span></div><div class="sum-value" id="cafe-melhor-mes" style="color:#D8C9A3;">—</div><div class="sum-sub" id="cafe-melhor-mes-sub">sem dados ainda</div></div>
         <div class="sum-card">
           <div class="sum-label">Faturamento — <span id="cafe-month-label-1"></span></div>
-          <div class="sum-value" id="cafe-fat-mes" style="color:#993556;">R$ 0,00</div>
+          <div class="sum-value" id="cafe-fat-mes" style="color:#D8C9A3;">R$ 0,00</div>
           <div style="margin-top:10px;">
-            <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-fat-progress" style="background:#993556;"></div></div>
+            <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-fat-progress" style="background:#D8C9A3;"></div></div>
             <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-fat-falta">defina uma meta</span><span id="cafe-fat-pct">0%</span></div>
           </div>
         </div>
         <div class="sum-card">
           <div class="sum-label">Pacotes vendidos — <span id="cafe-month-label-2"></span></div>
-          <div class="sum-value" id="cafe-pacotes-mes" style="color:var(--coral);">0</div>
+          <div class="sum-value" id="cafe-pacotes-mes" style="color:#BFAF87;">0</div>
           <div style="margin-top:10px;">
-            <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-pacotes-progress" style="background:var(--coral);"></div></div>
+            <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-pacotes-progress" style="background:#BFAF87;"></div></div>
             <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-pacotes-falta">defina uma meta</span><span id="cafe-pacotes-pct">0%</span></div>
           </div>
         </div>
@@ -5190,7 +5190,7 @@ var sparkData = {
   r: { start: 1,    startDate: '2026-03-24', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#CC4A28' : '#C43A1A'; } },
   k: { start: 0,    startDate: _todayKey(),  color: function(){ return '#993C1D'; } },
   v: { start: 0,    startDate: _todayKey(),  color: function(){ return '#0F6E56'; } },
-  c: { start: 0,    startDate: _todayKey(),  color: function(){ return '#993556'; } }
+  c: { start: 0,    startDate: _todayKey(),  color: function(){ return '#D8C9A3'; } }
 };
 
 var _sparkEndIds = { m: 'm-seguidores', s: 's-seguidores', r: 'r-seguidores', k: 'k-seguidores', v: 'v-seguidores', c: 'c-seguidores' };
@@ -5386,13 +5386,13 @@ function renderCafeDashboard() {
     {label:'Torra Escura', value:6100},
     {label:'Blend da Casa', value:4300},
     {label:'Descafeinado', value:1800}
-  ], '#993556');
+  ], '#D8C9A3');
   renderCafeBarList('cafe-canal-bars', [
     {label:'Loja própria', value:9600},
     {label:'E-commerce', value:7200},
     {label:'Assinatura mensal', value:2900},
     {label:'Feiras e eventos', value:1000}
-  ], '#993556');
+  ], '#BFAF87');
 
   buildCafe250gChart();
   buildCafeFatChart();
@@ -5423,7 +5423,7 @@ function renderCafeMetas() {
   var html = '';
   metas.forEach(function(meta, mi){
     html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'+
-      '<span class="cafe-meta-check" data-mi="'+mi+'" style="width:14px;height:14px;border-radius:50%;border:1.3px solid #993556;flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
+      '<span class="cafe-meta-check" data-mi="'+mi+'" style="width:14px;height:14px;border-radius:50%;border:1.3px solid #D8C9A3;flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
       '<input type="text" class="cafe-meta-input" data-mi="'+mi+'" value="'+meta.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text);">'+
     '</div>';
     (meta.children||[]).forEach(function(sub, si){
@@ -5588,7 +5588,7 @@ function buildCafe250gChart() {
   cafe250gChartInstance = new Chart(canvas, {
     type: 'line',
     data: { labels: labels, datasets: [{
-      data: data, borderColor: '#993556', pointBackgroundColor: '#993556',
+      data: data, borderColor: '#D8C9A3', pointBackgroundColor: '#D8C9A3',
       borderWidth: 1.5, pointRadius: 3, pointHoverRadius: 4, tension: 0.4,
       cubicInterpolationMode: 'monotone', fill: false
     }] },
@@ -5616,7 +5616,7 @@ function buildCafeFatChart() {
   var isDark = document.documentElement.getAttribute('data-theme')==='dark';
   var tickColor = isDark ? '#9E9892' : '#6B6660';
   var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-  var fadedColor = isDark ? '#3A2226' : '#EBD3D8';
+  var fadedColor = isDark ? '#332E22' : '#EDE4CE';
 
   var revenueByMonth = [];
   for (var m=0; m<12; m++) {
@@ -5626,7 +5626,7 @@ function buildCafeFatChart() {
   }
   var maxVal = Math.max.apply(null, revenueByMonth);
   var maxIdx = revenueByMonth.indexOf(maxVal);
-  var barColors = revenueByMonth.map(function(v, i){ return (i === maxIdx && v > 0) ? '#993556' : fadedColor; });
+  var barColors = revenueByMonth.map(function(v, i){ return (i === maxIdx && v > 0) ? '#D8C9A3' : fadedColor; });
 
   if (cafeFatChartInstance) { cafeFatChartInstance.destroy(); }
   cafeFatChartInstance = new Chart(canvas, {
@@ -5635,7 +5635,7 @@ function buildCafeFatChart() {
       datasets: [
         { type: 'bar', data: revenueByMonth, backgroundColor: barColors, borderRadius: 4, maxBarThickness: 32, order: 2 },
         { type: 'line', data: monthNamesFull.map(function(){ return settings.metaFatMensal || null; }),
-          borderColor: '#993556', borderDash: [5,4], borderWidth: 1.3, pointRadius: 0, fill: false, order: 1 }
+          borderColor: '#D8C9A3', borderDash: [5,4], borderWidth: 1.3, pointRadius: 0, fill: false, order: 1 }
       ]
     },
     options: {
