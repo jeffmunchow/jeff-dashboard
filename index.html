@@ -5808,6 +5808,23 @@ function renderDashboardNextEvents() {
       '</div>';
     });
   }
+
+  // ── Café: submetas
+  var cafeSubItems = [];
+  getCafeMetas().forEach(function(meta, mi){
+    (meta.children||[]).forEach(function(sub, si){
+      if (sub.title && sub.title.trim() !== '') cafeSubItems.push({ mi: mi, si: si, titulo: sub.title });
+    });
+  });
+  var cEl = document.getElementById('c-nev-content');
+  if (cEl) {
+    cEl.innerHTML = _renderSlots(cafeSubItems, function(item) {
+      return '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<button onclick="event.stopPropagation();checkCafeSub(' + item.mi + ',' + item.si + ');renderDashboardNextEvents();" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'#D8C9A3\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
+        '<span style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + item.titulo + '</span>' +
+      '</div>';
+    });
+  }
 }
 
 
