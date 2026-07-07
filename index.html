@@ -5415,6 +5415,7 @@ function ensureCafeMetasTrailingEmpty() {
     saveCafeMetasList(metas);
   }
 }
+var _cafeMetasCollapsed = {};
 function renderCafeMetas() {
   var container = document.getElementById('cafe-metas-list');
   if (!container) return;
@@ -5422,16 +5423,21 @@ function renderCafeMetas() {
   var metas = getCafeMetas();
   var html = '';
   metas.forEach(function(meta, mi){
+    var hasChildren = (meta.children||[]).length > 0;
+    var collapsed = hasChildren && _cafeMetasCollapsed[mi];
     html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'+
+      '<span class="cafe-meta-caret" data-mi="'+mi+'" style="width:10px;flex-shrink:0;cursor:'+(hasChildren?'pointer':'default')+';font-size:0.55rem;color:var(--text-hint);text-align:center;">'+(hasChildren ? (collapsed ? '▸' : '▾') : '')+'</span>'+
       '<span class="cafe-meta-check" data-mi="'+mi+'" style="width:14px;height:14px;border-radius:50%;border:1.3px solid #D8C9A3;flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
       '<input type="text" class="cafe-meta-input" data-mi="'+mi+'" value="'+meta.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text);">'+
     '</div>';
-    (meta.children||[]).forEach(function(sub, si){
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:20px;">'+
-        '<span class="cafe-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-        '<input type="text" class="cafe-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
-      '</div>';
-    });
+    if (!collapsed) {
+      (meta.children||[]).forEach(function(sub, si){
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:20px;">'+
+          '<span class="cafe-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
+          '<input type="text" class="cafe-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
+        '</div>';
+      });
+    }
   });
   container.innerHTML = html;
 
@@ -5506,6 +5512,9 @@ function renderCafeMetas() {
   container.querySelectorAll('.cafe-meta-check').forEach(function(circle){
     circle.addEventListener('click', function(){ checkCafeMeta(+circle.dataset.mi); });
   });
+  container.querySelectorAll('.cafe-meta-caret').forEach(function(caret){
+    caret.addEventListener('click', function(){ toggleCafeMetaCollapse(+caret.dataset.mi); });
+  });
   container.querySelectorAll('.cafe-sub-check').forEach(function(circle){
     circle.addEventListener('click', function(){ checkCafeSub(+circle.dataset.mi, +circle.dataset.si); });
   });
@@ -5530,6 +5539,10 @@ function focusCafeSubInput(mi, si){
     var el = document.querySelector('.cafe-sub-input[data-mi="'+mi+'"][data-si="'+si+'"]');
     if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
   }, 0);
+}
+function toggleCafeMetaCollapse(mi){
+  _cafeMetasCollapsed[mi] = !_cafeMetasCollapsed[mi];
+  renderCafeMetas();
 }
 function checkCafeMeta(mi){
   var metas = getCafeMetas();
