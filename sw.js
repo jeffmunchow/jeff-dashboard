@@ -1,5 +1,5 @@
 // Cache com timestamp único — muda a cada deploy, força atualização automática
-const CACHE = 'jeff-v20260625000000';
+const CACHE = 'jeff-v20260707074500';
 
 self.addEventListener('install', function(e) {
   e.waitUntil(
@@ -26,8 +26,8 @@ self.addEventListener('activate', function(e) {
 
 self.addEventListener('fetch', function(e) {
   e.respondWith(
-    // Rede primeiro — sempre tenta pegar versão mais recente
-    fetch(e.request.clone()).then(function(response) {
+    // Rede primeiro — sempre tenta pegar versão mais recente (no-store ignora cache do navegador/CDN)
+    fetch(e.request.clone(), { cache: 'no-store' }).then(function(response) {
       // Salva cópia no cache para uso offline
       if (response.status === 200) {
         var clone = response.clone();
