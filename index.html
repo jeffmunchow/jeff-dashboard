@@ -2425,7 +2425,7 @@
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem;">
       <div class="chart-card">
-        <div class="section-title" style="margin-bottom:1.25rem;">Vendas por variedade</div>
+        <div class="section-title" style="margin-bottom:1.25rem;">Clientes recorrentes</div>
         <div id="cafe-variedade-bars"></div>
       </div>
       <div class="chart-card">
@@ -5544,16 +5544,17 @@ function saveCafe250gVenda() {
   input.value = '';
   renderCafeDashboard();
 }
-function renderCafeBarList(containerId, items, color) {
+function renderCafeBarList(containerId, items, color, formatFn) {
   var el = document.getElementById(containerId);
   if (!el) return;
+  formatFn = formatFn || function(v){ return 'R$ ' + v.toLocaleString('pt-BR'); };
   var max = Math.max.apply(null, items.map(function(i){ return i.value; })) || 1;
   el.innerHTML = items.map(function(i){
     var pct = (i.value / max) * 100;
     return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+
       '<div style="width:120px;font-size:0.72rem;color:var(--text-muted);flex-shrink:0;">'+i.label+'</div>'+
       '<div style="flex:1;background:var(--surface2);border-radius:4px;height:8px;overflow:hidden;"><div style="width:'+pct+'%;height:100%;background:'+color+';border-radius:4px;"></div></div>'+
-      '<div style="width:100px;text-align:right;font-size:0.72rem;color:var(--text);flex-shrink:0;">R$ '+i.value.toLocaleString('pt-BR')+'</div>'+
+      '<div style="width:100px;text-align:right;font-size:0.72rem;color:var(--text);flex-shrink:0;">'+formatFn(i.value)+'</div>'+
     '</div>';
   }).join('');
 }
@@ -5597,11 +5598,9 @@ function renderCafeDashboard() {
   // Sugestões ilustrativas — ainda não têm um sistema de registro próprio,
   // ajuste os valores conforme a operação real da marca.
   renderCafeBarList('cafe-variedade-bars', [
-    {label:'Torra Média', value:8200},
-    {label:'Torra Escura', value:6100},
-    {label:'Blend da Casa', value:4300},
-    {label:'Descafeinado', value:1800}
-  ], '#D8C9A3');
+    {label:'Primeira compra', value:42},
+    {label:'Clientes recorrentes', value:27}
+  ], '#D8C9A3', function(v){ return v.toLocaleString('pt-BR') + ' clientes'; });
   renderCafeBarList('cafe-canal-bars', [
     {label:'Loja própria', value:9600},
     {label:'E-commerce', value:7200},
