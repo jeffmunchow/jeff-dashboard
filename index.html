@@ -2437,17 +2437,27 @@
       <div class="chart-card" style="height:300px;box-sizing:border-box;overflow-y:auto;">
         <div class="section-header">
           <div>
-            <div class="section-title">Vendas por canal</div>
-            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Total do mês (soma das semanas)</div>
+            <div class="section-title">Fluxo de Caixa</div>
+            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Entradas e saídas do mês</div>
           </div>
         </div>
-        <div id="cafe-canal-bars"></div>
+        <div style="display:flex;gap:1.5rem;margin:0.75rem 0 1rem;">
+          <div style="flex:1;">
+            <div class="sum-label" style="margin-bottom:4px;">Saldo atual</div>
+            <div id="cafe-caixa-saldo" style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;color:#D8C9A3;">R$ 0,00</div>
+          </div>
+          <div style="flex:1;">
+            <div class="sum-label" style="margin-bottom:4px;">Caixa acumulado</div>
+            <div id="cafe-caixa-acumulado" style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;color:#BFAF87;">R$ 0,00</div>
+          </div>
+        </div>
+        <div style="position:relative;width:100%;height:110px;">
+          <canvas id="cafeCaixaChart"></canvas>
+        </div>
         <div style="display:flex;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap;">
-          <input type="number" id="cafe-canal-loja-input" placeholder="Loja própria" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:92px;color:var(--text);outline:none;">
-          <input type="number" id="cafe-canal-ecommerce-input" placeholder="E-commerce" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:92px;color:var(--text);outline:none;">
-          <input type="number" id="cafe-canal-assinatura-input" placeholder="Assinatura" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:92px;color:var(--text);outline:none;">
-          <input type="number" id="cafe-canal-feiras-input" placeholder="Feiras/eventos" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:92px;color:var(--text);outline:none;">
-          <button class="btn primary" onclick="saveCafeCanalSemana()">Salvar semana</button>
+          <input type="number" id="cafe-caixa-entradas-input" placeholder="Entradas" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:110px;color:var(--text);outline:none;">
+          <input type="number" id="cafe-caixa-saidas-input" placeholder="Saídas" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:110px;color:var(--text);outline:none;">
+          <button class="btn primary" onclick="saveCafeCaixaMes()">Salvar mês</button>
         </div>
       </div>
     </div>
@@ -5081,7 +5091,7 @@ async function loadFromSupabase(forceFullReplace) {
                    'k-seguidores','k-clientes','k-faturamento','k-assinantes',
                    'v-seguidores','v-clientes','v-faturamento','v-assinantes',
                    'c-seguidores','c-clientes','c-faturamento','c-itens',
-                   'cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_canal_semanal','cafe_produtos',
+                   'cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_produtos','cafe_caixa',
                    'vikka_assinaturas','vikka_settings','vikka_metas',
                    'kelvn_novos_fotografos','kelvn_settings','kelvn_metas',
                    'm-updated','s-updated','r-updated','k-updated','v-updated','c-updated',
@@ -5567,27 +5577,79 @@ function saveCafeClientesSemana() {
   document.getElementById('cafe-clientes-recorrentes-input').value = '';
   renderCafeDashboard();
 }
-function getCafeCanalSemanal() {
-  try { return JSON.parse(localStorage.getItem('dash_cafe_canal_semanal') || '[]'); } catch(e) { return []; }
+function getCafeCaixa() {
+  try { return JSON.parse(localStorage.getItem('dash_cafe_caixa') || '[]'); } catch(e) { return []; }
 }
-function saveCafeCanalSemana() {
-  var loja = parseFloat(document.getElementById('cafe-canal-loja-input').value) || 0;
-  var ecommerce = parseFloat(document.getElementById('cafe-canal-ecommerce-input').value) || 0;
-  var assinatura = parseFloat(document.getElementById('cafe-canal-assinatura-input').value) || 0;
-  var feiras = parseFloat(document.getElementById('cafe-canal-feiras-input').value) || 0;
-  var week = _cafeWeekStart(new Date());
-  var list = getCafeCanalSemanal();
-  var idx = list.findIndex(function(x){ return x.week === week; });
-  var entry = { week: week, loja: loja, ecommerce: ecommerce, assinatura: assinatura, feiras: feiras };
-  if (idx >= 0) list[idx] = entry;
-  else list.push(entry);
-  list.sort(function(a,b){ return a.week.localeCompare(b.week); });
-  localStorage.setItem('dash_cafe_canal_semanal', JSON.stringify(list));
-  dbMetricSave('cafe_canal_semanal', JSON.stringify(list));
-  ['cafe-canal-loja-input','cafe-canal-ecommerce-input','cafe-canal-assinatura-input','cafe-canal-feiras-input'].forEach(function(id){
-    document.getElementById(id).value = '';
-  });
+function saveCafeCaixaList(list) {
+  localStorage.setItem('dash_cafe_caixa', JSON.stringify(list));
+  dbMetricSave('cafe_caixa', JSON.stringify(list));
+}
+function saveCafeCaixaMes() {
+  var entradas = parseFloat(document.getElementById('cafe-caixa-entradas-input').value) || 0;
+  var saidas = parseFloat(document.getElementById('cafe-caixa-saidas-input').value) || 0;
+  var d = new Date();
+  var monthKey = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2);
+  var list = getCafeCaixa();
+  var idx = list.findIndex(function(x){ return x.month === monthKey; });
+  if (idx >= 0) { list[idx].entradas = entradas; list[idx].saidas = saidas; }
+  else list.push({ month: monthKey, entradas: entradas, saidas: saidas });
+  list.sort(function(a,b){ return a.month.localeCompare(b.month); });
+  saveCafeCaixaList(list);
+  document.getElementById('cafe-caixa-entradas-input').value = '';
+  document.getElementById('cafe-caixa-saidas-input').value = '';
   renderCafeDashboard();
+}
+function renderCafeCaixaWidget() {
+  var elSaldo = document.getElementById('cafe-caixa-saldo');
+  if (!elSaldo) return;
+  var caixa = getCafeCaixa();
+  var now = new Date();
+  var curMonthKey = now.getFullYear() + '-' + ('0'+(now.getMonth()+1)).slice(-2);
+  var curEntry = caixa.find(function(x){ return x.month === curMonthKey; });
+  var saldoAtual = curEntry ? (curEntry.entradas - curEntry.saidas) : 0;
+  var acumulado = caixa.reduce(function(sum,x){ return sum + (x.entradas - x.saidas); }, 0);
+  elSaldo.textContent = 'R$ ' + saldoAtual.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('cafe-caixa-acumulado').textContent = 'R$ ' + acumulado.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  buildCafeCaixaChart();
+}
+var cafeCaixaChartInstance = null;
+function buildCafeCaixaChart() {
+  var canvas = document.getElementById('cafeCaixaChart');
+  if (!canvas) return;
+  var year = new Date().getFullYear();
+  var caixa = getCafeCaixa();
+  var monthNamesShort = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  var running = 0;
+  var data = [];
+  for (var m=0; m<12; m++) {
+    var key = year + '-' + ('0'+(m+1)).slice(-2);
+    var entry = caixa.find(function(x){ return x.month === key; });
+    if (entry) running += (entry.entradas - entry.saidas);
+    data.push(running);
+  }
+  var isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  var tickColor = isDark ? '#9E9892' : '#6B6660';
+  var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  if (cafeCaixaChartInstance) { cafeCaixaChartInstance.destroy(); }
+  cafeCaixaChartInstance = new Chart(canvas, {
+    type: 'line',
+    data: { labels: monthNamesShort, datasets: [{
+      data: data, borderColor: '#D8C9A3', pointBackgroundColor: '#D8C9A3',
+      borderWidth: 1.5, pointRadius: 2, pointHoverRadius: 4, tension: 0.4,
+      cubicInterpolationMode: 'monotone', fill: false
+    }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(ctx){ return 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR'); } } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 9 } } },
+        y: { ticks: { color: tickColor, font: { size: 9 } }, grid: { color: gridColor } }
+      }
+    }
+  });
 }
 function getCafeProdutos() {
   try { return JSON.parse(localStorage.getItem('dash_cafe_produtos') || '[]'); } catch(e) { return []; }
@@ -5760,18 +5822,11 @@ function renderCafeDashboard() {
     {label:'Clientes recorrentes', value:_cafeMonthSum(clientesSem, curMonthKey, 'recorrentes')}
   ], '#D8C9A3', function(v){ return v.toLocaleString('pt-BR') + ' clientes'; });
 
-  var canalSem = getCafeCanalSemanal();
-  renderCafeBarList('cafe-canal-bars', [
-    {label:'Loja própria', value:_cafeMonthSum(canalSem, curMonthKey, 'loja')},
-    {label:'E-commerce', value:_cafeMonthSum(canalSem, curMonthKey, 'ecommerce')},
-    {label:'Assinatura mensal', value:_cafeMonthSum(canalSem, curMonthKey, 'assinatura')},
-    {label:'Feiras e eventos', value:_cafeMonthSum(canalSem, curMonthKey, 'feiras')}
-  ], '#BFAF87');
-
   buildCafe250gChart();
   buildCafeFatChart();
   renderCafeMetas();
   renderCafeProdutos();
+  renderCafeCaixaWidget();
 }
 
 /* ── Café: checklist de metas/submetas (check remove o item; Cmd+Z desfaz) ── */
