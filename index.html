@@ -2402,11 +2402,11 @@
         <div class="section-header">
           <div>
             <div class="section-title">Vendas de pacotes de 250g</div>
-            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Unidades vendidas por mês</div>
+            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Unidades vendidas por mês (soma das semanas)</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <input type="number" id="cafe-250g-input" placeholder="Unidades este mês" style="font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;width:150px;color:var(--text);outline:none;">
-            <button class="btn primary" onclick="saveCafe250gVenda()">Salvar mês</button>
+            <input type="number" id="cafe-250g-input" placeholder="Unidades esta semana" style="font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;width:150px;color:var(--text);outline:none;">
+            <button class="btn primary" onclick="saveCafe250gVenda()">Salvar semana</button>
           </div>
         </div>
         <div style="position:relative;width:100%;height:280px;">
@@ -2425,12 +2425,34 @@
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem;">
       <div class="chart-card">
-        <div class="section-title" style="margin-bottom:1.25rem;">Clientes recorrentes</div>
+        <div class="section-header">
+          <div>
+            <div class="section-title">Clientes recorrentes</div>
+            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Total do mês (soma das semanas)</div>
+          </div>
+        </div>
         <div id="cafe-variedade-bars"></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap;">
+          <input type="number" id="cafe-clientes-primeira-input" placeholder="Primeira compra" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:118px;color:var(--text);outline:none;">
+          <input type="number" id="cafe-clientes-recorrentes-input" placeholder="Recorrentes" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:110px;color:var(--text);outline:none;">
+          <button class="btn primary" onclick="saveCafeClientesSemana()">Salvar semana</button>
+        </div>
       </div>
       <div class="chart-card">
-        <div class="section-title" style="margin-bottom:1.25rem;">Vendas por canal</div>
+        <div class="section-header">
+          <div>
+            <div class="section-title">Vendas por canal</div>
+            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Total do mês (soma das semanas)</div>
+          </div>
+        </div>
         <div id="cafe-canal-bars"></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap;">
+          <input type="number" id="cafe-canal-loja-input" placeholder="Loja própria" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:92px;color:var(--text);outline:none;">
+          <input type="number" id="cafe-canal-ecommerce-input" placeholder="E-commerce" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:92px;color:var(--text);outline:none;">
+          <input type="number" id="cafe-canal-assinatura-input" placeholder="Assinatura" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:92px;color:var(--text);outline:none;">
+          <input type="number" id="cafe-canal-feiras-input" placeholder="Feiras/eventos" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:92px;color:var(--text);outline:none;">
+          <button class="btn primary" onclick="saveCafeCanalSemana()">Salvar semana</button>
+        </div>
       </div>
     </div>
   </div>
@@ -5063,7 +5085,7 @@ async function loadFromSupabase(forceFullReplace) {
                    'k-seguidores','k-clientes','k-faturamento','k-assinantes',
                    'v-seguidores','v-clientes','v-faturamento','v-assinantes',
                    'c-seguidores','c-clientes','c-faturamento','c-itens',
-                   'cafe_vendas_250g','cafe_settings','cafe_metas',
+                   'cafe_vendas_250g','cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_canal_semanal',
                    'vikka_assinaturas','vikka_settings','vikka_metas',
                    'kelvn_novos_fotografos','kelvn_settings','kelvn_metas',
                    'm-updated','s-updated','r-updated','k-updated','v-updated','c-updated',
@@ -5509,8 +5531,70 @@ function buildSparkDataForKey(key) {
 function buildReleioSparkData() { return buildSparkDataForKey('r'); }
 
 /* ── Café: dashboard (vendas de pacotes de 250g, faturamento, metas) ── */
+function _cafeWeekStart(d) {
+  var day = d.getDay();
+  var diff = (day === 0 ? -6 : 1 - day);
+  var monday = new Date(d);
+  monday.setDate(d.getDate() + diff);
+  monday.setHours(0,0,0,0);
+  return monday.getFullYear() + '-' + ('0'+(monday.getMonth()+1)).slice(-2) + '-' + ('0'+monday.getDate()).slice(-2);
+}
+function _cafeMonthSum(list, monthKey, field) {
+  return list.filter(function(x){ return (x.week||x.month||'').slice(0,7) === monthKey; })
+    .reduce(function(sum,x){ return sum + (x[field]||0); }, 0);
+}
+function _cafeYearByMonth(list, year, field) {
+  var out = [];
+  for (var m=0; m<12; m++) {
+    var key = year + '-' + ('0'+(m+1)).slice(-2);
+    out.push(_cafeMonthSum(list, key, field));
+  }
+  return out;
+}
 function getCafe250gVendas() {
   try { return JSON.parse(localStorage.getItem('dash_cafe_vendas_250g') || '[]'); } catch(e) { return []; }
+}
+function getCafeClientesSemanais() {
+  try { return JSON.parse(localStorage.getItem('dash_cafe_clientes_semanais') || '[]'); } catch(e) { return []; }
+}
+function saveCafeClientesSemana() {
+  var primeira = parseInt(document.getElementById('cafe-clientes-primeira-input').value);
+  var recorrentes = parseInt(document.getElementById('cafe-clientes-recorrentes-input').value);
+  if (isNaN(primeira)) primeira = 0;
+  if (isNaN(recorrentes)) recorrentes = 0;
+  var week = _cafeWeekStart(new Date());
+  var list = getCafeClientesSemanais();
+  var idx = list.findIndex(function(x){ return x.week === week; });
+  if (idx >= 0) { list[idx].primeira = primeira; list[idx].recorrentes = recorrentes; }
+  else list.push({ week: week, primeira: primeira, recorrentes: recorrentes });
+  list.sort(function(a,b){ return a.week.localeCompare(b.week); });
+  localStorage.setItem('dash_cafe_clientes_semanais', JSON.stringify(list));
+  dbMetricSave('cafe_clientes_semanais', JSON.stringify(list));
+  document.getElementById('cafe-clientes-primeira-input').value = '';
+  document.getElementById('cafe-clientes-recorrentes-input').value = '';
+  renderCafeDashboard();
+}
+function getCafeCanalSemanal() {
+  try { return JSON.parse(localStorage.getItem('dash_cafe_canal_semanal') || '[]'); } catch(e) { return []; }
+}
+function saveCafeCanalSemana() {
+  var loja = parseFloat(document.getElementById('cafe-canal-loja-input').value) || 0;
+  var ecommerce = parseFloat(document.getElementById('cafe-canal-ecommerce-input').value) || 0;
+  var assinatura = parseFloat(document.getElementById('cafe-canal-assinatura-input').value) || 0;
+  var feiras = parseFloat(document.getElementById('cafe-canal-feiras-input').value) || 0;
+  var week = _cafeWeekStart(new Date());
+  var list = getCafeCanalSemanal();
+  var idx = list.findIndex(function(x){ return x.week === week; });
+  var entry = { week: week, loja: loja, ecommerce: ecommerce, assinatura: assinatura, feiras: feiras };
+  if (idx >= 0) list[idx] = entry;
+  else list.push(entry);
+  list.sort(function(a,b){ return a.week.localeCompare(b.week); });
+  localStorage.setItem('dash_cafe_canal_semanal', JSON.stringify(list));
+  dbMetricSave('cafe_canal_semanal', JSON.stringify(list));
+  ['cafe-canal-loja-input','cafe-canal-ecommerce-input','cafe-canal-assinatura-input','cafe-canal-feiras-input'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  renderCafeDashboard();
 }
 function getCafeSettings() {
   var defaults = { metaFatMensal: 0, metaFatAnual: 0, metaPacotes: 0, precoUnitario: 0 };
@@ -5532,13 +5616,12 @@ function saveCafe250gVenda() {
   var input = document.getElementById('cafe-250g-input');
   var qty = parseInt(input.value);
   if (isNaN(qty) || qty < 0) return;
-  var d = new Date();
-  var monthKey = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2);
+  var week = _cafeWeekStart(new Date());
   var list = getCafe250gVendas();
-  var idx = list.findIndex(function(x){ return x.month === monthKey; });
+  var idx = list.findIndex(function(x){ return x.week === week; });
   if (idx >= 0) list[idx].qty = qty;
-  else list.push({ month: monthKey, qty: qty });
-  list.sort(function(a,b){ return a.month.localeCompare(b.month); });
+  else list.push({ week: week, qty: qty });
+  list.sort(function(a,b){ return a.week.localeCompare(b.week); });
   localStorage.setItem('dash_cafe_vendas_250g', JSON.stringify(list));
   dbMetricSave('cafe_vendas_250g', JSON.stringify(list));
   input.value = '';
@@ -5574,8 +5657,7 @@ function renderCafeDashboard() {
 
   var vendas = getCafe250gVendas();
 
-  var curEntry = vendas.find(function(v){ return v.month === curMonthKey; });
-  var curQty = curEntry ? curEntry.qty : 0;
+  var curQty = _cafeMonthSum(vendas, curMonthKey, 'qty');
   var curRevenue = curQty * settings.precoUnitario;
 
   document.getElementById('cafe-fat-mes').textContent = 'R$ ' + curRevenue.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -5595,17 +5677,18 @@ function renderCafeDashboard() {
     : 'defina uma meta';
 
 
-  // Sugestões ilustrativas — ainda não têm um sistema de registro próprio,
-  // ajuste os valores conforme a operação real da marca.
+  var clientesSem = getCafeClientesSemanais();
   renderCafeBarList('cafe-variedade-bars', [
-    {label:'Primeira compra', value:42},
-    {label:'Clientes recorrentes', value:27}
+    {label:'Primeira compra', value:_cafeMonthSum(clientesSem, curMonthKey, 'primeira')},
+    {label:'Clientes recorrentes', value:_cafeMonthSum(clientesSem, curMonthKey, 'recorrentes')}
   ], '#D8C9A3', function(v){ return v.toLocaleString('pt-BR') + ' clientes'; });
+
+  var canalSem = getCafeCanalSemanal();
   renderCafeBarList('cafe-canal-bars', [
-    {label:'Loja própria', value:9600},
-    {label:'E-commerce', value:7200},
-    {label:'Assinatura mensal', value:2900},
-    {label:'Feiras e eventos', value:1000}
+    {label:'Loja própria', value:_cafeMonthSum(canalSem, curMonthKey, 'loja')},
+    {label:'E-commerce', value:_cafeMonthSum(canalSem, curMonthKey, 'ecommerce')},
+    {label:'Assinatura mensal', value:_cafeMonthSum(canalSem, curMonthKey, 'assinatura')},
+    {label:'Feiras e eventos', value:_cafeMonthSum(canalSem, curMonthKey, 'feiras')}
   ], '#BFAF87');
 
   buildCafe250gChart();
@@ -5816,12 +5899,11 @@ var cafe250gChartInstance = null;
 function buildCafe250gChart() {
   var canvas = document.getElementById('cafe250gChart');
   if (!canvas) return;
+  var year = new Date().getFullYear();
+  var monthNamesShort = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   var list = getCafe250gVendas();
-  var labels = list.map(function(x){
-    var parts = x.month.split('-');
-    return (MON_S[parseInt(parts[1],10)-1] || parts[1]) + '/' + parts[0].slice(2);
-  });
-  var data = list.map(function(x){ return x.qty; });
+  var labels = monthNamesShort.map(function(m){ return m + '/' + String(year).slice(2); });
+  var data = _cafeYearByMonth(list, year, 'qty');
   var isDark = document.documentElement.getAttribute('data-theme')==='dark';
   var tickColor = isDark ? '#9E9892' : '#6B6660';
   var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
@@ -5859,12 +5941,7 @@ function buildCafeFatChart() {
   var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
   var fadedColor = isDark ? '#332E22' : '#EDE4CE';
 
-  var revenueByMonth = [];
-  for (var m=0; m<12; m++) {
-    var key = year + '-' + ('0'+(m+1)).slice(-2);
-    var entry = vendas.find(function(v){ return v.month === key; });
-    revenueByMonth.push(entry ? entry.qty * settings.precoUnitario : 0);
-  }
+  var revenueByMonth = _cafeYearByMonth(vendas, year, 'qty').map(function(qty){ return qty * settings.precoUnitario; });
   var maxVal = Math.max.apply(null, revenueByMonth);
   var maxIdx = revenueByMonth.indexOf(maxVal);
   var barColors = revenueByMonth.map(function(v, i){ return (i === maxIdx && v > 0) ? '#D8C9A3' : fadedColor; });
