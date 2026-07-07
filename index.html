@@ -5677,7 +5677,7 @@ function renderCafeMetas() {
       (meta.children||[]).forEach(function(sub, si){
         html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:20px;">'+
           '<span class="cafe-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);background:'+(sub.done?'var(--border-strong)':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-          '<input type="text" class="cafe-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);text-decoration:'+(sub.done?'line-through':'none')+';">'+
+          '<input type="text" class="cafe-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:'+(sub.done?'var(--text-hint)':'var(--text-muted)')+';text-decoration:'+(sub.done?'line-through':'none')+';">'+
         '</div>';
       });
     }
@@ -6086,7 +6086,7 @@ function renderVikkaMetas() {
       (meta.children||[]).forEach(function(sub, si){
         html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:20px;">'+
           '<span class="vikka-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);background:'+(sub.done?'var(--border-strong)':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-          '<input type="text" class="vikka-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);text-decoration:'+(sub.done?'line-through':'none')+';">'+
+          '<input type="text" class="vikka-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:'+(sub.done?'var(--text-hint)':'var(--text-muted)')+';text-decoration:'+(sub.done?'line-through':'none')+';">'+
         '</div>';
       });
     }
@@ -6495,7 +6495,7 @@ function renderKelvnMetas() {
       (meta.children||[]).forEach(function(sub, si){
         html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:20px;">'+
           '<span class="kelvn-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);background:'+(sub.done?'var(--border-strong)':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-          '<input type="text" class="kelvn-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);text-decoration:'+(sub.done?'line-through':'none')+';">'+
+          '<input type="text" class="kelvn-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:'+(sub.done?'var(--text-hint)':'var(--text-muted)')+';text-decoration:'+(sub.done?'line-through':'none')+';">'+
         '</div>';
       });
     }
