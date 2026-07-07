@@ -2375,20 +2375,24 @@
 
   <div style="padding:0.65rem 2rem 1.5rem;">
     <div style="display:flex;gap:1rem;margin-bottom:1.75rem;align-items:flex-start;">
-      <div class="sum-card" id="cafe-lucro-card" style="flex:1;box-sizing:border-box;">
-        <div class="sum-label">Lucro do mês — <span id="cafe-month-label-1"></span></div>
-        <div class="sum-value" id="cafe-fat-mes" style="color:#D8C9A3;">R$ 0,00</div>
-        <div style="margin-top:10px;">
-          <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-fat-progress" style="background:#D8C9A3;"></div></div>
-          <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-fat-falta">defina uma meta</span><span id="cafe-fat-pct">0%</span></div>
+      <div id="cafe-stats-left" style="flex:2;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="sum-card"><div class="sum-label">Ticket médio — <span id="cafe-year-label-1"></span></div><div class="sum-value" id="cafe-ticket-medio">—</div><div class="sum-sub" id="cafe-ticket-medio-sub">sem dados ainda</div></div>
+        <div class="sum-card"><div class="sum-label">Melhor mês — <span id="cafe-year-label-2"></span></div><div class="sum-value" id="cafe-melhor-mes" style="color:#D8C9A3;">—</div><div class="sum-sub" id="cafe-melhor-mes-sub">sem dados ainda</div></div>
+        <div class="sum-card">
+          <div class="sum-label">Faturamento — <span id="cafe-month-label-1"></span></div>
+          <div class="sum-value" id="cafe-fat-mes" style="color:#D8C9A3;">R$ 0,00</div>
+          <div style="margin-top:10px;">
+            <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-fat-progress" style="background:#D8C9A3;"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-fat-falta">defina uma meta</span><span id="cafe-fat-pct">0%</span></div>
+          </div>
         </div>
-      </div>
-      <div class="sum-card" id="cafe-pacotes-card" style="flex:1;box-sizing:border-box;">
-        <div class="sum-label">Pacotes vendidos — <span id="cafe-month-label-2"></span></div>
-        <div class="sum-value" id="cafe-pacotes-mes" style="color:#BFAF87;">0</div>
-        <div style="margin-top:10px;">
-          <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-pacotes-progress" style="background:#BFAF87;"></div></div>
-          <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-pacotes-falta">defina uma meta</span><span id="cafe-pacotes-pct">0%</span></div>
+        <div class="sum-card">
+          <div class="sum-label">Pacotes vendidos — <span id="cafe-month-label-2"></span></div>
+          <div class="sum-value" id="cafe-pacotes-mes" style="color:#BFAF87;">0</div>
+          <div style="margin-top:10px;">
+            <div class="cafe-progress-track"><div class="cafe-progress-fill" id="cafe-pacotes-progress" style="background:#BFAF87;"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="cafe-pacotes-falta">defina uma meta</span><span id="cafe-pacotes-pct">0%</span></div>
+          </div>
         </div>
       </div>
       <div class="sum-card" id="cafe-metas-card" style="flex:1;overflow-y:auto;box-sizing:border-box;">
@@ -5566,12 +5570,36 @@ function renderCafeDashboard() {
   var pM  = document.getElementById('cafe-meta-pacotes');    if (pM)  pM.value  = settings.metaPacotes || '';
   var puM = document.getElementById('cafe-preco-unitario');  if (puM) puM.value = settings.precoUnitario || '';
 
+  ['cafe-year-label-1','cafe-year-label-2'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.textContent = year;
+  });
+
   var now = new Date();
   var curMonthKey = year + '-' + ('0'+(now.getMonth()+1)).slice(-2);
   document.getElementById('cafe-month-label-1').textContent = monthNamesFull[now.getMonth()];
   document.getElementById('cafe-month-label-2').textContent = monthNamesFull[now.getMonth()];
 
   var vendas = getCafe250gVendas();
+  var thisYear = vendas.filter(function(v){ return v.month.slice(0,4) === String(year); });
+  var mesesComVenda = thisYear.filter(function(v){ return v.qty > 0; });
+  var totalRevenue = thisYear.reduce(function(sum,v){ return sum + v.qty * settings.precoUnitario; }, 0);
+
+  document.getElementById('cafe-ticket-medio').textContent = mesesComVenda.length
+    ? 'R$ ' + (totalRevenue / mesesComVenda.length).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})
+    : '—';
+  document.getElementById('cafe-ticket-medio-sub').textContent = mesesComVenda.length ? mesesComVenda.length + ' meses com venda' : 'sem dados ainda';
+
+  if (mesesComVenda.length) {
+    var best = mesesComVenda.reduce(function(a,b){ return b.qty > a.qty ? b : a; });
+    var bd = new Date(best.month + '-01T00:00:00');
+    document.getElementById('cafe-melhor-mes').textContent = settings.precoUnitario
+      ? 'R$ ' + (best.qty*settings.precoUnitario).toLocaleString('pt-BR')
+      : best.qty + ' pacotes';
+    document.getElementById('cafe-melhor-mes-sub').textContent = monthNamesFull[bd.getMonth()];
+  } else {
+    document.getElementById('cafe-melhor-mes').textContent = '—';
+    document.getElementById('cafe-melhor-mes-sub').textContent = 'sem dados ainda';
+  }
 
   var curEntry = vendas.find(function(v){ return v.month === curMonthKey; });
   var curQty = curEntry ? curEntry.qty : 0;
@@ -5737,7 +5765,7 @@ function renderCafeMetas() {
   syncCafeMetasCardHeight();
 }
 function syncCafeMetasCardHeight(){
-  var left = document.getElementById('cafe-lucro-card');
+  var left = document.getElementById('cafe-stats-left');
   var metasCard = document.getElementById('cafe-metas-card');
   if (!left || !metasCard) return;
   metasCard.style.height = left.offsetHeight + 'px';
