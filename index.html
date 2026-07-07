@@ -2436,27 +2436,23 @@
       </div>
       <div class="chart-card" style="height:300px;box-sizing:border-box;overflow-y:auto;">
         <div class="section-header">
-          <div>
-            <div class="section-title">Fluxo de Caixa</div>
-          </div>
           <div style="display:flex;gap:1.5rem;">
-            <div style="text-align:right;">
+            <div>
               <div class="sum-label" style="margin-bottom:4px;">Saldo atual</div>
               <div id="cafe-caixa-saldo" style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;color:#D8C9A3;">R$ 0,00</div>
             </div>
-            <div style="text-align:right;">
+            <div>
               <div class="sum-label" style="margin-bottom:4px;">Caixa acumulado</div>
               <div id="cafe-caixa-acumulado" style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;color:#BFAF87;">R$ 0,00</div>
             </div>
           </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn" onclick="openCafeCaixaModal('entrada')">+ Entrada</button>
+            <button class="btn" onclick="openCafeCaixaModal('saida')">+ Saída</button>
+          </div>
         </div>
-        <div style="position:relative;width:100%;height:180px;">
+        <div style="position:relative;width:100%;height:210px;">
           <canvas id="cafeCaixaChart"></canvas>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap;">
-          <input type="number" id="cafe-caixa-entradas-input" placeholder="Entradas" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:110px;color:var(--text);outline:none;">
-          <input type="number" id="cafe-caixa-saidas-input" placeholder="Saídas" style="font-family:'DM Sans',sans-serif;font-size:0.74rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 9px;width:110px;color:var(--text);outline:none;">
-          <button class="btn primary" onclick="saveCafeCaixaMes()">Salvar mês</button>
         </div>
       </div>
     </div>
@@ -2681,6 +2677,16 @@
   </div>
 </div>
 
+<div class="overlay" id="cafe-caixa-overlay">
+  <div class="modal" style="max-width:340px;">
+    <h2 id="cafe-caixa-modal-title">Nova entrada</h2>
+    <div class="field-row"><label>Valor</label><input type="number" id="cafe-caixa-modal-valor" placeholder="0,00" autofocus></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;">
+      <button class="btn" onclick="closeCafeCaixaModal()">Cancelar</button>
+      <button class="btn primary" onclick="saveCafeCaixaModalValor()">Salvar</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── RE.LEIO MODALS ────────────────────────────────────────────── -->
 <div class="overlay" id="rl-livro-overlay">
@@ -5583,19 +5589,30 @@ function saveCafeCaixaList(list) {
   localStorage.setItem('dash_cafe_caixa', JSON.stringify(list));
   dbMetricSave('cafe_caixa', JSON.stringify(list));
 }
-function saveCafeCaixaMes() {
-  var entradas = parseFloat(document.getElementById('cafe-caixa-entradas-input').value) || 0;
-  var saidas = parseFloat(document.getElementById('cafe-caixa-saidas-input').value) || 0;
+var _cafeCaixaModalTipo = null;
+function openCafeCaixaModal(tipo) {
+  _cafeCaixaModalTipo = tipo;
+  document.getElementById('cafe-caixa-modal-title').textContent = tipo === 'entrada' ? 'Nova entrada' : 'Nova saída';
+  document.getElementById('cafe-caixa-modal-valor').value = '';
+  document.getElementById('cafe-caixa-overlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('cafe-caixa-modal-valor').focus(); }, 0);
+}
+function closeCafeCaixaModal() {
+  document.getElementById('cafe-caixa-overlay').classList.remove('open');
+}
+function saveCafeCaixaModalValor() {
+  var valor = parseFloat(document.getElementById('cafe-caixa-modal-valor').value);
+  if (isNaN(valor) || valor <= 0) return;
   var d = new Date();
   var monthKey = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2);
   var list = getCafeCaixa();
   var idx = list.findIndex(function(x){ return x.month === monthKey; });
-  if (idx >= 0) { list[idx].entradas = entradas; list[idx].saidas = saidas; }
-  else list.push({ month: monthKey, entradas: entradas, saidas: saidas });
+  if (idx < 0) { list.push({ month: monthKey, entradas: 0, saidas: 0 }); idx = list.length - 1; }
+  if (_cafeCaixaModalTipo === 'entrada') list[idx].entradas += valor;
+  else list[idx].saidas += valor;
   list.sort(function(a,b){ return a.month.localeCompare(b.month); });
   saveCafeCaixaList(list);
-  document.getElementById('cafe-caixa-entradas-input').value = '';
-  document.getElementById('cafe-caixa-saidas-input').value = '';
+  closeCafeCaixaModal();
   renderCafeDashboard();
 }
 function renderCafeCaixaWidget() {
