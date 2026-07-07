@@ -2406,11 +2406,7 @@
         <div class="section-header">
           <div>
             <div class="section-title">Vendas de pacotes de 250g</div>
-            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Unidades vendidas por mês (soma das semanas)</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <input type="number" id="cafe-250g-input" placeholder="Unidades esta semana" style="font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;width:150px;color:var(--text);outline:none;">
-            <button class="btn primary" onclick="saveCafe250gVenda()">Salvar semana</button>
+            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Unidades vendidas (soma dos Produtos)</div>
           </div>
         </div>
         <div style="position:relative;width:100%;height:280px;">
@@ -5085,7 +5081,7 @@ async function loadFromSupabase(forceFullReplace) {
                    'k-seguidores','k-clientes','k-faturamento','k-assinantes',
                    'v-seguidores','v-clientes','v-faturamento','v-assinantes',
                    'c-seguidores','c-clientes','c-faturamento','c-itens',
-                   'cafe_vendas_250g','cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_canal_semanal','cafe_produtos',
+                   'cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_canal_semanal','cafe_produtos',
                    'vikka_assinaturas','vikka_settings','vikka_metas',
                    'kelvn_novos_fotografos','kelvn_settings','kelvn_metas',
                    'm-updated','s-updated','r-updated','k-updated','v-updated','c-updated',
@@ -5551,9 +5547,6 @@ function _cafeYearByMonth(list, year, field) {
   }
   return out;
 }
-function getCafe250gVendas() {
-  try { return JSON.parse(localStorage.getItem('dash_cafe_vendas_250g') || '[]'); } catch(e) { return []; }
-}
 function getCafeClientesSemanais() {
   try { return JSON.parse(localStorage.getItem('dash_cafe_clientes_semanais') || '[]'); } catch(e) { return []; }
 }
@@ -5674,6 +5667,7 @@ function updateCafeLucroDisplay() {
   var settings = getCafeSettings();
   var produtos = getCafeProdutos();
   var curRevenue = produtos.reduce(function(sum,p){ return sum + ((p.preco||0)-(p.custo||0))*(p.qtd||0); }, 0);
+  var curQty = produtos.reduce(function(sum,p){ return sum + (p.qtd||0); }, 0);
   var elVal = document.getElementById('cafe-fat-mes');
   if (!elVal) return;
   elVal.textContent = 'R$ ' + curRevenue.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -5683,7 +5677,17 @@ function updateCafeLucroDisplay() {
   document.getElementById('cafe-fat-falta').textContent = settings.metaFatMensal
     ? 'Faltam R$ ' + Math.max(0, settings.metaFatMensal - curRevenue).toLocaleString('pt-BR')
     : 'defina uma meta';
+
+  document.getElementById('cafe-pacotes-mes').textContent = curQty;
+  var pacotesPct = settings.metaPacotes ? Math.min(100, curQty/settings.metaPacotes*100) : 0;
+  document.getElementById('cafe-pacotes-progress').style.width = pacotesPct + '%';
+  document.getElementById('cafe-pacotes-pct').textContent = Math.round(pacotesPct) + '%';
+  document.getElementById('cafe-pacotes-falta').textContent = settings.metaPacotes
+    ? Math.max(0, settings.metaPacotes - curQty) + ' para a meta'
+    : 'defina uma meta';
+
   buildCafeFatChart();
+  buildCafe250gChart();
 }
 function getCafeSettings() {
   var defaults = { metaFatMensal: 0, metaFatAnual: 0, metaPacotes: 0, precoUnitario: 0 };
@@ -5699,21 +5703,6 @@ function saveCafeSettings() {
   };
   localStorage.setItem('dash_cafe_settings', JSON.stringify(s));
   dbMetricSave('cafe_settings', JSON.stringify(s));
-  renderCafeDashboard();
-}
-function saveCafe250gVenda() {
-  var input = document.getElementById('cafe-250g-input');
-  var qty = parseInt(input.value);
-  if (isNaN(qty) || qty < 0) return;
-  var week = _cafeWeekStart(new Date());
-  var list = getCafe250gVendas();
-  var idx = list.findIndex(function(x){ return x.week === week; });
-  if (idx >= 0) list[idx].qty = qty;
-  else list.push({ week: week, qty: qty });
-  list.sort(function(a,b){ return a.week.localeCompare(b.week); });
-  localStorage.setItem('dash_cafe_vendas_250g', JSON.stringify(list));
-  dbMetricSave('cafe_vendas_250g', JSON.stringify(list));
-  input.value = '';
   renderCafeDashboard();
 }
 function renderCafeBarList(containerId, items, color, formatFn) {
@@ -5744,10 +5733,8 @@ function renderCafeDashboard() {
   document.getElementById('cafe-month-label-1').textContent = monthNamesFull[now.getMonth()];
   document.getElementById('cafe-month-label-2').textContent = monthNamesFull[now.getMonth()];
 
-  var vendas = getCafe250gVendas();
-
-  var curQty = _cafeMonthSum(vendas, curMonthKey, 'qty');
   var produtos = getCafeProdutos();
+  var curQty = produtos.reduce(function(sum,p){ return sum + (p.qtd||0); }, 0);
   var curRevenue = produtos.reduce(function(sum,p){ return sum + ((p.preco||0)-(p.custo||0))*(p.qtd||0); }, 0);
 
   document.getElementById('cafe-fat-mes').textContent = 'R$ ' + curRevenue.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -5991,10 +5978,16 @@ function buildCafe250gChart() {
   var canvas = document.getElementById('cafe250gChart');
   if (!canvas) return;
   var year = new Date().getFullYear();
+  var now = new Date();
   var monthNamesShort = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  var list = getCafe250gVendas();
   var labels = monthNamesShort.map(function(m){ return m + '/' + String(year).slice(2); });
-  var data = _cafeYearByMonth(list, year, 'qty');
+  // Quantidade vem da lista de Produtos (total acumulado, editado manualmente) —
+  // sem data por produto, só o mês corrente reflete um valor real.
+  var produtosQty = getCafeProdutos().reduce(function(sum,p){ return sum + (p.qtd||0); }, 0);
+  var data = [];
+  for (var m=0; m<12; m++) {
+    data.push((year === now.getFullYear() && m === now.getMonth()) ? produtosQty : 0);
+  }
   var isDark = document.documentElement.getAttribute('data-theme')==='dark';
   var tickColor = isDark ? '#9E9892' : '#6B6660';
   var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
