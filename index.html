@@ -5549,14 +5549,14 @@ function renderCafeMetas() {
     var collapsed = hasChildren && _cafeMetasCollapsed[mi];
     html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'+
       '<span class="cafe-meta-caret" data-mi="'+mi+'" style="width:10px;flex-shrink:0;cursor:'+(hasChildren?'pointer':'default')+';font-size:0.55rem;color:var(--text-hint);text-align:center;">'+(hasChildren ? (collapsed ? '▸' : '▾') : '')+'</span>'+
-      '<span class="cafe-meta-check" data-mi="'+mi+'" style="width:14px;height:14px;border-radius:50%;border:1.3px solid #D8C9A3;flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-      '<input type="text" class="cafe-meta-input" data-mi="'+mi+'" value="'+meta.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text);">'+
+      '<span class="cafe-meta-check" data-mi="'+mi+'" style="width:14px;height:14px;border-radius:50%;border:1.3px solid #D8C9A3;background:'+(meta.done?'#D8C9A3':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
+      '<input type="text" class="cafe-meta-input" data-mi="'+mi+'" value="'+meta.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:'+(meta.done?'var(--text-hint)':'var(--text)')+';text-decoration:'+(meta.done?'line-through':'none')+';">'+
     '</div>';
     if (!collapsed) {
       (meta.children||[]).forEach(function(sub, si){
         html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:20px;">'+
-          '<span class="cafe-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-          '<input type="text" class="cafe-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
+          '<span class="cafe-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);background:'+(sub.done?'var(--border-strong)':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
+          '<input type="text" class="cafe-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);text-decoration:'+(sub.done?'line-through':'none')+';">'+
         '</div>';
       });
     }
@@ -5574,7 +5574,7 @@ function renderCafeMetas() {
       if (ev.key === 'Backspace' && input.value === ''){
         ev.preventDefault();
         if (mi > 0) {
-          checkCafeMeta(mi);
+          deleteCafeMetaRow(mi);
           focusCafeMetaInput(mi-1);
         }
         return;
@@ -5608,7 +5608,7 @@ function renderCafeMetas() {
       var mi = +input.dataset.mi, si = +input.dataset.si;
       if (ev.key === 'Backspace' && input.value === ''){
         ev.preventDefault();
-        checkCafeSub(mi, si);
+        deleteCafeSubRow(mi, si);
         if (si > 0) focusCafeSubInput(mi, si-1);
         else focusCafeMetaInput(mi);
         return;
@@ -5668,13 +5668,27 @@ function toggleCafeMetaCollapse(mi){
 }
 function checkCafeMeta(mi){
   var metas = getCafeMetas();
+  if (!metas[mi]) return;
+  metas[mi].done = !metas[mi].done;
+  saveCafeMetasList(metas);
+  renderCafeMetas();
+}
+function checkCafeSub(mi, si){
+  var metas = getCafeMetas();
+  if (!metas[mi] || !metas[mi].children[si]) return;
+  metas[mi].children[si].done = !metas[mi].children[si].done;
+  saveCafeMetasList(metas);
+  renderCafeMetas();
+}
+function deleteCafeMetaRow(mi){
+  var metas = getCafeMetas();
   var removed = metas.splice(mi, 1)[0];
   if (!removed) return;
   saveCafeMetasList(metas);
   _cafeMetasUndoStack.push({ type:'meta', index:mi, data:removed });
   renderCafeMetas();
 }
-function checkCafeSub(mi, si){
+function deleteCafeSubRow(mi, si){
   var metas = getCafeMetas();
   if (!metas[mi]) return;
   var removed = metas[mi].children.splice(si, 1)[0];
@@ -5944,14 +5958,14 @@ function renderVikkaMetas() {
     var collapsed = hasChildren && _vikkaMetasCollapsed[mi];
     html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'+
       '<span class="vikka-meta-caret" data-mi="'+mi+'" style="width:10px;flex-shrink:0;cursor:'+(hasChildren?'pointer':'default')+';font-size:0.55rem;color:var(--text-hint);text-align:center;">'+(hasChildren ? (collapsed ? '▸' : '▾') : '')+'</span>'+
-      '<span class="vikka-meta-check" data-mi="'+mi+'" style="width:14px;height:14px;border-radius:50%;border:1.3px solid #D8C9A3;flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-      '<input type="text" class="vikka-meta-input" data-mi="'+mi+'" value="'+meta.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text);">'+
+      '<span class="vikka-meta-check" data-mi="'+mi+'" style="width:14px;height:14px;border-radius:50%;border:1.3px solid #D8C9A3;background:'+(meta.done?'#D8C9A3':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
+      '<input type="text" class="vikka-meta-input" data-mi="'+mi+'" value="'+meta.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:'+(meta.done?'var(--text-hint)':'var(--text)')+';text-decoration:'+(meta.done?'line-through':'none')+';">'+
     '</div>';
     if (!collapsed) {
       (meta.children||[]).forEach(function(sub, si){
         html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:20px;">'+
-          '<span class="vikka-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-          '<input type="text" class="vikka-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
+          '<span class="vikka-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);background:'+(sub.done?'var(--border-strong)':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
+          '<input type="text" class="vikka-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);text-decoration:'+(sub.done?'line-through':'none')+';">'+
         '</div>';
       });
     }
@@ -5969,7 +5983,7 @@ function renderVikkaMetas() {
       if (ev.key === 'Backspace' && input.value === ''){
         ev.preventDefault();
         if (mi > 0) {
-          checkVikkaMeta(mi);
+          deleteVikkaMetaRow(mi);
           focusVikkaMetaInput(mi-1);
         }
         return;
@@ -6003,7 +6017,7 @@ function renderVikkaMetas() {
       var mi = +input.dataset.mi, si = +input.dataset.si;
       if (ev.key === 'Backspace' && input.value === ''){
         ev.preventDefault();
-        checkVikkaSub(mi, si);
+        deleteVikkaSubRow(mi, si);
         if (si > 0) focusVikkaSubInput(mi, si-1);
         else focusVikkaMetaInput(mi);
         return;
@@ -6063,13 +6077,27 @@ function toggleVikkaMetaCollapse(mi){
 }
 function checkVikkaMeta(mi){
   var metas = getVikkaMetas();
+  if (!metas[mi]) return;
+  metas[mi].done = !metas[mi].done;
+  saveVikkaMetasList(metas);
+  renderVikkaMetas();
+}
+function checkVikkaSub(mi, si){
+  var metas = getVikkaMetas();
+  if (!metas[mi] || !metas[mi].children[si]) return;
+  metas[mi].children[si].done = !metas[mi].children[si].done;
+  saveVikkaMetasList(metas);
+  renderVikkaMetas();
+}
+function deleteVikkaMetaRow(mi){
+  var metas = getVikkaMetas();
   var removed = metas.splice(mi, 1)[0];
   if (!removed) return;
   saveVikkaMetasList(metas);
   _vikkaMetasUndoStack.push({ type:'meta', index:mi, data:removed });
   renderVikkaMetas();
 }
-function checkVikkaSub(mi, si){
+function deleteVikkaSubRow(mi, si){
   var metas = getVikkaMetas();
   if (!metas[mi]) return;
   var removed = metas[mi].children.splice(si, 1)[0];
