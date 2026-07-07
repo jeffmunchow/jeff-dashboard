@@ -2435,7 +2435,7 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem;">
       <div class="chart-card">
         <div class="section-title" style="margin-bottom:1rem;">Produtos</div>
-        <div style="display:flex;gap:8px;padding:0 0 6px;font-size:0.6rem;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.04em;">
+        <div style="display:flex;gap:20px;padding:0 0 6px;font-size:0.6rem;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.04em;">
           <div style="flex:1;">Produto</div>
           <div style="width:64px;">Preço</div>
           <div style="width:64px;">Custo</div>
@@ -5628,11 +5628,11 @@ function renderCafeProdutos() {
   var list = getCafeProdutos();
   var html = '';
   list.forEach(function(p, i){
-    html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'+
-      '<input type="text" class="cafe-prod-nome" data-i="'+i+'" value="'+(p.nome||'').replace(/"/g,'&quot;')+'" placeholder="Produto" style="flex:1;min-width:0;font-family:inherit;font-size:0.78rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text);">'+
-      '<input type="number" class="cafe-prod-preco" data-i="'+i+'" value="'+(p.preco||'')+'" placeholder="Preço" style="width:64px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
-      '<input type="number" class="cafe-prod-custo" data-i="'+i+'" value="'+(p.custo||'')+'" placeholder="Custo" style="width:64px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
-      '<input type="number" class="cafe-prod-qtd" data-i="'+i+'" value="'+(p.qtd||'')+'" placeholder="Qtd" style="width:52px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
+    html += '<div style="display:flex;align-items:center;gap:20px;padding:4px 0;">'+
+      '<input type="text" class="cafe-prod-nome" data-i="'+i+'" value="'+(p.nome||'').replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.78rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text);">'+
+      '<input type="number" class="cafe-prod-preco" data-i="'+i+'" value="'+(p.preco||'')+'" style="width:64px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
+      '<input type="number" class="cafe-prod-custo" data-i="'+i+'" value="'+(p.custo||'')+'" style="width:64px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
+      '<input type="number" class="cafe-prod-qtd" data-i="'+i+'" value="'+(p.qtd||'')+'" style="width:52px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
     '</div>';
   });
   container.innerHTML = html;
