@@ -169,7 +169,8 @@
   /* Dashboard date — same style as inner view dates, no uppercase */
   #main-view .header-left p,
   #cafe-view .header-left p,
-  #vikka-view .header-left p { font-size: 0.72rem; color: var(--text-hint); margin-top: 2px; font-weight: 300; letter-spacing: 0.01em; text-transform: none; }
+  #vikka-view .header-left p,
+  #kelvn-view .header-left p { font-size: 0.72rem; color: var(--text-hint); margin-top: 2px; font-weight: 300; letter-spacing: 0.01em; text-transform: none; }
   /* Inner views — títulos e subtítulos idênticos aos widgets do dashboard */
   #studio-view .header-left h1,
   #soup-view .header-left h1,
@@ -817,7 +818,7 @@
 
 <div class="main">
   <div class="project-card">
-    <div class="project-body-clickable">
+    <div class="project-body-clickable" onclick="navigateToProject(event, 'kelvn-view')">
     <div class="project-header" style="border-bottom:0.5px solid var(--border);">
       <div><div class="project-name">Kelvn</div><div class="project-meta">Construir a principal plataforma operacional para fotógrafos profissionais, reduzindo o tempo gasto com gestão e aumentando a lucratividade dos seus negócios.</div></div>
       <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('kelvn')" title="Editar métricas">+</button>
@@ -830,7 +831,7 @@
     </div>
     <div class="divider"></div>
     <div class="next-event-widget" id="k-next-event-widget" onclick="event.stopPropagation()">
-      <div class="nev-label">Próxima tarefa</div>
+      <div class="nev-label">Metas</div>
       <div id="k-nev-content" class="nev-empty">Nenhuma tarefa cadastrada</div>
     </div>
     <div class="last-updated" id="k-updated">Nunca atualizado</div>
@@ -2548,6 +2549,115 @@
   </div>
 </div>
 
+<div id="kelvn-view" style="display:none; min-height:100vh;">
+  <div class="sidebar">
+    <div class="sidebar-top">
+    <button class="sidebar-home" onclick="showMainDashboard()" title="Dashboard">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="7.5" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="10" width="4" height="3.5" rx="0.5" fill="currentColor" opacity="0.2"/></svg>
+    </button>
+    <button class="sidebar-btn" onclick="showPessoalView()" title="Pessoal">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </button>
+    <button class="sidebar-diary" onclick="showDiaryView()" title="Diário">
+      <svg width="14" height="15" viewBox="0 0 14 15" fill="none"><rect x="2" y="1" width="10" height="13" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="2.5" width="1.5" height="10" rx="0.5" fill="currentColor" opacity="0.25"/></svg>
+    </button>
+    <button class="sidebar-btn" onclick="showCitacoesView()" title="Citações">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 6.5C2.5 5.1 3.6 4 5 4h.5V2.5H5C2.8 2.5 1 4.3 1 6.5v3.5h3.5V6.5H2.5z" fill="currentColor" opacity="0.9"/><path d="M8.5 6.5C8.5 5.1 9.6 4 11 4h.5V2.5H11C8.8 2.5 7 4.3 7 6.5v3.5h3.5V6.5H8.5z" fill="currentColor" opacity="0.9"/></svg>
+    </button>
+    <button class="sidebar-btn" onclick="showTarefasView()" title="Tarefas">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </button>
+  </div>
+  <div class="sidebar-bottom">
+    <button class="sidebar-btn" onclick="toggleTheme()" title="Alternar tema">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 1.5a5.5 5.5 0 010 11V1.5z" fill="currentColor"/></svg>
+    </button>
+    <button class="sidebar-btn" onclick="toggleNotesModal()" id="sidebar-notes-btn" title="Atualizações do sistema">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H8l-2 2-2-2H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/><path d="M4.5 5h5M4.5 7h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    </button>
+    <div class="sidebar-version">v.2.0</div>
+  </div>
+</div>
+  <div class="header" style="border-bottom:none;">
+    <div class="header-left">
+      <button id="mobile-menu-btn" onclick="toggleMobileMenu()" style="display:none;background:none;border:none;cursor:pointer;color:var(--text);padding:4px 8px 4px 0;flex-shrink:0;" title="Menu"><svg width="18" height="14" viewBox="0 0 18 14" fill="none"><line x1="0" y1="1" x2="18" y2="1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="7" x2="18" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="13" x2="18" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+      <div>
+      <h1>Kelvn</h1>
+      <p style="margin-top:8px;">Construir a principal plataforma operacional para fotógrafos profissionais, reduzindo o tempo gasto com gestão e aumentando a lucratividade dos seus negócios.</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <span style="font-size:0.72rem;color:var(--text-hint);" id="kelvn-header-date"></span>
+    </div>
+  </div>
+
+  <div style="padding:0.65rem 2rem 1.5rem;">
+    <div style="display:flex;gap:1rem;margin-bottom:1.75rem;align-items:flex-start;">
+      <div id="kelvn-stats-left" style="flex:2;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="sum-card"><div class="sum-label">Ticket médio — <span id="kelvn-year-label-1"></span></div><div class="sum-value" id="kelvn-ticket-medio">—</div><div class="sum-sub" id="kelvn-ticket-medio-sub">sem dados ainda</div></div>
+        <div class="sum-card"><div class="sum-label">Melhor mês — <span id="kelvn-year-label-2"></span></div><div class="sum-value" id="kelvn-melhor-mes" style="color:#D8C9A3;">—</div><div class="sum-sub" id="kelvn-melhor-mes-sub">sem dados ainda</div></div>
+        <div class="sum-card">
+          <div class="sum-label">Faturamento — <span id="kelvn-month-label-1"></span></div>
+          <div class="sum-value" id="kelvn-fat-mes" style="color:#D8C9A3;">R$ 0,00</div>
+          <div style="margin-top:10px;">
+            <div class="cafe-progress-track"><div class="cafe-progress-fill" id="kelvn-fat-progress" style="background:#D8C9A3;"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="kelvn-fat-falta">defina uma meta</span><span id="kelvn-fat-pct">0%</span></div>
+          </div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-label">Assinaturas ativas — <span id="kelvn-month-label-2"></span></div>
+          <div class="sum-value" id="kelvn-pacotes-mes" style="color:#BFAF87;">0</div>
+          <div style="margin-top:10px;">
+            <div class="cafe-progress-track"><div class="cafe-progress-fill" id="kelvn-pacotes-progress" style="background:#BFAF87;"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-hint);margin-top:4px;"><span id="kelvn-pacotes-falta">defina uma meta</span><span id="kelvn-pacotes-pct">0%</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="sum-card" id="kelvn-metas-card" style="flex:1;overflow-y:auto;box-sizing:border-box;">
+        <div class="sum-label">Metas</div>
+        <div id="kelvn-metas-list"></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:1.5rem;">
+      <div class="chart-card">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Novos fotógrafos assinantes</div>
+            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Assinaturas ativadas por mês</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="number" id="kelvn-250g-input" placeholder="Unidades este mês" style="font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:6px 10px;width:150px;color:var(--text);outline:none;">
+            <button class="btn primary" onclick="saveKelvn250gVenda()">Salvar mês</button>
+          </div>
+        </div>
+        <div style="position:relative;width:100%;height:280px;">
+          <canvas id="kelvn250gChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="section-header">
+          <div class="section-title">Faturamento por mês</div>
+        </div>
+        <div style="position:relative;width:100%;height:280px;">
+          <canvas id="kelvnFatChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem;">
+      <div class="chart-card">
+        <div class="section-title" style="margin-bottom:1.25rem;">Assinaturas por plano</div>
+        <div id="kelvn-variedade-bars"></div>
+      </div>
+      <div class="chart-card">
+        <div class="section-title" style="margin-bottom:1.25rem;">Assinaturas por canal de aquisição</div>
+        <div id="kelvn-canal-bars"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- ── RE.LEIO MODALS ────────────────────────────────────────────── -->
 <div class="overlay" id="rl-livro-overlay">
@@ -3470,9 +3580,10 @@ function navigateToProject(e, proj) {
   else if (proj === 'releio-view') showReleioView();
   else if (proj === 'cafe-view') showCafeView();
   else if (proj === 'vikka-view') showVikkaView();
+  else if (proj === 'kelvn-view') showKelvnView();
 }
 
-var ALL_VIEWS = ['main-view','studio-view','soup-view','releio-view','cafe-view','vikka-view','diario-view','citacoes-view','tarefas-view','pessoal-view'];
+var ALL_VIEWS = ['main-view','studio-view','soup-view','releio-view','cafe-view','vikka-view','kelvn-view','diario-view','citacoes-view','tarefas-view','pessoal-view'];
 function hideAllViews() {
   ALL_VIEWS.forEach(function(id){
     var el = document.getElementById(id);
@@ -3529,6 +3640,15 @@ function showVikkaView() {
   document.getElementById('vikka-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
   window.scrollTo(0,0);
   renderVikkaDashboard();
+}
+
+function showKelvnView() {
+  hideAllViews();
+  document.getElementById('kelvn-view').style.display = 'block';
+  var d = new Date();
+  document.getElementById('kelvn-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
+  window.scrollTo(0,0);
+  renderKelvnDashboard();
 }
 
 function showPessoalView() {
@@ -4949,6 +5069,7 @@ async function loadFromSupabase(forceFullReplace) {
                    'c-seguidores','c-clientes','c-faturamento','c-itens',
                    'cafe_vendas_250g','cafe_settings','cafe_metas',
                    'vikka_assinaturas','vikka_settings','vikka_metas',
+                   'kelvn_novos_fotografos','kelvn_settings','kelvn_metas',
                    'm-updated','s-updated','r-updated','k-updated','v-updated','c-updated',
                    'tarefas_v1_sync','diary_index'];
 
@@ -6210,6 +6331,415 @@ function buildVikkaFatChart() {
   });
 }
 
+function getKelvn250gVendas() {
+  try { return JSON.parse(localStorage.getItem('dash_kelvn_novos_fotografos') || '[]'); } catch(e) { return []; }
+}
+function getKelvnSettings() {
+  var defaults = { metaFatMensal: 0, metaFatAnual: 0, metaPacotes: 0, precoUnitario: 0 };
+  try { return Object.assign(defaults, JSON.parse(localStorage.getItem('dash_kelvn_settings') || '{}')); }
+  catch(e) { return defaults; }
+}
+function saveKelvnSettings() {
+  var s = {
+    metaFatMensal: parseFloat(document.getElementById('kelvn-meta-fat-mensal').value) || 0,
+    metaFatAnual:  parseFloat(document.getElementById('kelvn-meta-fat-anual').value) || 0,
+    metaPacotes:   parseFloat(document.getElementById('kelvn-meta-pacotes').value) || 0,
+    precoUnitario: parseFloat(document.getElementById('kelvn-preco-unitario').value) || 0
+  };
+  localStorage.setItem('dash_kelvn_settings', JSON.stringify(s));
+  dbMetricSave('kelvn_settings', JSON.stringify(s));
+  renderKelvnDashboard();
+}
+function saveKelvn250gVenda() {
+  var input = document.getElementById('kelvn-250g-input');
+  var qty = parseInt(input.value);
+  if (isNaN(qty) || qty < 0) return;
+  var d = new Date();
+  var monthKey = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2);
+  var list = getKelvn250gVendas();
+  var idx = list.findIndex(function(x){ return x.month === monthKey; });
+  if (idx >= 0) list[idx].qty = qty;
+  else list.push({ month: monthKey, qty: qty });
+  list.sort(function(a,b){ return a.month.localeCompare(b.month); });
+  localStorage.setItem('dash_kelvn_novos_fotografos', JSON.stringify(list));
+  dbMetricSave('kelvn_novos_fotografos', JSON.stringify(list));
+  input.value = '';
+  renderKelvnDashboard();
+}
+function renderKelvnBarList(containerId, items, color) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  var max = Math.max.apply(null, items.map(function(i){ return i.value; })) || 1;
+  el.innerHTML = items.map(function(i){
+    var pct = (i.value / max) * 100;
+    return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+
+      '<div style="width:120px;font-size:0.72rem;color:var(--text-muted);flex-shrink:0;">'+i.label+'</div>'+
+      '<div style="flex:1;background:var(--surface2);border-radius:4px;height:8px;overflow:hidden;"><div style="width:'+pct+'%;height:100%;background:'+color+';border-radius:4px;"></div></div>'+
+      '<div style="width:100px;text-align:right;font-size:0.72rem;color:var(--text);flex-shrink:0;">R$ '+i.value.toLocaleString('pt-BR')+'</div>'+
+    '</div>';
+  }).join('');
+}
+function renderKelvnDashboard() {
+  var year = new Date().getFullYear();
+  var monthNamesFull = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  var settings = getKelvnSettings();
+  var fmM = document.getElementById('kelvn-meta-fat-mensal'); if (fmM) fmM.value = settings.metaFatMensal || '';
+  var faM = document.getElementById('kelvn-meta-fat-anual');  if (faM) faM.value = settings.metaFatAnual || '';
+  var pM  = document.getElementById('kelvn-meta-pacotes');    if (pM)  pM.value  = settings.metaPacotes || '';
+  var puM = document.getElementById('kelvn-preco-unitario');  if (puM) puM.value = settings.precoUnitario || '';
+
+  ['kelvn-year-label-1','kelvn-year-label-2'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.textContent = year;
+  });
+
+  var now = new Date();
+  var curMonthKey = year + '-' + ('0'+(now.getMonth()+1)).slice(-2);
+  document.getElementById('kelvn-month-label-1').textContent = monthNamesFull[now.getMonth()];
+  document.getElementById('kelvn-month-label-2').textContent = monthNamesFull[now.getMonth()];
+
+  var vendas = getKelvn250gVendas();
+  var thisYear = vendas.filter(function(v){ return v.month.slice(0,4) === String(year); });
+  var mesesComVenda = thisYear.filter(function(v){ return v.qty > 0; });
+  var totalRevenue = thisYear.reduce(function(sum,v){ return sum + v.qty * settings.precoUnitario; }, 0);
+
+  document.getElementById('kelvn-ticket-medio').textContent = mesesComVenda.length
+    ? 'R$ ' + (totalRevenue / mesesComVenda.length).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})
+    : '—';
+  document.getElementById('kelvn-ticket-medio-sub').textContent = mesesComVenda.length ? mesesComVenda.length + ' meses com venda' : 'sem dados ainda';
+
+  if (mesesComVenda.length) {
+    var best = mesesComVenda.reduce(function(a,b){ return b.qty > a.qty ? b : a; });
+    var bd = new Date(best.month + '-01T00:00:00');
+    document.getElementById('kelvn-melhor-mes').textContent = settings.precoUnitario
+      ? 'R$ ' + (best.qty*settings.precoUnitario).toLocaleString('pt-BR')
+      : best.qty + ' pacotes';
+    document.getElementById('kelvn-melhor-mes-sub').textContent = monthNamesFull[bd.getMonth()];
+  } else {
+    document.getElementById('kelvn-melhor-mes').textContent = '—';
+    document.getElementById('kelvn-melhor-mes-sub').textContent = 'sem dados ainda';
+  }
+
+  var curEntry = vendas.find(function(v){ return v.month === curMonthKey; });
+  var curQty = curEntry ? curEntry.qty : 0;
+  var curRevenue = curQty * settings.precoUnitario;
+
+  document.getElementById('kelvn-fat-mes').textContent = 'R$ ' + curRevenue.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  var fatPct = settings.metaFatMensal ? Math.min(100, curRevenue/settings.metaFatMensal*100) : 0;
+  document.getElementById('kelvn-fat-progress').style.width = fatPct + '%';
+  document.getElementById('kelvn-fat-pct').textContent = Math.round(fatPct) + '%';
+  document.getElementById('kelvn-fat-falta').textContent = settings.metaFatMensal
+    ? 'Faltam R$ ' + Math.max(0, settings.metaFatMensal - curRevenue).toLocaleString('pt-BR')
+    : 'defina uma meta';
+
+  document.getElementById('kelvn-pacotes-mes').textContent = curQty;
+  var pacotesPct = settings.metaPacotes ? Math.min(100, curQty/settings.metaPacotes*100) : 0;
+  document.getElementById('kelvn-pacotes-progress').style.width = pacotesPct + '%';
+  document.getElementById('kelvn-pacotes-pct').textContent = Math.round(pacotesPct) + '%';
+  document.getElementById('kelvn-pacotes-falta').textContent = settings.metaPacotes
+    ? Math.max(0, settings.metaPacotes - curQty) + ' para a meta'
+    : 'defina uma meta';
+
+
+  // Sugestões ilustrativas — ainda não têm um sistema de registro próprio,
+  // ajuste os valores conforme a operação real da marca.
+  renderKelvnBarList('kelvn-variedade-bars', [
+    {label:'Torra Média', value:8200},
+    {label:'Torra Escura', value:6100},
+    {label:'Blend da Casa', value:4300},
+    {label:'Deskelvninado', value:1800}
+  ], '#D8C9A3');
+  renderKelvnBarList('kelvn-canal-bars', [
+    {label:'Loja própria', value:9600},
+    {label:'E-commerce', value:7200},
+    {label:'Assinatura mensal', value:2900},
+    {label:'Feiras e eventos', value:1000}
+  ], '#BFAF87');
+
+  buildKelvn250gChart();
+  buildKelvnFatChart();
+  renderKelvnMetas();
+}
+
+/* ── Café: checklist de metas/submetas (check remove o item; Cmd+Z desfaz) ── */
+function getKelvnMetas() {
+  try { return JSON.parse(localStorage.getItem('dash_kelvn_metas') || '[]'); } catch(e) { return []; }
+}
+function saveKelvnMetasList(list) {
+  localStorage.setItem('dash_kelvn_metas', JSON.stringify(list));
+  dbMetricSave('kelvn_metas', JSON.stringify(list));
+}
+var _kelvnMetasUndoStack = [];
+function ensureKelvnMetasTrailingEmpty() {
+  var metas = getKelvnMetas();
+  if (metas.length === 0) {
+    metas.push({ title:'', children:[] });
+    saveKelvnMetasList(metas);
+  }
+}
+var _kelvnMetasCollapsed = {};
+function renderKelvnMetas() {
+  var container = document.getElementById('kelvn-metas-list');
+  if (!container) return;
+  ensureKelvnMetasTrailingEmpty();
+  var metas = getKelvnMetas();
+  var html = '';
+  metas.forEach(function(meta, mi){
+    var hasChildren = (meta.children||[]).length > 0;
+    var collapsed = hasChildren && _kelvnMetasCollapsed[mi];
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'+
+      '<span class="kelvn-meta-caret" data-mi="'+mi+'" style="width:10px;flex-shrink:0;cursor:'+(hasChildren?'pointer':'default')+';font-size:0.55rem;color:var(--text-hint);text-align:center;">'+(hasChildren ? (collapsed ? '▸' : '▾') : '')+'</span>'+
+      '<span class="kelvn-meta-check" data-mi="'+mi+'" style="width:14px;height:14px;border-radius:50%;border:1.3px solid #D8C9A3;background:'+(meta.done?'#D8C9A3':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
+      '<input type="text" class="kelvn-meta-input" data-mi="'+mi+'" value="'+meta.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:'+(meta.done?'var(--text-hint)':'var(--text)')+';text-decoration:'+(meta.done?'line-through':'none')+';">'+
+    '</div>';
+    if (!collapsed) {
+      (meta.children||[]).forEach(function(sub, si){
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:20px;">'+
+          '<span class="kelvn-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);background:'+(sub.done?'var(--border-strong)':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
+          '<input type="text" class="kelvn-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);text-decoration:'+(sub.done?'line-through':'none')+';">'+
+        '</div>';
+      });
+    }
+  });
+  container.innerHTML = html;
+
+  container.querySelectorAll('.kelvn-meta-input').forEach(function(input){
+    input.addEventListener('input', function(){
+      var mi = +input.dataset.mi;
+      var metas = getKelvnMetas();
+      if (metas[mi]) { metas[mi].title = input.value; saveKelvnMetasList(metas); }
+    });
+    input.addEventListener('keydown', function(ev){
+      var mi = +input.dataset.mi;
+      if (ev.key === 'Backspace' && input.value === ''){
+        ev.preventDefault();
+        if (mi > 0) {
+          deleteKelvnMetaRow(mi);
+          focusKelvnMetaInput(mi-1);
+        }
+        return;
+      }
+      if (ev.key !== 'Enter') return;
+      ev.preventDefault();
+      var metas = getKelvnMetas();
+      if (ev.metaKey || ev.ctrlKey){
+        // Cmd+Enter numa meta = nova submeta (primeiro filho dela)
+        metas[mi].children = metas[mi].children || [];
+        metas[mi].children.unshift({ title:'' });
+        saveKelvnMetasList(metas);
+        renderKelvnMetas();
+        focusKelvnSubInput(mi, 0);
+      } else {
+        // Enter = nova meta logo abaixo
+        metas.splice(mi+1, 0, { title:'', children:[] });
+        saveKelvnMetasList(metas);
+        renderKelvnMetas();
+        focusKelvnMetaInput(mi+1);
+      }
+    });
+  });
+  container.querySelectorAll('.kelvn-sub-input').forEach(function(input){
+    input.addEventListener('input', function(){
+      var mi = +input.dataset.mi, si = +input.dataset.si;
+      var metas = getKelvnMetas();
+      if (metas[mi] && metas[mi].children[si]) { metas[mi].children[si].title = input.value; saveKelvnMetasList(metas); }
+    });
+    input.addEventListener('keydown', function(ev){
+      var mi = +input.dataset.mi, si = +input.dataset.si;
+      if (ev.key === 'Backspace' && input.value === ''){
+        ev.preventDefault();
+        deleteKelvnSubRow(mi, si);
+        if (si > 0) focusKelvnSubInput(mi, si-1);
+        else focusKelvnMetaInput(mi);
+        return;
+      }
+      if (ev.key !== 'Enter') return;
+      ev.preventDefault();
+      var metas = getKelvnMetas();
+      if (ev.metaKey || ev.ctrlKey){
+        // Cmd+Enter numa submeta = nova submeta logo abaixo, na mesma meta
+        metas[mi].children.splice(si+1, 0, { title:'' });
+        saveKelvnMetasList(metas);
+        renderKelvnMetas();
+        focusKelvnSubInput(mi, si+1);
+      } else {
+        // Enter numa submeta = nova meta logo depois do grupo desta meta
+        metas.splice(mi+1, 0, { title:'', children:[] });
+        saveKelvnMetasList(metas);
+        renderKelvnMetas();
+        focusKelvnMetaInput(mi+1);
+      }
+    });
+  });
+  container.querySelectorAll('.kelvn-meta-check').forEach(function(circle){
+    circle.addEventListener('click', function(){ checkKelvnMeta(+circle.dataset.mi); });
+  });
+  container.querySelectorAll('.kelvn-meta-caret').forEach(function(caret){
+    caret.addEventListener('click', function(){ toggleKelvnMetaCollapse(+caret.dataset.mi); });
+  });
+  container.querySelectorAll('.kelvn-sub-check').forEach(function(circle){
+    circle.addEventListener('click', function(){ checkKelvnSub(+circle.dataset.mi, +circle.dataset.si); });
+  });
+
+  syncKelvnMetasCardHeight();
+}
+function syncKelvnMetasCardHeight(){
+  var left = document.getElementById('kelvn-stats-left');
+  var metasCard = document.getElementById('kelvn-metas-card');
+  if (!left || !metasCard) return;
+  metasCard.style.height = left.offsetHeight + 'px';
+}
+window.addEventListener('resize', syncKelvnMetasCardHeight);
+function focusKelvnMetaInput(mi){
+  setTimeout(function(){
+    var el = document.querySelector('.kelvn-meta-input[data-mi="'+mi+'"]');
+    if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+  }, 0);
+}
+function focusKelvnSubInput(mi, si){
+  setTimeout(function(){
+    var el = document.querySelector('.kelvn-sub-input[data-mi="'+mi+'"][data-si="'+si+'"]');
+    if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+  }, 0);
+}
+function toggleKelvnMetaCollapse(mi){
+  _kelvnMetasCollapsed[mi] = !_kelvnMetasCollapsed[mi];
+  renderKelvnMetas();
+}
+function checkKelvnMeta(mi){
+  var metas = getKelvnMetas();
+  if (!metas[mi]) return;
+  metas[mi].done = !metas[mi].done;
+  saveKelvnMetasList(metas);
+  renderKelvnMetas();
+}
+function checkKelvnSub(mi, si){
+  var metas = getKelvnMetas();
+  if (!metas[mi] || !metas[mi].children[si]) return;
+  metas[mi].children[si].done = !metas[mi].children[si].done;
+  saveKelvnMetasList(metas);
+  renderKelvnMetas();
+}
+function deleteKelvnMetaRow(mi){
+  var metas = getKelvnMetas();
+  var removed = metas.splice(mi, 1)[0];
+  if (!removed) return;
+  saveKelvnMetasList(metas);
+  _kelvnMetasUndoStack.push({ type:'meta', index:mi, data:removed });
+  renderKelvnMetas();
+}
+function deleteKelvnSubRow(mi, si){
+  var metas = getKelvnMetas();
+  if (!metas[mi]) return;
+  var removed = metas[mi].children.splice(si, 1)[0];
+  if (!removed) return;
+  saveKelvnMetasList(metas);
+  _kelvnMetasUndoStack.push({ type:'sub', metaIndex:mi, index:si, data:removed });
+  renderKelvnMetas();
+}
+function undoKelvnMetaCheck(){
+  var last = _kelvnMetasUndoStack.pop();
+  if (!last) return;
+  var metas = getKelvnMetas();
+  if (last.type === 'meta') {
+    metas.splice(last.index, 0, last.data);
+  } else if (last.type === 'sub' && metas[last.metaIndex]) {
+    metas[last.metaIndex].children.splice(last.index, 0, last.data);
+  }
+  saveKelvnMetasList(metas);
+  renderKelvnMetas();
+}
+document.addEventListener('keydown', function(e){
+  if ((e.metaKey || e.ctrlKey) && (e.key === 'z' || e.key === 'Z')) {
+    var kelvnView = document.getElementById('kelvn-view');
+    if (!kelvnView || kelvnView.style.display === 'none') return;
+    var tag = document.activeElement ? document.activeElement.tagName : '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    e.preventDefault();
+    undoKelvnMetaCheck();
+  }
+});
+
+var kelvn250gChartInstance = null;
+function buildKelvn250gChart() {
+  var canvas = document.getElementById('kelvn250gChart');
+  if (!canvas) return;
+  var list = getKelvn250gVendas();
+  var labels = list.map(function(x){
+    var parts = x.month.split('-');
+    return (MON_S[parseInt(parts[1],10)-1] || parts[1]) + '/' + parts[0].slice(2);
+  });
+  var data = list.map(function(x){ return x.qty; });
+  var isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  var tickColor = isDark ? '#9E9892' : '#6B6660';
+  var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  if (kelvn250gChartInstance) { kelvn250gChartInstance.destroy(); }
+  kelvn250gChartInstance = new Chart(canvas, {
+    type: 'line',
+    data: { labels: labels, datasets: [{
+      data: data, borderColor: '#D8C9A3', pointBackgroundColor: '#D8C9A3',
+      borderWidth: 1.5, pointRadius: 3, pointHoverRadius: 4, tension: 0.4,
+      cubicInterpolationMode: 'monotone', fill: false
+    }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(ctx){ return ctx.parsed.y + ' pacotes'; } } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 10 } } },
+        y: { beginAtZero: true, ticks: { color: tickColor, font: { size: 10 }, precision: 0 }, grid: { color: gridColor } }
+      }
+    }
+  });
+}
+var kelvnFatChartInstance = null;
+function buildKelvnFatChart() {
+  var canvas = document.getElementById('kelvnFatChart');
+  if (!canvas) return;
+  var year = new Date().getFullYear();
+  var settings = getKelvnSettings();
+  var vendas = getKelvn250gVendas();
+  var monthNamesFull = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  var isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  var tickColor = isDark ? '#9E9892' : '#6B6660';
+  var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  var fadedColor = isDark ? '#332E22' : '#EDE4CE';
+
+  var revenueByMonth = [];
+  for (var m=0; m<12; m++) {
+    var key = year + '-' + ('0'+(m+1)).slice(-2);
+    var entry = vendas.find(function(v){ return v.month === key; });
+    revenueByMonth.push(entry ? entry.qty * settings.precoUnitario : 0);
+  }
+  var maxVal = Math.max.apply(null, revenueByMonth);
+  var maxIdx = revenueByMonth.indexOf(maxVal);
+  var barColors = revenueByMonth.map(function(v, i){ return (i === maxIdx && v > 0) ? '#D8C9A3' : fadedColor; });
+
+  if (kelvnFatChartInstance) { kelvnFatChartInstance.destroy(); }
+  kelvnFatChartInstance = new Chart(canvas, {
+    data: {
+      labels: monthNamesFull,
+      datasets: [
+        { type: 'bar', data: revenueByMonth, backgroundColor: barColors, borderRadius: 4, maxBarThickness: 32, order: 2 },
+        { type: 'line', data: monthNamesFull.map(function(){ return settings.metaFatMensal || null; }),
+          borderColor: '#D8C9A3', borderDash: [5,4], borderWidth: 1.3, pointRadius: 0, fill: false, order: 1 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(ctx){ return 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR'); } } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 10 } } },
+        y: { beginAtZero: true, ticks: { color: tickColor, font: { size: 10 }, callback: function(v){ return 'R$'+(v/1000)+'k'; } }, grid: { color: gridColor } }
+      }
+    }
+  });
+}
+
 var sparkInstances = {};
 function buildSparklines() {
   ['m', 's', 'r', 'k', 'v', 'c'].forEach(function(key) {
@@ -6383,6 +6913,23 @@ function renderDashboardNextEvents() {
     vEl.innerHTML = _renderSlots(vikkaSubItems, function(item) {
       return '<div style="display:flex;align-items:center;gap:8px;">' +
         '<button onclick="event.stopPropagation();checkVikkaSub(' + item.mi + ',' + item.si + ');renderDashboardNextEvents();" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'#D8C9A3\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
+        '<span style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + item.titulo + '</span>' +
+      '</div>';
+    });
+  }
+
+  // ── Kelvn: submetas
+  var kelvnSubItems = [];
+  getKelvnMetas().forEach(function(meta, mi){
+    (meta.children||[]).forEach(function(sub, si){
+      if (sub.title && sub.title.trim() !== '') kelvnSubItems.push({ mi: mi, si: si, titulo: sub.title });
+    });
+  });
+  var kEl = document.getElementById('k-nev-content');
+  if (kEl) {
+    kEl.innerHTML = _renderSlots(kelvnSubItems, function(item) {
+      return '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<button onclick="event.stopPropagation();checkKelvnSub(' + item.mi + ',' + item.si + ');renderDashboardNextEvents();" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'#D8C9A3\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
         '<span style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + item.titulo + '</span>' +
       '</div>';
     });
