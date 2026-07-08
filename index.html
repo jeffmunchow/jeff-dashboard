@@ -2558,24 +2558,20 @@
         <div id="vikka-indicadores-list"></div>
       </div>
       <div class="chart-card" style="height:300px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;">
-        <div class="section-header" style="flex-shrink:0;">
-          <div style="display:flex;gap:1.5rem;">
-            <div>
-              <div class="sum-label" style="margin-bottom:4px;">Saldo atual</div>
-              <div id="vikka-caixa-saldo" style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;color:#D8C9A3;">R$ 0,00</div>
-            </div>
-            <div>
-              <div class="sum-label" style="margin-bottom:4px;">Caixa acumulado</div>
-              <div id="vikka-caixa-acumulado" style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;color:#BFAF87;">R$ 0,00</div>
-            </div>
+        <div class="section-title" style="margin-bottom:1.25rem;flex-shrink:0;">Conversão</div>
+        <div style="display:flex;flex-direction:column;justify-content:center;gap:1.25rem;flex:1;">
+          <div>
+            <div class="sum-label" style="margin-bottom:4px;">Usuários Gratuitos</div>
+            <div id="vikka-conv-gratuitos" style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:600;color:var(--text);">0</div>
           </div>
-          <div style="display:flex;gap:8px;">
-            <button class="btn" onclick="openVikkaCaixaModal('entrada')">+ Entrada</button>
-            <button class="btn" onclick="openVikkaCaixaModal('saida')">+ Saída</button>
+          <div>
+            <div class="sum-label" style="margin-bottom:4px;">Usuários Pro</div>
+            <div id="vikka-conv-pro" style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:600;color:#D8C9A3;">0</div>
           </div>
-        </div>
-        <div style="position:relative;width:100%;flex:1;min-height:0;">
-          <canvas id="vikkaCaixaChart"></canvas>
+          <div>
+            <div class="sum-label" style="margin-bottom:4px;">Conversão</div>
+            <div id="vikka-conv-pct" style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:600;color:#BFAF87;">0%</div>
+          </div>
         </div>
       </div>
     </div>
@@ -2592,7 +2588,8 @@
       <div class="field-row"><label>Downloads do mês</label><input type="number" id="vm-downloads"></div>
       <div class="field-row"><label>Nota média</label><input type="number" step="0.1" id="vm-nota"></div>
       <div class="field-row"><label>Avaliações</label><input type="number" id="vm-avaliacoes"></div>
-      <div class="field-row"><label>Conversão Pro (%)</label><input type="number" step="0.1" id="vm-conversao"></div>
+      <div class="field-row"><label>Usuários Gratuitos</label><input type="number" id="vm-gratuitos"></div>
+      <div class="field-row"><label>Usuários Pro</label><input type="number" id="vm-pro"></div>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;">
       <button class="btn" onclick="closeVikkaMetricsModal()">Cancelar</button>
@@ -5130,7 +5127,7 @@ async function loadFromSupabase(forceFullReplace) {
                    'v-seguidores','v-clientes','v-faturamento','v-assinantes',
                    'c-seguidores','c-clientes','c-faturamento','c-itens',
                    'cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_produtos','cafe_caixa',
-                   'vikka_settings','vikka_metas','vikka_mensal','vikka_caixa',
+                   'vikka_settings','vikka_metas','vikka_mensal',
                    'kelvn_novos_fotografos','kelvn_settings','kelvn_metas',
                    'm-updated','s-updated','r-updated','k-updated','v-updated','c-updated',
                    'tarefas_v1_sync','diary_index'];
@@ -6207,91 +6204,6 @@ function saveVikkaClientesSemana() {
   document.getElementById('vikka-clientes-recorrentes-input').value = '';
   renderVikkaDashboard();
 }
-function getVikkaCaixa() {
-  try { return JSON.parse(localStorage.getItem('dash_vikka_caixa') || '[]'); } catch(e) { return []; }
-}
-function saveVikkaCaixaList(list) {
-  localStorage.setItem('dash_vikka_caixa', JSON.stringify(list));
-  dbMetricSave('vikka_caixa', JSON.stringify(list));
-}
-var _vikkaCaixaModalTipo = null;
-function openVikkaCaixaModal(tipo) {
-  _vikkaCaixaModalTipo = tipo;
-  document.getElementById('vikka-caixa-modal-title').textContent = tipo === 'entrada' ? 'Nova entrada' : 'Nova saída';
-  document.getElementById('vikka-caixa-modal-valor').value = '';
-  document.getElementById('vikka-caixa-overlay').classList.add('open');
-  setTimeout(function(){ document.getElementById('vikka-caixa-modal-valor').focus(); }, 0);
-}
-function closeVikkaCaixaModal() {
-  document.getElementById('vikka-caixa-overlay').classList.remove('open');
-}
-function saveVikkaCaixaModalValor() {
-  var valor = parseFloat(document.getElementById('vikka-caixa-modal-valor').value);
-  if (isNaN(valor) || valor <= 0) return;
-  var d = new Date();
-  var monthKey = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2);
-  var list = getVikkaCaixa();
-  var idx = list.findIndex(function(x){ return x.month === monthKey; });
-  if (idx < 0) { list.push({ month: monthKey, entradas: 0, saidas: 0 }); idx = list.length - 1; }
-  if (_vikkaCaixaModalTipo === 'entrada') list[idx].entradas += valor;
-  else list[idx].saidas += valor;
-  list.sort(function(a,b){ return a.month.localeCompare(b.month); });
-  saveVikkaCaixaList(list);
-  closeVikkaCaixaModal();
-  renderVikkaDashboard();
-}
-function renderVikkaCaixaWidget() {
-  var elSaldo = document.getElementById('vikka-caixa-saldo');
-  if (!elSaldo) return;
-  var caixa = getVikkaCaixa();
-  var now = new Date();
-  var curMonthKey = now.getFullYear() + '-' + ('0'+(now.getMonth()+1)).slice(-2);
-  var curEntry = caixa.find(function(x){ return x.month === curMonthKey; });
-  var saldoAtual = curEntry ? (curEntry.entradas - curEntry.saidas) : 0;
-  var acumulado = caixa.reduce(function(sum,x){ return sum + (x.entradas - x.saidas); }, 0);
-  elSaldo.textContent = 'R$ ' + saldoAtual.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-  document.getElementById('vikka-caixa-acumulado').textContent = 'R$ ' + acumulado.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-  buildVikkaCaixaChart();
-}
-var vikkaCaixaChartInstance = null;
-function buildVikkaCaixaChart() {
-  var canvas = document.getElementById('vikkaCaixaChart');
-  if (!canvas) return;
-  var year = new Date().getFullYear();
-  var caixa = getVikkaCaixa();
-  var monthNamesShort = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  var running = 0;
-  var data = [];
-  for (var m=0; m<12; m++) {
-    var key = year + '-' + ('0'+(m+1)).slice(-2);
-    var entry = caixa.find(function(x){ return x.month === key; });
-    if (entry) running += (entry.entradas - entry.saidas);
-    data.push(running);
-  }
-  var isDark = document.documentElement.getAttribute('data-theme')==='dark';
-  var tickColor = isDark ? '#9E9892' : '#6B6660';
-  var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-  if (vikkaCaixaChartInstance) { vikkaCaixaChartInstance.destroy(); }
-  vikkaCaixaChartInstance = new Chart(canvas, {
-    type: 'line',
-    data: { labels: monthNamesShort, datasets: [{
-      data: data, borderColor: '#D8C9A3', pointBackgroundColor: '#D8C9A3',
-      borderWidth: 1.5, pointRadius: 2, pointHoverRadius: 4, tension: 0.4,
-      cubicInterpolationMode: 'monotone', fill: false
-    }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: function(ctx){ return 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR'); } } }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 9 } } },
-        y: { ticks: { color: tickColor, font: { size: 9 } }, grid: { color: gridColor } }
-      }
-    }
-  });
-}
 function getVikkaMensal() {
   try { return JSON.parse(localStorage.getItem('dash_vikka_mensal') || '[]'); } catch(e) { return []; }
 }
@@ -6300,7 +6212,7 @@ function saveVikkaMensalList(list) {
   dbMetricSave('vikka_mensal', JSON.stringify(list));
 }
 function getVikkaSettings() {
-  var defaults = { metaLucro: 0, metaUsuarios: 0, notaMedia: 0, avaliacoes: 0, conversaoPro: 0 };
+  var defaults = { metaLucro: 0, metaUsuarios: 0, notaMedia: 0, avaliacoes: 0, usuariosGratuitos: 0, usuariosPro: 0 };
   try { return Object.assign(defaults, JSON.parse(localStorage.getItem('dash_vikka_settings') || '{}')); }
   catch(e) { return defaults; }
 }
@@ -6316,7 +6228,8 @@ function openVikkaMetricsModal() {
   document.getElementById('vm-downloads').value = cur.downloads || '';
   document.getElementById('vm-nota').value = settings.notaMedia || '';
   document.getElementById('vm-avaliacoes').value = settings.avaliacoes || '';
-  document.getElementById('vm-conversao').value = settings.conversaoPro || '';
+  document.getElementById('vm-gratuitos').value = settings.usuariosGratuitos || '';
+  document.getElementById('vm-pro').value = settings.usuariosPro || '';
   document.getElementById('vikka-metrics-overlay').classList.add('open');
 }
 function closeVikkaMetricsModal() {
@@ -6341,12 +6254,25 @@ function saveVikkaMetricsModal() {
   settings.metaLucro = parseFloat(document.getElementById('vm-meta-lucro').value) || 0;
   settings.notaMedia = parseFloat(document.getElementById('vm-nota').value) || 0;
   settings.avaliacoes = parseFloat(document.getElementById('vm-avaliacoes').value) || 0;
-  settings.conversaoPro = parseFloat(document.getElementById('vm-conversao').value) || 0;
+  settings.usuariosGratuitos = parseFloat(document.getElementById('vm-gratuitos').value) || 0;
+  settings.usuariosPro = parseFloat(document.getElementById('vm-pro').value) || 0;
   localStorage.setItem('dash_vikka_settings', JSON.stringify(settings));
   dbMetricSave('vikka_settings', JSON.stringify(settings));
 
   closeVikkaMetricsModal();
   renderVikkaDashboard();
+}
+function _vikkaConversaoPct(settings) {
+  var total = (settings.usuariosGratuitos||0) + (settings.usuariosPro||0);
+  return total ? (settings.usuariosPro||0) / total * 100 : 0;
+}
+function renderVikkaConversaoWidget() {
+  var elG = document.getElementById('vikka-conv-gratuitos');
+  if (!elG) return;
+  var settings = getVikkaSettings();
+  elG.textContent = (settings.usuariosGratuitos || 0).toLocaleString('pt-BR');
+  document.getElementById('vikka-conv-pro').textContent = (settings.usuariosPro || 0).toLocaleString('pt-BR');
+  document.getElementById('vikka-conv-pct').textContent = _vikkaConversaoPct(settings).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
 }
 function renderVikkaIndicadores() {
   var container = document.getElementById('vikka-indicadores-list');
@@ -6360,7 +6286,7 @@ function renderVikkaIndicadores() {
     { label: 'Nota média', value: '⭐ ' + (settings.notaMedia || 0).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) },
     { label: 'Avaliações', value: (settings.avaliacoes || 0).toLocaleString('pt-BR') },
     { label: 'Usuários ativos', value: (cur.usuariosAtivos || 0).toLocaleString('pt-BR') },
-    { label: 'Conversão Pro', value: (settings.conversaoPro || 0).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%' }
+    { label: 'Conversão Pro', value: _vikkaConversaoPct(settings).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%' }
   ];
   container.innerHTML = rows.map(function(r){
     return '<div style="display:flex;align-items:center;gap:20px;padding:6px 0;border-bottom:0.5px solid var(--border);">'+
@@ -6404,7 +6330,7 @@ function renderVikkaDashboard() {
   buildVikkaFatChart();
   renderVikkaMetas();
   renderVikkaIndicadores();
-  renderVikkaCaixaWidget();
+  renderVikkaConversaoWidget();
 }
 
 /* ── Café: checklist de metas/submetas (check remove o item; Cmd+Z desfaz) ── */
