@@ -871,7 +871,7 @@
     </div>
     <div class="metrics-grid">
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Vendas</div><div class="metric-value" id="c-pacotes-mes">—</div><div class="metric-sub">&nbsp;</div></div><div class="spark-chart"><canvas id="spark-c"></canvas></div></div>
-      <div class="metric-cell"><div class="metric-label">Clientes recorrentes</div><div class="metric-value" id="c-clientes">—</div></div>
+      <div class="metric-cell"><div class="metric-label">Lucro por mês</div><div class="metric-value" id="c-clientes" style="color:#D8C9A3;">—</div></div>
       <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="c-faturamento" style="color:#D8C9A3;">—</div><div class="metric-sub">&nbsp;</div></div>
       <div class="metric-cell"><div class="metric-label">Itens no cardápio</div><div class="metric-value" id="c-itens">—</div></div>
     </div>
@@ -3150,7 +3150,6 @@ var PROJECTS = {
   ]},
   cafe: { title: 'Café', suffix: 'c', fields: [
     { id: 'c-seguidores',   label: 'Seguidores Instagram', placeholder: 'ex: 50' },
-    { id: 'c-clientes',     label: 'Clientes recorrentes', placeholder: 'ex: 20' },
     { id: 'c-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 0' },
     { id: 'c-itens',        label: 'Itens no cardápio', placeholder: 'ex: 8' }
   ]}
@@ -7194,6 +7193,9 @@ function buildOrlaPacotesSpark() {
   }
   var elVal = document.getElementById('c-pacotes-mes');
   if (elVal) elVal.textContent = curQty.toLocaleString('pt-BR');
+  var curLucro = produtos.reduce(function(sum,p){ return sum + ((p.preco||0)-(p.custo||0))*(p.qtd||0); }, 0);
+  var elLucro = document.getElementById('c-clientes');
+  if (elLucro) elLucro.textContent = 'R$ ' + curLucro.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
   if (orlaPacotesSparkInstance) { orlaPacotesSparkInstance.destroy(); }
   orlaPacotesSparkInstance = new Chart(canvas, {
     type: 'line',
