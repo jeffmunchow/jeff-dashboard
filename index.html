@@ -870,7 +870,7 @@
       <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('cafe')" title="Editar métricas">+</button>
     </div>
     <div class="metrics-grid">
-      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="c-seguidores">—</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-c"></canvas></div></div>
+      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Venda de pacotes</div><div class="metric-value" id="c-pacotes-mes">—</div><div class="metric-sub">&nbsp;</div></div><div class="spark-chart"><canvas id="spark-c"></canvas></div></div>
       <div class="metric-cell"><div class="metric-label">Clientes recorrentes</div><div class="metric-value" id="c-clientes">—</div></div>
       <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="c-faturamento" style="color:#D8C9A3;">—</div><div class="metric-sub">&nbsp;</div></div>
       <div class="metric-cell"><div class="metric-label">Itens no cardápio</div><div class="metric-value" id="c-itens">—</div></div>
@@ -7127,7 +7127,7 @@ function buildKelvnFatChart() {
 }
 var sparkInstances = {};
 function buildSparklines() {
-  ['m', 's', 'r', 'k', 'v', 'c'].forEach(function(key) {
+  ['m', 's', 'r', 'k', 'v'].forEach(function(key) {
     var canvas = document.getElementById('spark-' + key);
     if (!canvas) return;
     var col = sparkData[key].color();
@@ -7176,6 +7176,65 @@ function buildSparklines() {
         layout: { padding: 0 }
       }
     });
+  });
+  buildOrlaPacotesSpark();
+}
+var orlaPacotesSparkInstance = null;
+function buildOrlaPacotesSpark() {
+  var canvas = document.getElementById('spark-c');
+  if (!canvas) return;
+  var year = new Date().getFullYear();
+  var monthNamesShort = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  var produtos = getCafeProdutos();
+  var curQty = produtos.reduce(function(sum,p){ return sum + (p.qtd||0); }, 0);
+  var now = new Date();
+  var data = [];
+  for (var m=0; m<12; m++) {
+    data.push((year === now.getFullYear() && m === now.getMonth()) ? curQty : 0);
+  }
+  var elVal = document.getElementById('c-pacotes-mes');
+  if (elVal) elVal.textContent = curQty.toLocaleString('pt-BR');
+  if (orlaPacotesSparkInstance) { orlaPacotesSparkInstance.destroy(); }
+  orlaPacotesSparkInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: monthNamesShort,
+      datasets: [{
+        data: data,
+        borderColor: '#D8C9A3',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        pointHitRadius: 6,
+        tension: 0.4,
+        cubicInterpolationMode: 'monotone',
+        fill: { target: 'origin', above: '#D8C9A318' }
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          backgroundColor: document.documentElement.getAttribute('data-theme')==='dark' ? '#1A1814' : '#FFFFFF',
+          borderColor: document.documentElement.getAttribute('data-theme')==='dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)',
+          borderWidth: 1,
+          titleColor: document.documentElement.getAttribute('data-theme')==='dark' ? '#EDE9E3' : '#1A1814',
+          bodyColor: document.documentElement.getAttribute('data-theme')==='dark' ? '#9E9892' : '#6B6660',
+          titleFont: { family: 'DM Sans, sans-serif', size: 9, weight: '400' },
+          bodyFont: { family: 'DM Sans, sans-serif', size: 9 },
+          padding: 6,
+          displayColors: false,
+          callbacks: {
+            title: function(items) { return monthNamesShort[items[0].dataIndex]; },
+            label: function(ctx) { return ctx.parsed.y.toLocaleString('pt-BR') + ' pacotes'; }
+          }
+        }
+      },
+      scales: { x: { display: false }, y: { display: false } },
+      layout: { padding: 0 }
+    }
   });
 }
 
