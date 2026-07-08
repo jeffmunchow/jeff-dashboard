@@ -2636,6 +2636,7 @@
       </div>
     </div>
     <div class="header-right">
+      <button class="btn" onclick="openKelvnMetricsModal()" style="padding:5px 12px;font-size:0.7rem;">Editar métricas</button>
       <span style="font-size:0.72rem;color:var(--text-hint);" id="kelvn-header-date"></span>
     </div>
   </div>
@@ -2688,14 +2689,12 @@
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem;">
       <div class="chart-card" style="height:300px;box-sizing:border-box;overflow-y:auto;">
-        <div class="section-title" style="margin-bottom:1rem;">Produtos</div>
+        <div class="section-title" style="margin-bottom:1rem;">Indicadores</div>
         <div style="display:flex;gap:20px;padding:0 0 6px;font-size:0.6rem;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.04em;">
-          <div style="flex:1;">Produto</div>
-          <div style="width:64px;text-align:center;">Preço</div>
-          <div style="width:64px;text-align:center;">Custo</div>
-          <div style="width:52px;text-align:center;">Qtd</div>
+          <div style="flex:1;">Indicador</div>
+          <div style="width:80px;text-align:right;">Valor</div>
         </div>
-        <div id="kelvn-produtos-list"></div>
+        <div id="kelvn-indicadores-list"></div>
       </div>
       <div class="chart-card" style="height:300px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;">
         <div class="section-header" style="flex-shrink:0;">
@@ -2732,6 +2731,26 @@
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;">
       <button class="btn" onclick="closeKelvnVersaoModal()">Cancelar</button>
       <button class="btn primary" onclick="saveKelvnVersaoModal()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="kelvn-metrics-overlay">
+  <div class="modal" style="max-width:440px;">
+    <h2>Métricas da Kelvn</h2>
+    <div class="modal-2col">
+      <div class="field-row"><label>MRR do mês</label><input type="number" id="km-mrr"></div>
+      <div class="field-row"><label>Meta de MRR</label><input type="number" id="km-meta-mrr"></div>
+      <div class="field-row"><label>Clientes ativos</label><input type="number" id="km-clientes"></div>
+      <div class="field-row"><label>Meta de clientes</label><input type="number" id="km-meta-clientes"></div>
+      <div class="field-row"><label>Churn (%)</label><input type="number" step="0.1" id="km-churn"></div>
+      <div class="field-row"><label>NPS</label><input type="number" id="km-nps"></div>
+      <div class="field-row"><label>Tickets abertos</label><input type="number" id="km-tickets"></div>
+      <div class="field-row"><label>Bugs críticos</label><input type="number" id="km-bugs"></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;">
+      <button class="btn" onclick="closeKelvnMetricsModal()">Cancelar</button>
+      <button class="btn primary" onclick="saveKelvnMetricsModal()">Salvar</button>
     </div>
   </div>
 </div>
@@ -5157,7 +5176,7 @@ async function loadFromSupabase(forceFullReplace) {
                    'c-seguidores','c-clientes','c-faturamento','c-itens',
                    'cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_produtos','cafe_caixa',
                    'vikka_settings','vikka_metas','vikka_mensal',
-                   'kelvn_settings','kelvn_metas','kelvn_clientes_semanais','kelvn_produtos','kelvn_versao',
+                   'kelvn_settings','kelvn_metas','kelvn_clientes_semanais','kelvn_mensal','kelvn_versao',
                    'm-updated','s-updated','r-updated','k-updated','v-updated','c-updated',
                    'tarefas_v1_sync','diary_index'];
 
@@ -6720,133 +6739,78 @@ function renderKelvnVersaoWidget() {
     : '<span style="color:var(--text-hint);">nenhuma feature cadastrada</span>';
   document.getElementById('kelvn-versao-prazo').textContent = v.prazo || '—';
 }
-function getKelvnProdutos() {
-  try { return JSON.parse(localStorage.getItem('dash_kelvn_produtos') || '[]'); } catch(e) { return []; }
+function getKelvnMensal() {
+  try { return JSON.parse(localStorage.getItem('dash_kelvn_mensal') || '[]'); } catch(e) { return []; }
 }
-function saveKelvnProdutosList(list) {
-  localStorage.setItem('dash_kelvn_produtos', JSON.stringify(list));
-  dbMetricSave('kelvn_produtos', JSON.stringify(list));
-}
-function ensureKelvnProdutosTrailingEmpty() {
-  var list = getKelvnProdutos();
-  if (list.length === 0) {
-    list.push({ nome:'', preco:0, custo:0, qtd:0 });
-    saveKelvnProdutosList(list);
-  }
-}
-function focusKelvnProdInput(i){
-  setTimeout(function(){
-    var el = document.querySelector('.kelvn-prod-nome[data-i="'+i+'"]');
-    if (el) el.focus();
-  }, 0);
-}
-function renderKelvnProdutos() {
-  var container = document.getElementById('kelvn-produtos-list');
-  if (!container) return;
-  ensureKelvnProdutosTrailingEmpty();
-  var list = getKelvnProdutos();
-  var html = '';
-  list.forEach(function(p, i){
-    html += '<div style="display:flex;align-items:center;gap:20px;padding:4px 0;">'+
-      '<input type="text" class="kelvn-prod-nome" data-i="'+i+'" value="'+(p.nome||'').replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.78rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text);">'+
-      '<input type="number" class="kelvn-prod-preco" data-i="'+i+'" value="'+(p.preco||'')+'" style="width:64px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
-      '<input type="number" class="kelvn-prod-custo" data-i="'+i+'" value="'+(p.custo||'')+'" style="width:64px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
-      '<input type="number" class="kelvn-prod-qtd" data-i="'+i+'" value="'+(p.qtd||'')+'" style="width:52px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
-    '</div>';
-  });
-  container.innerHTML = html;
-
-  container.querySelectorAll('.kelvn-prod-nome').forEach(function(input){
-    input.addEventListener('input', function(){
-      var i = +input.dataset.i;
-      var list = getKelvnProdutos();
-      if (list[i]) { list[i].nome = input.value; saveKelvnProdutosList(list); }
-    });
-    input.addEventListener('keydown', function(ev){
-      var i = +input.dataset.i;
-      if (ev.key === 'Backspace' && input.value === ''){
-        ev.preventDefault();
-        var list = getKelvnProdutos();
-        if (list.length > 1) {
-          list.splice(i, 1);
-          saveKelvnProdutosList(list);
-          renderKelvnProdutos();
-          focusKelvnProdInput(Math.max(0, i-1));
-        }
-        return;
-      }
-      if (ev.key !== 'Enter') return;
-      ev.preventDefault();
-      var list2 = getKelvnProdutos();
-      list2.splice(i+1, 0, { nome:'', preco:0, custo:0, qtd:0 });
-      saveKelvnProdutosList(list2);
-      renderKelvnProdutos();
-      focusKelvnProdInput(i+1);
-    });
-  });
-  ['preco','custo','qtd'].forEach(function(field){
-    container.querySelectorAll('.kelvn-prod-'+field).forEach(function(input){
-      input.addEventListener('input', function(){
-        var i = +input.dataset.i;
-        var list = getKelvnProdutos();
-        if (list[i]) { list[i][field] = parseFloat(input.value) || 0; saveKelvnProdutosList(list); updateKelvnLucroDisplay(); }
-      });
-    });
-  });
-}
-function updateKelvnLucroDisplay() {
-  var settings = getKelvnSettings();
-  var produtos = getKelvnProdutos();
-  var curRevenue = produtos.reduce(function(sum,p){ return sum + ((p.preco||0)-(p.custo||0))*(p.qtd||0); }, 0);
-  var curQty = produtos.reduce(function(sum,p){ return sum + (p.qtd||0); }, 0);
-  var elVal = document.getElementById('kelvn-fat-mes');
-  if (!elVal) return;
-  elVal.textContent = 'R$ ' + curRevenue.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-  var fatPct = settings.metaFatMensal ? Math.min(100, curRevenue/settings.metaFatMensal*100) : 0;
-  document.getElementById('kelvn-fat-progress').style.width = fatPct + '%';
-  document.getElementById('kelvn-fat-pct').textContent = Math.round(fatPct) + '%';
-  document.getElementById('kelvn-fat-falta').textContent = settings.metaFatMensal
-    ? 'Faltam R$ ' + Math.max(0, settings.metaFatMensal - curRevenue).toLocaleString('pt-BR')
-    : 'defina uma meta';
-
-  document.getElementById('kelvn-pacotes-mes').textContent = curQty;
-  var pacotesPct = settings.metaPacotes ? Math.min(100, curQty/settings.metaPacotes*100) : 0;
-  document.getElementById('kelvn-pacotes-progress').style.width = pacotesPct + '%';
-  document.getElementById('kelvn-pacotes-pct').textContent = Math.round(pacotesPct) + '%';
-  document.getElementById('kelvn-pacotes-falta').textContent = settings.metaPacotes
-    ? Math.max(0, settings.metaPacotes - curQty) + ' para a meta'
-    : 'defina uma meta';
-
-  buildKelvnFatChart();
-  buildKelvn250gChart();
+function saveKelvnMensalList(list) {
+  localStorage.setItem('dash_kelvn_mensal', JSON.stringify(list));
+  dbMetricSave('kelvn_mensal', JSON.stringify(list));
 }
 function getKelvnSettings() {
-  var defaults = { metaFatMensal: 0, metaFatAnual: 0, metaPacotes: 0, precoUnitario: 0 };
+  var defaults = { metaMrr: 0, metaClientes: 0, churn: 0, nps: 0, ticketsAbertos: 0, bugsCriticos: 0 };
   try { return Object.assign(defaults, JSON.parse(localStorage.getItem('dash_kelvn_settings') || '{}')); }
   catch(e) { return defaults; }
 }
-function saveKelvnSettings() {
-  var s = {
-    metaFatMensal: parseFloat(document.getElementById('kelvn-meta-fat-mensal').value) || 0,
-    metaFatAnual:  parseFloat(document.getElementById('kelvn-meta-fat-anual').value) || 0,
-    metaPacotes:   parseFloat(document.getElementById('kelvn-meta-pacotes').value) || 0,
-    precoUnitario: parseFloat(document.getElementById('kelvn-preco-unitario').value) || 0
+function openKelvnMetricsModal() {
+  var settings = getKelvnSettings();
+  var mensal = getKelvnMensal();
+  var now = new Date();
+  var monthKey = now.getFullYear() + '-' + ('0'+(now.getMonth()+1)).slice(-2);
+  var cur = mensal.find(function(x){ return x.month === monthKey; }) || {};
+  document.getElementById('km-mrr').value = cur.mrr || '';
+  document.getElementById('km-meta-mrr').value = settings.metaMrr || '';
+  document.getElementById('km-clientes').value = cur.clientesAtivos || '';
+  document.getElementById('km-meta-clientes').value = settings.metaClientes || '';
+  document.getElementById('km-churn').value = settings.churn || '';
+  document.getElementById('km-nps').value = settings.nps || '';
+  document.getElementById('km-tickets').value = settings.ticketsAbertos || '';
+  document.getElementById('km-bugs').value = settings.bugsCriticos || '';
+  document.getElementById('kelvn-metrics-overlay').classList.add('open');
+}
+function closeKelvnMetricsModal() {
+  document.getElementById('kelvn-metrics-overlay').classList.remove('open');
+}
+function saveKelvnMetricsModal() {
+  var now = new Date();
+  var monthKey = now.getFullYear() + '-' + ('0'+(now.getMonth()+1)).slice(-2);
+  var mensal = getKelvnMensal();
+  var idx = mensal.findIndex(function(x){ return x.month === monthKey; });
+  var entry = {
+    month: monthKey,
+    mrr: parseFloat(document.getElementById('km-mrr').value) || 0,
+    clientesAtivos: parseFloat(document.getElementById('km-clientes').value) || 0
   };
-  localStorage.setItem('dash_kelvn_settings', JSON.stringify(s));
-  dbMetricSave('kelvn_settings', JSON.stringify(s));
+  if (idx >= 0) mensal[idx] = entry; else mensal.push(entry);
+  mensal.sort(function(a,b){ return a.month.localeCompare(b.month); });
+  saveKelvnMensalList(mensal);
+
+  var settings = getKelvnSettings();
+  settings.metaMrr = parseFloat(document.getElementById('km-meta-mrr').value) || 0;
+  settings.metaClientes = parseFloat(document.getElementById('km-meta-clientes').value) || 0;
+  settings.churn = parseFloat(document.getElementById('km-churn').value) || 0;
+  settings.nps = parseFloat(document.getElementById('km-nps').value) || 0;
+  settings.ticketsAbertos = parseFloat(document.getElementById('km-tickets').value) || 0;
+  settings.bugsCriticos = parseFloat(document.getElementById('km-bugs').value) || 0;
+  localStorage.setItem('dash_kelvn_settings', JSON.stringify(settings));
+  dbMetricSave('kelvn_settings', JSON.stringify(settings));
+
+  closeKelvnMetricsModal();
   renderKelvnDashboard();
 }
-function renderKelvnBarList(containerId, items, color, formatFn) {
-  var el = document.getElementById(containerId);
-  if (!el) return;
-  formatFn = formatFn || function(v){ return 'R$ ' + v.toLocaleString('pt-BR'); };
-  var max = Math.max.apply(null, items.map(function(i){ return i.value; })) || 1;
-  el.innerHTML = items.map(function(i){
-    var pct = (i.value / max) * 100;
-    return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+
-      '<div style="width:120px;font-size:0.72rem;color:var(--text-muted);flex-shrink:0;">'+i.label+'</div>'+
-      '<div style="flex:1;background:var(--surface2);border-radius:4px;height:8px;overflow:hidden;"><div style="width:'+pct+'%;height:100%;background:'+color+';border-radius:4px;"></div></div>'+
-      '<div style="width:100px;text-align:right;font-size:0.72rem;color:var(--text);flex-shrink:0;">'+formatFn(i.value)+'</div>'+
+function renderKelvnIndicadores() {
+  var container = document.getElementById('kelvn-indicadores-list');
+  if (!container) return;
+  var settings = getKelvnSettings();
+  var rows = [
+    { label: 'Churn', value: (settings.churn || 0).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%' },
+    { label: 'NPS', value: (settings.nps || 0).toLocaleString('pt-BR') },
+    { label: 'Tickets abertos', value: (settings.ticketsAbertos || 0).toLocaleString('pt-BR') },
+    { label: 'Bugs críticos', value: (settings.bugsCriticos || 0).toLocaleString('pt-BR') }
+  ];
+  container.innerHTML = rows.map(function(r){
+    return '<div style="display:flex;align-items:center;gap:20px;padding:6px 0;border-bottom:0.5px solid var(--border);">'+
+      '<div style="flex:1;font-size:0.8rem;color:var(--text);">'+r.label+'</div>'+
+      '<div style="width:80px;text-align:right;font-size:0.8rem;color:var(--text-muted);">'+r.value+'</div>'+
     '</div>';
   }).join('');
 }
@@ -6854,47 +6818,37 @@ function renderKelvnDashboard() {
   var year = new Date().getFullYear();
   var monthNamesFull = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   var settings = getKelvnSettings();
-  var fmM = document.getElementById('kelvn-meta-fat-mensal'); if (fmM) fmM.value = settings.metaFatMensal || '';
-  var faM = document.getElementById('kelvn-meta-fat-anual');  if (faM) faM.value = settings.metaFatAnual || '';
-  var pM  = document.getElementById('kelvn-meta-pacotes');    if (pM)  pM.value  = settings.metaPacotes || '';
-  var puM = document.getElementById('kelvn-preco-unitario');  if (puM) puM.value = settings.precoUnitario || '';
 
   var now = new Date();
   var curMonthKey = year + '-' + ('0'+(now.getMonth()+1)).slice(-2);
   document.getElementById('kelvn-month-label-1').textContent = monthNamesFull[now.getMonth()];
   document.getElementById('kelvn-month-label-2').textContent = monthNamesFull[now.getMonth()];
 
-  var produtos = getKelvnProdutos();
-  var curQty = produtos.reduce(function(sum,p){ return sum + (p.qtd||0); }, 0);
-  var curRevenue = produtos.reduce(function(sum,p){ return sum + ((p.preco||0)-(p.custo||0))*(p.qtd||0); }, 0);
+  var mensal = getKelvnMensal();
+  var curEntry = mensal.find(function(x){ return x.month === curMonthKey; }) || {};
+  var curRevenue = curEntry.mrr || 0;
+  var curQty = curEntry.clientesAtivos || 0;
 
   document.getElementById('kelvn-fat-mes').textContent = 'R$ ' + curRevenue.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-  var fatPct = settings.metaFatMensal ? Math.min(100, curRevenue/settings.metaFatMensal*100) : 0;
+  var fatPct = settings.metaMrr ? Math.min(100, curRevenue/settings.metaMrr*100) : 0;
   document.getElementById('kelvn-fat-progress').style.width = fatPct + '%';
   document.getElementById('kelvn-fat-pct').textContent = Math.round(fatPct) + '%';
-  document.getElementById('kelvn-fat-falta').textContent = settings.metaFatMensal
-    ? 'Faltam R$ ' + Math.max(0, settings.metaFatMensal - curRevenue).toLocaleString('pt-BR')
+  document.getElementById('kelvn-fat-falta').textContent = settings.metaMrr
+    ? 'Faltam R$ ' + Math.max(0, settings.metaMrr - curRevenue).toLocaleString('pt-BR')
     : 'defina uma meta';
 
-  document.getElementById('kelvn-pacotes-mes').textContent = curQty;
-  var pacotesPct = settings.metaPacotes ? Math.min(100, curQty/settings.metaPacotes*100) : 0;
-  document.getElementById('kelvn-pacotes-progress').style.width = pacotesPct + '%';
-  document.getElementById('kelvn-pacotes-pct').textContent = Math.round(pacotesPct) + '%';
-  document.getElementById('kelvn-pacotes-falta').textContent = settings.metaPacotes
-    ? Math.max(0, settings.metaPacotes - curQty) + ' para a meta'
+  document.getElementById('kelvn-pacotes-mes').textContent = curQty.toLocaleString('pt-BR');
+  var clientesPct = settings.metaClientes ? Math.min(100, curQty/settings.metaClientes*100) : 0;
+  document.getElementById('kelvn-pacotes-progress').style.width = clientesPct + '%';
+  document.getElementById('kelvn-pacotes-pct').textContent = Math.round(clientesPct) + '%';
+  document.getElementById('kelvn-pacotes-falta').textContent = settings.metaClientes
+    ? Math.max(0, settings.metaClientes - curQty) + ' para a meta'
     : 'defina uma meta';
-
-
-  var clientesSem = getKelvnClientesSemanais();
-  renderKelvnBarList('kelvn-variedade-bars', [
-    {label:'Primeira compra', value:_kelvnMonthSum(clientesSem, curMonthKey, 'primeira')},
-    {label:'Clientes recorrentes', value:_kelvnMonthSum(clientesSem, curMonthKey, 'recorrentes')}
-  ], '#D8C9A3', function(v){ return v.toLocaleString('pt-BR') + ' clientes'; });
 
   buildKelvn250gChart();
   buildKelvnFatChart();
   renderKelvnMetas();
-  renderKelvnProdutos();
+  renderKelvnIndicadores();
   renderKelvnVersaoWidget();
 }
 
@@ -7102,16 +7056,10 @@ function buildKelvn250gChart() {
   var canvas = document.getElementById('kelvn250gChart');
   if (!canvas) return;
   var year = new Date().getFullYear();
-  var now = new Date();
   var monthNamesShort = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   var labels = monthNamesShort.map(function(m){ return m + '/' + String(year).slice(2); });
-  // Clientes ativos vem da lista de Produtos (total acumulado, editado manualmente) —
-  // sem data por produto, só o mês corrente reflete um valor real.
-  var clientesAtivos = getKelvnProdutos().reduce(function(sum,p){ return sum + (p.qtd||0); }, 0);
-  var data = [];
-  for (var m=0; m<12; m++) {
-    data.push((year === now.getFullYear() && m === now.getMonth()) ? clientesAtivos : 0);
-  }
+  var mensal = getKelvnMensal();
+  var data = _kelvnYearByMonth(mensal, year, 'clientesAtivos');
   var isDark = document.documentElement.getAttribute('data-theme')==='dark';
   var tickColor = isDark ? '#9E9892' : '#6B6660';
   var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
@@ -7141,7 +7089,6 @@ function buildKelvnFatChart() {
   var canvas = document.getElementById('kelvnFatChart');
   if (!canvas) return;
   var year = new Date().getFullYear();
-  var now = new Date();
   var settings = getKelvnSettings();
   var monthNamesFull = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   var isDark = document.documentElement.getAttribute('data-theme')==='dark';
@@ -7149,15 +7096,8 @@ function buildKelvnFatChart() {
   var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
   var fadedColor = isDark ? '#332E22' : '#EDE4CE';
 
-  // Lucro vem da lista de Produtos (preço-custo × quantidade), que é um total
-  // acumulado editado manualmente — sem data por produto, só o mês corrente
-  // reflete um valor real; os demais meses ficam zerados.
-  var produtos = getKelvnProdutos();
-  var lucroAtual = produtos.reduce(function(sum,p){ return sum + ((p.preco||0)-(p.custo||0))*(p.qtd||0); }, 0);
-  var revenueByMonth = [];
-  for (var m=0; m<12; m++) {
-    revenueByMonth.push((year === now.getFullYear() && m === now.getMonth()) ? lucroAtual : 0);
-  }
+  var mensal = getKelvnMensal();
+  var revenueByMonth = _kelvnYearByMonth(mensal, year, 'mrr');
   var maxVal = Math.max.apply(null, revenueByMonth);
   var maxIdx = revenueByMonth.indexOf(maxVal);
   var barColors = revenueByMonth.map(function(v, i){ return (i === maxIdx && v > 0) ? '#D8C9A3' : fadedColor; });
@@ -7168,7 +7108,7 @@ function buildKelvnFatChart() {
       labels: monthNamesFull,
       datasets: [
         { type: 'bar', data: revenueByMonth, backgroundColor: barColors, borderRadius: 4, maxBarThickness: 32, order: 2 },
-        { type: 'line', data: monthNamesFull.map(function(){ return settings.metaFatMensal || null; }),
+        { type: 'line', data: monthNamesFull.map(function(){ return settings.metaMrr || null; }),
           borderColor: '#D8C9A3', borderDash: [5,4], borderWidth: 1.3, pointRadius: 0, fill: false, order: 1 }
       ]
     },
