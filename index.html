@@ -2668,8 +2668,8 @@
       <div class="chart-card">
         <div class="section-header">
           <div>
-            <div class="section-title">Vendas de pacotes de 250g</div>
-            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Unidades vendidas (soma dos Produtos)</div>
+            <div class="section-title">Clientes ativos por mês</div>
+            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Evolução mensal de clientes ativos</div>
           </div>
         </div>
         <div style="position:relative;width:100%;height:280px;">
@@ -7105,12 +7105,12 @@ function buildKelvn250gChart() {
   var now = new Date();
   var monthNamesShort = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   var labels = monthNamesShort.map(function(m){ return m + '/' + String(year).slice(2); });
-  // Quantidade vem da lista de Produtos (total acumulado, editado manualmente) —
+  // Clientes ativos vem da lista de Produtos (total acumulado, editado manualmente) —
   // sem data por produto, só o mês corrente reflete um valor real.
-  var produtosQty = getKelvnProdutos().reduce(function(sum,p){ return sum + (p.qtd||0); }, 0);
+  var clientesAtivos = getKelvnProdutos().reduce(function(sum,p){ return sum + (p.qtd||0); }, 0);
   var data = [];
   for (var m=0; m<12; m++) {
-    data.push((year === now.getFullYear() && m === now.getMonth()) ? produtosQty : 0);
+    data.push((year === now.getFullYear() && m === now.getMonth()) ? clientesAtivos : 0);
   }
   var isDark = document.documentElement.getAttribute('data-theme')==='dark';
   var tickColor = isDark ? '#9E9892' : '#6B6660';
@@ -7127,7 +7127,7 @@ function buildKelvn250gChart() {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: function(ctx){ return ctx.parsed.y + ' pacotes'; } } }
+        tooltip: { callbacks: { label: function(ctx){ return ctx.parsed.y + ' clientes'; } } }
       },
       scales: {
         x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 10 } } },
