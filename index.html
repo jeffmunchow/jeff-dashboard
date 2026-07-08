@@ -2497,6 +2497,7 @@
       </div>
     </div>
     <div class="header-right">
+      <button class="btn" onclick="openVikkaMetricsModal()" style="padding:5px 12px;font-size:0.7rem;">Editar métricas</button>
       <span style="font-size:0.72rem;color:var(--text-hint);" id="vikka-header-date"></span>
     </div>
   </div>
@@ -2512,7 +2513,7 @@
         </div>
       </div>
       <div class="sum-card" id="vikka-pacotes-card" style="flex:1;box-sizing:border-box;min-height:262px;display:flex;flex-direction:column;">
-        <div class="sum-label">Pacotes vendidos — <span id="vikka-month-label-2"></span></div>
+        <div class="sum-label">Usuários ativos — <span id="vikka-month-label-2"></span></div>
         <div class="sum-value" id="vikka-pacotes-mes" style="color:#BFAF87;">0</div>
         <div style="margin-top:auto;">
           <div class="cafe-progress-track"><div class="cafe-progress-fill" id="vikka-pacotes-progress" style="background:#BFAF87;"></div></div>
@@ -2529,8 +2530,8 @@
       <div class="chart-card">
         <div class="section-header">
           <div>
-            <div class="section-title">Vendas de pacotes de 250g</div>
-            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Unidades vendidas (soma dos Produtos)</div>
+            <div class="section-title">Downloads por mês</div>
+            <div style="font-size:0.7rem;color:var(--text-hint);margin-top:2px;">Downloads totais mensais</div>
           </div>
         </div>
         <div style="position:relative;width:100%;height:280px;">
@@ -2549,14 +2550,12 @@
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem;">
       <div class="chart-card" style="height:300px;box-sizing:border-box;overflow-y:auto;">
-        <div class="section-title" style="margin-bottom:1rem;">Produtos</div>
+        <div class="section-title" style="margin-bottom:1rem;">Indicadores</div>
         <div style="display:flex;gap:20px;padding:0 0 6px;font-size:0.6rem;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.04em;">
-          <div style="flex:1;">Produto</div>
-          <div style="width:64px;text-align:center;">Preço</div>
-          <div style="width:64px;text-align:center;">Custo</div>
-          <div style="width:52px;text-align:center;">Qtd</div>
+          <div style="flex:1;">Indicador</div>
+          <div style="width:80px;text-align:right;">Valor</div>
         </div>
-        <div id="vikka-produtos-list"></div>
+        <div id="vikka-indicadores-list"></div>
       </div>
       <div class="chart-card" style="height:300px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;">
         <div class="section-header" style="flex-shrink:0;">
@@ -2579,6 +2578,25 @@
           <canvas id="vikkaCaixaChart"></canvas>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="vikka-metrics-overlay">
+  <div class="modal" style="max-width:440px;">
+    <h2>Métricas da Vikka</h2>
+    <div class="modal-2col">
+      <div class="field-row"><label>Lucro do mês</label><input type="number" id="vm-lucro"></div>
+      <div class="field-row"><label>Meta de lucro</label><input type="number" id="vm-meta-lucro"></div>
+      <div class="field-row"><label>Usuários ativos (MAU)</label><input type="number" id="vm-usuarios"></div>
+      <div class="field-row"><label>Downloads do mês</label><input type="number" id="vm-downloads"></div>
+      <div class="field-row"><label>Nota média</label><input type="number" step="0.1" id="vm-nota"></div>
+      <div class="field-row"><label>Avaliações</label><input type="number" id="vm-avaliacoes"></div>
+      <div class="field-row"><label>Conversão Pro (%)</label><input type="number" step="0.1" id="vm-conversao"></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;">
+      <button class="btn" onclick="closeVikkaMetricsModal()">Cancelar</button>
+      <button class="btn primary" onclick="saveVikkaMetricsModal()">Salvar</button>
     </div>
   </div>
 </div>
@@ -5112,7 +5130,7 @@ async function loadFromSupabase(forceFullReplace) {
                    'v-seguidores','v-clientes','v-faturamento','v-assinantes',
                    'c-seguidores','c-clientes','c-faturamento','c-itens',
                    'cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_produtos','cafe_caixa',
-                   'vikka_settings','vikka_metas','vikka_clientes_semanais','vikka_produtos','vikka_caixa',
+                   'vikka_settings','vikka_metas','vikka_mensal','vikka_caixa',
                    'kelvn_novos_fotografos','kelvn_settings','kelvn_metas',
                    'm-updated','s-updated','r-updated','k-updated','v-updated','c-updated',
                    'tarefas_v1_sync','diary_index'];
@@ -6274,133 +6292,80 @@ function buildVikkaCaixaChart() {
     }
   });
 }
-function getVikkaProdutos() {
-  try { return JSON.parse(localStorage.getItem('dash_vikka_produtos') || '[]'); } catch(e) { return []; }
+function getVikkaMensal() {
+  try { return JSON.parse(localStorage.getItem('dash_vikka_mensal') || '[]'); } catch(e) { return []; }
 }
-function saveVikkaProdutosList(list) {
-  localStorage.setItem('dash_vikka_produtos', JSON.stringify(list));
-  dbMetricSave('vikka_produtos', JSON.stringify(list));
-}
-function ensureVikkaProdutosTrailingEmpty() {
-  var list = getVikkaProdutos();
-  if (list.length === 0) {
-    list.push({ nome:'', preco:0, custo:0, qtd:0 });
-    saveVikkaProdutosList(list);
-  }
-}
-function focusVikkaProdInput(i){
-  setTimeout(function(){
-    var el = document.querySelector('.vikka-prod-nome[data-i="'+i+'"]');
-    if (el) el.focus();
-  }, 0);
-}
-function renderVikkaProdutos() {
-  var container = document.getElementById('vikka-produtos-list');
-  if (!container) return;
-  ensureVikkaProdutosTrailingEmpty();
-  var list = getVikkaProdutos();
-  var html = '';
-  list.forEach(function(p, i){
-    html += '<div style="display:flex;align-items:center;gap:20px;padding:4px 0;">'+
-      '<input type="text" class="vikka-prod-nome" data-i="'+i+'" value="'+(p.nome||'').replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.78rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text);">'+
-      '<input type="number" class="vikka-prod-preco" data-i="'+i+'" value="'+(p.preco||'')+'" style="width:64px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
-      '<input type="number" class="vikka-prod-custo" data-i="'+i+'" value="'+(p.custo||'')+'" style="width:64px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
-      '<input type="number" class="vikka-prod-qtd" data-i="'+i+'" value="'+(p.qtd||'')+'" style="width:52px;font-family:inherit;font-size:0.74rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:var(--text-muted);">'+
-    '</div>';
-  });
-  container.innerHTML = html;
-
-  container.querySelectorAll('.vikka-prod-nome').forEach(function(input){
-    input.addEventListener('input', function(){
-      var i = +input.dataset.i;
-      var list = getVikkaProdutos();
-      if (list[i]) { list[i].nome = input.value; saveVikkaProdutosList(list); }
-    });
-    input.addEventListener('keydown', function(ev){
-      var i = +input.dataset.i;
-      if (ev.key === 'Backspace' && input.value === ''){
-        ev.preventDefault();
-        var list = getVikkaProdutos();
-        if (list.length > 1) {
-          list.splice(i, 1);
-          saveVikkaProdutosList(list);
-          renderVikkaProdutos();
-          focusVikkaProdInput(Math.max(0, i-1));
-        }
-        return;
-      }
-      if (ev.key !== 'Enter') return;
-      ev.preventDefault();
-      var list2 = getVikkaProdutos();
-      list2.splice(i+1, 0, { nome:'', preco:0, custo:0, qtd:0 });
-      saveVikkaProdutosList(list2);
-      renderVikkaProdutos();
-      focusVikkaProdInput(i+1);
-    });
-  });
-  ['preco','custo','qtd'].forEach(function(field){
-    container.querySelectorAll('.vikka-prod-'+field).forEach(function(input){
-      input.addEventListener('input', function(){
-        var i = +input.dataset.i;
-        var list = getVikkaProdutos();
-        if (list[i]) { list[i][field] = parseFloat(input.value) || 0; saveVikkaProdutosList(list); updateVikkaLucroDisplay(); }
-      });
-    });
-  });
-}
-function updateVikkaLucroDisplay() {
-  var settings = getVikkaSettings();
-  var produtos = getVikkaProdutos();
-  var curRevenue = produtos.reduce(function(sum,p){ return sum + ((p.preco||0)-(p.custo||0))*(p.qtd||0); }, 0);
-  var curQty = produtos.reduce(function(sum,p){ return sum + (p.qtd||0); }, 0);
-  var elVal = document.getElementById('vikka-fat-mes');
-  if (!elVal) return;
-  elVal.textContent = 'R$ ' + curRevenue.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-  var fatPct = settings.metaFatMensal ? Math.min(100, curRevenue/settings.metaFatMensal*100) : 0;
-  document.getElementById('vikka-fat-progress').style.width = fatPct + '%';
-  document.getElementById('vikka-fat-pct').textContent = Math.round(fatPct) + '%';
-  document.getElementById('vikka-fat-falta').textContent = settings.metaFatMensal
-    ? 'Faltam R$ ' + Math.max(0, settings.metaFatMensal - curRevenue).toLocaleString('pt-BR')
-    : 'defina uma meta';
-
-  document.getElementById('vikka-pacotes-mes').textContent = curQty;
-  var pacotesPct = settings.metaPacotes ? Math.min(100, curQty/settings.metaPacotes*100) : 0;
-  document.getElementById('vikka-pacotes-progress').style.width = pacotesPct + '%';
-  document.getElementById('vikka-pacotes-pct').textContent = Math.round(pacotesPct) + '%';
-  document.getElementById('vikka-pacotes-falta').textContent = settings.metaPacotes
-    ? Math.max(0, settings.metaPacotes - curQty) + ' para a meta'
-    : 'defina uma meta';
-
-  buildVikkaFatChart();
-  buildVikka250gChart();
+function saveVikkaMensalList(list) {
+  localStorage.setItem('dash_vikka_mensal', JSON.stringify(list));
+  dbMetricSave('vikka_mensal', JSON.stringify(list));
 }
 function getVikkaSettings() {
-  var defaults = { metaFatMensal: 0, metaFatAnual: 0, metaPacotes: 0, precoUnitario: 0 };
+  var defaults = { metaLucro: 0, metaUsuarios: 0, notaMedia: 0, avaliacoes: 0, conversaoPro: 0 };
   try { return Object.assign(defaults, JSON.parse(localStorage.getItem('dash_vikka_settings') || '{}')); }
   catch(e) { return defaults; }
 }
-function saveVikkaSettings() {
-  var s = {
-    metaFatMensal: parseFloat(document.getElementById('vikka-meta-fat-mensal').value) || 0,
-    metaFatAnual:  parseFloat(document.getElementById('vikka-meta-fat-anual').value) || 0,
-    metaPacotes:   parseFloat(document.getElementById('vikka-meta-pacotes').value) || 0,
-    precoUnitario: parseFloat(document.getElementById('vikka-preco-unitario').value) || 0
+function openVikkaMetricsModal() {
+  var settings = getVikkaSettings();
+  var mensal = getVikkaMensal();
+  var now = new Date();
+  var monthKey = now.getFullYear() + '-' + ('0'+(now.getMonth()+1)).slice(-2);
+  var cur = mensal.find(function(x){ return x.month === monthKey; }) || {};
+  document.getElementById('vm-lucro').value = cur.lucro || '';
+  document.getElementById('vm-meta-lucro').value = settings.metaLucro || '';
+  document.getElementById('vm-usuarios').value = cur.usuariosAtivos || '';
+  document.getElementById('vm-downloads').value = cur.downloads || '';
+  document.getElementById('vm-nota').value = settings.notaMedia || '';
+  document.getElementById('vm-avaliacoes').value = settings.avaliacoes || '';
+  document.getElementById('vm-conversao').value = settings.conversaoPro || '';
+  document.getElementById('vikka-metrics-overlay').classList.add('open');
+}
+function closeVikkaMetricsModal() {
+  document.getElementById('vikka-metrics-overlay').classList.remove('open');
+}
+function saveVikkaMetricsModal() {
+  var now = new Date();
+  var monthKey = now.getFullYear() + '-' + ('0'+(now.getMonth()+1)).slice(-2);
+  var mensal = getVikkaMensal();
+  var idx = mensal.findIndex(function(x){ return x.month === monthKey; });
+  var entry = {
+    month: monthKey,
+    lucro: parseFloat(document.getElementById('vm-lucro').value) || 0,
+    usuariosAtivos: parseFloat(document.getElementById('vm-usuarios').value) || 0,
+    downloads: parseFloat(document.getElementById('vm-downloads').value) || 0
   };
-  localStorage.setItem('dash_vikka_settings', JSON.stringify(s));
-  dbMetricSave('vikka_settings', JSON.stringify(s));
+  if (idx >= 0) mensal[idx] = entry; else mensal.push(entry);
+  mensal.sort(function(a,b){ return a.month.localeCompare(b.month); });
+  saveVikkaMensalList(mensal);
+
+  var settings = getVikkaSettings();
+  settings.metaLucro = parseFloat(document.getElementById('vm-meta-lucro').value) || 0;
+  settings.notaMedia = parseFloat(document.getElementById('vm-nota').value) || 0;
+  settings.avaliacoes = parseFloat(document.getElementById('vm-avaliacoes').value) || 0;
+  settings.conversaoPro = parseFloat(document.getElementById('vm-conversao').value) || 0;
+  localStorage.setItem('dash_vikka_settings', JSON.stringify(settings));
+  dbMetricSave('vikka_settings', JSON.stringify(settings));
+
+  closeVikkaMetricsModal();
   renderVikkaDashboard();
 }
-function renderVikkaBarList(containerId, items, color, formatFn) {
-  var el = document.getElementById(containerId);
-  if (!el) return;
-  formatFn = formatFn || function(v){ return 'R$ ' + v.toLocaleString('pt-BR'); };
-  var max = Math.max.apply(null, items.map(function(i){ return i.value; })) || 1;
-  el.innerHTML = items.map(function(i){
-    var pct = (i.value / max) * 100;
-    return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+
-      '<div style="width:120px;font-size:0.72rem;color:var(--text-muted);flex-shrink:0;">'+i.label+'</div>'+
-      '<div style="flex:1;background:var(--surface2);border-radius:4px;height:8px;overflow:hidden;"><div style="width:'+pct+'%;height:100%;background:'+color+';border-radius:4px;"></div></div>'+
-      '<div style="width:100px;text-align:right;font-size:0.72rem;color:var(--text);flex-shrink:0;">'+formatFn(i.value)+'</div>'+
+function renderVikkaIndicadores() {
+  var container = document.getElementById('vikka-indicadores-list');
+  if (!container) return;
+  var settings = getVikkaSettings();
+  var mensal = getVikkaMensal();
+  var now = new Date();
+  var monthKey = now.getFullYear() + '-' + ('0'+(now.getMonth()+1)).slice(-2);
+  var cur = mensal.find(function(x){ return x.month === monthKey; }) || {};
+  var rows = [
+    { label: 'Nota média', value: '⭐ ' + (settings.notaMedia || 0).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) },
+    { label: 'Avaliações', value: (settings.avaliacoes || 0).toLocaleString('pt-BR') },
+    { label: 'Usuários ativos', value: (cur.usuariosAtivos || 0).toLocaleString('pt-BR') },
+    { label: 'Conversão Pro', value: (settings.conversaoPro || 0).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%' }
+  ];
+  container.innerHTML = rows.map(function(r){
+    return '<div style="display:flex;align-items:center;gap:20px;padding:6px 0;border-bottom:0.5px solid var(--border);">'+
+      '<div style="flex:1;font-size:0.8rem;color:var(--text);">'+r.label+'</div>'+
+      '<div style="width:80px;text-align:right;font-size:0.8rem;color:var(--text-muted);">'+r.value+'</div>'+
     '</div>';
   }).join('');
 }
@@ -6408,47 +6373,37 @@ function renderVikkaDashboard() {
   var year = new Date().getFullYear();
   var monthNamesFull = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   var settings = getVikkaSettings();
-  var fmM = document.getElementById('vikka-meta-fat-mensal'); if (fmM) fmM.value = settings.metaFatMensal || '';
-  var faM = document.getElementById('vikka-meta-fat-anual');  if (faM) faM.value = settings.metaFatAnual || '';
-  var pM  = document.getElementById('vikka-meta-pacotes');    if (pM)  pM.value  = settings.metaPacotes || '';
-  var puM = document.getElementById('vikka-preco-unitario');  if (puM) puM.value = settings.precoUnitario || '';
 
   var now = new Date();
   var curMonthKey = year + '-' + ('0'+(now.getMonth()+1)).slice(-2);
   document.getElementById('vikka-month-label-1').textContent = monthNamesFull[now.getMonth()];
   document.getElementById('vikka-month-label-2').textContent = monthNamesFull[now.getMonth()];
 
-  var produtos = getVikkaProdutos();
-  var curQty = produtos.reduce(function(sum,p){ return sum + (p.qtd||0); }, 0);
-  var curRevenue = produtos.reduce(function(sum,p){ return sum + ((p.preco||0)-(p.custo||0))*(p.qtd||0); }, 0);
+  var mensal = getVikkaMensal();
+  var curEntry = mensal.find(function(x){ return x.month === curMonthKey; }) || {};
+  var curRevenue = curEntry.lucro || 0;
+  var curUsuarios = curEntry.usuariosAtivos || 0;
 
   document.getElementById('vikka-fat-mes').textContent = 'R$ ' + curRevenue.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-  var fatPct = settings.metaFatMensal ? Math.min(100, curRevenue/settings.metaFatMensal*100) : 0;
+  var fatPct = settings.metaLucro ? Math.min(100, curRevenue/settings.metaLucro*100) : 0;
   document.getElementById('vikka-fat-progress').style.width = fatPct + '%';
   document.getElementById('vikka-fat-pct').textContent = Math.round(fatPct) + '%';
-  document.getElementById('vikka-fat-falta').textContent = settings.metaFatMensal
-    ? 'Faltam R$ ' + Math.max(0, settings.metaFatMensal - curRevenue).toLocaleString('pt-BR')
+  document.getElementById('vikka-fat-falta').textContent = settings.metaLucro
+    ? 'Faltam R$ ' + Math.max(0, settings.metaLucro - curRevenue).toLocaleString('pt-BR')
     : 'defina uma meta';
 
-  document.getElementById('vikka-pacotes-mes').textContent = curQty;
-  var pacotesPct = settings.metaPacotes ? Math.min(100, curQty/settings.metaPacotes*100) : 0;
-  document.getElementById('vikka-pacotes-progress').style.width = pacotesPct + '%';
-  document.getElementById('vikka-pacotes-pct').textContent = Math.round(pacotesPct) + '%';
-  document.getElementById('vikka-pacotes-falta').textContent = settings.metaPacotes
-    ? Math.max(0, settings.metaPacotes - curQty) + ' para a meta'
+  document.getElementById('vikka-pacotes-mes').textContent = curUsuarios.toLocaleString('pt-BR');
+  var usuariosPct = settings.metaUsuarios ? Math.min(100, curUsuarios/settings.metaUsuarios*100) : 0;
+  document.getElementById('vikka-pacotes-progress').style.width = usuariosPct + '%';
+  document.getElementById('vikka-pacotes-pct').textContent = Math.round(usuariosPct) + '%';
+  document.getElementById('vikka-pacotes-falta').textContent = settings.metaUsuarios
+    ? Math.max(0, settings.metaUsuarios - curUsuarios) + ' para a meta'
     : 'defina uma meta';
-
-
-  var clientesSem = getVikkaClientesSemanais();
-  renderVikkaBarList('vikka-variedade-bars', [
-    {label:'Primeira compra', value:_vikkaMonthSum(clientesSem, curMonthKey, 'primeira')},
-    {label:'Clientes recorrentes', value:_vikkaMonthSum(clientesSem, curMonthKey, 'recorrentes')}
-  ], '#D8C9A3', function(v){ return v.toLocaleString('pt-BR') + ' clientes'; });
 
   buildVikka250gChart();
   buildVikkaFatChart();
   renderVikkaMetas();
-  renderVikkaProdutos();
+  renderVikkaIndicadores();
   renderVikkaCaixaWidget();
 }
 
@@ -6656,16 +6611,10 @@ function buildVikka250gChart() {
   var canvas = document.getElementById('vikka250gChart');
   if (!canvas) return;
   var year = new Date().getFullYear();
-  var now = new Date();
   var monthNamesShort = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   var labels = monthNamesShort.map(function(m){ return m + '/' + String(year).slice(2); });
-  // Quantidade vem da lista de Produtos (total acumulado, editado manualmente) —
-  // sem data por produto, só o mês corrente reflete um valor real.
-  var produtosQty = getVikkaProdutos().reduce(function(sum,p){ return sum + (p.qtd||0); }, 0);
-  var data = [];
-  for (var m=0; m<12; m++) {
-    data.push((year === now.getFullYear() && m === now.getMonth()) ? produtosQty : 0);
-  }
+  var mensal = getVikkaMensal();
+  var data = _vikkaYearByMonth(mensal, year, 'downloads');
   var isDark = document.documentElement.getAttribute('data-theme')==='dark';
   var tickColor = isDark ? '#9E9892' : '#6B6660';
   var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
@@ -6681,7 +6630,7 @@ function buildVikka250gChart() {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: function(ctx){ return ctx.parsed.y + ' pacotes'; } } }
+        tooltip: { callbacks: { label: function(ctx){ return ctx.parsed.y.toLocaleString('pt-BR') + ' downloads'; } } }
       },
       scales: {
         x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 10 } } },
@@ -6695,7 +6644,6 @@ function buildVikkaFatChart() {
   var canvas = document.getElementById('vikkaFatChart');
   if (!canvas) return;
   var year = new Date().getFullYear();
-  var now = new Date();
   var settings = getVikkaSettings();
   var monthNamesFull = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   var isDark = document.documentElement.getAttribute('data-theme')==='dark';
@@ -6703,15 +6651,8 @@ function buildVikkaFatChart() {
   var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
   var fadedColor = isDark ? '#332E22' : '#EDE4CE';
 
-  // Lucro vem da lista de Produtos (preço-custo × quantidade), que é um total
-  // acumulado editado manualmente — sem data por produto, só o mês corrente
-  // reflete um valor real; os demais meses ficam zerados.
-  var produtos = getVikkaProdutos();
-  var lucroAtual = produtos.reduce(function(sum,p){ return sum + ((p.preco||0)-(p.custo||0))*(p.qtd||0); }, 0);
-  var revenueByMonth = [];
-  for (var m=0; m<12; m++) {
-    revenueByMonth.push((year === now.getFullYear() && m === now.getMonth()) ? lucroAtual : 0);
-  }
+  var mensal = getVikkaMensal();
+  var revenueByMonth = _vikkaYearByMonth(mensal, year, 'lucro');
   var maxVal = Math.max.apply(null, revenueByMonth);
   var maxIdx = revenueByMonth.indexOf(maxVal);
   var barColors = revenueByMonth.map(function(v, i){ return (i === maxIdx && v > 0) ? '#D8C9A3' : fadedColor; });
