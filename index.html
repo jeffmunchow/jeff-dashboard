@@ -1399,7 +1399,6 @@
       </div>
     </div>
     <div class="header-right">
-      <span style="font-size:0.72rem;color:var(--text-hint);" id="studio-header-date"></span>
     </div>
   </div>
 
@@ -1678,7 +1677,6 @@
       </div>
     </div>
     <div class="header-right">
-      <span style="font-size:0.72rem;color:var(--text-hint);" id="soup-header-date"></span>
     </div>
   </div>
 
@@ -1902,7 +1900,6 @@
       </div>
     </div>
     <div class="header-right">
-      <span style="font-size:0.72rem;color:var(--text-hint);" id="releio-header-date"></span>
     </div>
   </div>
 
@@ -2373,7 +2370,6 @@
       </div>
     </div>
     <div class="header-right">
-      <span style="font-size:0.72rem;color:var(--text-hint);" id="cafe-header-date"></span>
     </div>
   </div>
 
@@ -2498,7 +2494,6 @@
     </div>
     <div class="header-right">
       <button class="btn" onclick="openVikkaMetricsModal()" style="padding:5px 12px;font-size:0.7rem;">Editar métricas</button>
-      <span style="font-size:0.72rem;color:var(--text-hint);" id="vikka-header-date"></span>
     </div>
   </div>
 
@@ -2637,7 +2632,6 @@
     </div>
     <div class="header-right">
       <button class="btn" onclick="openKelvnMetricsModal()" style="padding:5px 12px;font-size:0.7rem;">Editar métricas</button>
-      <span style="font-size:0.72rem;color:var(--text-hint);" id="kelvn-header-date"></span>
     </div>
   </div>
 
@@ -3705,7 +3699,7 @@ function showStudio() {
   document.getElementById('studio-view').style.display = 'block';
   var d = new Date();
 
-  document.getElementById('studio-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
+  var studioHdEl = document.getElementById('studio-header-date'); if (studioHdEl) studioHdEl.textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
   window.scrollTo(0,0);
   switchStudioTab('resumo');
 }
@@ -3715,7 +3709,7 @@ function showSoupView() {
   document.getElementById('soup-view').style.display = 'block';
   var d = new Date();
 
-  document.getElementById('soup-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
+  var soupHdEl = document.getElementById('soup-header-date'); if (soupHdEl) soupHdEl.textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
   window.scrollTo(0,0);
   switchSoupTab('resumo');
 }
@@ -3724,7 +3718,7 @@ function showReleioView() {
   hideAllViews();
   document.getElementById('releio-view').style.display = 'block';
   var d = new Date();
-  document.getElementById('releio-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
+  var releioHdEl = document.getElementById('releio-header-date'); if (releioHdEl) releioHdEl.textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
   window.scrollTo(0,0);
   switchReleioTab('resumo');
 }
@@ -3733,7 +3727,7 @@ function showCafeView() {
   hideAllViews();
   document.getElementById('cafe-view').style.display = 'block';
   var d = new Date();
-  document.getElementById('cafe-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
+  var cafeHdEl = document.getElementById('cafe-header-date'); if (cafeHdEl) cafeHdEl.textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
   window.scrollTo(0,0);
   renderCafeDashboard();
 }
@@ -3742,7 +3736,7 @@ function showVikkaView() {
   hideAllViews();
   document.getElementById('vikka-view').style.display = 'block';
   var d = new Date();
-  document.getElementById('vikka-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
+  var vikkaHdEl = document.getElementById('vikka-header-date'); if (vikkaHdEl) vikkaHdEl.textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
   window.scrollTo(0,0);
   renderVikkaDashboard();
 }
@@ -3751,7 +3745,7 @@ function showKelvnView() {
   hideAllViews();
   document.getElementById('kelvn-view').style.display = 'block';
   var d = new Date();
-  document.getElementById('kelvn-header-date').textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
+  var kelvnHdEl = document.getElementById('kelvn-header-date'); if (kelvnHdEl) kelvnHdEl.textContent = DAYS[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()];
   window.scrollTo(0,0);
   renderKelvnDashboard();
 }
