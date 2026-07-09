@@ -5933,9 +5933,25 @@ var _cafeMetasUndoStack = [];
 function ensureCafeMetasTrailingEmpty() {
   var metas = getCafeMetas();
   if (metas.length === 0) {
-    metas.push({ title:'', children:[] });
+    metas.push({ title:'', done:false, children:[] });
     saveCafeMetasList(metas);
   }
+}
+function _cafeNodeAt(metas, path) {
+  var node = { children: metas };
+  for (var i = 0; i < path.length; i++) {
+    if (!node.children) return null;
+    node = node.children[path[i]];
+    if (!node) return null;
+  }
+  return node;
+}
+function _cafeParentArray(metas, path) {
+  var arr = metas;
+  for (var i = 0; i < path.length - 1; i++) {
+    arr = arr[path[i]].children;
+  }
+  return arr;
 }
 var _cafeMetasCollapsed = {};
 function renderCafeMetas() {
@@ -5944,101 +5960,71 @@ function renderCafeMetas() {
   ensureCafeMetasTrailingEmpty();
   var metas = getCafeMetas();
   var html = '';
-  metas.forEach(function(meta, mi){
-    var hasChildren = (meta.children||[]).length > 0;
-    var collapsed = hasChildren && _cafeMetasCollapsed[mi];
-    html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'+
-      '<span class="cafe-meta-caret" data-mi="'+mi+'" style="width:10px;flex-shrink:0;cursor:'+(hasChildren?'pointer':'default')+';font-size:0.55rem;color:var(--text-hint);text-align:center;">'+(hasChildren ? (collapsed ? '▸' : '▾') : '')+'</span>'+
-      '<span class="cafe-meta-check" data-mi="'+mi+'" style="width:14px;height:14px;border-radius:50%;border:1.3px solid #D8C9A3;background:'+(meta.done?'#D8C9A3':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-      '<input type="text" class="cafe-meta-input" data-mi="'+mi+'" value="'+meta.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:'+(meta.done?'var(--text-hint)':'var(--text)')+';text-decoration:'+(meta.done?'line-through':'none')+';">'+
-    '</div>';
-    if (!collapsed) {
-      (meta.children||[]).forEach(function(sub, si){
-        html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:20px;">'+
-          '<span class="cafe-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);background:'+(sub.done?'var(--border-strong)':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-          '<input type="text" class="cafe-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:'+(sub.done?'var(--text-hint)':'var(--text-muted)')+';text-decoration:'+(sub.done?'line-through':'none')+';">'+
-        '</div>';
-      });
-    }
-  });
+  function renderLevel(nodes, pathPrefix, depth){
+    nodes.forEach(function(node, i){
+      var path = pathPrefix.concat([i]);
+      var pathStr = path.join('-');
+      var hasChildren = (node.children||[]).length > 0;
+      var collapsed = hasChildren && _cafeMetasCollapsed[pathStr];
+      var isTop = depth === 0;
+      var checkSize = isTop ? 14 : 12;
+      var checkBorder = isTop ? '1.3px solid #D8C9A3' : '1.2px solid var(--border-strong)';
+      var checkBg = node.done ? (isTop ? '#D8C9A3' : 'var(--border-strong)') : 'transparent';
+      var fontSize = isTop ? '0.8rem' : '0.76rem';
+      var textColor = node.done ? 'var(--text-hint)' : (isTop ? 'var(--text)' : 'var(--text-muted)');
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:'+(depth*20)+'px;">'+
+        '<span class="cafe-meta-caret" data-path="'+pathStr+'" style="width:10px;flex-shrink:0;cursor:'+(hasChildren?'pointer':'default')+';font-size:0.55rem;color:var(--text-hint);text-align:center;">'+(hasChildren ? (collapsed ? '▸' : '▾') : '')+'</span>'+
+        '<span class="cafe-meta-check" data-path="'+pathStr+'" style="width:'+checkSize+'px;height:'+checkSize+'px;border-radius:50%;border:'+checkBorder+';background:'+checkBg+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
+        '<input type="text" class="cafe-meta-input" data-path="'+pathStr+'" value="'+node.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:'+fontSize+';background:transparent;border:none;padding:0;margin:0;outline:none;color:'+textColor+';text-decoration:'+(node.done?'line-through':'none')+';">'+
+      '</div>';
+      if (!collapsed && hasChildren) renderLevel(node.children, path, depth+1);
+    });
+  }
+  renderLevel(metas, [], 0);
   container.innerHTML = html;
 
   container.querySelectorAll('.cafe-meta-input').forEach(function(input){
     input.addEventListener('input', function(){
-      var mi = +input.dataset.mi;
+      var path = input.dataset.path.split('-').map(Number);
       var metas = getCafeMetas();
-      if (metas[mi]) { metas[mi].title = input.value; saveCafeMetasList(metas); }
+      var node = _cafeNodeAt(metas, path);
+      if (node) { node.title = input.value; saveCafeMetasList(metas); }
     });
     input.addEventListener('keydown', function(ev){
-      var mi = +input.dataset.mi;
+      var path = input.dataset.path.split('-').map(Number);
       if (ev.key === 'Backspace' && input.value === ''){
         ev.preventDefault();
-        if (mi > 0) {
-          deleteCafeMetaRow(mi);
-          focusCafeMetaInput(mi-1);
-        }
+        var isFirstTop = path.length === 1 && path[0] === 0;
+        if (!isFirstTop) deleteCafeMetaNode(path);
         return;
       }
       if (ev.key !== 'Enter') return;
       ev.preventDefault();
       var metas = getCafeMetas();
       if (ev.metaKey || ev.ctrlKey){
-        // Cmd+Enter numa meta = nova submeta (primeiro filho dela)
-        metas[mi].children = metas[mi].children || [];
-        metas[mi].children.unshift({ title:'' });
+        // Cmd+Enter = novo filho (primeiro), um nível mais fundo
+        var node = _cafeNodeAt(metas, path);
+        node.children = node.children || [];
+        node.children.unshift({ title:'', done:false, children:[] });
         saveCafeMetasList(metas);
         renderCafeMetas();
-        focusCafeSubInput(mi, 0);
+        focusCafeMetaNode(path.concat([0]));
       } else {
-        // Enter = nova meta logo abaixo
-        metas.splice(mi+1, 0, { title:'', children:[] });
+        // Enter = novo item logo abaixo, no mesmo nível
+        var arr = _cafeParentArray(metas, path);
+        var idx = path[path.length-1];
+        arr.splice(idx+1, 0, { title:'', done:false, children:[] });
         saveCafeMetasList(metas);
         renderCafeMetas();
-        focusCafeMetaInput(mi+1);
-      }
-    });
-  });
-  container.querySelectorAll('.cafe-sub-input').forEach(function(input){
-    input.addEventListener('input', function(){
-      var mi = +input.dataset.mi, si = +input.dataset.si;
-      var metas = getCafeMetas();
-      if (metas[mi] && metas[mi].children[si]) { metas[mi].children[si].title = input.value; saveCafeMetasList(metas); }
-    });
-    input.addEventListener('keydown', function(ev){
-      var mi = +input.dataset.mi, si = +input.dataset.si;
-      if (ev.key === 'Backspace' && input.value === ''){
-        ev.preventDefault();
-        deleteCafeSubRow(mi, si);
-        if (si > 0) focusCafeSubInput(mi, si-1);
-        else focusCafeMetaInput(mi);
-        return;
-      }
-      if (ev.key !== 'Enter') return;
-      ev.preventDefault();
-      var metas = getCafeMetas();
-      if (ev.metaKey || ev.ctrlKey){
-        // Cmd+Enter numa submeta = nova submeta logo abaixo, na mesma meta
-        metas[mi].children.splice(si+1, 0, { title:'' });
-        saveCafeMetasList(metas);
-        renderCafeMetas();
-        focusCafeSubInput(mi, si+1);
-      } else {
-        // Enter numa submeta = nova meta logo depois do grupo desta meta
-        metas.splice(mi+1, 0, { title:'', children:[] });
-        saveCafeMetasList(metas);
-        renderCafeMetas();
-        focusCafeMetaInput(mi+1);
+        focusCafeMetaNode(path.slice(0,-1).concat([idx+1]));
       }
     });
   });
   container.querySelectorAll('.cafe-meta-check').forEach(function(circle){
-    circle.addEventListener('click', function(){ checkCafeMeta(+circle.dataset.mi); });
+    circle.addEventListener('click', function(){ checkCafeMetaNode(circle.dataset.path.split('-').map(Number)); });
   });
   container.querySelectorAll('.cafe-meta-caret').forEach(function(caret){
-    caret.addEventListener('click', function(){ toggleCafeMetaCollapse(+caret.dataset.mi); });
-  });
-  container.querySelectorAll('.cafe-sub-check').forEach(function(circle){
-    circle.addEventListener('click', function(){ checkCafeSub(+circle.dataset.mi, +circle.dataset.si); });
+    caret.addEventListener('click', function(){ toggleCafeMetaCollapse(caret.dataset.path); });
   });
 
   syncCafeMetasCardHeight();
@@ -6050,62 +6036,49 @@ function syncCafeMetasCardHeight(){
   metasCard.style.height = left.offsetHeight + 'px';
 }
 window.addEventListener('resize', syncCafeMetasCardHeight);
-function focusCafeMetaInput(mi){
+function focusCafeMetaNode(path){
   setTimeout(function(){
-    var el = document.querySelector('.cafe-meta-input[data-mi="'+mi+'"]');
+    var el = document.querySelector('.cafe-meta-input[data-path="'+path.join('-')+'"]');
     if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
   }, 0);
 }
-function focusCafeSubInput(mi, si){
-  setTimeout(function(){
-    var el = document.querySelector('.cafe-sub-input[data-mi="'+mi+'"][data-si="'+si+'"]');
-    if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
-  }, 0);
-}
-function toggleCafeMetaCollapse(mi){
-  _cafeMetasCollapsed[mi] = !_cafeMetasCollapsed[mi];
+function focusCafeMetaInput(mi){ focusCafeMetaNode([mi]); }
+function focusCafeSubInput(mi, si){ focusCafeMetaNode([mi, si]); }
+function toggleCafeMetaCollapse(pathStr){
+  _cafeMetasCollapsed[pathStr] = !_cafeMetasCollapsed[pathStr];
   renderCafeMetas();
 }
-function checkCafeMeta(mi){
+function checkCafeMetaNode(path){
   var metas = getCafeMetas();
-  if (!metas[mi]) return;
-  metas[mi].done = !metas[mi].done;
+  var node = _cafeNodeAt(metas, path);
+  if (!node) return;
+  node.done = !node.done;
   saveCafeMetasList(metas);
   renderCafeMetas();
 }
-function checkCafeSub(mi, si){
+function checkCafeMeta(mi){ checkCafeMetaNode([mi]); }
+function checkCafeSub(mi, si){ checkCafeMetaNode([mi, si]); }
+function deleteCafeMetaNode(path){
   var metas = getCafeMetas();
-  if (!metas[mi] || !metas[mi].children[si]) return;
-  metas[mi].children[si].done = !metas[mi].children[si].done;
-  saveCafeMetasList(metas);
-  renderCafeMetas();
-}
-function deleteCafeMetaRow(mi){
-  var metas = getCafeMetas();
-  var removed = metas.splice(mi, 1)[0];
+  var arr = _cafeParentArray(metas, path);
+  var idx = path[path.length-1];
+  var removed = arr.splice(idx, 1)[0];
   if (!removed) return;
   saveCafeMetasList(metas);
-  _cafeMetasUndoStack.push({ type:'meta', index:mi, data:removed });
+  _cafeMetasUndoStack.push({ path: path, data: removed });
+  var prevPath = idx > 0 ? path.slice(0,-1).concat([idx-1]) : (path.length > 1 ? path.slice(0,-1) : null);
   renderCafeMetas();
+  if (prevPath) focusCafeMetaNode(prevPath);
 }
-function deleteCafeSubRow(mi, si){
-  var metas = getCafeMetas();
-  if (!metas[mi]) return;
-  var removed = metas[mi].children.splice(si, 1)[0];
-  if (!removed) return;
-  saveCafeMetasList(metas);
-  _cafeMetasUndoStack.push({ type:'sub', metaIndex:mi, index:si, data:removed });
-  renderCafeMetas();
-}
+function deleteCafeMetaRow(mi){ deleteCafeMetaNode([mi]); }
+function deleteCafeSubRow(mi, si){ deleteCafeMetaNode([mi, si]); }
 function undoCafeMetaCheck(){
   var last = _cafeMetasUndoStack.pop();
   if (!last) return;
   var metas = getCafeMetas();
-  if (last.type === 'meta') {
-    metas.splice(last.index, 0, last.data);
-  } else if (last.type === 'sub' && metas[last.metaIndex]) {
-    metas[last.metaIndex].children.splice(last.index, 0, last.data);
-  }
+  var arr = _cafeParentArray(metas, last.path);
+  var idx = last.path[last.path.length-1];
+  arr.splice(idx, 0, last.data);
   saveCafeMetasList(metas);
   renderCafeMetas();
 }
@@ -6391,9 +6364,25 @@ var _vikkaMetasUndoStack = [];
 function ensureVikkaMetasTrailingEmpty() {
   var metas = getVikkaMetas();
   if (metas.length === 0) {
-    metas.push({ title:'', children:[] });
+    metas.push({ title:'', done:false, children:[] });
     saveVikkaMetasList(metas);
   }
+}
+function _vikkaNodeAt(metas, path) {
+  var node = { children: metas };
+  for (var i = 0; i < path.length; i++) {
+    if (!node.children) return null;
+    node = node.children[path[i]];
+    if (!node) return null;
+  }
+  return node;
+}
+function _vikkaParentArray(metas, path) {
+  var arr = metas;
+  for (var i = 0; i < path.length - 1; i++) {
+    arr = arr[path[i]].children;
+  }
+  return arr;
 }
 var _vikkaMetasCollapsed = {};
 function renderVikkaMetas() {
@@ -6402,101 +6391,71 @@ function renderVikkaMetas() {
   ensureVikkaMetasTrailingEmpty();
   var metas = getVikkaMetas();
   var html = '';
-  metas.forEach(function(meta, mi){
-    var hasChildren = (meta.children||[]).length > 0;
-    var collapsed = hasChildren && _vikkaMetasCollapsed[mi];
-    html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'+
-      '<span class="vikka-meta-caret" data-mi="'+mi+'" style="width:10px;flex-shrink:0;cursor:'+(hasChildren?'pointer':'default')+';font-size:0.55rem;color:var(--text-hint);text-align:center;">'+(hasChildren ? (collapsed ? '▸' : '▾') : '')+'</span>'+
-      '<span class="vikka-meta-check" data-mi="'+mi+'" style="width:14px;height:14px;border-radius:50%;border:1.3px solid #D8C9A3;background:'+(meta.done?'#D8C9A3':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-      '<input type="text" class="vikka-meta-input" data-mi="'+mi+'" value="'+meta.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:'+(meta.done?'var(--text-hint)':'var(--text)')+';text-decoration:'+(meta.done?'line-through':'none')+';">'+
-    '</div>';
-    if (!collapsed) {
-      (meta.children||[]).forEach(function(sub, si){
-        html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:20px;">'+
-          '<span class="vikka-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);background:'+(sub.done?'var(--border-strong)':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-          '<input type="text" class="vikka-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:'+(sub.done?'var(--text-hint)':'var(--text-muted)')+';text-decoration:'+(sub.done?'line-through':'none')+';">'+
-        '</div>';
-      });
-    }
-  });
+  function renderLevel(nodes, pathPrefix, depth){
+    nodes.forEach(function(node, i){
+      var path = pathPrefix.concat([i]);
+      var pathStr = path.join('-');
+      var hasChildren = (node.children||[]).length > 0;
+      var collapsed = hasChildren && _vikkaMetasCollapsed[pathStr];
+      var isTop = depth === 0;
+      var checkSize = isTop ? 14 : 12;
+      var checkBorder = isTop ? '1.3px solid #D8C9A3' : '1.2px solid var(--border-strong)';
+      var checkBg = node.done ? (isTop ? '#D8C9A3' : 'var(--border-strong)') : 'transparent';
+      var fontSize = isTop ? '0.8rem' : '0.76rem';
+      var textColor = node.done ? 'var(--text-hint)' : (isTop ? 'var(--text)' : 'var(--text-muted)');
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:'+(depth*20)+'px;">'+
+        '<span class="vikka-meta-caret" data-path="'+pathStr+'" style="width:10px;flex-shrink:0;cursor:'+(hasChildren?'pointer':'default')+';font-size:0.55rem;color:var(--text-hint);text-align:center;">'+(hasChildren ? (collapsed ? '▸' : '▾') : '')+'</span>'+
+        '<span class="vikka-meta-check" data-path="'+pathStr+'" style="width:'+checkSize+'px;height:'+checkSize+'px;border-radius:50%;border:'+checkBorder+';background:'+checkBg+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
+        '<input type="text" class="vikka-meta-input" data-path="'+pathStr+'" value="'+node.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:'+fontSize+';background:transparent;border:none;padding:0;margin:0;outline:none;color:'+textColor+';text-decoration:'+(node.done?'line-through':'none')+';">'+
+      '</div>';
+      if (!collapsed && hasChildren) renderLevel(node.children, path, depth+1);
+    });
+  }
+  renderLevel(metas, [], 0);
   container.innerHTML = html;
 
   container.querySelectorAll('.vikka-meta-input').forEach(function(input){
     input.addEventListener('input', function(){
-      var mi = +input.dataset.mi;
+      var path = input.dataset.path.split('-').map(Number);
       var metas = getVikkaMetas();
-      if (metas[mi]) { metas[mi].title = input.value; saveVikkaMetasList(metas); }
+      var node = _vikkaNodeAt(metas, path);
+      if (node) { node.title = input.value; saveVikkaMetasList(metas); }
     });
     input.addEventListener('keydown', function(ev){
-      var mi = +input.dataset.mi;
+      var path = input.dataset.path.split('-').map(Number);
       if (ev.key === 'Backspace' && input.value === ''){
         ev.preventDefault();
-        if (mi > 0) {
-          deleteVikkaMetaRow(mi);
-          focusVikkaMetaInput(mi-1);
-        }
+        var isFirstTop = path.length === 1 && path[0] === 0;
+        if (!isFirstTop) deleteVikkaMetaNode(path);
         return;
       }
       if (ev.key !== 'Enter') return;
       ev.preventDefault();
       var metas = getVikkaMetas();
       if (ev.metaKey || ev.ctrlKey){
-        // Cmd+Enter numa meta = nova submeta (primeiro filho dela)
-        metas[mi].children = metas[mi].children || [];
-        metas[mi].children.unshift({ title:'' });
+        // Cmd+Enter = novo filho (primeiro), um nível mais fundo
+        var node = _vikkaNodeAt(metas, path);
+        node.children = node.children || [];
+        node.children.unshift({ title:'', done:false, children:[] });
         saveVikkaMetasList(metas);
         renderVikkaMetas();
-        focusVikkaSubInput(mi, 0);
+        focusVikkaMetaNode(path.concat([0]));
       } else {
-        // Enter = nova meta logo abaixo
-        metas.splice(mi+1, 0, { title:'', children:[] });
+        // Enter = novo item logo abaixo, no mesmo nível
+        var arr = _vikkaParentArray(metas, path);
+        var idx = path[path.length-1];
+        arr.splice(idx+1, 0, { title:'', done:false, children:[] });
         saveVikkaMetasList(metas);
         renderVikkaMetas();
-        focusVikkaMetaInput(mi+1);
-      }
-    });
-  });
-  container.querySelectorAll('.vikka-sub-input').forEach(function(input){
-    input.addEventListener('input', function(){
-      var mi = +input.dataset.mi, si = +input.dataset.si;
-      var metas = getVikkaMetas();
-      if (metas[mi] && metas[mi].children[si]) { metas[mi].children[si].title = input.value; saveVikkaMetasList(metas); }
-    });
-    input.addEventListener('keydown', function(ev){
-      var mi = +input.dataset.mi, si = +input.dataset.si;
-      if (ev.key === 'Backspace' && input.value === ''){
-        ev.preventDefault();
-        deleteVikkaSubRow(mi, si);
-        if (si > 0) focusVikkaSubInput(mi, si-1);
-        else focusVikkaMetaInput(mi);
-        return;
-      }
-      if (ev.key !== 'Enter') return;
-      ev.preventDefault();
-      var metas = getVikkaMetas();
-      if (ev.metaKey || ev.ctrlKey){
-        // Cmd+Enter numa submeta = nova submeta logo abaixo, na mesma meta
-        metas[mi].children.splice(si+1, 0, { title:'' });
-        saveVikkaMetasList(metas);
-        renderVikkaMetas();
-        focusVikkaSubInput(mi, si+1);
-      } else {
-        // Enter numa submeta = nova meta logo depois do grupo desta meta
-        metas.splice(mi+1, 0, { title:'', children:[] });
-        saveVikkaMetasList(metas);
-        renderVikkaMetas();
-        focusVikkaMetaInput(mi+1);
+        focusVikkaMetaNode(path.slice(0,-1).concat([idx+1]));
       }
     });
   });
   container.querySelectorAll('.vikka-meta-check').forEach(function(circle){
-    circle.addEventListener('click', function(){ checkVikkaMeta(+circle.dataset.mi); });
+    circle.addEventListener('click', function(){ checkVikkaMetaNode(circle.dataset.path.split('-').map(Number)); });
   });
   container.querySelectorAll('.vikka-meta-caret').forEach(function(caret){
-    caret.addEventListener('click', function(){ toggleVikkaMetaCollapse(+caret.dataset.mi); });
-  });
-  container.querySelectorAll('.vikka-sub-check').forEach(function(circle){
-    circle.addEventListener('click', function(){ checkVikkaSub(+circle.dataset.mi, +circle.dataset.si); });
+    caret.addEventListener('click', function(){ toggleVikkaMetaCollapse(caret.dataset.path); });
   });
 
   syncVikkaMetasCardHeight();
@@ -6508,62 +6467,49 @@ function syncVikkaMetasCardHeight(){
   metasCard.style.height = left.offsetHeight + 'px';
 }
 window.addEventListener('resize', syncVikkaMetasCardHeight);
-function focusVikkaMetaInput(mi){
+function focusVikkaMetaNode(path){
   setTimeout(function(){
-    var el = document.querySelector('.vikka-meta-input[data-mi="'+mi+'"]');
+    var el = document.querySelector('.vikka-meta-input[data-path="'+path.join('-')+'"]');
     if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
   }, 0);
 }
-function focusVikkaSubInput(mi, si){
-  setTimeout(function(){
-    var el = document.querySelector('.vikka-sub-input[data-mi="'+mi+'"][data-si="'+si+'"]');
-    if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
-  }, 0);
-}
-function toggleVikkaMetaCollapse(mi){
-  _vikkaMetasCollapsed[mi] = !_vikkaMetasCollapsed[mi];
+function focusVikkaMetaInput(mi){ focusVikkaMetaNode([mi]); }
+function focusVikkaSubInput(mi, si){ focusVikkaMetaNode([mi, si]); }
+function toggleVikkaMetaCollapse(pathStr){
+  _vikkaMetasCollapsed[pathStr] = !_vikkaMetasCollapsed[pathStr];
   renderVikkaMetas();
 }
-function checkVikkaMeta(mi){
+function checkVikkaMetaNode(path){
   var metas = getVikkaMetas();
-  if (!metas[mi]) return;
-  metas[mi].done = !metas[mi].done;
+  var node = _vikkaNodeAt(metas, path);
+  if (!node) return;
+  node.done = !node.done;
   saveVikkaMetasList(metas);
   renderVikkaMetas();
 }
-function checkVikkaSub(mi, si){
+function checkVikkaMeta(mi){ checkVikkaMetaNode([mi]); }
+function checkVikkaSub(mi, si){ checkVikkaMetaNode([mi, si]); }
+function deleteVikkaMetaNode(path){
   var metas = getVikkaMetas();
-  if (!metas[mi] || !metas[mi].children[si]) return;
-  metas[mi].children[si].done = !metas[mi].children[si].done;
-  saveVikkaMetasList(metas);
-  renderVikkaMetas();
-}
-function deleteVikkaMetaRow(mi){
-  var metas = getVikkaMetas();
-  var removed = metas.splice(mi, 1)[0];
+  var arr = _vikkaParentArray(metas, path);
+  var idx = path[path.length-1];
+  var removed = arr.splice(idx, 1)[0];
   if (!removed) return;
   saveVikkaMetasList(metas);
-  _vikkaMetasUndoStack.push({ type:'meta', index:mi, data:removed });
+  _vikkaMetasUndoStack.push({ path: path, data: removed });
+  var prevPath = idx > 0 ? path.slice(0,-1).concat([idx-1]) : (path.length > 1 ? path.slice(0,-1) : null);
   renderVikkaMetas();
+  if (prevPath) focusVikkaMetaNode(prevPath);
 }
-function deleteVikkaSubRow(mi, si){
-  var metas = getVikkaMetas();
-  if (!metas[mi]) return;
-  var removed = metas[mi].children.splice(si, 1)[0];
-  if (!removed) return;
-  saveVikkaMetasList(metas);
-  _vikkaMetasUndoStack.push({ type:'sub', metaIndex:mi, index:si, data:removed });
-  renderVikkaMetas();
-}
+function deleteVikkaMetaRow(mi){ deleteVikkaMetaNode([mi]); }
+function deleteVikkaSubRow(mi, si){ deleteVikkaMetaNode([mi, si]); }
 function undoVikkaMetaCheck(){
   var last = _vikkaMetasUndoStack.pop();
   if (!last) return;
   var metas = getVikkaMetas();
-  if (last.type === 'meta') {
-    metas.splice(last.index, 0, last.data);
-  } else if (last.type === 'sub' && metas[last.metaIndex]) {
-    metas[last.metaIndex].children.splice(last.index, 0, last.data);
-  }
+  var arr = _vikkaParentArray(metas, last.path);
+  var idx = last.path[last.path.length-1];
+  arr.splice(idx, 0, last.data);
   saveVikkaMetasList(metas);
   renderVikkaMetas();
 }
@@ -6862,9 +6808,25 @@ var _kelvnMetasUndoStack = [];
 function ensureKelvnMetasTrailingEmpty() {
   var metas = getKelvnMetas();
   if (metas.length === 0) {
-    metas.push({ title:'', children:[] });
+    metas.push({ title:'', done:false, children:[] });
     saveKelvnMetasList(metas);
   }
+}
+function _kelvnNodeAt(metas, path) {
+  var node = { children: metas };
+  for (var i = 0; i < path.length; i++) {
+    if (!node.children) return null;
+    node = node.children[path[i]];
+    if (!node) return null;
+  }
+  return node;
+}
+function _kelvnParentArray(metas, path) {
+  var arr = metas;
+  for (var i = 0; i < path.length - 1; i++) {
+    arr = arr[path[i]].children;
+  }
+  return arr;
 }
 var _kelvnMetasCollapsed = {};
 function renderKelvnMetas() {
@@ -6873,101 +6835,71 @@ function renderKelvnMetas() {
   ensureKelvnMetasTrailingEmpty();
   var metas = getKelvnMetas();
   var html = '';
-  metas.forEach(function(meta, mi){
-    var hasChildren = (meta.children||[]).length > 0;
-    var collapsed = hasChildren && _kelvnMetasCollapsed[mi];
-    html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'+
-      '<span class="kelvn-meta-caret" data-mi="'+mi+'" style="width:10px;flex-shrink:0;cursor:'+(hasChildren?'pointer':'default')+';font-size:0.55rem;color:var(--text-hint);text-align:center;">'+(hasChildren ? (collapsed ? '▸' : '▾') : '')+'</span>'+
-      '<span class="kelvn-meta-check" data-mi="'+mi+'" style="width:14px;height:14px;border-radius:50%;border:1.3px solid #D8C9A3;background:'+(meta.done?'#D8C9A3':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-      '<input type="text" class="kelvn-meta-input" data-mi="'+mi+'" value="'+meta.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.8rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:'+(meta.done?'var(--text-hint)':'var(--text)')+';text-decoration:'+(meta.done?'line-through':'none')+';">'+
-    '</div>';
-    if (!collapsed) {
-      (meta.children||[]).forEach(function(sub, si){
-        html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:20px;">'+
-          '<span class="kelvn-sub-check" data-mi="'+mi+'" data-si="'+si+'" style="width:12px;height:12px;border-radius:50%;border:1.2px solid var(--border-strong);background:'+(sub.done?'var(--border-strong)':'transparent')+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
-          '<input type="text" class="kelvn-sub-input" data-mi="'+mi+'" data-si="'+si+'" value="'+sub.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:0.76rem;background:transparent;border:none;padding:0;margin:0;outline:none;color:'+(sub.done?'var(--text-hint)':'var(--text-muted)')+';text-decoration:'+(sub.done?'line-through':'none')+';">'+
-        '</div>';
-      });
-    }
-  });
+  function renderLevel(nodes, pathPrefix, depth){
+    nodes.forEach(function(node, i){
+      var path = pathPrefix.concat([i]);
+      var pathStr = path.join('-');
+      var hasChildren = (node.children||[]).length > 0;
+      var collapsed = hasChildren && _kelvnMetasCollapsed[pathStr];
+      var isTop = depth === 0;
+      var checkSize = isTop ? 14 : 12;
+      var checkBorder = isTop ? '1.3px solid #D8C9A3' : '1.2px solid var(--border-strong)';
+      var checkBg = node.done ? (isTop ? '#D8C9A3' : 'var(--border-strong)') : 'transparent';
+      var fontSize = isTop ? '0.8rem' : '0.76rem';
+      var textColor = node.done ? 'var(--text-hint)' : (isTop ? 'var(--text)' : 'var(--text-muted)');
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;margin-left:'+(depth*20)+'px;">'+
+        '<span class="kelvn-meta-caret" data-path="'+pathStr+'" style="width:10px;flex-shrink:0;cursor:'+(hasChildren?'pointer':'default')+';font-size:0.55rem;color:var(--text-hint);text-align:center;">'+(hasChildren ? (collapsed ? '▸' : '▾') : '')+'</span>'+
+        '<span class="kelvn-meta-check" data-path="'+pathStr+'" style="width:'+checkSize+'px;height:'+checkSize+'px;border-radius:50%;border:'+checkBorder+';background:'+checkBg+';flex-shrink:0;cursor:pointer;box-sizing:border-box;"></span>'+
+        '<input type="text" class="kelvn-meta-input" data-path="'+pathStr+'" value="'+node.title.replace(/"/g,'&quot;')+'" style="flex:1;min-width:0;font-family:inherit;font-size:'+fontSize+';background:transparent;border:none;padding:0;margin:0;outline:none;color:'+textColor+';text-decoration:'+(node.done?'line-through':'none')+';">'+
+      '</div>';
+      if (!collapsed && hasChildren) renderLevel(node.children, path, depth+1);
+    });
+  }
+  renderLevel(metas, [], 0);
   container.innerHTML = html;
 
   container.querySelectorAll('.kelvn-meta-input').forEach(function(input){
     input.addEventListener('input', function(){
-      var mi = +input.dataset.mi;
+      var path = input.dataset.path.split('-').map(Number);
       var metas = getKelvnMetas();
-      if (metas[mi]) { metas[mi].title = input.value; saveKelvnMetasList(metas); }
+      var node = _kelvnNodeAt(metas, path);
+      if (node) { node.title = input.value; saveKelvnMetasList(metas); }
     });
     input.addEventListener('keydown', function(ev){
-      var mi = +input.dataset.mi;
+      var path = input.dataset.path.split('-').map(Number);
       if (ev.key === 'Backspace' && input.value === ''){
         ev.preventDefault();
-        if (mi > 0) {
-          deleteKelvnMetaRow(mi);
-          focusKelvnMetaInput(mi-1);
-        }
+        var isFirstTop = path.length === 1 && path[0] === 0;
+        if (!isFirstTop) deleteKelvnMetaNode(path);
         return;
       }
       if (ev.key !== 'Enter') return;
       ev.preventDefault();
       var metas = getKelvnMetas();
       if (ev.metaKey || ev.ctrlKey){
-        // Cmd+Enter numa meta = nova submeta (primeiro filho dela)
-        metas[mi].children = metas[mi].children || [];
-        metas[mi].children.unshift({ title:'' });
+        // Cmd+Enter = novo filho (primeiro), um nível mais fundo
+        var node = _kelvnNodeAt(metas, path);
+        node.children = node.children || [];
+        node.children.unshift({ title:'', done:false, children:[] });
         saveKelvnMetasList(metas);
         renderKelvnMetas();
-        focusKelvnSubInput(mi, 0);
+        focusKelvnMetaNode(path.concat([0]));
       } else {
-        // Enter = nova meta logo abaixo
-        metas.splice(mi+1, 0, { title:'', children:[] });
+        // Enter = novo item logo abaixo, no mesmo nível
+        var arr = _kelvnParentArray(metas, path);
+        var idx = path[path.length-1];
+        arr.splice(idx+1, 0, { title:'', done:false, children:[] });
         saveKelvnMetasList(metas);
         renderKelvnMetas();
-        focusKelvnMetaInput(mi+1);
-      }
-    });
-  });
-  container.querySelectorAll('.kelvn-sub-input').forEach(function(input){
-    input.addEventListener('input', function(){
-      var mi = +input.dataset.mi, si = +input.dataset.si;
-      var metas = getKelvnMetas();
-      if (metas[mi] && metas[mi].children[si]) { metas[mi].children[si].title = input.value; saveKelvnMetasList(metas); }
-    });
-    input.addEventListener('keydown', function(ev){
-      var mi = +input.dataset.mi, si = +input.dataset.si;
-      if (ev.key === 'Backspace' && input.value === ''){
-        ev.preventDefault();
-        deleteKelvnSubRow(mi, si);
-        if (si > 0) focusKelvnSubInput(mi, si-1);
-        else focusKelvnMetaInput(mi);
-        return;
-      }
-      if (ev.key !== 'Enter') return;
-      ev.preventDefault();
-      var metas = getKelvnMetas();
-      if (ev.metaKey || ev.ctrlKey){
-        // Cmd+Enter numa submeta = nova submeta logo abaixo, na mesma meta
-        metas[mi].children.splice(si+1, 0, { title:'' });
-        saveKelvnMetasList(metas);
-        renderKelvnMetas();
-        focusKelvnSubInput(mi, si+1);
-      } else {
-        // Enter numa submeta = nova meta logo depois do grupo desta meta
-        metas.splice(mi+1, 0, { title:'', children:[] });
-        saveKelvnMetasList(metas);
-        renderKelvnMetas();
-        focusKelvnMetaInput(mi+1);
+        focusKelvnMetaNode(path.slice(0,-1).concat([idx+1]));
       }
     });
   });
   container.querySelectorAll('.kelvn-meta-check').forEach(function(circle){
-    circle.addEventListener('click', function(){ checkKelvnMeta(+circle.dataset.mi); });
+    circle.addEventListener('click', function(){ checkKelvnMetaNode(circle.dataset.path.split('-').map(Number)); });
   });
   container.querySelectorAll('.kelvn-meta-caret').forEach(function(caret){
-    caret.addEventListener('click', function(){ toggleKelvnMetaCollapse(+caret.dataset.mi); });
-  });
-  container.querySelectorAll('.kelvn-sub-check').forEach(function(circle){
-    circle.addEventListener('click', function(){ checkKelvnSub(+circle.dataset.mi, +circle.dataset.si); });
+    caret.addEventListener('click', function(){ toggleKelvnMetaCollapse(caret.dataset.path); });
   });
 
   syncKelvnMetasCardHeight();
@@ -6979,62 +6911,49 @@ function syncKelvnMetasCardHeight(){
   metasCard.style.height = left.offsetHeight + 'px';
 }
 window.addEventListener('resize', syncKelvnMetasCardHeight);
-function focusKelvnMetaInput(mi){
+function focusKelvnMetaNode(path){
   setTimeout(function(){
-    var el = document.querySelector('.kelvn-meta-input[data-mi="'+mi+'"]');
+    var el = document.querySelector('.kelvn-meta-input[data-path="'+path.join('-')+'"]');
     if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
   }, 0);
 }
-function focusKelvnSubInput(mi, si){
-  setTimeout(function(){
-    var el = document.querySelector('.kelvn-sub-input[data-mi="'+mi+'"][data-si="'+si+'"]');
-    if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
-  }, 0);
-}
-function toggleKelvnMetaCollapse(mi){
-  _kelvnMetasCollapsed[mi] = !_kelvnMetasCollapsed[mi];
+function focusKelvnMetaInput(mi){ focusKelvnMetaNode([mi]); }
+function focusKelvnSubInput(mi, si){ focusKelvnMetaNode([mi, si]); }
+function toggleKelvnMetaCollapse(pathStr){
+  _kelvnMetasCollapsed[pathStr] = !_kelvnMetasCollapsed[pathStr];
   renderKelvnMetas();
 }
-function checkKelvnMeta(mi){
+function checkKelvnMetaNode(path){
   var metas = getKelvnMetas();
-  if (!metas[mi]) return;
-  metas[mi].done = !metas[mi].done;
+  var node = _kelvnNodeAt(metas, path);
+  if (!node) return;
+  node.done = !node.done;
   saveKelvnMetasList(metas);
   renderKelvnMetas();
 }
-function checkKelvnSub(mi, si){
+function checkKelvnMeta(mi){ checkKelvnMetaNode([mi]); }
+function checkKelvnSub(mi, si){ checkKelvnMetaNode([mi, si]); }
+function deleteKelvnMetaNode(path){
   var metas = getKelvnMetas();
-  if (!metas[mi] || !metas[mi].children[si]) return;
-  metas[mi].children[si].done = !metas[mi].children[si].done;
-  saveKelvnMetasList(metas);
-  renderKelvnMetas();
-}
-function deleteKelvnMetaRow(mi){
-  var metas = getKelvnMetas();
-  var removed = metas.splice(mi, 1)[0];
+  var arr = _kelvnParentArray(metas, path);
+  var idx = path[path.length-1];
+  var removed = arr.splice(idx, 1)[0];
   if (!removed) return;
   saveKelvnMetasList(metas);
-  _kelvnMetasUndoStack.push({ type:'meta', index:mi, data:removed });
+  _kelvnMetasUndoStack.push({ path: path, data: removed });
+  var prevPath = idx > 0 ? path.slice(0,-1).concat([idx-1]) : (path.length > 1 ? path.slice(0,-1) : null);
   renderKelvnMetas();
+  if (prevPath) focusKelvnMetaNode(prevPath);
 }
-function deleteKelvnSubRow(mi, si){
-  var metas = getKelvnMetas();
-  if (!metas[mi]) return;
-  var removed = metas[mi].children.splice(si, 1)[0];
-  if (!removed) return;
-  saveKelvnMetasList(metas);
-  _kelvnMetasUndoStack.push({ type:'sub', metaIndex:mi, index:si, data:removed });
-  renderKelvnMetas();
-}
+function deleteKelvnMetaRow(mi){ deleteKelvnMetaNode([mi]); }
+function deleteKelvnSubRow(mi, si){ deleteKelvnMetaNode([mi, si]); }
 function undoKelvnMetaCheck(){
   var last = _kelvnMetasUndoStack.pop();
   if (!last) return;
   var metas = getKelvnMetas();
-  if (last.type === 'meta') {
-    metas.splice(last.index, 0, last.data);
-  } else if (last.type === 'sub' && metas[last.metaIndex]) {
-    metas[last.metaIndex].children.splice(last.index, 0, last.data);
-  }
+  var arr = _kelvnParentArray(metas, last.path);
+  var idx = last.path[last.path.length-1];
+  arr.splice(idx, 0, last.data);
   saveKelvnMetasList(metas);
   renderKelvnMetas();
 }
