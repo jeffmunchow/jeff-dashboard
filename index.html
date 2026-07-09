@@ -7209,6 +7209,13 @@ function buildOrlaPacotesSpark() {
   });
 }
 
+function _miniSubCheckEffect(checkFn, mi, si, btn) {
+  var span = btn.parentElement ? btn.parentElement.querySelector('span:last-child') : null;
+  btn.style.pointerEvents = 'none';
+  btn.style.background = '#D8C9A3';
+  if (span) { span.style.transition = 'opacity 0.25s'; span.style.textDecoration = 'line-through'; span.style.opacity = '0.4'; }
+  setTimeout(function(){ checkFn(mi, si); renderDashboardNextEvents(); }, 260);
+}
 /* ─── DASHBOARD NEXT EVENTS ──────────────────────────────── */
 function renderDashboardNextEvents() {
   // Populate r-lidos and r-livros from real livros data
@@ -7310,7 +7317,7 @@ function renderDashboardNextEvents() {
   if (cEl) {
     cEl.innerHTML = _renderSlots(cafeSubItems, function(item) {
       return '<div style="display:flex;align-items:center;gap:8px;">' +
-        '<button onclick="event.stopPropagation();checkCafeSub(' + item.mi + ',' + item.si + ');renderDashboardNextEvents();" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'#D8C9A3\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
+        '<button onclick="event.stopPropagation();_miniSubCheckEffect(checkCafeSub,' + item.mi + ',' + item.si + ',this);" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'#D8C9A3\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
         '<span style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + item.titulo + '</span>' +
       '</div>';
     });
@@ -7327,7 +7334,7 @@ function renderDashboardNextEvents() {
   if (vEl) {
     vEl.innerHTML = _renderSlots(vikkaSubItems, function(item) {
       return '<div style="display:flex;align-items:center;gap:8px;">' +
-        '<button onclick="event.stopPropagation();checkVikkaSub(' + item.mi + ',' + item.si + ');renderDashboardNextEvents();" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'#D8C9A3\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
+        '<button onclick="event.stopPropagation();_miniSubCheckEffect(checkVikkaSub,' + item.mi + ',' + item.si + ',this);" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'#D8C9A3\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
         '<span style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + item.titulo + '</span>' +
       '</div>';
     });
@@ -7344,7 +7351,7 @@ function renderDashboardNextEvents() {
   if (kEl) {
     kEl.innerHTML = _renderSlots(kelvnSubItems, function(item) {
       return '<div style="display:flex;align-items:center;gap:8px;">' +
-        '<button onclick="event.stopPropagation();checkKelvnSub(' + item.mi + ',' + item.si + ');renderDashboardNextEvents();" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'#D8C9A3\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
+        '<button onclick="event.stopPropagation();_miniSubCheckEffect(checkKelvnSub,' + item.mi + ',' + item.si + ',this);" style="flex-shrink:0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;transition:background 0.15s,border-color 0.15s;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.borderColor=\'#D8C9A3\'" onmouseout="this.style.borderColor=\'var(--border-strong)\'"></button>' +
         '<span style="font-size:0.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + item.titulo + '</span>' +
       '</div>';
     });
