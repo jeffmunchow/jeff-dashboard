@@ -872,7 +872,7 @@
     <div class="metrics-grid">
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Vendas</div><div class="metric-value" id="c-pacotes-mes">—</div><div class="metric-sub">&nbsp;</div></div><div class="spark-chart"><canvas id="spark-c"></canvas></div></div>
       <div class="metric-cell"><div class="metric-label">Lucro do mês</div><div class="metric-value" id="c-clientes" style="color:#D8C9A3;">—</div></div>
-      <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="c-faturamento" style="color:#D8C9A3;">—</div><div class="metric-sub">&nbsp;</div></div>
+      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="c-seguidores">—</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-c-ig"></canvas></div></div>
       <div class="metric-cell"><div class="metric-label">Itens no cardápio</div><div class="metric-value" id="c-itens">—</div></div>
     </div>
     <div class="divider"></div>
@@ -3150,7 +3150,6 @@ var PROJECTS = {
   ]},
   cafe: { title: 'Café', suffix: 'c', fields: [
     { id: 'c-seguidores',   label: 'Seguidores Instagram', placeholder: 'ex: 50' },
-    { id: 'c-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 0' },
     { id: 'c-itens',        label: 'Itens no cardápio', placeholder: 'ex: 8' }
   ]}
 };
@@ -7177,6 +7176,57 @@ function buildSparklines() {
     });
   });
   buildOrlaPacotesSpark();
+  buildOrlaInstagramSpark();
+}
+var orlaInstagramSparkInstance = null;
+function buildOrlaInstagramSpark() {
+  var canvas = document.getElementById('spark-c-ig');
+  if (!canvas) return;
+  var col = sparkData.c.color();
+  var rd = buildSparkDataForKey('c');
+  var data = rd.pts, labels = rd.labels;
+  if (orlaInstagramSparkInstance) { orlaInstagramSparkInstance.destroy(); }
+  orlaInstagramSparkInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        borderColor: col,
+        borderWidth: 1.5,
+        pointRadius: 0,
+        pointHitRadius: 6,
+        tension: 0.4,
+        cubicInterpolationMode: 'monotone',
+        fill: { target: 'origin', above: col + '18' }
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          backgroundColor: document.documentElement.getAttribute('data-theme')==='dark' ? '#1A1814' : '#FFFFFF',
+          borderColor: document.documentElement.getAttribute('data-theme')==='dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)',
+          borderWidth: 1,
+          titleColor: document.documentElement.getAttribute('data-theme')==='dark' ? '#EDE9E3' : '#1A1814',
+          bodyColor: document.documentElement.getAttribute('data-theme')==='dark' ? '#9E9892' : '#6B6660',
+          titleFont: { family: 'DM Sans, sans-serif', size: 9, weight: '400' },
+          bodyFont: { family: 'DM Sans, sans-serif', size: 9 },
+          padding: 6,
+          displayColors: false,
+          callbacks: {
+            title: function(items) { return labels[items[0].dataIndex]; },
+            label: function(ctx) { return ctx.parsed.y.toLocaleString('pt-BR') + ' seg.'; }
+          }
+        }
+      },
+      scales: { x: { display: false }, y: { display: false } },
+      layout: { padding: 0 }
+    }
+  });
 }
 var orlaPacotesSparkInstance = null;
 function buildOrlaPacotesSpark() {
