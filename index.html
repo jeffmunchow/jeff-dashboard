@@ -7213,8 +7213,8 @@ function _miniSubCheckEffect(checkFn, mi, si, btn) {
   var span = btn.parentElement ? btn.parentElement.querySelector('span:last-child') : null;
   btn.style.pointerEvents = 'none';
   btn.style.background = '#D8C9A3';
-  if (span) { span.style.transition = 'opacity 0.25s'; span.style.textDecoration = 'line-through'; span.style.opacity = '0.4'; }
-  setTimeout(function(){ checkFn(mi, si); renderDashboardNextEvents(); }, 260);
+  if (span) { span.style.transition = 'opacity 0.6s ease'; span.style.textDecoration = 'line-through'; span.style.textDecorationThickness = '1.5px'; span.style.opacity = '0.35'; }
+  setTimeout(function(){ checkFn(mi, si); renderDashboardNextEvents(); }, 650);
 }
 /* ─── DASHBOARD NEXT EVENTS ──────────────────────────────── */
 function renderDashboardNextEvents() {
