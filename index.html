@@ -2370,6 +2370,7 @@
       </div>
     </div>
     <div class="header-right">
+      <button class="btn" onclick="openCafeDocsModal()">Docs</button>
     </div>
   </div>
 
@@ -2756,6 +2757,23 @@
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;">
       <button class="btn" onclick="closeCafeCaixaModal()">Cancelar</button>
       <button class="btn primary" onclick="saveCafeCaixaModalValor()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="cafe-docs-overlay">
+  <div class="modal" style="max-width:600px;">
+    <h2>Docs — Benito Coffee</h2>
+    <div class="field-row"><label>Qual é a missão da Benito?</label><textarea id="cd-missao" rows="2"></textarea></div>
+    <div class="field-row"><label>Qual é a visão?</label><textarea id="cd-visao" rows="2"></textarea></div>
+    <div class="field-row"><label>Quais são os valores?</label><textarea id="cd-valores" rows="2"></textarea></div>
+    <div class="field-row"><label>Para quem a Benito existe?</label><textarea id="cd-publico" rows="3"></textarea></div>
+    <div class="field-row"><label>Quem NÃO é o público?</label><textarea id="cd-nao-publico" rows="3"></textarea></div>
+    <div class="field-row"><label>Qual é a promessa?</label><textarea id="cd-promessa" rows="2"></textarea></div>
+    <div class="field-row"><label>O que torna a Benito diferente?</label><textarea id="cd-diferencial" rows="5"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;">
+      <button class="btn" onclick="closeCafeDocsModal()">Cancelar</button>
+      <button class="btn primary" onclick="saveCafeDocsModal()">Salvar</button>
     </div>
   </div>
 </div>
@@ -5166,7 +5184,7 @@ async function loadFromSupabase(forceFullReplace) {
                    'k-seguidores','k-clientes','k-faturamento','k-assinantes',
                    'v-seguidores','v-clientes','v-faturamento','v-assinantes',
                    'c-seguidores','c-clientes','c-faturamento','c-itens',
-                   'cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_produtos','cafe_caixa',
+                   'cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_produtos','cafe_caixa','cafe_docs',
                    'vikka_settings','vikka_metas','vikka_mensal',
                    'kelvn_settings','kelvn_metas','kelvn_clientes_semanais','kelvn_mensal','kelvn_versao',
                    'm-updated','s-updated','r-updated','k-updated','v-updated','c-updated',
@@ -5684,6 +5702,50 @@ function saveCafeCaixaModalValor() {
   saveCafeCaixaList(list);
   closeCafeCaixaModal();
   renderCafeDashboard();
+}
+var CAFE_DOCS_DEFAULTS = {
+  missao: 'Tornar o café especial algo simples, acessível e presente na rotina das pessoas',
+  visao: 'Ser uma das marcas brasileiras mais admiradas de cafés especiais pela simplicidade, estética e transparência.',
+  valores: 'Simplicidade, Honestidade, Qualidade., Transparência, Beleza.',
+  publico: 'A Benito existe para pessoas que valorizam qualidade, beleza e simplicidade no dia a dia. Pessoas curiosas sobre cafés especiais, mas que preferem uma experiência leve, sem excesso de informação ou elitismo.',
+  naoPublico: 'A Benito não existe para: competir em campeonatos de barismo; vender o café mais raro do mundo; impressionar especialistas; cobrar caro apenas porque o mercado permite.',
+  promessa: 'Café especial, sem complicação.\nO extraordinário do cotidiano.',
+  diferencial: 'A Benito acredita que cafés especiais não deveriam parecer um clube fechado para especialistas. Não acreditamos em linguagem complicada, embalagens que escondem o produtor ou preços inflados apenas para parecer premium. Queremos selecionar bons cafés, contar de onde eles vêm, apresentá-los com cuidado e vendê-los por um preço justo. Nossa intenção é construir uma marca que as pessoas tenham prazer em deixar sobre a bancada da cozinha e em servir aos amigos.'
+};
+function getCafeDocs() {
+  try { return Object.assign({}, CAFE_DOCS_DEFAULTS, JSON.parse(localStorage.getItem('dash_cafe_docs') || '{}')); }
+  catch(e) { return Object.assign({}, CAFE_DOCS_DEFAULTS); }
+}
+function saveCafeDocsData(d) {
+  localStorage.setItem('dash_cafe_docs', JSON.stringify(d));
+  dbMetricSave('cafe_docs', JSON.stringify(d));
+}
+function openCafeDocsModal() {
+  var d = getCafeDocs();
+  document.getElementById('cd-missao').value = d.missao;
+  document.getElementById('cd-visao').value = d.visao;
+  document.getElementById('cd-valores').value = d.valores;
+  document.getElementById('cd-publico').value = d.publico;
+  document.getElementById('cd-nao-publico').value = d.naoPublico;
+  document.getElementById('cd-promessa').value = d.promessa;
+  document.getElementById('cd-diferencial').value = d.diferencial;
+  document.getElementById('cafe-docs-overlay').classList.add('open');
+}
+function closeCafeDocsModal() {
+  document.getElementById('cafe-docs-overlay').classList.remove('open');
+}
+function saveCafeDocsModal() {
+  var d = {
+    missao: document.getElementById('cd-missao').value,
+    visao: document.getElementById('cd-visao').value,
+    valores: document.getElementById('cd-valores').value,
+    publico: document.getElementById('cd-publico').value,
+    naoPublico: document.getElementById('cd-nao-publico').value,
+    promessa: document.getElementById('cd-promessa').value,
+    diferencial: document.getElementById('cd-diferencial').value
+  };
+  saveCafeDocsData(d);
+  closeCafeDocsModal();
 }
 function renderCafeCaixaWidget() {
   var elSaldo = document.getElementById('cafe-caixa-saldo');
