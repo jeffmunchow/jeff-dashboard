@@ -297,7 +297,7 @@
   .modal h2 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; margin-bottom: 1.25rem; }
   .field-row { margin-bottom: 0.9rem; }
   .field-row label { display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
-  #cafe-docs-overlay .field-row textarea { color: var(--text-muted); }
+  #cafe-docs-overlay .field-row textarea { color: var(--text-muted); overflow: hidden; }
   #cafe-docs-overlay .field-row label { color: var(--text-hint); }
   .field-row input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; color: var(--text); outline: none; transition: background 0.25s, border-color 0.25s, color 0.25s; }
   .field-row input:focus { border-color: var(--border-strong); }
@@ -2764,17 +2764,17 @@
 </div>
 
 <div class="overlay" id="cafe-docs-overlay">
-  <div class="modal" style="max-width:820px;">
+  <div class="modal" style="max-width:960px;">
     <h2>Brand Book</h2>
-    <div class="field-row"><label>Qual é a missão da Benito?</label><textarea id="cd-missao" rows="3"></textarea></div>
-    <div class="field-row"><label>Qual é a visão?</label><textarea id="cd-visao" rows="3"></textarea></div>
-    <div class="field-row"><label>Quais são os valores?</label><textarea id="cd-valores" rows="3"></textarea></div>
-    <div class="field-row"><label>Para quem a Benito existe?</label><textarea id="cd-publico" rows="4"></textarea></div>
-    <div class="field-row"><label>Quem NÃO é o público?</label><textarea id="cd-nao-publico" rows="4"></textarea></div>
-    <div class="field-row"><label>Qual é a promessa?</label><textarea id="cd-promessa" rows="3"></textarea></div>
-    <div class="field-row"><label>Manifesto</label><textarea id="cd-diferencial" rows="6"></textarea></div>
-    <div class="field-row"><label>Proposta de valor</label><textarea id="cd-proposta" rows="4"></textarea></div>
-    <div class="field-row"><label>Personalidade da marca</label><textarea id="cd-personalidade" rows="3"></textarea></div>
+    <div class="field-row"><label>Qual é a missão da Benito?</label><textarea id="cd-missao" class="cd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Qual é a visão?</label><textarea id="cd-visao" class="cd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Quais são os valores?</label><textarea id="cd-valores" class="cd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Para quem a Benito existe?</label><textarea id="cd-publico" class="cd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Quem NÃO é o público?</label><textarea id="cd-nao-publico" class="cd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Qual é a promessa?</label><textarea id="cd-promessa" class="cd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Manifesto</label><textarea id="cd-diferencial" class="cd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Proposta de valor</label><textarea id="cd-proposta" class="cd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Personalidade da marca</label><textarea id="cd-personalidade" class="cd-auto" rows="2"></textarea></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;">
       <button class="btn" onclick="closeCafeDocsModal()">Cancelar</button>
       <button class="btn primary" onclick="saveCafeDocsModal()">Salvar</button>
@@ -5738,6 +5738,14 @@ function openCafeDocsModal() {
   document.getElementById('cd-proposta').value = d.proposta;
   document.getElementById('cd-personalidade').value = d.personalidade;
   document.getElementById('cafe-docs-overlay').classList.add('open');
+  document.querySelectorAll('#cafe-docs-overlay .cd-auto').forEach(function(ta){
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+    if (!ta._autoResizeBound) {
+      ta.addEventListener('input', function(){ ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; });
+      ta._autoResizeBound = true;
+    }
+  });
 }
 function closeCafeDocsModal() {
   document.getElementById('cafe-docs-overlay').classList.remove('open');
