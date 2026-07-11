@@ -2370,7 +2370,7 @@
       </div>
     </div>
     <div class="header-right">
-      <button class="btn" onclick="openCafeDocsModal()">Docs</button>
+      <button class="btn" onclick="openCafeDocsModal()">Brand Book</button>
     </div>
   </div>
 
@@ -2763,14 +2763,15 @@
 
 <div class="overlay" id="cafe-docs-overlay">
   <div class="modal" style="max-width:820px;">
-    <h2>Docs — Benito Coffee</h2>
+    <h2>Brand Book</h2>
     <div class="field-row"><label>Qual é a missão da Benito?</label><textarea id="cd-missao" rows="2"></textarea></div>
     <div class="field-row"><label>Qual é a visão?</label><textarea id="cd-visao" rows="2"></textarea></div>
     <div class="field-row"><label>Quais são os valores?</label><textarea id="cd-valores" rows="2"></textarea></div>
     <div class="field-row"><label>Para quem a Benito existe?</label><textarea id="cd-publico" rows="3"></textarea></div>
     <div class="field-row"><label>Quem NÃO é o público?</label><textarea id="cd-nao-publico" rows="3"></textarea></div>
     <div class="field-row"><label>Qual é a promessa?</label><textarea id="cd-promessa" rows="2"></textarea></div>
-    <div class="field-row"><label>O que torna a Benito diferente?</label><textarea id="cd-diferencial" rows="5"></textarea></div>
+    <div class="field-row"><label>Manifesto</label><textarea id="cd-diferencial" rows="5"></textarea></div>
+    <div class="field-row"><label>Proposta de valor</label><textarea id="cd-proposta" rows="3"></textarea></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;">
       <button class="btn" onclick="closeCafeDocsModal()">Cancelar</button>
       <button class="btn primary" onclick="saveCafeDocsModal()">Salvar</button>
@@ -5710,7 +5711,8 @@ var CAFE_DOCS_DEFAULTS = {
   publico: 'A Benito existe para pessoas que valorizam qualidade, beleza e simplicidade no dia a dia. Pessoas curiosas sobre cafés especiais, mas que preferem uma experiência leve, sem excesso de informação ou elitismo.',
   naoPublico: 'A Benito não existe para: competir em campeonatos de barismo; vender o café mais raro do mundo; impressionar especialistas; cobrar caro apenas porque o mercado permite.',
   promessa: 'Café especial, sem complicação.\nO extraordinário do cotidiano.',
-  diferencial: 'A Benito acredita que cafés especiais não deveriam parecer um clube fechado para especialistas. Não acreditamos em linguagem complicada, embalagens que escondem o produtor ou preços inflados apenas para parecer premium. Queremos selecionar bons cafés, contar de onde eles vêm, apresentá-los com cuidado e vendê-los por um preço justo. Nossa intenção é construir uma marca que as pessoas tenham prazer em deixar sobre a bancada da cozinha e em servir aos amigos.'
+  diferencial: 'A Benito acredita que cafés especiais não deveriam parecer um clube fechado para especialistas. Não acreditamos em linguagem complicada, embalagens que escondem o produtor ou preços inflados apenas para parecer premium. Queremos selecionar bons cafés, contar de onde eles vêm, apresentá-los com cuidado e vendê-los por um preço justo. Nossa intenção é construir uma marca que as pessoas tenham prazer em deixar sobre a bancada da cozinha e em servir aos amigos.',
+  proposta: 'Oferecemos cafés especiais de origem, com design elegante, transparência e preço justo, para quem deseja beber um excelente café sem a complexidade e o elitismo comuns nesse mercado.'
 };
 function getCafeDocs() {
   try { return Object.assign({}, CAFE_DOCS_DEFAULTS, JSON.parse(localStorage.getItem('dash_cafe_docs') || '{}')); }
@@ -5729,6 +5731,7 @@ function openCafeDocsModal() {
   document.getElementById('cd-nao-publico').value = d.naoPublico;
   document.getElementById('cd-promessa').value = d.promessa;
   document.getElementById('cd-diferencial').value = d.diferencial;
+  document.getElementById('cd-proposta').value = d.proposta;
   document.getElementById('cafe-docs-overlay').classList.add('open');
 }
 function closeCafeDocsModal() {
@@ -5742,7 +5745,8 @@ function saveCafeDocsModal() {
     publico: document.getElementById('cd-publico').value,
     naoPublico: document.getElementById('cd-nao-publico').value,
     promessa: document.getElementById('cd-promessa').value,
-    diferencial: document.getElementById('cd-diferencial').value
+    diferencial: document.getElementById('cd-diferencial').value,
+    proposta: document.getElementById('cd-proposta').value
   };
   saveCafeDocsData(d);
   closeCafeDocsModal();
