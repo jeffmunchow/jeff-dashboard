@@ -831,10 +831,10 @@
       <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('kelvn')" title="Editar métricas">+</button>
     </div>
     <div class="metrics-grid">
+      <div class="metric-cell"><div class="metric-label">Clientes ativos</div><div class="metric-value" id="k-clientes">—</div><div class="metric-sub">&nbsp;</div></div>
+      <div class="metric-cell"><div class="metric-label">MRR</div><div class="metric-value" id="k-faturamento" style="color:#D8C9A3;">—</div><div class="metric-sub">&nbsp;</div></div>
       <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="k-seguidores">—</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-k"></canvas></div></div>
-      <div class="metric-cell"><div class="metric-label">Fotógrafos ativos</div><div class="metric-value" id="k-clientes">—</div></div>
-      <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="k-faturamento" style="color:#993C1D;">—</div><div class="metric-sub">&nbsp;</div></div>
-      <div class="metric-cell"><div class="metric-label">Assinaturas Pro</div><div class="metric-value" id="k-assinantes">—</div></div>
+      <div class="metric-cell"><div class="metric-label">Taxa de churn</div><div class="metric-value" id="k-assinantes">—</div><div class="metric-sub">&nbsp;</div></div>
     </div>
     <div class="divider"></div>
     <div class="next-event-widget" id="k-next-event-widget" onclick="event.stopPropagation()">
@@ -3193,10 +3193,7 @@ var PROJECTS = {
     { id: 'r-assinantes',  label: 'Assinantes newsletter', placeholder: 'ex: 0' }
   ]},
   kelvn: { title: 'Kelvn', suffix: 'k', fields: [
-    { id: 'k-seguidores',   label: 'Seguidores Instagram', placeholder: 'ex: 100' },
-    { id: 'k-clientes',     label: 'Fotógrafos ativos', placeholder: 'ex: 5' },
-    { id: 'k-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 500' },
-    { id: 'k-assinantes',   label: 'Assinaturas Pro', placeholder: 'ex: 3' }
+    { id: 'k-seguidores',   label: 'Seguidores Instagram', placeholder: 'ex: 100' }
   ]},
   vikka: { title: 'Vikka', suffix: 'v', fields: [] },
   cafe: { title: 'Café', suffix: 'c', fields: [
@@ -7307,6 +7304,19 @@ function buildSparklines() {
   buildOrlaPacotesSpark();
   buildOrlaInstagramSpark();
   buildVikkaDashboardCard();
+  buildKelvnDashboardCard();
+}
+function buildKelvnDashboardCard() {
+  var elClientes = document.getElementById('k-clientes');
+  if (!elClientes) return;
+  var settings = getKelvnSettings();
+  var mensal = getKelvnMensal();
+  var now = new Date();
+  var monthKey = now.getFullYear() + '-' + ('0'+(now.getMonth()+1)).slice(-2);
+  var cur = mensal.find(function(x){ return x.month === monthKey; }) || {};
+  elClientes.textContent = (cur.clientesAtivos || 0).toLocaleString('pt-BR');
+  document.getElementById('k-faturamento').textContent = 'R$ ' + (cur.mrr || 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('k-assinantes').textContent = (settings.churn || 0).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
 }
 function buildVikkaDashboardCard() {
   var elUsuarios = document.getElementById('v-usuarios-ativos');
