@@ -297,8 +297,8 @@
   .modal h2 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; margin-bottom: 1.25rem; }
   .field-row { margin-bottom: 0.9rem; }
   .field-row label { display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
-  #cafe-docs-overlay .field-row textarea { color: var(--text-muted); overflow: hidden; }
-  #cafe-docs-overlay .field-row label { color: var(--text-hint); }
+  #cafe-docs-overlay .field-row textarea, #vikka-docs-overlay .field-row textarea, #kelvn-docs-overlay .field-row textarea { color: var(--text-muted); overflow: hidden; }
+  #cafe-docs-overlay .field-row label, #vikka-docs-overlay .field-row label, #kelvn-docs-overlay .field-row label { color: var(--text-hint); }
   .field-row input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; color: var(--text); outline: none; transition: background 0.25s, border-color 0.25s, color 0.25s; }
   .field-row input:focus { border-color: var(--border-strong); }
   .field-row input::placeholder, .field-row textarea::placeholder { color: var(--text-hint); opacity: 1; }
@@ -2496,6 +2496,7 @@
       </div>
     </div>
     <div class="header-right">
+      <button class="btn" onclick="openVikkaDocsModal()">Brand Book</button>
       <button class="btn" onclick="openVikkaMetricsModal()" style="padding:5px 12px;font-size:0.7rem;">Editar métricas</button>
     </div>
   </div>
@@ -2634,6 +2635,7 @@
       </div>
     </div>
     <div class="header-right">
+      <button class="btn" onclick="openKelvnDocsModal()">Brand Book</button>
       <button class="btn" onclick="openKelvnMetricsModal()" style="padding:5px 12px;font-size:0.7rem;">Editar métricas</button>
     </div>
   </div>
@@ -2778,6 +2780,44 @@
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;">
       <button class="btn" onclick="closeCafeDocsModal()">Cancelar</button>
       <button class="btn primary" onclick="saveCafeDocsModal()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="vikka-docs-overlay">
+  <div class="modal" style="max-width:960px;">
+    <h2>Brand Book</h2>
+    <div class="field-row"><label>Qual é a missão da Vikka?</label><textarea id="vd-missao" class="vd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Qual é a visão?</label><textarea id="vd-visao" class="vd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Quais são os valores?</label><textarea id="vd-valores" class="vd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Para quem a Vikka existe?</label><textarea id="vd-publico" class="vd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Quem NÃO é o público?</label><textarea id="vd-nao-publico" class="vd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Qual é a promessa?</label><textarea id="vd-promessa" class="vd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Manifesto</label><textarea id="vd-diferencial" class="vd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Proposta de valor</label><textarea id="vd-proposta" class="vd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Personalidade da marca</label><textarea id="vd-personalidade" class="vd-auto" rows="2"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;">
+      <button class="btn" onclick="closeVikkaDocsModal()">Cancelar</button>
+      <button class="btn primary" onclick="saveVikkaDocsModal()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="kelvn-docs-overlay">
+  <div class="modal" style="max-width:960px;">
+    <h2>Brand Book</h2>
+    <div class="field-row"><label>Qual é a missão da Kelvn?</label><textarea id="kd-missao" class="kd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Qual é a visão?</label><textarea id="kd-visao" class="kd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Quais são os valores?</label><textarea id="kd-valores" class="kd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Para quem a Kelvn existe?</label><textarea id="kd-publico" class="kd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Quem NÃO é o público?</label><textarea id="kd-nao-publico" class="kd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Qual é a promessa?</label><textarea id="kd-promessa" class="kd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Manifesto</label><textarea id="kd-diferencial" class="kd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Proposta de valor</label><textarea id="kd-proposta" class="kd-auto" rows="2"></textarea></div>
+    <div class="field-row"><label>Personalidade da marca</label><textarea id="kd-personalidade" class="kd-auto" rows="2"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;">
+      <button class="btn" onclick="closeKelvnDocsModal()">Cancelar</button>
+      <button class="btn primary" onclick="saveKelvnDocsModal()">Salvar</button>
     </div>
   </div>
 </div>
@@ -5189,8 +5229,8 @@ async function loadFromSupabase(forceFullReplace) {
                    'v-seguidores','v-clientes','v-faturamento','v-assinantes',
                    'c-seguidores','c-clientes','c-faturamento','c-itens',
                    'cafe_settings','cafe_metas','cafe_clientes_semanais','cafe_produtos','cafe_caixa','cafe_docs',
-                   'vikka_settings','vikka_metas','vikka_mensal',
-                   'kelvn_settings','kelvn_metas','kelvn_clientes_semanais','kelvn_mensal','kelvn_versao',
+                   'vikka_settings','vikka_metas','vikka_mensal','vikka_docs',
+                   'kelvn_settings','kelvn_metas','kelvn_clientes_semanais','kelvn_mensal','kelvn_versao','kelvn_docs',
                    'm-updated','s-updated','r-updated','k-updated','v-updated','c-updated',
                    'tarefas_v1_sync','diary_index'];
 
@@ -5764,6 +5804,108 @@ function saveCafeDocsModal() {
   };
   saveCafeDocsData(d);
   closeCafeDocsModal();
+}
+var VIKKA_DOCS_DEFAULTS = {
+  missao: '', visao: '', valores: '', publico: '', naoPublico: '',
+  promessa: '', diferencial: '', proposta: '', personalidade: ''
+};
+function getVikkaDocs() {
+  try { return Object.assign({}, VIKKA_DOCS_DEFAULTS, JSON.parse(localStorage.getItem('dash_vikka_docs') || '{}')); }
+  catch(e) { return Object.assign({}, VIKKA_DOCS_DEFAULTS); }
+}
+function saveVikkaDocsData(d) {
+  localStorage.setItem('dash_vikka_docs', JSON.stringify(d));
+  dbMetricSave('vikka_docs', JSON.stringify(d));
+}
+function openVikkaDocsModal() {
+  var d = getVikkaDocs();
+  document.getElementById('vd-missao').value = d.missao;
+  document.getElementById('vd-visao').value = d.visao;
+  document.getElementById('vd-valores').value = d.valores;
+  document.getElementById('vd-publico').value = d.publico;
+  document.getElementById('vd-nao-publico').value = d.naoPublico;
+  document.getElementById('vd-promessa').value = d.promessa;
+  document.getElementById('vd-diferencial').value = d.diferencial;
+  document.getElementById('vd-proposta').value = d.proposta;
+  document.getElementById('vd-personalidade').value = d.personalidade;
+  document.getElementById('vikka-docs-overlay').classList.add('open');
+  document.querySelectorAll('#vikka-docs-overlay .vd-auto').forEach(function(ta){
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+    if (!ta._autoResizeBound) {
+      ta.addEventListener('input', function(){ ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; });
+      ta._autoResizeBound = true;
+    }
+  });
+}
+function closeVikkaDocsModal() {
+  document.getElementById('vikka-docs-overlay').classList.remove('open');
+}
+function saveVikkaDocsModal() {
+  var d = {
+    missao: document.getElementById('vd-missao').value,
+    visao: document.getElementById('vd-visao').value,
+    valores: document.getElementById('vd-valores').value,
+    publico: document.getElementById('vd-publico').value,
+    naoPublico: document.getElementById('vd-nao-publico').value,
+    promessa: document.getElementById('vd-promessa').value,
+    diferencial: document.getElementById('vd-diferencial').value,
+    proposta: document.getElementById('vd-proposta').value,
+    personalidade: document.getElementById('vd-personalidade').value
+  };
+  saveVikkaDocsData(d);
+  closeVikkaDocsModal();
+}
+var KELVN_DOCS_DEFAULTS = {
+  missao: '', visao: '', valores: '', publico: '', naoPublico: '',
+  promessa: '', diferencial: '', proposta: '', personalidade: ''
+};
+function getKelvnDocs() {
+  try { return Object.assign({}, KELVN_DOCS_DEFAULTS, JSON.parse(localStorage.getItem('dash_kelvn_docs') || '{}')); }
+  catch(e) { return Object.assign({}, KELVN_DOCS_DEFAULTS); }
+}
+function saveKelvnDocsData(d) {
+  localStorage.setItem('dash_kelvn_docs', JSON.stringify(d));
+  dbMetricSave('kelvn_docs', JSON.stringify(d));
+}
+function openKelvnDocsModal() {
+  var d = getKelvnDocs();
+  document.getElementById('kd-missao').value = d.missao;
+  document.getElementById('kd-visao').value = d.visao;
+  document.getElementById('kd-valores').value = d.valores;
+  document.getElementById('kd-publico').value = d.publico;
+  document.getElementById('kd-nao-publico').value = d.naoPublico;
+  document.getElementById('kd-promessa').value = d.promessa;
+  document.getElementById('kd-diferencial').value = d.diferencial;
+  document.getElementById('kd-proposta').value = d.proposta;
+  document.getElementById('kd-personalidade').value = d.personalidade;
+  document.getElementById('kelvn-docs-overlay').classList.add('open');
+  document.querySelectorAll('#kelvn-docs-overlay .kd-auto').forEach(function(ta){
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+    if (!ta._autoResizeBound) {
+      ta.addEventListener('input', function(){ ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; });
+      ta._autoResizeBound = true;
+    }
+  });
+}
+function closeKelvnDocsModal() {
+  document.getElementById('kelvn-docs-overlay').classList.remove('open');
+}
+function saveKelvnDocsModal() {
+  var d = {
+    missao: document.getElementById('kd-missao').value,
+    visao: document.getElementById('kd-visao').value,
+    valores: document.getElementById('kd-valores').value,
+    publico: document.getElementById('kd-publico').value,
+    naoPublico: document.getElementById('kd-nao-publico').value,
+    promessa: document.getElementById('kd-promessa').value,
+    diferencial: document.getElementById('kd-diferencial').value,
+    proposta: document.getElementById('kd-proposta').value,
+    personalidade: document.getElementById('kd-personalidade').value
+  };
+  saveKelvnDocsData(d);
+  closeKelvnDocsModal();
 }
 function renderCafeCaixaWidget() {
   var elSaldo = document.getElementById('cafe-caixa-saldo');
