@@ -9049,6 +9049,20 @@ function renderDiaryHistory(todayKey) {
 }
 
 function openDiaryEntry(key) {
+  if (key === _diaryTodayKey) {
+    // Hoje não é uma entrada "passada" — fecha o arquivo e a visualização de
+    // passado (se aberta) para revelar o editor do dia, que já está pronto.
+    var pastView = document.getElementById('diary-past-view');
+    if (pastView) pastView.style.display = 'none';
+    _diaryPastKey = null;
+    var panel = document.getElementById('diary-archive-panel');
+    var btn = document.getElementById('diary-archive-btn');
+    if (panel) panel.style.display = 'none';
+    if (btn) btn.classList.remove('active');
+    var editor = document.getElementById('diary-textarea');
+    if (editor) editor.focus();
+    return;
+  }
   var data = null;
   try { data = JSON.parse(localStorage.getItem(key)); } catch(e) {}
   if (data) {
