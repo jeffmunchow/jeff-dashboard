@@ -852,10 +852,10 @@
       <button class="project-plus-btn" onclick="event.stopPropagation();openEdit('vikka')" title="Editar métricas">+</button>
     </div>
     <div class="metrics-grid">
-      <div class="metric-cell has-spark"><div class="spark-left"><div class="metric-label">Seguidores</div><div class="metric-value" id="v-seguidores">—</div><div class="metric-sub">Instagram</div></div><div class="spark-chart"><canvas id="spark-v"></canvas></div></div>
-      <div class="metric-cell"><div class="metric-label">Famílias cadastradas</div><div class="metric-value" id="v-clientes">—</div></div>
-      <div class="metric-cell"><div class="metric-label">Faturamento / mês</div><div class="metric-value" id="v-faturamento" style="color:#0F6E56;">—</div><div class="metric-sub">&nbsp;</div></div>
-      <div class="metric-cell"><div class="metric-label">Avaliação na loja</div><div class="metric-value" id="v-assinantes">—</div></div>
+      <div class="metric-cell"><div class="metric-label">Usuários ativos</div><div class="metric-value" id="v-usuarios-ativos">—</div></div>
+      <div class="metric-cell"><div class="metric-label">Lucro do mês</div><div class="metric-value" id="v-lucro-mes" style="color:#0F6E56;">—</div></div>
+      <div class="metric-cell"><div class="metric-label">Taxa de conversão</div><div class="metric-value" id="v-conversao">—</div></div>
+      <div class="metric-cell"><div class="metric-label">Avaliação na App Store</div><div class="metric-value" id="v-nota-media">—</div></div>
     </div>
     <div class="divider"></div>
     <div class="next-event-widget" id="v-next-event-widget" onclick="event.stopPropagation()">
@@ -3198,12 +3198,7 @@ var PROJECTS = {
     { id: 'k-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 500' },
     { id: 'k-assinantes',   label: 'Assinaturas Pro', placeholder: 'ex: 3' }
   ]},
-  vikka: { title: 'Vikka', suffix: 'v', fields: [
-    { id: 'v-seguidores',   label: 'Seguidores Instagram', placeholder: 'ex: 50' },
-    { id: 'v-clientes',     label: 'Famílias cadastradas', placeholder: 'ex: 10' },
-    { id: 'v-faturamento',  label: 'Faturamento mensal (R$)', placeholder: 'ex: 0' },
-    { id: 'v-assinantes',   label: 'Avaliação na loja', placeholder: 'ex: 4.8' }
-  ]},
+  vikka: { title: 'Vikka', suffix: 'v', fields: [] },
   cafe: { title: 'Café', suffix: 'c', fields: [
     { id: 'c-seguidores',   label: 'Seguidores Instagram', placeholder: 'ex: 50' }
   ]}
@@ -7311,6 +7306,20 @@ function buildSparklines() {
   });
   buildOrlaPacotesSpark();
   buildOrlaInstagramSpark();
+  buildVikkaDashboardCard();
+}
+function buildVikkaDashboardCard() {
+  var elUsuarios = document.getElementById('v-usuarios-ativos');
+  if (!elUsuarios) return;
+  var settings = getVikkaSettings();
+  var mensal = getVikkaMensal();
+  var now = new Date();
+  var monthKey = now.getFullYear() + '-' + ('0'+(now.getMonth()+1)).slice(-2);
+  var cur = mensal.find(function(x){ return x.month === monthKey; }) || {};
+  elUsuarios.textContent = (cur.usuariosAtivos || 0).toLocaleString('pt-BR');
+  document.getElementById('v-lucro-mes').textContent = 'R$ ' + (cur.lucro || 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('v-conversao').textContent = _vikkaConversaoPct(settings).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
+  document.getElementById('v-nota-media').textContent = settings.notaMedia ? ('⭐ ' + settings.notaMedia.toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1})) : '—';
 }
 var orlaInstagramSparkInstance = null;
 function buildOrlaInstagramSpark() {
