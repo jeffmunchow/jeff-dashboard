@@ -322,7 +322,7 @@
   }
   .studio-tab.active { color: var(--text); border-bottom-color: var(--amber); }
   #soup-view .studio-tab.active { border-bottom-color: var(--teal); }
-  #releio-view .studio-tab.active { border-bottom-color: var(--coral); }
+  #releio-view .studio-tab.active { border-bottom-color: #D8C9A3; }
   .studio-tab:hover:not(.active) { color: var(--text-muted); }
   .tab-download-btn {
     margin-left: auto; align-self: center; flex-shrink: 0;
@@ -1906,7 +1906,7 @@
   </div>
 
   <div class="studio-tabs">
-    <button class="studio-tab active" id="rltab-resumo"     onclick="switchReleioTab('resumo')"     style="border-bottom-color:var(--coral);">Resumo</button>
+    <button class="studio-tab active" id="rltab-resumo"     onclick="switchReleioTab('resumo')"     style="border-bottom-color:#D8C9A3;">Resumo</button>
     <button class="studio-tab"        id="rltab-livros"     onclick="switchReleioTab('livros')">Livros</button>
     <button class="studio-tab"        id="rltab-curadoria"  onclick="switchReleioTab('curadoria')">Curadoria</button>
     <button class="studio-tab"        id="rltab-financeiro" onclick="switchReleioTab('financeiro')">Financeiro</button>
@@ -1921,7 +1921,7 @@
     <!-- RESUMO -->
     <div class="tab-panel active" id="rlpanel-resumo">
       <div class="summary-grid">
-        <div class="sum-card accent-coral"><div class="sum-label">Instagram</div><div class="sum-value" id="rl-ss-seg">—</div><div class="sum-sub">Seguidores</div></div>
+        <div class="sum-card"><div class="sum-label">Instagram</div><div class="sum-value" id="rl-ss-seg" style="color:#D8C9A3;">—</div><div class="sum-sub">Seguidores</div></div>
         <div class="sum-card accent-teal" onclick="switchReleioTab('livros')" style="cursor:pointer;" title="Ver biblioteca"><div class="sum-label">Livros lidos</div><div class="sum-value" id="rl-ss-lidos">—</div></div>
         <div class="sum-card" onclick="switchReleioTab('curadoria')" style="cursor:pointer;" title="Ver curadoria"><div class="sum-label">Livros curados</div><div class="sum-value" id="rl-ss-livros">—</div></div>
         <div class="sum-card"><div class="sum-label">Assinantes</div><div class="sum-value" id="rl-ss-assin" style="color:#D8C9A3;">—</div><div class="sum-sub">Substack</div></div>
@@ -2021,7 +2021,7 @@
       </div>
       <!-- Summary cards -->
       <div class="summary-grid" style="margin-bottom:1.5rem;">
-        <div class="sum-card accent-coral"><div class="sum-label">Receita total</div><div class="sum-value" id="rlf-total">R$ 0</div><div class="sum-sub">acumulado</div></div>
+        <div class="sum-card"><div class="sum-label">Receita total</div><div class="sum-value" id="rlf-total" style="color:#D8C9A3;">R$ 0</div><div class="sum-sub">acumulado</div></div>
         <div class="sum-card"><div class="sum-label">Amazon Afiliados</div><div class="sum-value" id="rlf-amazon">R$ 0</div><div class="sum-sub">acumulado</div></div>
         <div class="sum-card"><div class="sum-label">Ebooks</div><div class="sum-value" id="rlf-ebooks">R$ 0</div><div class="sum-sub">acumulado</div></div>
         <div class="sum-card"><div class="sum-label">Outros</div><div class="sum-value" id="rlf-outros">R$ 0</div><div class="sum-sub">acumulado</div></div>
@@ -5582,7 +5582,7 @@ function recordFollowerPoint(proj, value) {
 var sparkData = {
   m: { start: 0,  startDate: '2026-04-07', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#D4902A' : '#C4780A'; } },
   s: { start: 1,    startDate: '2026-02-01', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#18926E' : '#0A7864'; } },
-  r: { start: 1,    startDate: '2026-03-24', color: function(){ return document.documentElement.getAttribute('data-theme')==='dark' ? '#CC4A28' : '#C43A1A'; } },
+  r: { start: 1,    startDate: '2026-03-24', color: function(){ return '#D8C9A3'; } },
   k: { start: 0,    startDate: _todayKey(),  color: function(){ return '#D8C9A3'; } },
   v: { start: 0,    startDate: _todayKey(),  color: function(){ return '#0F6E56'; } },
   c: { start: 0,    startDate: _todayKey(),  color: function(){ return '#D8C9A3'; } }
@@ -9847,7 +9847,7 @@ function buildReleioSegChart() {
   if (!canvas) return;
   var rd = buildSparkDataForKey('r');
   var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  var col = isDark ? '#CC4A28' : '#C43A1A';
+  var col = '#D8C9A3';
   var gridCol = isDark ? 'rgba(255,255,255,0.032)' : 'rgba(0,0,0,0.032)';
   var textHint = isDark ? '#6B6660' : '#9E9892';
   if (_rlSegChartInstance) { _rlSegChartInstance.destroy(); _rlSegChartInstance = null; }
