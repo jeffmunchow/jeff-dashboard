@@ -370,9 +370,9 @@
   /* Star rating */
   .star-rating { display: inline-flex; gap: 2px; align-items: center; }
   .star { font-size: 0.9rem; cursor: pointer; color: var(--border-strong); transition: color 0.1s; line-height: 1; user-select: none; }
-  .star.filled { color: var(--amber); }
+  .star.filled { color: #D8C9A3; }
   .star:hover, .star:hover ~ .star { color: var(--border-strong); }
-  .star-rating:hover .star { color: var(--amber); }
+  .star-rating:hover .star { color: #D8C9A3; }
   .star-rating .star:hover ~ .star { color: var(--border-strong); }
   .data-table tr:last-child td { border-bottom: none; }
   .data-table tr:hover td { background: var(--surface2); }
@@ -383,6 +383,7 @@
   .badge { display: inline-block; font-size: 0.62rem; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.02em; white-space: nowrap; }
   .badge-prospect    { background: var(--surface2); color: var(--text-hint); }
   .badge-contratado  { background: var(--amber-light); color: var(--amber); }
+  #releio-view .badge-contratado { background: rgba(216,201,163,0.15); color: #D8C9A3; }
   .badge-preprod     { background: #EEF0FF; color: #5255A0; }
   [data-theme="dark"] .badge-preprod { background: #12142A; color: #8A8DCC; }
   .badge-casamento   { background: var(--teal-light); color: var(--teal); }
