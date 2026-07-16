@@ -8982,6 +8982,14 @@ function renderDiaryArchive() {
     var todayStored = null; try { todayStored = JSON.parse(localStorage.getItem(todayKey)); } catch(e){}
     entries.unshift({ key: todayKey, text: '', html: '', location: localStorage.getItem('diary_location') || 'Parque Anchieta, Pelotas, RS', markers: (todayStored && todayStored.markers) || {} });
   }
+  // Ensure yesterday always appears too, even if empty (para escrever retroativamente)
+  var yestDate = new Date(); yestDate.setDate(yestDate.getDate() - 1);
+  var yestKey = 'diary_' + yestDate.getFullYear() + '_' + ('0'+(yestDate.getMonth()+1)).slice(-2) + '_' + ('0'+yestDate.getDate()).slice(-2);
+  var hasYestEntry = entries.some(function(e){ return e.key === yestKey; });
+  if (!hasYestEntry) {
+    var yestStored = null; try { yestStored = JSON.parse(localStorage.getItem(yestKey)); } catch(e){}
+    entries.splice(1, 0, { key: yestKey, text: '', html: '', location: localStorage.getItem('diary_location') || 'Parque Anchieta, Pelotas, RS', markers: (yestStored && yestStored.markers) || {} });
+  }
   if (q) {
     entries = entries.filter(function(e) {
       var text = (e.text||'').toLowerCase();
@@ -9230,12 +9238,17 @@ function openDiaryEntry(key) {
     _openPastDiaryView(key, data);
   } else {
     dbMetricLoad(key).then(function(val) {
-      if (!val) return;
-      try {
-        var remote = JSON.parse(val);
-        if (remote) { localStorage.setItem(key, val); _openPastDiaryView(key, remote); }
-      } catch(e) {}
-    }).catch(function(){});
+      if (val) {
+        try {
+          var remote = JSON.parse(val);
+          if (remote) { localStorage.setItem(key, val); _openPastDiaryView(key, remote); return; }
+        } catch(e) {}
+      }
+      // Dia sem conteúdo ainda — abre um editor em branco pronto pra escrever.
+      _openPastDiaryView(key, { text: '', html: '', location: localStorage.getItem('diary_location') || 'Parque Anchieta, Pelotas, RS' });
+    }).catch(function(){
+      _openPastDiaryView(key, { text: '', html: '', location: localStorage.getItem('diary_location') || 'Parque Anchieta, Pelotas, RS' });
+    });
   }
 }
 
